@@ -67,7 +67,7 @@ function runTextSplitterPipeline() {
   pipeline.addComponent('textSplitter', textSplitter);
   
   // 运行流水线 - 把文本作为输入参数，在结果回调中处理文本块
-  pipeline.run('textSplitter.in', sampleText, resultCallback);
+  pipeline.run('textSplitter.text', sampleText, resultCallback);
 }
 
 // 执行示例

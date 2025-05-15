@@ -143,7 +143,7 @@ class Pipeline {
 
       // Access the standard output port of the component (defined in our Component base class)
       // @ts-ignore - Accessing a property that might not exist on all Node types
-      const endSinkName = `${lastComponentName}.${lastComponent?.outPort?.name || 'out'}`;
+      const endSinkName = `${lastComponentName}.${lastComponent?.outPort?.name}`;
 
       // Connect the internal start component to the user-specified entry point
       this.connect('start.out', triggerName);

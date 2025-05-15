@@ -34,6 +34,9 @@ class TextSplitter extends Component {
     this.chunkSize = chunkSize;
     this.overlap = overlap;
     this.separator = separator; // 默认按段落分割
+
+    // rename in
+    this.Port.I("text").attach(this);
   }
   
   /**
@@ -105,6 +108,13 @@ class TextSplitter extends Component {
     
     // 分割文本并返回结果
     return this.splitText(text);
+  }
+
+  _transform($i: any, $o: any) {
+    $i('text').receive((input: unknown) => {
+      const output = this.process(input);
+      $o('out').send(output);
+    });
   }
 }
 
