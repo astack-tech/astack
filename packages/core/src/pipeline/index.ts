@@ -157,7 +157,7 @@ class Pipeline {
       // Set up the sink to handle the final output
       this.endComponent.consume(sink);
 
-      // set flag
+      // Set flag
       this.runningTrigger.add(triggerName);
     }
 
