@@ -1,0 +1,58 @@
+# 依赖
+node_modules
+.pnp
+.pnp.js
+
+# 构建输出
+dist
+build
+out
+.next
+.nuxt
+
+# 缓存
+.turbo
+.cache
+.eslintcache
+.npm
+.pnpm-store
+*.tsbuildinfo
+
+# 环境变量
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 编辑器和IDE
+.idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 测试覆盖率
+coverage
+.nyc_output
+
+# 临时文件
+tmp
+temp

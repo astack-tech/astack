@@ -1,0 +1,19 @@
+{
+  "name": "text-splitter-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Example demonstrating the TextSplitter component",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@astack/core": "workspace:*",
+    "@astack/components": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.8.3"
+  }
+}

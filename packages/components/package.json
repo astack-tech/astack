@@ -1,0 +1,56 @@
+{
+  "name": "@astack/components",
+  "version": "0.1.0",
+  "description": "Components for the Astack AI Framework",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./text": {
+      "types": "./dist/text/index.d.ts",
+      "import": "./dist/text/index.js",
+      "require": "./dist/text/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "lint": "eslint src --ext .ts,.tsx",
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "ai-framework",
+    "ai-agent",
+    "ai"
+  ],
+  "author": "xiaoa",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "eslint": "^8.56.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vitest": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@astack/core": "workspace:*",
+    "openai": "^4.98.0"
+  }
+}
