@@ -1,7 +1,7 @@
 {
   "name": "astack",
   "version": "0.1.0",
-  "description": "",
+  "description": "The Production-Ready Open Source Framework For AI Applications.",
   "private": true,
   "engines": {
     "node": ">=18.0.0"
