@@ -1,5 +1,4 @@
 import { defineConfig, Options } from 'tsup';
-import { execSync } from 'child_process';
 
 export default defineConfig({
   entry: {
@@ -9,16 +8,11 @@ export default defineConfig({
     'agents/index': 'src/agents/index.ts',
   },
   format: ['esm', 'cjs'],
-  dts: false,
+  dts: true,
   splitting: false,
   sourcemap: true,
   clean: true,
   outDir: 'dist',
-  async onSuccess() {
-    execSync('tsc -p tsconfig.json', {
-      stdio: 'inherit',
-    });
-  },
   esbuildOptions(options: any) {
     options.resolveExtensions = ['.ts', '.js'];
   },

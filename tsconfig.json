@@ -9,7 +9,6 @@
     "skipLibCheck": true,
     "declaration": true,
     "sourceMap": true,
-    "composite": true,
     "declarationMap": true,
     "resolveJsonModule": true,
     "outDir": "dist",

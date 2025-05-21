@@ -1,28 +1,41 @@
 {
   "name": "@astack/components",
   "version": "0.1.0",
-  "description": "Components for the Astack AI Framework",
-  "main": "dist/index.js",
+  "description": "Components for the Astack AI Framework.",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./text": {
-      "types": "./dist/text/index.d.ts",
+      "types": {
+        "import": "./dist/text/index.d.ts",
+        "require": "./dist/text/index.d.cts"
+      },
       "import": "./dist/text/index.js",
       "require": "./dist/text/index.cjs"
     },
     "./llm": {
-      "types": "./dist/llm/index.d.ts",
+      "types": {
+        "import": "./dist/llm/index.d.ts",
+        "require": "./dist/llm/index.d.cts"
+      },
       "import": "./dist/llm/index.js",
       "require": "./dist/llm/index.cjs"
     },
     "./agents": {
-      "types": "./dist/agents/index.d.ts",
+      "types": {
+        "import": "./dist/agents/index.d.ts",
+        "require": "./dist/agents/index.d.cts"
+      },
       "import": "./dist/agents/index.js",
       "require": "./dist/agents/index.cjs"
     }

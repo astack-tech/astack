@@ -1,23 +1,33 @@
 {
   "name": "@astack/core",
   "version": "0.1.0",
-  "description": "Core for the Astack AI Framework",
-  "main": "dist/index.js",
+  "description": "Core for the Astack AI Framework.",
+  "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": {
+        "import": "./dist/index.d.ts",
+        "require": "./dist/index.d.cts"
+      },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
     "./pipeline": {
-      "types": "./dist/pipeline/index.d.ts",
+      "types": {
+        "import": "./dist/pipeline/index.d.ts",
+        "require": "./dist/pipeline/index.d.cts"
+      },
       "import": "./dist/pipeline/index.js",
       "require": "./dist/pipeline/index.cjs"
     },
     "./component": {
-      "types": "./dist/component/index.d.ts",
+      "types": {
+        "import": "./dist/component/index.d.ts",
+        "require": "./dist/component/index.d.cts"
+      },
       "import": "./dist/component/index.js",
       "require": "./dist/component/index.cjs"
     }
