@@ -62,10 +62,16 @@ async function runTextSplitterPipeline() {
   pipeline.addComponent('textSplitter', textSplitter);
   
   // 运行流水线 - 把文本作为输入参数，在结果回调中处理文本块
+  // component in pipeline
   const result = await pipeline.run<string[]>('textSplitter.text', sampleText);
   const result2 = await pipeline.run<string[]>('textSplitter.text', sampleText);
 
+  // standalone 模式
+  const result3 = textSplitter.run(sampleText);
+
   console.log(result);
+  console.log(result3);
+
   handleResults(result2);
 }
 
