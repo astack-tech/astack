@@ -45,7 +45,7 @@ function handleResults(chunks: string[]) {
 }
 
 // 运行文本分割测试
-function runTextSplitterPipeline() {
+async function runTextSplitterPipeline() {
   console.log("开始文本分割示例...\n");
 
   // 创建 TextSplitter 组件
@@ -55,11 +55,6 @@ function runTextSplitterPipeline() {
     separator: /\n\s*\n/  // 按段落分割
   });
 
-  // 定义处理结果的回调函数
-  const resultCallback = (chunks: string[]) => {
-    handleResults(chunks);
-  };
-
   // 创建流水线
   const pipeline = new Pipeline();
   
@@ -67,7 +62,9 @@ function runTextSplitterPipeline() {
   pipeline.addComponent('textSplitter', textSplitter);
   
   // 运行流水线 - 把文本作为输入参数，在结果回调中处理文本块
-  pipeline.run('textSplitter.text', sampleText, resultCallback);
+  const result = await pipeline.run<string[]>('textSplitter.text', sampleText);
+
+  handleResults(result);
 }
 
 // 执行示例

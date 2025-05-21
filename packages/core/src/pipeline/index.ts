@@ -14,23 +14,7 @@ class Pipeline {
   // running trigger
   private runningTrigger: Set<string> = new Set();
 
-  // _start
-  private startComponent: Producer;
-
-  // _end
-  private endComponent: Consumer;
-
-  constructor() {
-    this.startComponent = new Producer({});
-    this.endComponent = new Consumer({});
-
-    this.init();
-  }
-
-  private init () {
-    this.addComponent('start', this.startComponent);
-    this.addComponent('end', this.endComponent);
-  }
+  constructor() {}
 
   /**
    * Get source port from a component
@@ -109,7 +93,15 @@ class Pipeline {
    * @param sink - Callback/sink to process the final result
    * @returns void
    */
-  run (triggerName: string, params: any, sink: unknown) {
+  private runWithSyncMode (triggerName: string, params: any, sink: unknown) {
+    // Construct two hidden component
+    const startComponent = new Producer({});
+    const endComponent = new Consumer({});
+
+    // Add to components
+    this.addComponent('start', startComponent);
+    this.addComponent('end', endComponent);
+
     if (!this.runningTrigger.has(triggerName)) {
       // Validate the trigger name format
       if (!triggerName || !triggerName.includes('.')) {
@@ -152,17 +144,31 @@ class Pipeline {
       this.connect(endSinkName, 'end.in');
 
       // Initialize the flow with our start component
-      pipeline.run(this.startComponent);
+      pipeline.run(startComponent);
 
       // Set up the sink to handle the final output
-      this.endComponent.consume(sink);
+      endComponent.consume(sink);
 
       // Set flag
       this.runningTrigger.add(triggerName);
     }
 
     // Inject the input parameters to start the pipeline
-    this.startComponent.produce(params);
+    startComponent.produce(params);
+  }
+
+  /**
+   * Execute the pipeline with sync mode (default)
+   * @param triggerName - Entry point for the pipeline in format 'componentName.portName'
+   * @param params - Parameters to pass to the pipeline
+   * @returns Promise<T>
+   */
+  run<T> (triggerName: string, params: any): Promise<T> {
+    return new Promise((resolve) => {
+      this.runWithSyncMode(triggerName, params, (value: T) => {
+        resolve(value);
+      })
+    })
   }
 }
 
