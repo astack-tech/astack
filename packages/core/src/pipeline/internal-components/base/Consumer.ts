@@ -1,3 +1,4 @@
+// @ts-ignore
 import { WriteableNode, Port } from "@hlang-org/runtime";
 
 class Consumer extends WriteableNode {

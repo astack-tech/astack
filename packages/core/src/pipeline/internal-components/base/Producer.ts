@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ReadableNode, Port } from "@hlang-org/runtime";
 
 class BaseProducer extends ReadableNode {

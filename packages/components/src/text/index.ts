@@ -102,7 +102,7 @@ class TextSplitter extends Component {
    * 覆盖实现 Component 基类的 process 方法
    * 处理输入文本，并返回分割后的块
    */
-  process(input: unknown): string[] {
+  run(input: unknown): string[] {
     // 确保输入是字符串
     const text = typeof input === 'string' ? input : String(input);
     
@@ -112,7 +112,7 @@ class TextSplitter extends Component {
 
   _transform($i: any, $o: any) {
     $i('text').receive((input: unknown) => {
-      const output = this.process(input);
+      const output = this.run(input);
       $o('out').send(output);
     });
   }

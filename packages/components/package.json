@@ -15,6 +15,16 @@
       "types": "./dist/text/index.d.ts",
       "import": "./dist/text/index.js",
       "require": "./dist/text/index.cjs"
+    },
+    "./llm": {
+      "types": "./dist/llm/index.d.ts",
+      "import": "./dist/llm/index.js",
+      "require": "./dist/llm/index.cjs"
+    },
+    "./agents": {
+      "types": "./dist/agents/index.d.ts",
+      "import": "./dist/agents/index.js",
+      "require": "./dist/agents/index.cjs"
     }
   },
   "files": [

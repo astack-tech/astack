@@ -4,7 +4,9 @@ import { execSync } from 'child_process';
 export default defineConfig({
   entry: {
     index: 'src/index.ts',
-    'text/TextSplitter': 'src/text/TextSplitter.ts'
+    'text/index': 'src/text/index.ts',
+    'llm/index': 'src/llm/index.ts',
+    'agents/index': 'src/agents/index.ts',
   },
   format: ['esm', 'cjs'],
   dts: false,

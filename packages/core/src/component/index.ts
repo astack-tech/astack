@@ -1,3 +1,4 @@
+// @ts-ignore
 import { TransformNode, Port } from "@hlang-org/runtime";
 
 class Component extends TransformNode {
@@ -16,13 +17,13 @@ class Component extends TransformNode {
     this.outPort.attach(this);
   }
 
-  process(data: unknown): unknown {
+  run(data: unknown): unknown {
     return data;
   }
 
   _transform($i: any, $o: any) {
     $i('in').receive((input: unknown) => {
-      const output = this.process(input);
+      const output = this.run(input);
       $o('out').send(output);
     });
   }

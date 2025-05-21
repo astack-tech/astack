@@ -1,7 +1,5 @@
-import {
-  type Node,
-  Flow
-} from '@hlang-org/runtime';
+// @ts-ignore
+import { type Node, Flow } from '@hlang-org/runtime';
 
 import BaseProducer from './internal-components/base/Producer';
 import BaseConsumer from './internal-components/base/Consumer';

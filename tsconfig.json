@@ -19,9 +19,7 @@
       "@astack/core": ["packages/core/src"],
       "@astack/core/*": ["packages/core/src/*"],
       "@astack/components": ["packages/components/src"],
-      "@astack/components/*": ["packages/components/src/*"],
-      "@astack/pipelines": ["packages/pipelines/src"],
-      "@astack/pipelines/*": ["packages/pipelines/src/*"]
+      "@astack/components/*": ["packages/components/src/*"]
     }
   },
   "exclude": ["**/dist", "**/node_modules"]

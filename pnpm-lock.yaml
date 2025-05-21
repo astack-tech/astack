@@ -96,34 +96,6 @@ importers:
         specifier: ^1.2.1
         version: 1.6.1(@types/node@20.17.47)
 
-  packages/pipelines:
-    dependencies:
-      '@astack/components':
-        specifier: workspace:*
-        version: link:../components
-      '@astack/core':
-        specifier: workspace:*
-        version: link:../core
-    devDependencies:
-      '@types/node':
-        specifier: ^20.11.5
-        version: 20.17.47
-      eslint:
-        specifier: ^8.56.0
-        version: 8.57.1
-      rimraf:
-        specifier: ^5.0.5
-        version: 5.0.10
-      tsup:
-        specifier: ^8.4.0
-        version: 8.4.0(postcss@8.5.3)(tsx@4.19.4)(typescript@5.8.3)
-      typescript:
-        specifier: ^5.8.3
-        version: 5.8.3
-      vitest:
-        specifier: ^1.2.1
-        version: 1.6.1(@types/node@20.17.47)
-
 packages:
 
   '@babel/runtime@7.27.1':
