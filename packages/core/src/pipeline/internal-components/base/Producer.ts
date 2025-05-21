@@ -1,6 +1,6 @@
 import { ReadableNode, Port } from "@hlang-org/runtime";
 
-class Producer extends ReadableNode {
+class BaseProducer extends ReadableNode {
   private out: ReturnType<typeof Port.O>
 
   constructor (opt: unknown) {
@@ -15,4 +15,4 @@ class Producer extends ReadableNode {
   }
 }
 
-export default Producer;
+export default BaseProducer;

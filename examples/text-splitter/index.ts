@@ -63,8 +63,10 @@ async function runTextSplitterPipeline() {
   
   // 运行流水线 - 把文本作为输入参数，在结果回调中处理文本块
   const result = await pipeline.run<string[]>('textSplitter.text', sampleText);
+  const result2 = await pipeline.run<string[]>('textSplitter.text', sampleText);
 
-  handleResults(result);
+  console.log(result);
+  handleResults(result2);
 }
 
 // 执行示例

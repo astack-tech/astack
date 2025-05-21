@@ -1,10 +1,12 @@
 import {
   type Node,
-  Flow 
+  Flow
 } from '@hlang-org/runtime';
 
-import Producer from '../component/internal/Producer';
-import Consumer from '../component/internal/Consumer';
+import BaseProducer from './internal-components/base/Producer';
+import BaseConsumer from './internal-components/base/Consumer';
+
+import { START_COMPONENT_NAME, END_COMPONENT_NAME } from './constants';
 
 class Pipeline {
   // components
@@ -14,16 +16,16 @@ class Pipeline {
   // running trigger
   private runningTrigger: Set<string> = new Set();
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Get source port from a component
    * @param name - Source identifier in format 'componentName.portName'
    * @returns Output port of the specified component
    */
-  private from (name: string) {
+  private from(name: string) {
     // Parse component name and port name from the dot notation
-    const [ componentName, portName ] = name.split('.');
+    const [componentName, portName] = name.split('.');
 
     // Retrieve the component by name
     const currentNode = this.components.get(componentName);
@@ -42,10 +44,10 @@ class Pipeline {
    * @param name - Destination identifier in format 'componentName.portName'
    * @returns Input port of the specified component
    */
-  private to (name: string) {
+  private to(name: string) {
     // Parse component name and port name from the dot notation
-    const [ componentName, portName ] = name.split('.');
-    
+    const [componentName, portName] = name.split('.');
+
     // Retrieve the component by name
     const currentNode = this.components.get(componentName);
 
@@ -64,12 +66,16 @@ class Pipeline {
    * @param instance - Component instance to add
    * @returns void
    */
-  addComponent (name: string, instance: Node) {
+  addComponent(name: string, instance: Node) {
     // Skip if component with the same name already exists
     if (this.components.get(name)) return;
-    
+
     // Register the component in the pipeline
     this.components.set(name, instance);
+  }
+
+  getComponent(name: string): Node | undefined {
+    return this.components.get(name);
   }
 
   /**
@@ -78,10 +84,10 @@ class Pipeline {
    * @param sinkName - Destination identifier in format 'componentName.portName'
    * @returns void
    */
-  connect (sourceName: string, sinkName: string) {
+  connect(sourceName: string, sinkName: string) {
     // Connect output port of source to input port of sink
     this.from(sourceName).connect(this.to(sinkName));
-    
+
     // Record the connection for later use in determining pipeline endpoints
     this.connectPairs.push([sourceName, sinkName]);
   }
@@ -93,23 +99,31 @@ class Pipeline {
    * @param sink - Callback/sink to process the final result
    * @returns void
    */
-  private runWithSyncMode (triggerName: string, params: any, sink: unknown) {
-    // Construct two hidden component
-    const startComponent = new Producer({});
-    const endComponent = new Consumer({});
+  private runWithBaseMode(triggerName: string, params: any, sink: unknown) {
+    let startComponent: BaseProducer, endComponent: BaseConsumer;
 
-    // Add to components
-    this.addComponent('start', startComponent);
-    this.addComponent('end', endComponent);
+    if (!(this.getComponent(START_COMPONENT_NAME) && this.getComponent(END_COMPONENT_NAME))) {
+      // Construct two hidden component
+      startComponent = new BaseProducer({});
+      endComponent = new BaseConsumer({});
+
+      // Add to components
+      this.addComponent(START_COMPONENT_NAME, startComponent);
+      this.addComponent(END_COMPONENT_NAME, endComponent);
+    } else {
+      // Get start & end component
+      startComponent = this.getComponent(START_COMPONENT_NAME) as BaseProducer;
+      endComponent = this.getComponent(END_COMPONENT_NAME) as BaseConsumer;
+    }
+
+    // Create a flow instance to manage the execution
+    const pipeline = new Flow({});
 
     if (!this.runningTrigger.has(triggerName)) {
       // Validate the trigger name format
       if (!triggerName || !triggerName.includes('.')) {
         throw new Error(`Invalid trigger name: ${triggerName}. Format should be 'componentName.portName'`);
       }
-      
-      // Create a flow instance to manage the execution
-      const pipeline = new Flow({});
 
       // We need to determine the final sink dynamically
       let lastComponentName: string;
@@ -128,7 +142,7 @@ class Pipeline {
       }
 
       const lastComponent = this.components.get(lastComponentName);
-        
+
       if (!lastComponent) {
         throw new Error(`Last component not found: ${lastComponentName}`);
       }
@@ -138,34 +152,34 @@ class Pipeline {
       const endSinkName = `${lastComponentName}.${lastComponent?.outPort?.name}`;
 
       // Connect the internal start component to the user-specified entry point
-      this.connect('start.out', triggerName);
+      this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
 
       // Connect the endpoint to our internal end component
-      this.connect(endSinkName, 'end.in');
-
-      // Initialize the flow with our start component
-      pipeline.run(startComponent);
-
-      // Set up the sink to handle the final output
-      endComponent.consume(sink);
+      this.connect(endSinkName, `${END_COMPONENT_NAME}.in`);
 
       // Set flag
       this.runningTrigger.add(triggerName);
     }
+
+    // Initialize the flow with our start component
+    pipeline.run(startComponent);
+
+    // Set up the sink to handle the final output
+    endComponent.consume(sink);
 
     // Inject the input parameters to start the pipeline
     startComponent.produce(params);
   }
 
   /**
-   * Execute the pipeline with sync mode (default)
+   * Execute the pipeline with base mode (default)
    * @param triggerName - Entry point for the pipeline in format 'componentName.portName'
    * @param params - Parameters to pass to the pipeline
    * @returns Promise<T>
    */
-  run<T> (triggerName: string, params: any): Promise<T> {
+  run<T>(triggerName: string, params: any): Promise<T> {
     return new Promise((resolve) => {
-      this.runWithSyncMode(triggerName, params, (value: T) => {
+      this.runWithBaseMode(triggerName, params, (value: T) => {
         resolve(value);
       })
     })
