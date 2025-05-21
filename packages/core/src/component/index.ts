@@ -1,19 +1,16 @@
 import { TransformNode, Port } from "@hlang-org/runtime";
 
 class Component extends TransformNode {
+  static Port: typeof Port;
   protected readonly inPort: ReturnType<typeof Port.I>;
   protected readonly outPort: ReturnType<typeof Port.O>;
-  protected readonly Port: typeof Port;
   
   constructor(opts: unknown) {
     super(opts);
-
-    // mount Port
-    this.Port = Port;
     
     // default in & out
-    this.inPort = this.Port.I("in");
-    this.outPort = this.Port.O("out");
+    this.inPort = Component.Port.I("in");
+    this.outPort = Component.Port.O("out");
     
     this.inPort.attach(this);
     this.outPort.attach(this);
@@ -30,5 +27,7 @@ class Component extends TransformNode {
     });
   }
 }
+
+Component.Port = Port;
 
 export default Component;

@@ -36,7 +36,7 @@ class TextSplitter extends Component {
     this.separator = separator; // 默认按段落分割
 
     // rename in
-    this.Port.I("text").attach(this);
+    Component.Port.I("text").attach(this);
   }
   
   /**

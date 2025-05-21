@@ -14,7 +14,7 @@ export default defineConfig({
   clean: true,
   outDir: 'dist',
   async onSuccess() {
-    execSync('tsc -p tsconfig.json --emitDeclarationOnly', {
+    execSync('tsc -p tsconfig.json', {
       stdio: 'inherit',
     });
   },

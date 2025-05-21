@@ -5,8 +5,7 @@
   "description": "Example demonstrating the TextSplitter component",
   "type": "module",
   "scripts": {
-    "start": "tsx index.ts",
-    "build": "tsc"
+    "start": "tsx index.ts"
   },
   "dependencies": {
     "@astack/core": "workspace:*",
