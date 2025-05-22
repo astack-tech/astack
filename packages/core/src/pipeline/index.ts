@@ -175,7 +175,7 @@ class Pipeline {
    * @param params - Parameters to pass to the pipeline
    * @returns Promise<T>
    */
-  run<T>(triggerName: string, params: any): Promise<T> {
+  run<T = unknown>(triggerName: string, params: any): Promise<T> {
     return new Promise((resolve) => {
       this.runWithBaseMode(triggerName, params, (value: T) => {
         resolve(value);
