@@ -1,0 +1,27 @@
+{
+  "name": "simple-deep-research",
+  "version": "0.1.0",
+  "description": "使用 astack 框架实现的简易深度研究工具，可自动搜索并整理结果成报告",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack/components": "workspace:*",
+    "@astack/core": "workspace:*",
+    "@astack/integrations": "workspace:*",
+    "cheerio": "^1.0.0-rc.12",
+    "mustache": "^4.2.0",
+    "openai": "^4.28.0",
+    "playwright": "^1.52.0",
+    "selenium-webdriver": "^4.32.0",
+    "tsx": "^4.7.0",
+    "webdriver-manager": "^12.1.9"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.2.6",
+    "@types/selenium-webdriver": "^4.1.28",
+    "glob": "^11.0.2"
+  }
+}

@@ -23,14 +23,6 @@
       "import": "./dist/text/index.js",
       "require": "./dist/text/index.cjs"
     },
-    "./llm": {
-      "types": {
-        "import": "./dist/llm/index.d.ts",
-        "require": "./dist/llm/index.d.cts"
-      },
-      "import": "./dist/llm/index.js",
-      "require": "./dist/llm/index.cjs"
-    },
     "./agents": {
       "types": {
         "import": "./dist/agents/index.d.ts",
@@ -73,7 +65,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@astack/core": "workspace:*",
-    "openai": "^4.98.0"
+    "@astack/core": "workspace:*"
   }
 }

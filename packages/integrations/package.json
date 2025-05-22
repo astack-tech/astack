@@ -1,7 +1,7 @@
 {
-  "name": "@astack/core",
+  "name": "@astack/integrations",
   "version": "0.1.0",
-  "description": "Core for the Astack AI Framework.",
+  "description": "Integrations for the Astack AI Framework.",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,22 +14,6 @@
       },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./pipeline": {
-      "types": {
-        "import": "./dist/pipeline/index.d.ts",
-        "require": "./dist/pipeline/index.d.cts"
-      },
-      "import": "./dist/pipeline/index.js",
-      "require": "./dist/pipeline/index.cjs"
-    },
-    "./component": {
-      "types": {
-        "import": "./dist/component/index.d.ts",
-        "require": "./dist/component/index.d.cts"
-      },
-      "import": "./dist/component/index.js",
-      "require": "./dist/component/index.cjs"
     }
   },
   "files": [
@@ -57,7 +41,7 @@
     "@types/node": "^20.11.5",
     "eslint": "^8.56.0",
     "rimraf": "^5.0.5",
-    "tsup": "^8.0.2",
+    "tsup": "^8.4.0",
     "typescript": "^5.8.3",
     "vitest": "^1.2.1"
   },
@@ -65,6 +49,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@hlang-org/runtime": "^1.0.5"
+    "@astack/core": "workspace:*",
+    "openai": "^4.98.0"
   }
 }

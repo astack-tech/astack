@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "dist",
+    "baseUrl": "../..",
+    "paths": {
+      "@astack/core": ["packages/core/src"],
+      "@astack/core/*": ["packages/core/src/*"],
+      "@astack/components": ["packages/components/src"],
+      "@astack/components/*": ["packages/components/src/*"],
+      "@astack/integrations": ["packages/integrations/src"],
+      "@astack/integrations/*": ["packages/integrations/src/*"]
+    }
+  },
+  "include": ["./**/*.ts"]
+}
