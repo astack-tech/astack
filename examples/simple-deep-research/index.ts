@@ -1,6 +1,6 @@
 import { Pipeline } from '@astack/core';
 import Deepseek from '../../packages/integrations/src/model-provider/deepseek';
-import WebDriverComponent, { SearchResultItem } from './web-driver';
+import WebDriverComponent from './web-driver';
 import ContentAnalyzer, { ResearchReport, ReportSection } from './content-analyzer';
 import ReportEnhancer from './report-enhancer';
 import GatewayComponent from './gateway';
@@ -48,40 +48,19 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
   console.log('开始连接组件端口 ...');
   
   // 网关到各组件的连接
-  console.log('连接 gateway.topicOut -> analyzer.topic');
   pipeline.connect('gateway.topicOut', 'analyzer.topic');
-  
-  console.log('连接 gateway.searchQueryOut -> webDriver.searchQuery');
   pipeline.connect('gateway.searchQueryOut', 'webDriver.searchQuery');
-  
   // 使用数据中继组件连接 WebDriver 和 ContentAnalyzer
-  console.log('连接 webDriver.searchResults -> dataRelay.dataIn');
   pipeline.connect('webDriver.searchResults', 'dataRelay.dataIn');
-  
-  console.log('连接 dataRelay.dataOut -> analyzer.searchResults');
   pipeline.connect('dataRelay.dataOut', 'analyzer.searchResults');
-  
-  console.log('连接 analyzer.relevantUrls -> webDriver.url');
   pipeline.connect('analyzer.relevantUrls', 'webDriver.url');
-  
   // 然后连接就绪信号
-  console.log('连接 analyzer.ready -> gateway.analyzerReady');
   pipeline.connect('analyzer.ready', 'gateway.analyzerReady');
-  
-  console.log('连接 webDriver.pageContent -> analyzer.pageContents');
   pipeline.connect('webDriver.pageContent', 'analyzer.pageContents');
-  
-  console.log('连接 analyzer.report -> enhancer.rawReport');
   pipeline.connect('analyzer.report', 'enhancer.rawReport');
-  
-  console.log('连接 enhancer.promptMessages -> llm.messages');
   pipeline.connect('enhancer.promptMessages', 'llm.messages');
-  
-  console.log('连接 llm.message -> enhancer.llmResponse');
   pipeline.connect('llm.message', 'enhancer.llmResponse');
-  
   // 将最终报告连接回网关
-  console.log('连接 enhancer.enhancedReport -> gateway.reportIn');
   pipeline.connect('enhancer.enhancedReport', 'gateway.reportIn');
   
   console.log('所有组件端口连接完成');

@@ -98,7 +98,7 @@ class GatewayComponent extends Component {
         
         // 发送搜索请求，使用延迟确保分析器已经设置了主题
         setTimeout(() => {
-          console.log(`[Gateway] 发送搜索请求到WebDriver: ${topicToSearch}`);
+          console.log(`[Gateway] 发送搜索请求到 WebDriver: ${topicToSearch}`);
           $o('searchQueryOut').send(topicToSearch);
         }, this.searchDelay);
         

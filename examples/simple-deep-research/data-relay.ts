@@ -1,5 +1,4 @@
 import { Component } from '@astack/core';
-import { SearchResultItem } from './web-driver';
 
 /**
  * 数据中继组件
@@ -36,7 +35,7 @@ class DataRelayComponent extends Component {
       // 打印详细信息以帮助调试
       if (Array.isArray(data) && data.length > 0) {
         if (typeof data[0] === 'object' && data[0].title && data[0].url) {
-          console.log('[DataRelay] 接收到搜索结果数据，样本 :');
+          console.log('[DataRelay] 接收到搜索结果数据，样本: ');
           for (let i = 0; i < Math.min(3, data.length); i++) {
             console.log(`- 结果 ${i+1}: 标题="${data[i].title}", URL=${data[i].url}`);
           }

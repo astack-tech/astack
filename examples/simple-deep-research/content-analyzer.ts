@@ -152,7 +152,7 @@ class ContentAnalyzer extends Component {
       }).filter(url => {
         // 验证 URL
         if (!url || typeof url !== 'string' || url.length < 5) {
-          console.error(`[ContentAnalyzer] 无效URL: "${url}", 类型: ${typeof url}`);
+          console.error(`[ContentAnalyzer] 无效 URL: "${url}", 类型: ${typeof url}`);
           return false;
         }
         return true;
@@ -166,14 +166,14 @@ class ContentAnalyzer extends Component {
         }).filter(url => {
           // 验证 URL
           if (!url || typeof url !== 'string' || url.length < 5) {
-            console.error(`[ContentAnalyzer] 无效URL: "${url}", 类型: ${typeof url}`);
+            console.error(`[ContentAnalyzer] 无效 URL: "${url}", 类型: ${typeof url}`);
             return false;
           }
           return true;
         });
     }
   
-    console.log(`[ContentAnalyzer] 过滤后找到 ${urls.length} 个有效相关URL：${urls.join(', ')}`);
+    console.log(`[ContentAnalyzer] 过滤后找到 ${urls.length} 个有效相关 URL：${urls.join(', ')}`);
   
     // 确保返回的 URL 是有效的
     const validUrls = urls
@@ -185,27 +185,27 @@ class ContentAnalyzer extends Component {
         
         // 过滤掉广告 URL（通常包含年份和 " 广告 " 字样）
         if (url.includes('广告') || /\d{4}-\d{2}广告/.test(url)) {
-          console.log(`[ContentAnalyzer] 过滤掉广告URL: ${url}`);
+          console.log(`[ContentAnalyzer] 过滤掉广告 URL: ${url}`);
           return false;
         }
         
         // 检查 URL 格式是否有效（不应包含空格等无效字符）
         if (url.includes(' ') || !url.includes('.')) {
-          console.log(`[ContentAnalyzer] URL格式无效: ${url}`);
+          console.log(`[ContentAnalyzer] URL 格式无效: ${url}`);
           return false;
         }
         
         // 检查是否是有效的网络地址
         try {
           // 尝试解析 URL，如果格式不对会抛出异常
-          if (!url.startsWith('http:// ') && !url.startsWith('https://')) {
-            new URL(`https:// ${url}`);
+          if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            new URL(`https://${url}`);
           } else {
             new URL(url);
           }
           return true;
         } catch (e: any) {
-          console.log(`[ContentAnalyzer] URL解析失败: ${url}, 错误: ${e.message || '未知错误'}`);
+          console.log(`[ContentAnalyzer] URL 解析失败: ${url}, 错误: ${e.message || '未知错误'}`);
           return false;
         }
       })
@@ -222,19 +222,19 @@ class ContentAnalyzer extends Component {
       .filter((url): url is string => typeof url === 'string') // 过滤掉 undefined 值
       .map(url => {
         // 添加协议前缀
-        if (!url.startsWith('http:// ') && !url.startsWith('https://')) {
-          return `https:// ${url}`;
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+          return `https://${url}`;
         }
         return url;
       });
   
     // 返回多个 URL 中的第一个进行测试
     if (validUrls.length > 0) {
-      console.log(`[ContentAnalyzer] 将发送第一个URL进行测试: ${validUrls[0]}`);
+      console.log(`[ContentAnalyzer] 将发送第一个 URL 进行测试: ${validUrls[0]}`);
       return [validUrls[0]];
     }
   
-    console.log(`[ContentAnalyzer] 最终返回 ${validUrls.length} 个完整URL`);
+    console.log(`[ContentAnalyzer] 最终返回 ${validUrls.length} 个完整 URL`);
     return validUrls;
   }
   
@@ -356,7 +356,7 @@ class ContentAnalyzer extends Component {
     console.log(`  - searchResultsReceived: ${searchResultsReceived}`);
     console.log(`  - searchResults: 类型=${typeof searchResults}, 是否数组=${Array.isArray(searchResults)}, 长度=${searchResults?.length || 0}`);
     console.log(`  - pageContentsReceived: ${pageContentsReceived}`);
-    console.log(`  - pageContentsMap: 类型=${typeof pageContentsMap}, 是否Map=${pageContentsMap instanceof Map}, 大小=${pageContentsMap?.size || 0}`);
+    console.log(`  - pageContentsMap: 类型=${typeof pageContentsMap}, 是否 Map=${pageContentsMap instanceof Map}, 大小=${pageContentsMap?.size || 0}`);
     
     // 如果已有主题和搜索结果，则生成报告
     if (topic && searchResultsReceived) {
@@ -372,7 +372,7 @@ class ContentAnalyzer extends Component {
           // 当前版本的 tryGenerateReport 中不需要发送 URL，因为我们已经在 _transform 中设置了 URL 接收器
           // 如果需要发送报告，我们可以在这里实现
           // 只记录日志，不尝试发送 URL
-          console.log(`[ContentAnalyzer] 已找到相关URL，但在tryGenerateReport方法中不再重复发送: ${relevantUrls[0]}`);
+          console.log(`[ContentAnalyzer] 已找到相关 URL，但在 tryGenerateReport 方法中不再重复发送: ${relevantUrls[0]}`);
         } else {
           console.warn('[ContentAnalyzer] 没有找到相关 URL，无法发送给 WebDriver');
         }
@@ -512,25 +512,25 @@ class ContentAnalyzer extends Component {
         try {
           const relevantUrls = this.filterRelevantResults(searchResults, topic);
           
-          console.log(`[ContentAnalyzer] 过滤结果: 找到 ${relevantUrls.length} 个相关URL`);
+          console.log(`[ContentAnalyzer] 过滤结果: 找到 ${relevantUrls.length} 个相关 URL`);
           
           if (relevantUrls.length > 0) {
             // 发送所有相关 URL
-            console.log(`[ContentAnalyzer] 准备发送 ${relevantUrls.length} 个相关URL到WebDriver`);
+            console.log(`[ContentAnalyzer] 准备发送 ${relevantUrls.length} 个相关 URL 到 WebDriver`);
             
             try {
               // 先发送第一个进行测试
               const testUrl = relevantUrls[0];
-              console.log(`[ContentAnalyzer] 发送第一个相关URL: ${testUrl}`);
+              console.log(`[ContentAnalyzer] 发送第一个相关 URL: ${testUrl}`);
               $o('relevantUrls').send(testUrl);
-              console.log(`[ContentAnalyzer] 成功发送第一个URL到WebDriver: ${testUrl}`);
+              console.log(`[ContentAnalyzer] 成功发送第一个 URL 到 WebDriver: ${testUrl}`);
               
               // 之后发送其余 URL
               for (let i = 1; i < relevantUrls.length; i++) {
-                console.log(`[ContentAnalyzer] 发送相关URL ${i+1}/${relevantUrls.length}: ${relevantUrls[i]}`);
+                console.log(`[ContentAnalyzer] 发送相关 URL ${i+1}/${relevantUrls.length}: ${relevantUrls[i]}`);
                 $o('relevantUrls').send(relevantUrls[i]);
               }
-              console.log(`[ContentAnalyzer] 所有相关URL已发送完成`);
+              console.log(`[ContentAnalyzer] 所有相关 URL 已发送完成`);
             } catch (error) {
               console.error(`[ContentAnalyzer] 发送URL时出错:`, error);
             }

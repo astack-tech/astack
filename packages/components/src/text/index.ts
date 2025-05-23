@@ -99,7 +99,7 @@ class TextSplitter extends Component {
   }
   
   /**
-   * 覆盖实现 Component 基类的 process 方法
+   * 覆盖实现 Component 基类的 run 方法，Standalone 模式
    * 处理输入文本，并返回分割后的块
    */
   run(input: unknown): string[] {

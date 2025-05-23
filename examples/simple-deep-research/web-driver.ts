@@ -232,13 +232,13 @@ export default class WebDriverComponent extends Component {
               }
             }, retryInterval);
           } catch (sendError) {
-            console.error('[WebDriver] 发送搜索结果时出错 :', sendError);
+            console.error('[WebDriver] 发送搜索结果时出错:', sendError);
           }
         } catch (error) {
-          console.error('[WebDriver] 准备搜索结果时出错 :', error);
+          console.error('[WebDriver] 准备搜索结果时出错:', error);
         }
       } catch (error) {
-        console.error('搜索处理出错 :', error);
+        console.error('搜索处理出错:', error);
       }
     });
     
@@ -284,8 +284,8 @@ export default class WebDriverComponent extends Component {
       
       // 确保 URL 是完整的
       let finalUrl = url;
-      if (!url.startsWith('http:// ') && !url.startsWith('https://')) {
-        finalUrl = `https:// ${url}`;
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        finalUrl = `https://${url}`;
         console.log(`[WebDriver] 添加协议前缀后的 URL: ${finalUrl}`);
       }
       
@@ -306,7 +306,7 @@ export default class WebDriverComponent extends Component {
       console.log(`在百度搜索: ${searchTerm}`);
       
       // 访问百度
-      await page.goto('https:// www.baidu.com', { waitUntil: 'domcontentloaded' });
+      await page.goto('https://www.baidu.com', { waitUntil: 'domcontentloaded' });
       
       // 输入搜索关键词
       await page.fill('#kw', searchTerm);

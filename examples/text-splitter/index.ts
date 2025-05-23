@@ -51,7 +51,7 @@ async function runTextSplitterPipeline() {
   // 创建 TextSplitter 组件
   const textSplitter = new TextSplitter({
     chunkSize: 100,  // 较小的块大小，便于示例展示
-    overlap: 20,     // 20字符的重叠
+    overlap: 20,     // 20 字符的重叠
     separator: /\n\s*\n/  // 按段落分割
   });
 
