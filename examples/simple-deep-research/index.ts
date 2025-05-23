@@ -1,5 +1,5 @@
 import { Pipeline } from '@astack/core';
-import Deepseek from '../../packages/integrations/src/model-provider/deepseek';
+import { ModelProvider } from '@astack/integrations';
 import WebDriverComponent from './web-driver';
 import ContentAnalyzer, { ResearchReport, ReportSection } from './content-analyzer';
 import ReportEnhancer from './report-enhancer';
@@ -29,7 +29,7 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
   const dataRelay = new DataRelayComponent();
   const contentAnalyzer = new ContentAnalyzer();
   const reportEnhancer = new ReportEnhancer();
-  const llmModel = new Deepseek({
+  const llmModel = new ModelProvider.Deepseek({
     apiKey,
     model: 'deepseek-chat',
     temperature: 0.5,

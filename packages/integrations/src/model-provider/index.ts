@@ -6,6 +6,3 @@
 
 // 导出模型提供者组件
 export { default as Deepseek } from './deepseek';
-
-// 导出类型
-export { DeepseekConfig, Message, MessageRole } from './deepseek';
