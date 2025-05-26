@@ -1,0 +1,19 @@
+{
+  "name": "agent-with-tools",
+  "version": "0.1.0",
+  "description": "使用 astack 框架实现的带工具的 Agent 示例",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack/components": "workspace:*",
+    "@astack/core": "workspace:*",
+    "@astack/integrations": "workspace:*",
+    "@astack/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "name": "@astack/components",
+  "name": "@astack/tools",
   "version": "0.1.0",
-  "description": "Components for the Astack AI Framework.",
+  "description": "Tools for the Astack AI Framework.",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,30 +14,6 @@
       },
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    },
-    "./text": {
-      "types": {
-        "import": "./dist/text/index.d.ts",
-        "require": "./dist/text/index.d.cts"
-      },
-      "import": "./dist/text/index.js",
-      "require": "./dist/text/index.cjs"
-    },
-    "./agents": {
-      "types": {
-        "import": "./dist/agents/index.d.ts",
-        "require": "./dist/agents/index.d.cts"
-      },
-      "import": "./dist/agents/index.js",
-      "require": "./dist/agents/index.cjs"
-    },
-    "./tool-invoker": {
-      "types": {
-        "import": "./dist/tool-invoker/index.d.ts",
-        "require": "./dist/tool-invoker/index.d.cts"
-      },
-      "import": "./dist/tool-invoker/index.js",
-      "require": "./dist/tool-invoker/index.cjs"
     }
   },
   "files": [
@@ -72,8 +48,5 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {
-    "@astack/core": "workspace:*",
-    "@astack/tools": "workspace:*"
-  }
+  "dependencies": {}
 }

@@ -133,9 +133,9 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
 }
 
 // 从环境变量或命令行参数获取 API 密钥
-const apiKey = process.env.OPENAI_API_KEY || '';
+const apiKey = process.env.DEEPSEEK_API_KEY || '';
 if (!apiKey) {
-  console.error('错误 : 未提供 API 密钥，请设置 OPENAI_API_KEY 环境变量');
+  console.error('错误 : 未提供 API 密钥，请设置 DEEPSEEK_API_KEY 环境变量');
   process.exit(1);
 }
 

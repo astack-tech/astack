@@ -12,7 +12,6 @@
     "@astack/components": "workspace:*"
   },
   "devDependencies": {
-    "tsx": "^4.7.0",
-    "typescript": "^5.8.3"
+    "tsx": "^4.7.0"
   }
 }

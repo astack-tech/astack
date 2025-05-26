@@ -41,19 +41,61 @@ export interface DeepseekConfig {
    * 系统提示消息
    */
   systemPrompt?: string;
+  
+  /**
+   * 工具定义，用于启用工具调用
+   */
+  tools?: any[];
 }
 
 /**
  * 消息角色类型
  */
-export type MessageRole = 'system' | 'user' | 'assistant';
+export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
+
+/**
+ * 工具调用
+ */
+export interface ToolCall {
+  /**
+   * 工具调用 ID
+   */
+  id?: string;
+  
+  /**
+   * 工具名称
+   */
+  tool_name: string;
+  
+  /**
+   * 工具调用参数
+   */
+  arguments: Record<string, any>;
+}
 
 /**
  * 对话消息类型
  */
 export interface Message {
+  /**
+   * 消息角色
+   */
   role: MessageRole;
-  content: string;
+  
+  /**
+   * 消息内容
+   */
+  content?: string;
+  
+  /**
+   * 工具调用
+   */
+  tool_calls?: ToolCall[];
+  
+  /**
+   * 工具调用 ID，用于工具响应消息
+   */
+  tool_call_id?: string;
 }
 
 /**
@@ -79,6 +121,7 @@ class Deepseek extends Component {
   private maxTokens?: number;
   private topP?: number;
   private systemPrompt?: string;
+  private tools?: any[];
   
   constructor(config: DeepseekConfig) {
     super({});
@@ -95,6 +138,7 @@ class Deepseek extends Component {
     this.maxTokens = config.maxTokens;
     this.topP = config.topP;
     this.systemPrompt = config.systemPrompt;
+    this.tools = config.tools;
     
     // 重命名端口
     Component.Port.I("prompt").attach(this);
@@ -125,14 +169,29 @@ class Deepseek extends Component {
       content: prompt
     });
     
-    // 调用 API
-    const response = await this.client.chat.completions.create({
+    // 创建请求参数
+    const requestParams: any = {
       model: this.model,
       messages,
       temperature: this.temperature,
       max_tokens: this.maxTokens,
       top_p: this.topP
-    });
+    };
+    
+    // 如果有工具定义，添加到请求中
+    if (this.tools && this.tools.length > 0) {
+      requestParams.tools = this.tools;
+    }
+    
+    // 调用 API
+    const response = await this.client.chat.completions.create(requestParams);
+    
+    // 处理工具调用结果
+    if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
+      // 当有工具调用时，返回原始消息而不是内容字符串
+      // 在实际使用时，应该使用 chatCompletion 方法进行工具调用
+      return JSON.stringify(response.choices[0].message);
+    }
     
     return response.choices[0].message.content || '';
   }
@@ -155,25 +214,57 @@ class Deepseek extends Component {
     }
     
     // 添加用户提供的消息
-    formattedMessages.push(...messages.map(msg => ({
-      role: msg.role,
-      content: msg.content
-    })));
+    formattedMessages.push(...messages.map(msg => {
+      // 基本消息结构
+      const formattedMsg: any = {
+        role: msg.role,
+        content: msg.content
+      };
+
+      // 如果有工具调用ID，添加到消息中
+      if (msg.role === 'tool' && msg.tool_call_id) {
+        formattedMsg.tool_call_id = msg.tool_call_id;
+      }
+      
+      return formattedMsg;
+    }));
     
-    // 调用 API
-    const response = await this.client.chat.completions.create({
+    // 创建请求参数
+    const requestParams: any = {
       model: this.model,
       messages: formattedMessages,
       temperature: this.temperature,
       max_tokens: this.maxTokens,
       top_p: this.topP
-    });
-    
-    // 返回响应消息
-    return {
-      role: 'assistant',
-      content: response.choices[0].message.content || ''
     };
+    
+    // 如果有工具定义，添加到请求中
+    if (this.tools && this.tools.length > 0) {
+      requestParams.tools = this.tools;
+    }
+    
+    // 调用 API
+    const response = await this.client.chat.completions.create(requestParams);
+    
+    // 解析响应
+    const responseMessage = response.choices[0].message;
+    
+    // 转换为内部消息格式
+    const result: Message = {
+      role: 'assistant',
+      content: responseMessage.content || ''
+    };
+    
+    // 如果有工具调用，添加到结果中
+    if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
+      result.tool_calls = responseMessage.tool_calls.map(toolCall => ({
+        id: toolCall.id,
+        tool_name: toolCall.function.name,
+        arguments: JSON.parse(toolCall.function.arguments || '{}')
+      }));
+    }
+    
+    return result;
   }
   
   /**

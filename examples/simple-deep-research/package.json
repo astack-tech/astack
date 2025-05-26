@@ -13,11 +13,10 @@
     "@astack/integrations": "workspace:*",
     "cheerio": "^1.0.0-rc.12",
     "mustache": "^4.2.0",
-    "playwright": "^1.52.0",
-    "tsx": "^4.7.0"
+    "playwright": "^1.52.0"
   },
   "devDependencies": {
-    "@types/mustache": "^4.2.6",
-    "glob": "^11.0.2"
+    "tsx": "^4.7.0",
+    "@types/mustache": "^4.2.6"
   }
 }
