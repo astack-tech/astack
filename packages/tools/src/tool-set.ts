@@ -76,9 +76,8 @@ export class DefaultToolSet implements ToolSet {
    * @param tool 工具实例
    */
   addTool(tool: Tool): void {
-    if (this.tools.has(tool.name)) {
-      console.warn(`工具 "${tool.name}" 已存在，将被覆盖`);
-    }
+    // TODO: duplicate check
+    if (this.tools.has(tool.name)) return;
     this.tools.set(tool.name, tool);
   }
   

@@ -61,8 +61,7 @@ export class ComponentTool implements Tool {
   parameters?: ToolParameters;
   
   private component: Component;
-  private inputPort: string;
-  private outputPort: string;
+
   private transformArgs: (args: Record<string, any>) => any;
   private transformResult: (result: any) => any;
   
@@ -76,8 +75,6 @@ export class ComponentTool implements Tool {
     this.parameters = config.parameters;
     
     this.component = config.component;
-    this.inputPort = config.inputPort || 'in';
-    this.outputPort = config.outputPort || 'out';
     
     this.transformArgs = config.transformArgs || ((args) => args);
     this.transformResult = config.transformResult || ((result) => result);

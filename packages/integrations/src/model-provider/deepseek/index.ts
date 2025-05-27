@@ -188,8 +188,6 @@ class Deepseek extends Component {
     
     // 处理工具调用结果
     if (response.choices[0].message.tool_calls && response.choices[0].message.tool_calls.length > 0) {
-      // 当有工具调用时，返回原始消息而不是内容字符串
-      // 在实际使用时，应该使用 chatCompletion 方法进行工具调用
       return JSON.stringify(response.choices[0].message);
     }
     
@@ -221,7 +219,7 @@ class Deepseek extends Component {
         content: msg.content
       };
 
-      // 如果有工具调用ID，添加到消息中
+      // 如果有工具调用 ID，添加到消息中
       if (msg.role === 'tool' && msg.tool_call_id) {
         formattedMsg.tool_call_id = msg.tool_call_id;
       }
