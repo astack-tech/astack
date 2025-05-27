@@ -89,24 +89,7 @@ async function main() {
     apiKey,
     model: 'deepseek-chat',
     temperature: 0.7,
-    tools: [
-      {
-        type: 'function',
-        function: {
-          name: 'search',
-          description: '搜索互联网上的信息',
-          parameters: searchTool.parameters
-        }
-      },
-      {
-        type: 'function',
-        function: {
-          name: 'calculator',
-          description: '执行数学计算',
-          parameters: calculatorTool.parameters
-        }
-      }
-    ]
+    rawTools: [searchTool, calculatorTool]
   });
 
   console.log('创建 Agent 组件...');
