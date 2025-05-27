@@ -110,7 +110,7 @@ export class DefaultMemory implements Memory {
 
   /**
    * 获取格式化后的记忆，用于提供给模型
-   * @param maxTokens 最大令牌数限制（此简单实现忽略此参数）
+   * @param maxTokens 最大令牌数限制
    * @returns 记忆中的所有消息
    */
   getFormattedMemory(maxTokens?: number): Message[] {
