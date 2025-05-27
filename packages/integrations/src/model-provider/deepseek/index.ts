@@ -43,7 +43,18 @@ export interface DeepseekConfig {
   systemPrompt?: string;
   
   /**
-   * 工具定义，用于启用工具调用
+   * 工具实例数组，直接传递工具实例
+   * 每个工具应具有 name、description 和 parameters 属性
+   */
+  rawTools?: Array<{ 
+    name: string; 
+    description: string; 
+    parameters?: Record<string, any>;
+  }>;
+  
+  /**
+   * API 格式的工具定义数组，与 rawTools 二选一
+   * 使用 OpenAI 兼容的工具定义格式
    */
   tools?: any[];
 }
@@ -132,13 +143,28 @@ class Deepseek extends Component {
       baseURL: config.baseURL || 'https://api.deepseek.com/v1',
     });
     
-    // 保存配置
+    // 保存基本配置
     this.model = config.model || 'deepseek-chat';
     this.temperature = config.temperature ?? 0.7;
     this.maxTokens = config.maxTokens;
     this.topP = config.topP;
     this.systemPrompt = config.systemPrompt;
-    this.tools = config.tools;
+    
+    // 处理工具配置，优先使用 rawTools
+    if (config.rawTools && config.rawTools.length > 0) {
+      // 将工具实例转换为 API 格式
+      this.tools = config.rawTools.map(tool => ({
+        type: 'function',
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.parameters || {}
+        }
+      }));
+    } else {
+      // 使用直接提供的 API 格式工具
+      this.tools = config.tools;
+    }
     
     // 重命名端口
     Component.Port.I("prompt").attach(this);
