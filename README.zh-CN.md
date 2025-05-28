@@ -254,7 +254,7 @@ const agent = new Agent({
 });
 
 // 运行代理
-const result = await agent.run('请读取README.md文件');
+const result = await agent.run('请读取 README.md 文件');
 ```
 
 ### 构建管道
@@ -283,7 +283,7 @@ await pipeline.run('agent.in', '请分析这些数据');
 
 ### Hlang 的力量
 
-[Hlang](https://github.com/hlang-tech) 为AI开发带来了几个革命性的概念：
+[Hlang](https://github.com/hlang-tech) 为 AI 开发带来了几个革命性的概念：
 
 - **声明式 AI 编程**：用传统方法所需代码的一小部分表达复杂的 AI 行为
 - **以人为中心的设计**：受自然语言启发的语法，大幅降低学习曲线
@@ -299,7 +299,7 @@ AStack 保持完全的技术自主性，同时提供与 Hlang 的兼容性：
 - **双重优势方法**：利用 AStack 的细粒度组件控制和 Hlang 的高级抽象
 - **性能优化**：AStack 的零适配层设计确保 Hlang 定义的工作流高效执行
 
-这种技术兼容性为那些既想要高级AI编程的优雅又想要基于组件架构精确控制的开发者创造了强大的组合。
+这种技术兼容性为那些既想要高级 AI 编程的优雅又想要基于组件架构精确控制的开发者创造了强大的组合。
 
 ## 📦 包结构
 
