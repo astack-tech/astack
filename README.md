@@ -13,6 +13,8 @@
 
 *AStack is under active development but already provides significant value for building AI applications*
 
+English | [简体中文](./README.zh-CN.md)
+
 </div>
 
 ## 📋 Overview
@@ -61,6 +63,8 @@ AStack is particularly well-suited for:
 
 AStack draws inspiration from several outstanding projects in the AI ecosystem, particularly [Haystack](https://github.com/deepset-ai/haystack) by deepset-ai. We express our gratitude to these projects for their pioneering work and contributions to the open-source community.
 
+> **Important Note**: AStack is a 100% original framework with its own independent technical implementation, architecture, and design. It is built in TypeScript and only shares API style inspiration with Haystack (which is implemented in Python). AStack is not a fork or derivative of Haystack.
+
 ### AStack vs. Haystack: Feature Comparison
 
 | Feature | AStack | Haystack |
@@ -77,8 +81,10 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 | **Learning Curve** | Minimalist API design | More complex API surface |
 | **Performance** | Optimized for direct component interaction | Additional abstraction layers |
 | **Customization** | High flexibility with minimal boilerplate | Requires more code for custom components |
+| **Implementation** | **TypeScript** | **Python** |
+| **Chinese Support** | **Complete Chinese documentation and support** | **No Chinese documentation** |
 
-Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing, while AStack is designed for broader AI application development with an emphasis on component reusability and minimalist design.
+Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing, while AStack is designed for broader AI application development with an emphasis on component reusability, minimalist design, and developer experience for both English and Chinese speaking communities.
 
 ## 🔍 Architecture
 
