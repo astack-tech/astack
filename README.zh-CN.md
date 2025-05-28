@@ -4,7 +4,7 @@
 
 # AStack
 
-**一个用于构建AI应用的模块化组件框架**
+**一个用于构建 AI 应用的模块化组件框架**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
