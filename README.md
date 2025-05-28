@@ -85,28 +85,32 @@ Each framework has its strengths and is optimized for different use cases. Hayst
 ```mermaid
 flowchart TB
     subgraph "AStack Framework"
-        Core["Core Module"]--"provides"-->Components
-        Core--"provides"-->Pipeline
-        Components--"use"-->Tools
-        Components--"use"-->Integrations
-        Integrations--"include"-->ModelProviders
+        Core["Core Module"]
+        Components["Components"]
+        Pipeline["Pipeline"]
+        Tools["Tools"]
+        Integrations["Integrations"]
+        ModelProviders["Model Providers"]
+        
+        Core-->|provides|Components
+        Core-->|provides|Pipeline
+        Components-->|use|Tools
+        Components-->|use|Integrations
+        Integrations-->|include|ModelProviders
     end
 
-    subgraph "Examples"
-        Examples--"use"-->Core
-        Examples--"use"-->Components
-        Examples--"use"-->Pipeline
+    subgraph "Applications"
+        ExampleApps["Example Applications"]
     end
 
-    classDef core fill:#f9f,stroke:#333,stroke-width:2px;
-    classDef comp fill:#bbf,stroke:#333,stroke-width:1px;
-    classDef integration fill:#bfb,stroke:#333,stroke-width:1px;
-    classDef example fill:#fbb,stroke:#333,stroke-width:1px;
-    
-    class Core core;
-    class Components,Pipeline,Tools comp;
-    class Integrations,ModelProviders integration;
-    class Examples example;
+    ExampleApps-->|use|Core
+    ExampleApps-->|use|Components
+    ExampleApps-->|use|Pipeline
+
+    style Core fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style Components,Pipeline,Tools fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style Integrations,ModelProviders fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style ExampleApps fill:#fff8e1,stroke:#ff8f00,stroke-width:1px
 ```
 
 ## 🚀 Getting Started
@@ -138,17 +142,18 @@ AStack includes several examples in the `examples/` directory to demonstrate its
 
 ### Agent with Tools
 
-This example demonstrates how to create an Agent that can use tools to perform real-world tasks like file operations.
+This example demonstrates how to create an Agent that can use tools to perform real-world tasks like file operations. It showcases the zero-adaptation layer design principle where components work together without intermediate layers.
 
 ```mermaid
 sequenceDiagram
-    participant User
+    actor User as User
     participant Agent
     participant ModelProvider as "Model Provider"
     participant Tools
     
     User->>Agent: "Read file and write with timestamps"
     Agent->>ModelProvider: Send user request
+    Note over ModelProvider: Multi-round tool execution<br/>without adaptation layers
     ModelProvider->>Agent: Request tool execution (readFile)
     Agent->>Tools: Execute readFile tool
     Tools->>Agent: Return file contents
@@ -161,24 +166,54 @@ sequenceDiagram
     Agent->>User: Return final answer
 ```
 
+This example highlights AStack's ability to handle multi-round tool execution, where the agent can process multiple tool calls within a single conversation, maintaining context throughout the interaction.
+
 ### Research Pipeline
 
-This example shows how to build a research pipeline that searches for information, analyzes content, and generates enhanced reports.
+This example demonstrates a sophisticated research pipeline that automatically searches for information, analyzes content, and generates comprehensive research reports using AI. It showcases AStack's ability to coordinate complex workflows across multiple components.
 
 ```mermaid
-flowchart LR
-    Gateway["Gateway Component"]-->WebDriver
-    Gateway-->ContentAnalyzer
-    Gateway-->ReportEnhancer
+flowchart TB
+    %% Main components
+    Gateway["Gateway Component"]
+    WebDriver["Web Driver"]
+    DataRelay["Data Relay"]
+    ContentAnalyzer["Content Analyzer"]
+    ReportEnhancer["Report Enhancer"]
+    LLM["LLM Model Provider"]
+    Output(("Final Report"))
     
-    WebDriver-->ContentAnalyzer
-    ContentAnalyzer-->WebDriver
-    ContentAnalyzer-->ReportEnhancer
-    ReportEnhancer-->Gateway
+    %% Gateway connections
+    Gateway -->|topicOut| ContentAnalyzer
+    Gateway -->|searchQueryOut| WebDriver
+    ContentAnalyzer -->|ready| Gateway
+    ReportEnhancer -->|enhancedReport| Gateway
     
-    classDef component fill:#f9f,stroke:#333,stroke-width:2px;
-    class Gateway,WebDriver,ContentAnalyzer,ReportEnhancer component;
+    %% WebDriver connections
+    WebDriver -->|searchResults| DataRelay
+    DataRelay -->|dataOut| ContentAnalyzer
+    ContentAnalyzer -->|relevantUrls| WebDriver
+    WebDriver -->|pageContent| ContentAnalyzer
+    
+    %% Content processing
+    ContentAnalyzer -->|report| ReportEnhancer
+    ReportEnhancer -->|promptMessages| LLM
+    LLM -->|message| ReportEnhancer
+    
+    %% Output
+    Gateway -->|"Research Report<br/>(HTML + JSON)"| Output
+    
+    %% Styling with standard colors
+    style Gateway fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style WebDriver fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style DataRelay fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style ContentAnalyzer fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style ReportEnhancer fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style LLM fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    style Output fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
+
+The pipeline intelligently coordinates web searches, content extraction, and AI-powered analysis to produce in-depth research reports on any topic, complete with proper citations and structured sections.
 
 ## 💻 Code Examples
 
