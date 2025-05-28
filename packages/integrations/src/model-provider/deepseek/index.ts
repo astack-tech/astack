@@ -223,9 +223,10 @@ class Deepseek extends Component {
   /**
    * 处理对话消息
    * @param messages 对话消息数组
+   * @param options 可选的调用选项，包含临时工具列表
    * @returns 生成的响应消息
    */
-  async chatCompletion(messages: Message[]): Promise<Message> {
+  async chatCompletion(messages: Message[], options?: { temporaryTools?: any[] }): Promise<Message> {
     // 转换消息格式
     const formattedMessages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [];
     
@@ -262,9 +263,31 @@ class Deepseek extends Component {
       top_p: this.topP
     };
     
+    // 决定使用哪些工具
+    // 如果提供了临时工具，优先使用临时工具
+    let toolsToUse = options?.temporaryTools || this.tools;
+    
     // 如果有工具定义，添加到请求中
-    if (this.tools && this.tools.length > 0) {
-      requestParams.tools = this.tools;
+    if (toolsToUse && toolsToUse.length > 0) {
+      // 检查工具格式并转换，确保符合 Deepseek API 要求
+      const formattedTools = toolsToUse.map(tool => {
+        // 如果工具已经是 API 格式，直接返回
+        if (tool.type === 'function') {
+          return tool;
+        }
+        
+        // 如果是简单工具实例，转换为 API 格式
+        return {
+          type: 'function',
+          function: {
+            name: tool.name,
+            description: tool.description,
+            parameters: tool.parameters || {}
+          }
+        };
+      });
+      
+      requestParams.tools = formattedTools;
     }
     
     // 调用 API

@@ -126,15 +126,26 @@ export class DefaultMemory implements Memory {
 }
 
 /**
+ * 模型提供者选项
+ */
+export interface ModelProviderOptions {
+  /**
+   * 临时工具列表，会覆盖模型的默认工具
+   */
+  temporaryTools?: any[];
+}
+
+/**
  * 通用模型提供者接口，兼容各种大模型组件
  */
 export interface ModelProvider {
   /**
    * 调用模型生成回复
    * @param messages 输入消息列表
+   * @param options 可选的模型调用选项
    * @returns 生成的回复消息
    */
-  chatCompletion(messages: any[]): Promise<any>;
+  chatCompletion(messages: any[], options?: ModelProviderOptions): Promise<any>;
 }
 
 /**
@@ -340,34 +351,52 @@ export class Agent extends Component {
   }
 
   /**
-   * 单轮对话
+   * 执行工具调用的多轮交互
    * @param messages 消息历史
    * @returns 最终的 Agent 输出
    */
-  private async singleRoundWithTools(messages: Message[]): Promise<AgentOutput> {
+  private async executeWithTools(messages: Message[]): Promise<AgentOutput> {
     try {
-      // 1. 初始化变量并创建需要返回的记录
+      // 1. 初始化变量
       const toolCalls: Array<{
         tool: string;
         args: Record<string, any>;
         result: any;
       }> = [];
+      let currentMessages = [...messages];
+      let iteration = 0;
+      let lastAssistantMessage: any = null;
+      let hasMoreToolsToCall = true;
 
-      // 2. 第一次调用模型获取前端解析和工具调用
-      console.log("[Agent Debug] 发送消息给模型:", JSON.stringify(messages, null, 2));
-      const initialResponse = await this.model.chatCompletion(messages);
-      let assistantMessage = initialResponse;
-      console.log("[Agent Debug] 收到模型回复:", JSON.stringify(initialResponse, null, 2));
+      // 2. 开始迭代循环，直到达到最大迭代次数或模型没有更多工具调用
+      while (hasMoreToolsToCall && iteration < this.maxIterations) {
+        iteration++;
+        console.log(`\n[Agent Debug] === 迭代 ${iteration}/${this.maxIterations} ===`);
+        console.log("[Agent Debug] 发送消息给模型:", JSON.stringify(currentMessages, null, 2));
 
-      // 3. 如果存在工具调用，我们需要处理它们
-      if (initialResponse.tool_calls && initialResponse.tool_calls.length > 0) {
-        // 执行所有工具调用并收集工具反馈内容，但不生成工具响应消息
-        console.log(`[Agent Debug] 工具调用数量: ${initialResponse.tool_calls.length}`);
+        // 3. 调用模型获取回复
+        const modelResponse = await this.model.chatCompletion(currentMessages, {
+          temporaryTools: this.tools
+        });
+        console.log("[Agent Debug] 收到模型回复:", JSON.stringify(modelResponse, null, 2));
 
-        // 构建工具调用结果字符串
+        // 保存模型回复作为最后的助手消息
+        lastAssistantMessage = modelResponse;
+
+        // 4. 检查是否有工具调用
+        if (!modelResponse.tool_calls || modelResponse.tool_calls.length === 0) {
+          // 没有工具调用，完成迭代
+          console.log("[Agent Debug] 模型没有请求更多工具调用，完成迭代");
+          hasMoreToolsToCall = false;
+          break;
+        }
+
+        // 5. 处理工具调用
+        console.log(`[Agent Debug] 工具调用数量: ${modelResponse.tool_calls.length}`);
         let toolResultsText = "";
 
-        for (const call of initialResponse.tool_calls) {
+        // 遍历所有工具调用
+        for (const call of modelResponse.tool_calls) {
           // 解析工具信息
           const toolName = call.tool_name ||
             (call.function && call.function.name) ||
@@ -437,38 +466,31 @@ export class Agent extends Component {
           }
         }
 
-        // 4. 使用一体化方法生成第二轮提示，包含工具执行结果
-        const secondRoundMessages = [...messages]; // 复制原始消息
-
+        // 6. 更新消息历史
         // 添加助手消息，包含工具调用内容
-        secondRoundMessages.push({
+        currentMessages.push({
           role: "assistant",
-          content: initialResponse.content || ""
+          content: modelResponse.content || "",
+          tool_calls: modelResponse.tool_calls
         });
 
         // 添加用户消息，包含工具结果
-        secondRoundMessages.push({
+        currentMessages.push({
           role: "user",
-          content: `以下是工具调用的结果，请基于这些结果继续回答我的问题:${toolResultsText}`
+          content: `以下是工具调用的结果，请基于这些结果继续:${toolResultsText}`
         });
-
-        // 5. 再次调用模型获取最终回复
-        console.log("[Agent Debug] 发送第二轮消息，包含工具结果:", JSON.stringify(secondRoundMessages, null, 2));
-        const finalResponse = await this.model.chatCompletion(secondRoundMessages);
-        console.log("[Agent Debug] 收到最终回复:", JSON.stringify(finalResponse, null, 2));
-
-        // 更新助手消息
-        assistantMessage = finalResponse;
       }
 
-      // 使用当前的助手消息作为最终回复
-      const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+      // 如果达到最大迭代次数但仍有工具调用，记录警告
+      if (iteration >= this.maxIterations && hasMoreToolsToCall) {
+        console.log(`[Agent Warning] 达到最大迭代次数 ${this.maxIterations}，强制终止迭代`);
+      }
 
+      // 7. 返回最终结果
       return {
-        message: assistantMessage.content || '',
-        thinking: toolCalls.length > 0 ? `执行了${toolCalls.length}个工具调用` : '',
-        toolCalls,
-        history: [...messages, assistantMessage]
+        message: lastAssistantMessage?.content || '',
+        history: currentMessages,
+        toolCalls
       };
     } catch (error: any) {
       console.error('[Agent Debug] 处理过程中出错:', error);
@@ -509,8 +531,8 @@ export class Agent extends Component {
       console.log(`  ${index + 1}. ${tool.name} - ${tool.description}`);
     });
 
-    // 执行单轮对话处理
-    return this.singleRoundWithTools(initialMessages);
+    // 执行多轮工具调用处理
+    return this.executeWithTools(initialMessages);
   }
 
   /**

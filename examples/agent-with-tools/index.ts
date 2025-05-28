@@ -9,6 +9,8 @@ import {
 import { 
   Deepseek
 } from '@astack/integrations/model-provider';
+import * as fs from 'fs';
+import * as path from 'path';
 
 /**
  * Agent 与工具集成示例
@@ -26,59 +28,83 @@ async function main() {
 
   console.log('创建工具...');
   
-  // 创建搜索工具
-  const searchTool = createTool(
-    'search',
-    '搜索互联网上的信息',
+  // 创建文件读取工具
+  const readFileTool = createTool(
+    'readFile',
+    '读取指定路径的文件内容',
     async (args: Record<string, any>) => {
-      const { query } = args;
-      console.log(`[搜索工具] 搜索查询: ${query}`);
+      const { filePath } = args;
+      console.log(`[文件读取工具] 读取文件: ${filePath}`);
       
-      // 模拟搜索结果
-      return [
-        `搜索结果 1: 关于 "${query}" 的信息`,
-        `搜索结果 2: 更多关于 "${query}" 的信息`,
-        `搜索结果 3: "${query}" 的详细说明`
-      ];
+      try {
+        // 确保路径安全
+        if (!filePath || filePath.includes('..')) {
+          throw new Error('非法文件路径');
+        }
+        
+        // 构建相对路径，限制在示例目录内
+        const basePath = process.cwd();
+        const fullPath = path.resolve(basePath, filePath);
+        
+        // 读取文件
+        if (!fs.existsSync(fullPath)) {
+          return `错误: 文件 ${filePath} 不存在`;
+        }
+        
+        const content = fs.readFileSync(fullPath, 'utf-8');
+        return content;
+      } catch (error: any) {
+        return `读取文件错误: ${error.message}`;
+      }
     },
     {
       type: 'object',
       properties: {
-        query: { type: 'string', description: '搜索查询内容' }
+        filePath: { type: 'string', description: '需要读取的文件路径，相对于当前目录' }
       },
-      required: ['query']
+      required: ['filePath']
     }
   );
   
-  // 创建计算器工具
-  const calculatorTool = createTool(
-    'calculator',
-    '执行数学计算',
+  // 创建文件写入工具
+  const writeFileTool = createTool(
+    'writeFile',
+    '将内容写入指定路径的文件',
     async (args: Record<string, any>) => {
-      const { expression } = args;
-      console.log(`[计算器工具] 计算表达式: ${expression}`);
-      
-      // 安全检查
-      if (!/^[\d\s\+\-\*\/\^\(\)\.]+$/.test(expression)) {
-        throw new Error('非法表达式，只允许基本数学运算');
-      }
+      const { filePath, content } = args;
+      console.log(`[文件写入工具] 写入文件: ${filePath}`);
       
       try {
-        // 将 ^ 转换为 ** 进行幂运算
-        const processedExpr = expression.replace(/\^/g, '**');
-        // 使用 eval 计算结果
-        const result = eval(processedExpr);
-        return result;
+        // 确保路径安全
+        if (!filePath || filePath.includes('..')) {
+          throw new Error('非法文件路径');
+        }
+        
+        // 构建相对路径，限制在示例目录内
+        const basePath = process.cwd();
+        const fullPath = path.resolve(basePath, filePath);
+        
+        // 确保目录存在
+        const dir = path.dirname(fullPath);
+        
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        // 写入文件
+        fs.writeFileSync(fullPath, content, 'utf-8');
+        return `成功写入文件 ${filePath}, 内容长度: ${content.length} 字符`;
       } catch (error: any) {
-        throw new Error(`计算错误: ${error.message}`);
+        return `写入文件错误: ${error.message}`;
       }
     },
     {
       type: 'object',
       properties: {
-        expression: { type: 'string', description: '数学表达式，如 "2 + 2" 或 "(3 + 4) * 5"' }
+        filePath: { type: 'string', description: '需要写入的文件路径，相对于当前目录' },
+        content: { type: 'string', description: '需要写入的文件内容' }
       },
-      required: ['expression']
+      required: ['filePath', 'content']
     }
   );
   
@@ -88,23 +114,23 @@ async function main() {
   const deepseek = new Deepseek({
     apiKey,
     model: 'deepseek-chat',
-    temperature: 0.7,
-    rawTools: [searchTool, calculatorTool]
+    temperature: 0.7
   });
 
   console.log('创建 Agent 组件...');
   
-  // 直接创建 Agent 组件，无需任何适配层
+  // 创建 Agent 组件
   const agent = new Agent({
-    // 直接传入模型提供者
+    // 模型提供者
     model: deepseek,
     
-    // 直接传入工具列表，无需适配
-    tools: [searchTool, calculatorTool],
+    // 工具列表
+    tools: [readFileTool, writeFileTool],
     
     // 系统提示消息
-    systemPrompt: `你是一个智能助手，能够使用工具帮助用户解决问题。
-当你需要使用工具时，请提供详细的工具调用参数。`,
+    systemPrompt: `你是一个代码助手，能够帮助用户读取和修改文件。
+当你需要使用工具时，请提供详细的工具调用参数。
+文件路径总是相对于当前目录。`,
     
     // 开启详细日志
     verbose: true,
@@ -113,11 +139,13 @@ async function main() {
     maxIterations: 5
   });
 
-  // 示例用户请求
-  const userRequest = '搜索关于量子计算的信息，然后计算圆的面积，如果半径是5，使用圆周率π=3.14159';
+  // 准备测试文件
+  const testFilePath = './test-data.txt';
+  fs.writeFileSync(testFilePath, '这是测试文件的原始内容\n包含多行文本\n可以用于测试文件操作工具', 'utf-8');
 
-  console.log('\n===== 独立运行模式 =====');
-  console.log(`用户请求: ${userRequest}`);
+  const userRequest = '请先读取 test-data.txt 文件的内容，然后创建一个新的文件 output.txt，在其中写入原文件的内容，但将每行开头加上行号和时间戳。';
+  console.log('用户请求:', userRequest);
+  console.log('Agent 开始处理请求...');
 
   try {
     // 独立运行
@@ -145,7 +173,13 @@ async function main() {
     }
 
     console.log('\n===== 流水线运行模式 =====');
-
+    console.log('流水线开始处理请求...');
+  
+    // 流水线运行前确保测试文件存在
+    if (!fs.existsSync(testFilePath)) {
+      fs.writeFileSync(testFilePath, '这是测试文件的原始内容\n包含多行文本\n可以用于测试文件操作工具', 'utf-8');
+    }
+  
     // 创建流水线
     const pipeline = new Pipeline();
 
@@ -157,9 +191,7 @@ async function main() {
     pipeline.connect('agent.out', 'resultHandler.in');
 
     // 运行流水线
-    console.log('流水线开始处理请求...');
     await pipeline.run('agent.in', userRequest);
-
   } catch (error: any) {
     console.error('执行过程中出错:', error.message);
   }
