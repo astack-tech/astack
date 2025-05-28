@@ -1,7 +1,7 @@
 {
   "name": "simple-deep-research",
   "version": "0.1.0",
-  "description": "使用 astack 框架实现的简易深度研究工具，可自动搜索并整理结果成报告",
+  "description": "使用 AStack 框架实现的简易深度研究工具，可自动搜索并整理结果成报告",
   "main": "index.js",
   "type": "module",
   "scripts": {

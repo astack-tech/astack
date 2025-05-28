@@ -67,24 +67,25 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 
 ### AStack vs. Haystack: Feature Comparison
 
+> This comparison is based on Haystack v2.0 (as of May 2025). Both frameworks continue to evolve, and specific features may change over time.
+
 | Feature | AStack | Haystack |
 |---------|--------|----------|
 | **Core Design** | Everything is a component | Pipeline with nodes |
-| **Adaptation Layer** | Zero-adaptation layer design | Requires adapters between components |
+| **Adaptation Layer** | Zero-adaptation layer design | Component connections often require adapters |
 | **Primary Focus** | General AI application framework | Primarily NLP and RAG applications |
-| **Component Interface** | Unified component interface | Different interfaces for different node types |
-| **Agent Support** | First-class agent components with multi-round tool execution | Basic agent support |
-| **Memory Management** | Built-in memory abstractions | Limited memory management |
-| **Pipeline Execution** | Both independent and pipeline execution modes | Pipeline-focused execution |
-| **Tool Integration** | Standardized tool interface | Custom implementations per use case |
-| **Model Integration** | Direct model provider integration | Adapter-based integration |
-| **Learning Curve** | Minimalist API design | More complex API surface |
-| **Performance** | Optimized for direct component interaction | Additional abstraction layers |
-| **Customization** | High flexibility with minimal boilerplate | Requires more code for custom components |
+| **Component Interface** | Unified component interface | Different interfaces based on component types |
+| **Agent Support** | Multi-round tool execution with minimal overhead | Agent framework with LangGraph integration |
+| **Memory Management** | Built-in memory abstractions | Memory implemented through specialized components |
+| **Execution Modes** | Both independent and pipeline execution | Both pipeline and component-level execution |
+| **Tool Integration** | Standardized tool interface | Various integration patterns depending on use case |
+| **Model Integration** | Direct model provider integration | Provider-specific adapters |
+| **Learning Curve** | Minimalist API focused on simplicity | Comprehensive but more complex API |
+| **Customization** | High flexibility with minimal boilerplate | Flexible but requires more implementation code |
 | **Implementation** | **TypeScript** | **Python** |
-| **Chinese Support** | **Complete Chinese documentation and support** | **No Chinese documentation** |
+| **Chinese Support** | **Complete Chinese documentation** | **Limited Chinese documentation** |
 
-Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing, while AStack is designed for broader AI application development with an emphasis on component reusability, minimalist design, and developer experience for both English and Chinese speaking communities.
+Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with a mature Python ecosystem, while AStack is designed for TypeScript/JavaScript environments with an emphasis on component reusability and minimalist design principles. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
 
 ## 🔍 Architecture
 
@@ -279,27 +280,27 @@ await pipeline.run('agent.in', 'Please analyze this data');
 
 ## 🔄 Hlang Compatibility
 
-While AStack is a technically independent framework, it offers seamless compatibility with [Hlang](https://github.com/hlang-tech) - the groundbreaking high-level AI programming language that's revolutionizing how AI applications are built. This technical compatibility offers unique advantages:
+While AStack is a technically independent framework, it offers seamless compatibility with [Hlang](https://github.com/hlang-tech) - a framework inspired by Flow-Based Programming (FBP) paradigm with features particularly well-suited for AI application development. This technical compatibility offers unique advantages:
 
-### Hlang's Power
+### Hlang's Distinctive Features
 
-[Hlang](https://github.com/hlang-tech) brings several revolutionary concepts to AI development:
+[Hlang](https://github.com/hlang-tech) offers several distinctive concepts that are valuable for modern software development, especially for AI applications:
 
-- **Declarative AI Programming**: Express complex AI behaviors in a fraction of the code required by traditional methods
-- **Human-Centric Design**: Natural language-inspired syntax that dramatically reduces the learning curve
-- **Built-In AI Patterns**: Pre-implemented patterns for common AI application architectures
-- **Type Safety with Flexibility**: Strong typing system that still allows for the dynamic nature of AI interactions
+- **Declarative Programming Approach**: Express complex behaviors in a fraction of the code required by traditional methods
+- **Human-Centric Design**: Intuitive syntax that reduces the learning curve for developers
+- **Component-Based Architecture**: Built around modular components that can be assembled into complex systems
+- **Type Safety with Flexibility**: Strong typing system that also accommodates the dynamic nature of modern applications
 
 ### Technical Integration
 
 AStack maintains complete technical autonomy while offering compatibility with Hlang:
 
-- **Complementary Architectures**: AStack's component model aligns perfectly with Hlang's conceptual framework
-- **Independent Development**: Use AStack on its own or enhance it with Hlang's capabilities
-- **Best-of-Both Approach**: Leverage AStack's fine-grained component control with Hlang's high-level abstractions
-- **Performance Optimization**: AStack's zero-adaptation layer design ensures efficient execution of Hlang-defined workflows
+- **Compatible Component Models**: AStack's component approach is structurally compatible with Hlang's flow-based programming model
+- **Independent Development**: AStack can be used independently or in conjunction with Hlang's capabilities
+- **Complementary Strengths**: Combine AStack's fine-grained component control with Hlang's higher-level abstractions
+- **Efficient Execution**: AStack's zero-adaptation layer design enables efficient implementation of workflows defined in either framework
 
-This technical compatibility creates a powerful combination for developers who want both the elegance of high-level AI programming and the precision of component-based architecture.
+This technical compatibility creates a practical synergy for developers leveraging both frameworks' strengths while maintaining the independence of each system.
 
 ## 📦 Packages
 
