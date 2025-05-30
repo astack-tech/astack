@@ -24,13 +24,13 @@ export interface ReportEnhancerConfig {
 
 /**
  * 报告增强器组件
- * 
+ *
  * 使用 AI 模型增强研究报告，添加深度分析和结构化内容
- * 
+ *
  * 输入:
  *   - rawReport: 原始研究报告
  *   - llmResponse: 从 LLM 收到的响应
- * 
+ *
  * 输出:
  *   - enhancedReport: 增强后的研究报告
  *   - promptMessages: 发送给 LLM 的提示消息
@@ -47,10 +47,10 @@ class ReportEnhancer extends Component {
     this.sectionCount = config.sectionCount ?? 3;
 
     // 定义端口
-    Component.Port.I("rawReport").attach(this);
-    Component.Port.I("llmResponse").attach(this);
-    Component.Port.O("enhancedReport").attach(this);
-    Component.Port.O("promptMessages").attach(this);
+    Component.Port.I('rawReport').attach(this);
+    Component.Port.I('llmResponse').attach(this);
+    Component.Port.O('enhancedReport').attach(this);
+    Component.Port.O('promptMessages').attach(this);
   }
 
   /**
@@ -94,7 +94,7 @@ class ReportEnhancer extends Component {
 
     // 添加原始报告的章节内容
     if (report.sections && report.sections.length > 0) {
-      userPrompt += "\n 原始章节内容 :\n";
+      userPrompt += '\n 原始章节内容 :\n';
       for (const section of report.sections) {
         userPrompt += `## ${section.title}\n${section.content}\n\n`;
       }
@@ -109,7 +109,7 @@ class ReportEnhancer extends Component {
     }
 
     if (sources.size > 0) {
-      userPrompt += "\n 信息来源 :\n";
+      userPrompt += '\n 信息来源 :\n';
       Array.from(sources).forEach(source => {
         userPrompt += `- ${source}\n`;
       });
@@ -118,7 +118,7 @@ class ReportEnhancer extends Component {
     // 返回提示消息数组
     return [
       { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
+      { role: 'user', content: userPrompt },
     ];
   }
 
@@ -131,17 +131,25 @@ class ReportEnhancer extends Component {
   enhanceReport(report: ResearchReport, llmResponse: Message): ResearchReport {
     try {
       // 尝试解析 JSON 响应
-      let responseContent: any;
+      let responseContent: {
+        title?: string;
+        summary?: string;
+        sections?: Array<{
+          title: string;
+          content: string;
+        }>;
+      };
 
       try {
         responseContent = JSON.parse(llmResponse.content);
-      } catch (e) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (_) {
         // 如果不是有效的 JSON，尝试从文本中提取 JSON 部分
         const jsonMatch = llmResponse.content.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           responseContent = JSON.parse(jsonMatch[0]);
         } else {
-          throw new Error("无法解析 LLM 响应为 JSON");
+          throw new Error('无法解析 LLM 响应为 JSON');
         }
       }
 
@@ -150,15 +158,15 @@ class ReportEnhancer extends Component {
         ...report,
         title: responseContent.title || report.title,
         summary: responseContent.summary || report.summary,
-        sections: []
+        sections: [],
       };
 
       // 添加新的章节
       if (Array.isArray(responseContent.sections)) {
-        enhancedReport.sections = responseContent.sections.map((section: any) => ({
+        enhancedReport.sections = responseContent.sections.map(section => ({
           title: section.title,
           content: section.content,
-          sources: report.sections.flatMap(s => s.sources) // 保留原始来源
+          sources: report.sections.flatMap(s => s.sources), // 保留原始来源
         }));
       }
 
@@ -169,7 +177,7 @@ class ReportEnhancer extends Component {
       // 如果处理失败，返回原始报告
       return {
         ...report,
-        summary: report.summary + "\n\n(注: AI 增强失败，显示原始报告内容)",
+        summary: report.summary + '\n\n(注: AI 增强失败，显示原始报告内容)',
       };
     }
   }
@@ -180,8 +188,8 @@ class ReportEnhancer extends Component {
    * @returns 增强后的报告或提示消息
    */
   async run(input: {
-    rawReport: ResearchReport,
-    llmResponse?: Message
+    rawReport: ResearchReport;
+    llmResponse?: Message;
   }): Promise<ResearchReport | Message[]> {
     const { rawReport, llmResponse } = input;
 
@@ -196,9 +204,10 @@ class ReportEnhancer extends Component {
 
   /**
    * 在流水线中运行组件
-   * @param $i 输入端口
-   * @param $o 输出端口
+   * @param $i 输入端口映射函数
+   * @param $o 输出端口映射函数
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _transform($i: any, $o: any) {
     let rawReport: ResearchReport | null = null;
 

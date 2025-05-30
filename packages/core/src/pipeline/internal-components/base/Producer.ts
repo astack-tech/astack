@@ -1,17 +1,16 @@
-// @ts-ignore
-import { ReadableNode, Port } from "@hlang-org/runtime";
+import { ReadableNode, Port } from '@hlang-org/runtime';
 
 class BaseProducer extends ReadableNode {
-  private out: ReturnType<typeof Port.O>
+  private out: ReturnType<typeof Port.O>;
 
-  constructor (opt: unknown) {
+  constructor(opt: unknown) {
     super(opt);
 
-    this.out = Port.O("out");
+    this.out = Port.O('out');
     this.out.attach(this);
   }
 
-  produce (value: unknown) {
+  produce(value: unknown) {
     this.out.send(value);
   }
 }

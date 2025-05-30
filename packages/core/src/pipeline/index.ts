@@ -1,4 +1,3 @@
-// @ts-ignore
 import { type Node, Flow } from '@hlang-org/runtime';
 
 import BaseProducer from './internal-components/base/Producer';
@@ -14,7 +13,7 @@ class Pipeline {
   // running trigger
   private runningTrigger: Set<string> = new Set();
 
-  constructor() { }
+  constructor() {}
 
   /**
    * Get source port from a component
@@ -97,7 +96,7 @@ class Pipeline {
    * @param sink - Callback/sink to process the final result
    * @returns void
    */
-  private runWithBaseMode(triggerName: string, params: any, sink: unknown) {
+  private runWithBaseMode<T>(triggerName: string, params: unknown, sink: (value: T) => void) {
     let startComponent: BaseProducer, endComponent: BaseConsumer;
 
     if (!(this.getComponent(START_COMPONENT_NAME) && this.getComponent(END_COMPONENT_NAME))) {
@@ -120,7 +119,9 @@ class Pipeline {
     if (!this.runningTrigger.has(triggerName)) {
       // Validate the trigger name format
       if (!triggerName || !triggerName.includes('.')) {
-        throw new Error(`Invalid trigger name: ${triggerName}. Format should be 'componentName.portName'`);
+        throw new Error(
+          `Invalid trigger name: ${triggerName}. Format should be 'componentName.portName'`
+        );
       }
 
       // We need to determine the final sink dynamically
@@ -146,7 +147,7 @@ class Pipeline {
       }
 
       // Access the standard output port of the component (defined in our Component base class)
-      // @ts-ignore - Accessing a property that might not exist on all Node types
+      // @ts-expect-error - Accessing a property that might not exist on all Node types
       const endSinkName = `${lastComponentName}.${lastComponent?.outPort?.name}`;
 
       // Connect the internal start component to the user-specified entry point
@@ -175,13 +176,13 @@ class Pipeline {
    * @param params - Parameters to pass to the pipeline
    * @returns Promise<T>
    */
-  run<T = unknown>(triggerName: string, params: any): Promise<T> {
-    return new Promise((resolve) => {
+  run<T = unknown>(triggerName: string, params: unknown): Promise<T> {
+    return new Promise(resolve => {
       this.runWithBaseMode(triggerName, params, (value: T) => {
         resolve(value);
-      })
-    })
+      });
+    });
   }
 }
 
-export default Pipeline
+export default Pipeline;

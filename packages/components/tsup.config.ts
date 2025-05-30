@@ -1,4 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { defineConfig, Options } from 'tsup';
+import type { BuildOptions } from 'esbuild';
 
 export default defineConfig({
   entry: {
@@ -13,7 +15,7 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
-  esbuildOptions(options: any) {
+  esbuildOptions(options: BuildOptions) {
     options.resolveExtensions = ['.ts', '.js'];
   },
   outExtension({ format }: { format: string }) {

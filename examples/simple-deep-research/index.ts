@@ -11,7 +11,7 @@ import Mustache from 'mustache';
 
 /**
  * 简易深度研究工具
- * 
+ *
  * 使用 AStack 框架实现的自动研究工具，可以：
  * 1. 搜索指定主题的网络信息
  * 2. 分析和提取相关内容
@@ -19,10 +19,10 @@ import Mustache from 'mustache';
  */
 async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<void> {
   console.log(`开始对 "${topic}" 进行深度研究...`);
-  
+
   // 创建流水线
   const pipeline = new Pipeline();
-  
+
   // 创建组件
   const gateway = new GatewayComponent({ searchDelay: 200 });
   const webDriver = new WebDriverComponent({ headless: false });
@@ -34,7 +34,7 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
     model: 'deepseek-chat',
     temperature: 0.5,
   });
-  
+
   // 添加组件到流水线
   console.log('添加组件到流水线 ...');
   pipeline.addComponent('gateway', gateway);
@@ -43,10 +43,10 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
   pipeline.addComponent('analyzer', contentAnalyzer);
   pipeline.addComponent('enhancer', reportEnhancer);
   pipeline.addComponent('llm', llmModel);
-  
+
   // 连接组件
   console.log('开始连接组件端口 ...');
-  
+
   // 网关到各组件的连接
   pipeline.connect('gateway.topicOut', 'analyzer.topic');
   pipeline.connect('gateway.searchQueryOut', 'webDriver.searchQuery');
@@ -62,57 +62,57 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
   pipeline.connect('llm.message', 'enhancer.llmResponse');
   // 将最终报告连接回网关
   pipeline.connect('enhancer.enhancedReport', 'gateway.reportIn');
-  
+
   console.log('所有组件端口连接完成');
-  
+
   try {
     // 使用网关组件作为单一进入点
     console.log('通过网关触发完整流程 ...');
     const enhancedReport = await pipeline.run<ResearchReport>('gateway.input', { topic, apiKey });
     console.log('流水线处理完成，获取最终报告');
-    
+
     // 保存报告到文件
     console.log('保存最终报告到文件 ...');
     const reportDir = path.join(process.cwd(), 'reports');
     await fs.mkdir(reportDir, { recursive: true });
-    
+
     // 保存 JSON 格式报告（用于兼容）
     const jsonFileName = `${topic.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.json`;
     const jsonFilePath = path.join(reportDir, jsonFileName);
     await fs.writeFile(jsonFilePath, JSON.stringify(enhancedReport, null, 2), 'utf8');
-    
+
     // 生成 HTML 报告
     try {
       // 读取 HTML 模板
       const templatePath = path.join(process.cwd(), 'templates', 'report-template.html');
       const template = await fs.readFile(templatePath, 'utf8');
-      
+
       // 准备渲染数据
       const allSources = new Set<string>();
       enhancedReport.sections.forEach(section => {
         section.sources.forEach(source => allSources.add(source));
       });
-      
+
       const renderData = {
         ...enhancedReport,
         topic: enhancedReport.topic || topic,
         generatedDate: new Date().toLocaleString('zh-CN'),
-        sources: Array.from(allSources)
+        sources: Array.from(allSources),
       };
-      
+
       // 渲染 HTML
       const htmlContent = Mustache.render(template, renderData);
-      
+
       // 保存 HTML 报告
       const htmlFileName = `${topic.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.html`;
       const htmlFilePath = path.join(reportDir, htmlFileName);
       await fs.writeFile(htmlFilePath, htmlContent, 'utf8');
-      
+
       console.log('HTML 报告已保存至 :', htmlFilePath);
     } catch (error) {
       console.error('生成 HTML 报告失败 :', error);
     }
-    
+
     // 打印报告摘要
     console.log('\n============= 研究报告摘要 =============');
     console.log(`标题: ${enhancedReport.title}`);
@@ -122,7 +122,6 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
       console.log(`  ${index + 1}. ${section.title}`);
     });
     console.log('\n 完整报告已保存至 :', jsonFilePath);
-    
   } catch (error) {
     console.error('研究过程中出错 :', error);
   } finally {

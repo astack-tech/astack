@@ -12,7 +12,9 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "lint": "npm run lint:check",
+    "lint:check": "eslint \"{packages,examples}/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"{packages,examples}/**/*.{ts,tsx}\" --fix",
     "test": "turbo run test",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
@@ -32,7 +34,12 @@
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/node": "^20.11.5",
-    "eslint": "^8.56.0",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "esbuild": "^0.25.5",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
     "prettier": "^3.1.1",
     "turbo": "^2.5.3",
     "typescript": "^5.8.3"

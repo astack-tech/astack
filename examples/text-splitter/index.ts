@@ -34,33 +34,33 @@ const sampleText = `
 // 处理结果的回调函数
 function handleResults(chunks: string[]) {
   console.log(`\n文本被分割成 ${chunks.length} 个块：\n`);
-  
+
   chunks.forEach((chunk, index) => {
     console.log(`--- 块 ${index + 1} (长度: ${chunk.length}) ---`);
     console.log(chunk);
     console.log('\n');
   });
-  
-  console.log("文本分割示例完成。");
+
+  console.log('文本分割示例完成。');
 }
 
 // 运行文本分割测试
 async function runTextSplitterPipeline() {
-  console.log("开始文本分割示例...\n");
+  console.log('开始文本分割示例...\n');
 
   // 创建 TextSplitter 组件
   const textSplitter = new TextSplitter({
-    chunkSize: 100,  // 较小的块大小，便于示例展示
-    overlap: 20,     // 20 字符的重叠
-    separator: /\n\s*\n/  // 按段落分割
+    chunkSize: 100, // 较小的块大小，便于示例展示
+    overlap: 20, // 20 字符的重叠
+    separator: /\n\s*\n/, // 按段落分割
   });
 
   // 创建流水线
   const pipeline = new Pipeline();
-  
+
   // 添加组件到流水线
   pipeline.addComponent('textSplitter', textSplitter);
-  
+
   // 运行流水线 - 把文本作为输入参数，在结果回调中处理文本块
   // component in pipeline
   const result = await pipeline.run<string[]>('textSplitter.text', sampleText);

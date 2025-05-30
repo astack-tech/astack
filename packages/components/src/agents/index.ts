@@ -34,7 +34,7 @@ export interface Message {
   /**
    * 消息的附加元数据
    */
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -54,7 +54,7 @@ export interface Tool {
   /**
    * 工具的参数定义，JSON Schema 格式
    */
-  parameters?: Record<string, any>;
+  parameters?: Record<string, unknown>;
 }
 
 /**
@@ -113,6 +113,7 @@ export class DefaultMemory implements Memory {
    * @param maxTokens 最大令牌数限制
    * @returns 记忆中的所有消息
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getFormattedMemory(maxTokens?: number): Message[] {
     return this.getMessages();
   }
@@ -132,8 +133,28 @@ export interface ModelProviderOptions {
   /**
    * 临时工具列表，会覆盖模型的默认工具
    */
-  temporaryTools?: any[];
+  temporaryTools?: unknown[];
 }
+
+/**
+ * 工具调用接口
+ * 注意：这个接口为了内部处理方便，包含不同形式的工具调用格式
+ */
+export type ToolCall = {
+  id: string;
+  type: string;
+  function: {
+    name: string;
+    arguments: string;
+  };
+  tool_name?: string;
+  arguments?: Record<string, unknown> | string;
+};
+
+/**
+ * 带工具调用的消息
+ */
+export type MessageWithToolCalls = Message;
 
 /**
  * 通用模型提供者接口，兼容各种大模型组件
@@ -145,7 +166,10 @@ export interface ModelProvider {
    * @param options 可选的模型调用选项
    * @returns 生成的回复消息
    */
-  chatCompletion(messages: any[], options?: ModelProviderOptions): Promise<any>;
+  chatCompletion(
+    messages: Message[],
+    options?: ModelProviderOptions
+  ): Promise<MessageWithToolCalls>;
 }
 
 /**
@@ -160,7 +184,7 @@ export interface AgentInput {
   /**
    * 可选的上下文信息
    */
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
 }
 
 /**
@@ -182,8 +206,8 @@ export interface AgentOutput {
    */
   toolCalls?: Array<{
     tool: string;
-    args: Record<string, any>;
-    result: any;
+    args: Record<string, unknown>;
+    result: unknown;
   }>;
 
   /**
@@ -336,11 +360,15 @@ export class Agent extends Component {
             if (params.properties) {
               prompt += '   参数：\n';
               for (const [name, param] of Object.entries(params.properties)) {
-                const paramDesc = (param as any).description || '';
+                const paramDesc =
+                  typeof param === 'object' && param !== null && 'description' in param
+                    ? String(param.description)
+                    : '';
                 prompt += `   - ${name}: ${paramDesc}\n`;
               }
             }
-          } catch (error) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (_) {
             // 忽略参数解析错误
           }
         }
@@ -360,25 +388,25 @@ export class Agent extends Component {
       // 1. 初始化变量
       const toolCalls: Array<{
         tool: string;
-        args: Record<string, any>;
-        result: any;
+        args: Record<string, unknown>;
+        result: unknown;
       }> = [];
-      let currentMessages = [...messages];
+      const currentMessages = [...messages];
       let iteration = 0;
-      let lastAssistantMessage: any = null;
+      let lastAssistantMessage: MessageWithToolCalls | null = null;
       let hasMoreToolsToCall = true;
 
       // 2. 开始迭代循环，直到达到最大迭代次数或模型没有更多工具调用
       while (hasMoreToolsToCall && iteration < this.maxIterations) {
         iteration++;
         console.log(`\n[Agent Debug] === 迭代 ${iteration}/${this.maxIterations} ===`);
-        console.log("[Agent Debug] 发送消息给模型:", JSON.stringify(currentMessages, null, 2));
+        console.log('[Agent Debug] 发送消息给模型:', JSON.stringify(currentMessages, null, 2));
 
         // 3. 调用模型获取回复
         const modelResponse = await this.model.chatCompletion(currentMessages, {
-          temporaryTools: this.tools
+          temporaryTools: this.tools,
         });
-        console.log("[Agent Debug] 收到模型回复:", JSON.stringify(modelResponse, null, 2));
+        console.log('[Agent Debug] 收到模型回复:', JSON.stringify(modelResponse, null, 2));
 
         // 保存模型回复作为最后的助手消息
         lastAssistantMessage = modelResponse;
@@ -386,21 +414,20 @@ export class Agent extends Component {
         // 4. 检查是否有工具调用
         if (!modelResponse.tool_calls || modelResponse.tool_calls.length === 0) {
           // 没有工具调用，完成迭代
-          console.log("[Agent Debug] 模型没有请求更多工具调用，完成迭代");
+          console.log('[Agent Debug] 模型没有请求更多工具调用，完成迭代');
           hasMoreToolsToCall = false;
           break;
         }
 
         // 5. 处理工具调用
         console.log(`[Agent Debug] 工具调用数量: ${modelResponse.tool_calls.length}`);
-        let toolResultsText = "";
+        let toolResultsText = '';
 
         // 遍历所有工具调用
         for (const call of modelResponse.tool_calls) {
           // 解析工具信息
-          const toolName = call.tool_name ||
-            (call.function && call.function.name) ||
-            "unknown";
+          // 模型响应中的工具调用始终使用标准格式，包含 function.name
+          const toolName = call.function?.name || 'unknown';
 
           // 查找工具
           const tool = this.tools.find(t => t.name === toolName);
@@ -410,16 +437,14 @@ export class Agent extends Component {
           }
 
           // 解析参数
-          let args: Record<string, any> = {};
+          let args: Record<string, unknown> = {};
           try {
             if (call.function && call.function.arguments) {
-              args = typeof call.function.arguments === 'string'
-                ? JSON.parse(call.function.arguments)
-                : call.function.arguments;
-            } else if (call.arguments) {
-              args = typeof call.arguments === 'string'
-                ? JSON.parse(call.arguments)
-                : call.arguments;
+              // 当 arguments 是字符串时解析 JSON
+              args =
+                typeof call.function.arguments === 'string'
+                  ? JSON.parse(call.function.arguments)
+                  : {};
             }
 
             console.log(`[Agent Debug] 工具 ${toolName} 的参数:`, args);
@@ -431,12 +456,22 @@ export class Agent extends Component {
           // 执行工具
           try {
             let result;
-            if (typeof (tool as any).execute === 'function') {
+            if (
+              typeof tool === 'object' &&
+              tool !== null &&
+              'execute' in tool &&
+              typeof tool.execute === 'function'
+            ) {
               console.log(`[Agent Debug] 使用 execute 方法执行工具 ${toolName}`);
-              result = await (tool as any).execute(args);
-            } else if (typeof (tool as any).invoke === 'function') {
+              result = await tool.execute(args);
+            } else if (
+              typeof tool === 'object' &&
+              tool !== null &&
+              'invoke' in tool &&
+              typeof tool.invoke === 'function'
+            ) {
               console.log(`[Agent Debug] 使用 invoke 方法执行工具 ${toolName}`);
-              result = await (tool as any).invoke(args);
+              result = await tool.invoke(args);
             } else {
               toolResultsText += `\n\n[${toolName}] Error: 工具没有可执行的方法`;
               continue;
@@ -450,18 +485,19 @@ export class Agent extends Component {
             toolCalls.push({
               tool: toolName,
               args,
-              result
+              result,
             });
 
             console.log(`[Agent Debug] 工具 ${toolName} 执行结果:`, result);
-          } catch (error: any) {
-            toolResultsText += `\n\n[${toolName}] Error: 工具执行失败 - ${error.message || error}`;
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            toolResultsText += `\n\n[${toolName}] Error: 工具执行失败 - ${errorMessage}`;
 
             // 记录失败的工具调用
             toolCalls.push({
               tool: toolName,
               args,
-              result: { error: error.message || '工具执行失败' }
+              result: { error: errorMessage },
             });
           }
         }
@@ -469,15 +505,15 @@ export class Agent extends Component {
         // 6. 更新消息历史
         // 添加助手消息，包含工具调用内容
         currentMessages.push({
-          role: "assistant",
-          content: modelResponse.content || "",
-          tool_calls: modelResponse.tool_calls
+          role: 'assistant',
+          content: modelResponse.content || '',
+          tool_calls: modelResponse.tool_calls,
         });
 
         // 添加用户消息，包含工具结果
         currentMessages.push({
-          role: "user",
-          content: `以下是工具调用的结果，请基于这些结果继续:${toolResultsText}`
+          role: 'user',
+          content: `以下是工具调用的结果，请基于这些结果继续:${toolResultsText}`,
         });
       }
 
@@ -490,10 +526,13 @@ export class Agent extends Component {
       return {
         message: lastAssistantMessage?.content || '',
         history: currentMessages,
-        toolCalls
+        toolCalls,
       };
-    } catch (error: any) {
-      console.error('[Agent Debug] 处理过程中出错:', error);
+    } catch (error) {
+      console.error(
+        '[Agent Debug] 处理过程中出错:',
+        error instanceof Error ? error.message : String(error)
+      );
       throw error;
     }
   }
@@ -508,25 +547,24 @@ export class Agent extends Component {
     this.initializeMemory();
 
     // 将字符串输入转换为 AgentInput 格式
-    const agentInput: AgentInput = typeof input === 'string'
-      ? { messages: [{ role: 'user', content: input }] }
-      : input;
+    const agentInput: AgentInput =
+      typeof input === 'string' ? { messages: [{ role: 'user', content: input }] } : input;
 
     // 构建初始消息列表
     const initialMessages: Message[] = [
       // 系统消息
-      { role: 'system', content: this.buildSystemPrompt() }
+      { role: 'system', content: this.buildSystemPrompt() },
     ];
 
     // 添加用户消息
     for (const message of agentInput.messages) {
       initialMessages.push({
         ...message,
-        metadata: message.metadata || agentInput.context
+        metadata: message.metadata || agentInput.context,
       });
     }
 
-    console.log("[Agent Debug] 工具列表:");
+    console.log('[Agent Debug] 工具列表:');
     this.tools.forEach((tool, index) => {
       console.log(`  ${index + 1}. ${tool.name} - ${tool.description}`);
     });
@@ -540,6 +578,7 @@ export class Agent extends Component {
    * @param $i 输入端口
    * @param $o 输出端口
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _transform($i: any, $o: any): void {
     // 监听输入端口
     $i('in').receive(async (input: string | AgentInput) => {
@@ -548,7 +587,8 @@ export class Agent extends Component {
           if (typeof input === 'string') {
             console.log(`[Agent] 收到输入:`, input);
           } else {
-            const firstMsg = input.messages && input.messages.length > 0 ? input.messages[0].content : '[空消息]';
+            const firstMsg =
+              input.messages && input.messages.length > 0 ? input.messages[0].content : '[空消息]';
             console.log(`[Agent] 收到输入:`, firstMsg);
           }
         }
@@ -562,14 +602,15 @@ export class Agent extends Component {
         if (this.verbose) {
           console.log(`[Agent] 生成的输出:`, output.message);
         }
-      } catch (error: any) {
-        console.error('[Agent] 执行过程中出错:', error);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        console.error('[Agent] 执行过程中出错:', errorMessage);
 
         // 发送错误输出
         $o('out').send({
-          message: `处理您的请求时出错: ${error.message || '未知错误'}`,
+          message: `处理您的请求时出错: ${errorMessage}`,
           history: [],
-          error: error.message || '未知错误'
+          error: errorMessage,
         });
       }
     });
