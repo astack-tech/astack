@@ -7,8 +7,10 @@ export default function QuickStart() {
       title: "Install AStack",
       description: "Install AStack core and components packages using npm or yarn",
       code: `npm install @astack/core @astack/components
-# 或者使用 yarn
-yarn add @astack/core @astack/components`
+# yarn
+yarn add @astack/core @astack/components
+# pnpm
+pnpm add @astack/core @astack/components`
     },
     {
       number: 2,

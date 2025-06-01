@@ -33,6 +33,9 @@ export default function Navbar() {
           <Link href="#comparison" className="text-gray-300 hover:text-white transition">
             Comparison
           </Link>
+          <Link href="#use-cases" className="text-gray-300 hover:text-white transition">
+            Use Cases
+          </Link>
         </div>
         
         <div className="flex items-center space-x-4">

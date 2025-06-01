@@ -11,18 +11,18 @@ export default function ComputationModel() {
         "Maintains function purity with clear inputs and outputs",
         "Ensures type safety and transparent data flow through the port system"
       ],
-      code: `// 组件作为变换操作符示例
+      code: `// Component as transformation operator
 const textProcessor = new Pipeline()
   .add(new TextSplitter())
   .add(new Embedder())
   .add(new VectorStore());
 
-// 函数式链式调用
+// Function-style function chaining
 const result = await textProcessor.run(document);`,
       diagram: (
         <svg className="w-full h-auto" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="20" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="50" y="85" textAnchor="middle" fill="white" fontSize="12">组件A</text>
+          <text x="50" y="85" textAnchor="middle" fill="white" fontSize="12">Component A</text>
           
           <rect x="120" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
           <text x="150" y="85" textAnchor="middle" fill="white" fontSize="12">组件B</text>
@@ -48,10 +48,10 @@ const result = await textProcessor.run(document);`,
         "Provides dynamic routing, parallel processing, incremental building, and error handling",
         "Visualizes workflows and data paths"
       ],
-      code: `// 复杂工作流示例
+      code: `// Complex workflow example
 const workflow = new Pipeline();
 
-// 添加分支条件
+// Add branch conditions
 workflow
   .add(new TextClassifier())
   .add(new Router({
@@ -98,10 +98,10 @@ workflow
         "Components respond to data events rather than passive polling",
         "Supports backpressure handling and hot/cold data streams"
       ],
-      code: `// 响应式数据流示例
+      code: `// Reactive data flow example
 const dataStream = new DataStream();
 
-// 添加数据监听器
+// Add data listeners
 dataStream.on('newData', async (data) => {
   const result = await processor.run(data);
   dataStream.emit('processedData', result);
@@ -143,19 +143,19 @@ externalSource.pipe(dataStream);`,
         "Maintains context continuity across multiple exchanges",
         "Enables multi-agent coordination and tool integration"
       ],
-      code: `// 代理间通信示例
+      code: `// Inter-agent communication example
 const coordinator = new AgentCoordinator();
 
-// 注册多个专业代理
+// Register multiple specialized agents
 coordinator.register([
   new ResearchAgent({ name: 'researcher' }),
   new AnalysisAgent({ name: 'analyst' }),
   new WriterAgent({ name: 'writer' })
 ]);
 
-// 启动协作流程
+// Start collaboration process
 const report = await coordinator.collaborate({
-  task: "分析市场趋势并生成报告"
+  task: "Analyze market trends and generate a report"
 });`,
       diagram: (
         <svg className="w-full h-auto" viewBox="0 0 300 180" fill="none" xmlns="http://www.w3.org/2000/svg">
