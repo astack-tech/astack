@@ -325,6 +325,13 @@ graph TD
     end
 ```
 
+| Computation Pattern | Description | Diagram |
+|---------------------|-------------|--------|
+| **Operator Composition** | Each component is a composable transformation operator with pure functional interfaces. Components maintain clear input/output contracts and can be chained together seamlessly. | <img src="docs/images/operator-composition.svg" width="400" alt="Operator Composition Diagram"> |
+| **Workflow Orchestration** | Components can be orchestrated into complex workflows with branching, joining, and conditional execution paths, enabling dynamic routing and parallel processing. | <img src="docs/images/workflow-orchestration.svg" width="400" alt="Workflow Orchestration Diagram"> |
+| **Reactive Data Flow** | Implements an event-driven asynchronous data processing model where components respond to data events rather than polling, supporting backpressure handling. | <img src="docs/images/reactive-dataflow.svg" width="400" alt="Reactive Data Flow Diagram"> |
+| **Agent-to-Agent Events** | Support for complex interactions and message passing between agents, maintaining context continuity across multiple exchanges, enabling multi-agent coordination. | <img src="docs/images/agent-events.svg" width="400" alt="Agent-to-Agent Events Diagram"> |
+
 #### 1. Operator Composition
 
 The fundamental building block of AStack is operator composition, where each component is a transformational operator that can be composed with others.

@@ -325,6 +325,13 @@ graph TD
     end
 ```
 
+| 计算模式 | 描述 | 图示 |
+|-----------|------------|--------|
+| **操作符组合** | 每个组件都是一个具有纯函数接口的可组合变换操作符。组件保持清晰的输入/输出契约，可以无缝链接在一起。 | <img src="docs/images/operator-composition-zh.svg" width="400" alt="操作符组合图示"> |
+| **工作流编排** | 组件可以被编排成具有分支、汇合和条件执行路径的复杂工作流，支持动态路由和并行处理。 | <img src="docs/images/workflow-orchestration-zh.svg" width="400" alt="工作流编排图示"> |
+| **响应式数据流** | 实现事件驱动的异步数据处理模型，组件响应数据事件而非被动轮询，支持背压处理。 | <img src="docs/images/reactive-dataflow-zh.svg" width="400" alt="响应式数据流图示"> |
+| **代理间事件通信** | 支持代理之间的复杂交互和消息传递，在多次交换中保持上下文连续性，实现多代理协调。 | <img src="docs/images/agent-events-zh.svg" width="400" alt="代理间事件通信图示"> |
+
 #### 1. 操作符组合
 
 AStack 的基本构建块是操作符组合，每个组件都是一个可以与其他组件组合的变换操作符。

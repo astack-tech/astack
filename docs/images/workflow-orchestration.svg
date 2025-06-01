@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- Styles -->
+  <defs>
+    <linearGradient id="component-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f6f8ff" />
+      <stop offset="100%" stop-color="#d9e2f3" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2" />
+      <feOffset dx="1" dy="1" result="offsetblur" />
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.2" />
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Title -->
+  <text x="200" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">Workflow Orchestration</text>
+  
+  <!-- Component Box -->
+  <rect x="150" y="40" width="100" height="50" rx="8" ry="8" fill="url(#component-gradient)" stroke="#5670ac" stroke-width="2" filter="url(#shadow)" />
+  <text x="200" y="70" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">Workflow</text>
+  
+  <!-- Input -->
+  <text x="80" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="end" fill="#333">Input</text>
+  <text x="80" y="80" font-family="Arial, sans-serif" font-size="12" text-anchor="end" fill="#666">M: Monad</text>
+  
+  <!-- Output -->
+  <text x="320" y="60" font-family="Arial, sans-serif" font-size="14" text-anchor="start" fill="#333">Output</text>
+  <text x="320" y="80" font-family="Arial, sans-serif" font-size="12" text-anchor="start" fill="#666">M: Monad</text>
+  
+  <!-- Arrows -->
+  <path d="M90,65 L150,65" stroke="#5670ac" stroke-width="2" fill="none" />
+  <polygon points="150,65 145,62 145,68" fill="#5670ac" />
+  
+  <path d="M250,65 L310,65" stroke="#5670ac" stroke-width="2" fill="none" />
+  <polygon points="310,65 305,62 305,68" fill="#5670ac" />
+</svg>
