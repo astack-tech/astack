@@ -48,23 +48,26 @@ export default function Hero() {
           {/* Code Example */}
           <div className="w-full lg:w-auto shrink-0 max-w-xl">
             <CodeBlock
-              code={`import { Pipeline, OpenAI, Agent, PromptTemplate } from "astack";
+              code={`import { Pipeline } from "@astack/core";
+import { Agent } from "@astack/components";
+import { Deepseek } from "@astack/integrations/model-provider";
+import { PromptTemplate } from "@astack/components";
 
 // Create a simple pipeline with components
 const pipeline = new Pipeline();
 
 // Add components to the pipeline
-pipeline
-  .add(new PromptTemplate({
-    template: "Answer this question: {{question}}"
-  }))
-  .add(new OpenAI({
-    model: "gpt-4"
-  }))
-  .add(new Agent())
+pipeline.addComponent('template', new PromptTemplate({
+  template: "Answer this question: {{question}}"
+}));
+pipeline.addComponent('model', new Deepseek({
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  model: "deepseek-chat"
+}));
+pipeline.addComponent('agent', new Agent());
 
 // Run the pipeline
-const response = await pipeline.run({
+const response = await pipeline.run('template.input', {
   question: "What is functional programming?"
 });
 

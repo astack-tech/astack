@@ -12,13 +12,15 @@ export default function ComputationModel() {
         "Ensures type safety and transparent data flow through the port system"
       ],
       code: `// Component as transformation operator
-const textProcessor = new Pipeline()
-  .add(new TextSplitter())
-  .add(new Embedder())
-  .add(new VectorStore());
+const textProcessor = new Pipeline();
 
-// Function-style function chaining
-const result = await textProcessor.run(document);`,
+// Adding components with proper names
+textProcessor.addComponent('splitter', new TextSplitter());
+textProcessor.addComponent('embedder', new Embedder());
+textProcessor.addComponent('vectorStore', new VectorStore());
+
+// Function-style pipeline execution
+const result = await textProcessor.run('splitter.input', document);`,
       diagram: (
         <svg className="w-full h-auto" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="20" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
@@ -52,15 +54,14 @@ const result = await textProcessor.run(document);`,
 const workflow = new Pipeline();
 
 // Add branch conditions
-workflow
-  .add(new TextClassifier())
-  .add(new Router({
-    routes: {
-      question: new QuestionAnswer(),
-      command: new CommandExecutor(),
-      chat: new ChatHandler()
-    }
-  }));`,
+workflow.addComponent('classifier', new TextClassifier());
+workflow.addComponent('router', new Router({
+  routes: {
+    question: new QuestionAnswer(),
+    command: new CommandExecutor(),
+    chat: new ChatHandler()
+  }
+}));`,
       diagram: (
         <svg className="w-full h-auto" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect x="120" y="20" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>

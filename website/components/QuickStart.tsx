@@ -51,9 +51,8 @@ import { TextSplitter, Embedder } from '@astack/components';
 const pipeline = new Pipeline();
 
 // Add components to pipeline
-pipeline
-  .add(new TextSplitter({ chunkSize: 1000 }))
-  .add(new Embedder({ model: 'text-embedding-ada-002' }));`
+pipeline.addComponent('splitter', new TextSplitter({ chunkSize: 1000 }));
+pipeline.addComponent('embedder', new Embedder({ model: 'text-embedding-ada-002' }));`
     },
     {
       number: 4,
@@ -64,7 +63,7 @@ const splitter = new TextSplitter({ chunkSize: 1000 });
 const chunks = await splitter.run("This is a long text...");
 
 // Method 2: Run through pipeline
-const result = await pipeline.run("This is another long text...");
+const result = await pipeline.run('splitter.text', "This is another long text...");
 console.log(result);`
     },
     {
@@ -72,31 +71,44 @@ console.log(result);`
       title: "Build an Agent",
       description: "Create intelligent agents using the zero adaptation layer design",
       code: `import { Agent } from '@astack/components';
-import { OpenAI } from '@astack/integrations';
+import { Deepseek } from '@astack/integrations/model-provider';
+import { createTool } from '@astack/tools';
 
-// Create agent
-const agent = new Agent();
+// Create a tool
+const searchTool = createTool(
+  'search',
+  'Search the internet for information',
+  async (args) => {
+    // Implement search functionality
+    const query = args.query;
+    return { results: ["Search results for: " + query] };
+  },
+  {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'The search query' }
+    },
+    required: ['query']
+  }
+);
 
-// Configure model provider
-const model = new OpenAI({
-  model: 'gpt-4',
-  apiKey: process.env.OPENAI_API_KEY
+// Create model provider
+const deepseek = new Deepseek({
+  apiKey: process.env.DEEPSEEK_API_KEY,
+  model: 'deepseek-chat'
 });
 
-// Add tools
-agent.addTool({
-  name: 'search',
-  description: 'Search the internet',
-  execute: async (query) => {
-    // Implement search functionality
-    return searchResults;
-  }
+// Create agent with model and tools
+const agent = new Agent({
+  model: deepseek,
+  tools: [searchTool],
+  systemPrompt: 'You are a helpful assistant that can search for information.',
+  verbose: true,
+  maxIterations: 3
 });
 
 // Run the agent
-const response = await agent
-  .withModel(model)
-  .run("Help me research recent AI advances");`
+const result = await agent.run("Help me research recent AI advances");`
     }
   ];
 
