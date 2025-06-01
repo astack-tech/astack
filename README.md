@@ -303,6 +303,143 @@ AStack maintains complete technical autonomy while offering compatibility with H
 
 This technical compatibility creates a practical synergy for developers leveraging both frameworks' strengths while maintaining the independence of each system.
 
+## 🧩 Powerful Computation Model
+
+AStack implements a sophisticated computation model based on monadic functional programming paradigms inspired by Hlang. This model provides powerful abstractions that enable complex workflows, reactivity, and compositional architecture while maintaining simplicity and flexibility.
+
+### Four Core Computation Patterns
+
+AStack's computation model is built around four powerful patterns that can be combined to create sophisticated AI applications:
+
+```mermaid
+graph TD
+    subgraph "AStack Computation Model"
+        A["Operator Composition"] --> B["Workflow Orchestration"];
+        B --> C["Reactive Data Flow"];
+        C --> D["Agent-to-Agent Events"];
+        
+        style A fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
+        style B fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
+        style C fill:#f5fcff,stroke:#56a0ac,stroke-width:2px
+        style D fill:#f5fff7,stroke:#56ac7d,stroke-width:2px
+    end
+```
+
+#### 1. Operator Composition
+
+The fundamental building block of AStack is operator composition, where each component is a transformational operator that can be composed with others.
+
+```typescript
+// Simple operator composition example
+const textProcessor = new TextProcessor();
+const sentimentAnalyzer = new SentimentAnalyzer();
+
+// Connect output of textProcessor to input of sentimentAnalyzer
+pipeline.connect('textProcessor.out', 'sentimentAnalyzer.in');
+```
+
+| Feature | Description |
+|---------|-------------|
+| **Functional Purity** | Components are designed as pure transformations with clear inputs and outputs |
+| **Composition Pattern** | Components can be linked together with their outputs feeding into inputs of other components |
+| **Type Safety** | The port system ensures type compatibility between connected components |
+| **Transparent Data Flow** | Data flow between components is explicit and traceable |
+
+#### 2. Workflow Orchestration
+
+Components can be orchestrated into complex workflows with branching, joining, and conditional execution paths.
+
+```mermaid
+graph LR
+    A["Input"] --> B["Analyzer"]
+    B -->|"Positive Score"| C["Enhancer"]
+    B -->|"Negative Score"| D["Corrector"]
+    C --> E["Output Formatter"]
+    D --> E
+    
+    style A fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style B fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
+    style C fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
+    style D fill:#fff7f7,stroke:#ac5656,stroke-width:2px
+    style E fill:#f5fff7,stroke:#56ac7d,stroke-width:2px
+```
+
+| Feature | Description |
+|---------|-------------|
+| **Dynamic Routing** | Data can be conditionally routed between components based on content or metadata |
+| **Parallel Processing** | Multiple pathways can execute simultaneously for efficient processing |
+| **Pipeline Construction** | Complex workflows can be built incrementally and modified at runtime |
+| **Error Handling** | Built-in mechanisms for handling and recovering from errors within the workflow |
+
+#### 3. Reactive Data Flow
+
+AStack implements a reactive programming model where data flows through the system in response to events or changes.
+
+```typescript
+// Reactive component example
+class ReactiveProcessor extends Component {
+  constructor() {
+    super({});
+    Component.Port.I('in').attach(this);
+    Component.Port.O('out').attach(this);
+  }
+
+  _transform($i, $o) {
+    // Listen for data on input port
+    $i('in').receive(data => {
+      // Process data reactively
+      const result = this.process(data);
+      // Send to output port
+      $o('out').send(result);
+    });
+  }
+}
+```
+
+| Feature | Description |
+|---------|-------------|
+| **Event-Driven** | Components respond to data events rather than being actively polled |
+| **Asynchronous Processing** | Non-blocking operations allow for efficient resource utilization |
+| **Backpressure Handling** | Flow control mechanisms prevent overwhelming downstream components |
+| **Hot vs Cold Streams** | Support for both persistent (hot) and on-demand (cold) data streams |
+
+#### 4. Agent-to-Agent Event Communication
+
+AStack extends beyond simple data pipelines to enable sophisticated agent-to-agent communication patterns.
+
+```mermaid
+sequenceDiagram
+    participant A as Agent A
+    participant T as Tool Invoker
+    participant B as Agent B
+    
+    A->>T: Request tool execution
+    T->>B: Forward specialized request
+    B->>B: Process request
+    B->>T: Return result
+    T->>A: Deliver processed result
+    
+    Note over A,B: Bidirectional communication with context preservation
+```
+
+| Feature | Description |
+|---------|-------------|
+| **Context Preservation** | Communication maintains context across multiple exchanges |
+| **Multi-Agent Coordination** | Agents can collaborate on complex tasks through structured interactions |
+| **Tool Integration** | Seamless integration of external tools and services into agent communication |
+| **State Management** | Optional stateful interactions for maintaining conversation history |
+
+### Monadic Design Pattern
+
+Underlying all these patterns is a monadic design approach derived from functional programming:
+
+- **Encapsulated State**: Each component maintains its own isolated state
+- **Chainable Operations**: Operations can be chained together in a fluent interface
+- **Composable Transformations**: Complex transformations are built from simple, composable units
+- **Error Propagation**: Errors are propagated through the chain in a controlled manner
+
+This monadic approach allows AStack to maintain both the flexibility of functional programming and the practical benefits of component-based development.
+
 ## 📦 Packages
 
 AStack is organized into several packages:

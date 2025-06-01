@@ -303,6 +303,143 @@ AStack 保持完全的技术自主性，同时提供与 Hlang 的兼容性：
 
 这种技术兼容性为开发者创造了实用的协同效应，既能利用两个框架的优势，又能保持各系统的独立性。
 
+## 🧩 强大的计算模型
+
+AStack 实现了一种基于 Hlang 启发的单子函数式编程范式的复杂计算模型。这种模型提供了强大的抽象，使复杂工作流、响应式系统和组合架构能够在保持简单性和灵活性的同时得以实现。
+
+### 四种核心计算模式
+
+AStack 的计算模型围绕四种强大的模式构建，这些模式可以组合起来创建复杂的 AI 应用：
+
+```mermaid
+graph TD
+    subgraph "AStack 计算模型"
+        A["操作符组合"] --> B["工作流编排"];
+        B --> C["响应式数据流"];
+        C --> D["代理间事件通信"];
+        
+        style A fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
+        style B fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
+        style C fill:#f5fcff,stroke:#56a0ac,stroke-width:2px
+        style D fill:#f5fff7,stroke:#56ac7d,stroke-width:2px
+    end
+```
+
+#### 1. 操作符组合
+
+AStack 的基本构建块是操作符组合，每个组件都是一个可以与其他组件组合的变换操作符。
+
+```typescript
+// 简单的操作符组合示例
+const textProcessor = new TextProcessor();
+const sentimentAnalyzer = new SentimentAnalyzer();
+
+// 将 textProcessor 的输出连接到 sentimentAnalyzer 的输入
+pipeline.connect('textProcessor.out', 'sentimentAnalyzer.in');
+```
+
+| 特性 | 描述 |
+|---------|-------------|
+| **函数纯粹性** | 组件被设计为具有明确输入和输出的纯变换 |
+| **组合模式** | 组件可以链接在一起，其输出作为其他组件的输入 |
+| **类型安全** | 端口系统确保连接组件之间的类型兼容性 |
+| **透明数据流** | 组件间的数据流是显式和可追踪的 |
+
+#### 2. 工作流编排
+
+组件可以被编排成具有分支、汇合和条件执行路径的复杂工作流。
+
+```mermaid
+graph LR
+    A["输入"] --> B["分析器"]
+    B -->|"正面评分"| C["增强器"]
+    B -->|"负面评分"| D["修正器"]
+    C --> E["输出格式化器"]
+    D --> E
+    
+    style A fill:#f5f5f5,stroke:#333,stroke-width:1px
+    style B fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
+    style C fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
+    style D fill:#fff7f7,stroke:#ac5656,stroke-width:2px
+    style E fill:#f5fff7,stroke:#56ac7d,stroke-width:2px
+```
+
+| 特性 | 描述 |
+|---------|-------------|
+| **动态路由** | 数据可以基于内容或元数据在组件之间条件性路由 |
+| **并行处理** | 多个路径可以同时执行以提高处理效率 |
+| **管道构建** | 复杂工作流可以增量构建并在运行时修改 |
+| **错误处理** | 内置机制用于处理工作流中的错误并从中恢复 |
+
+#### 3. 响应式数据流
+
+AStack 实现了一种响应式编程模型，数据在响应事件或变化时通过系统流动。
+
+```typescript
+// 响应式组件示例
+class ReactiveProcessor extends Component {
+  constructor() {
+    super({});
+    Component.Port.I('in').attach(this);
+    Component.Port.O('out').attach(this);
+  }
+
+  _transform($i, $o) {
+    // 监听输入端口的数据
+    $i('in').receive(data => {
+      // 响应式处理数据
+      const result = this.process(data);
+      // 发送到输出端口
+      $o('out').send(result);
+    });
+  }
+}
+```
+
+| 特性 | 描述 |
+|---------|-------------|
+| **事件驱动** | 组件响应数据事件而不是被主动轮询 |
+| **异步处理** | 非阻塞操作允许高效利用资源 |
+| **背压处理** | 流量控制机制防止下游组件过载 |
+| **热流与冷流** | 支持持久（热）和按需（冷）数据流 |
+
+#### 4. 代理间事件通信
+
+AStack 超越简单的数据管道，实现复杂的代理间通信模式。
+
+```mermaid
+sequenceDiagram
+    participant A as 代理 A
+    participant T as 工具调用器
+    participant B as 代理 B
+    
+    A->>T: 请求执行工具
+    T->>B: 转发专业请求
+    B->>B: 处理请求
+    B->>T: 返回结果
+    T->>A: 传递处理结果
+    
+    Note over A,B: 保持上下文的双向通信
+```
+
+| 特性 | 描述 |
+|---------|-------------|
+| **上下文保存** | 通信在多次交换中维持上下文 |
+| **多代理协调** | 代理可以通过结构化交互协作完成复杂任务 |
+| **工具集成** | 将外部工具和服务无缝集成到代理通信中 |
+| **状态管理** | 可选的有状态交互以维护对话历史 |
+
+### 单子设计模式
+
+所有这些模式的基础是源自函数式编程的单子设计方法：
+
+- **封装状态**：每个组件维护自己的隔离状态
+- **可链式操作**：操作可以在流畅接口中链接在一起
+- **可组合变换**：复杂变换由简单、可组合的单元构建
+- **错误传播**：错误以受控方式通过链传播
+
+这种单子方法使 AStack 既能保持函数式编程的灵活性，又能获得基于组件开发的实际好处。
+
 ## 📦 包结构
 
 AStack 组织为几个包：
