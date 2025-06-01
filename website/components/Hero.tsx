@@ -1,4 +1,4 @@
-import Image from 'next/image';
+// Image import removed
 import CodeBlock from './CodeBlock';
 
 export default function Hero() {
@@ -24,7 +24,7 @@ export default function Hero() {
             
             <p className="text-lg md:text-xl text-gray-300 mb-8">
               Everything is a component. Build powerful agent workflows with a pure functional 
-              programming approach using AStack's modular architecture.
+              programming approach using AStack&apos;s modular architecture.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+// Image import removed
 
 export default function UseCases() {
   const useCases = [

@@ -20,7 +20,7 @@ export default function Comparison() {
             Technical <span className="bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent">Independence</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            AStack is a 100% original framework with completely independent technical implementation and architectural design, inspired only by Haystack's API design style.
+            AStack is a 100% original framework with completely independent technical implementation and architectural design, inspired only by Haystack&apos;s API design style.
           </p>
           <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mx-auto mt-6"></div>
         </div>
@@ -42,7 +42,7 @@ export default function Comparison() {
                 </div>
                 
                 <p className="text-gray-300 mb-8 max-w-3xl">
-                  Clearly communicating AStack's originality and unique value is crucial. We want users to understand that AStack is not a derivative of Haystack,
+                  Clearly communicating AStack&apos;s originality and unique value is crucial. We want users to understand that AStack is not a derivative of Haystack,
                   but a completely independent framework with its own unique technical architecture and design philosophy.
                 </p>
                 
@@ -81,7 +81,7 @@ export default function Comparison() {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm0 8a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zm12 0a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                 </svg>
                               </div>
-                              <span className="text-blue-300 font-medium">"Everything is a Component"</span>
+                              <span className="text-blue-300 font-medium">&quot;Everything is a Component&quot;</span>
                             </div>
                           </td>
                           <td className="py-4 px-6 text-gray-400">Pipeline and Node Model</td>
@@ -150,14 +150,14 @@ export default function Comparison() {
                 </div>
                 
                 <p className="text-gray-300 mb-8 max-w-3xl mx-auto">
-                  AStack maintains compatibility with Haystack's API style, making it easy for developers familiar with Haystack to get started,
+                  AStack maintains compatibility with Haystack&apos;s API style, making it easy for developers familiar with Haystack to get started,
                   but its underlying technical implementation, architectural design, and component model are completely original work.
                 </p>
                 
                 <div className="bg-gradient-to-r from-gray-900/60 via-black/60 to-gray-900/60 backdrop-blur-md rounded-xl p-6 border border-gray-700/30 mx-auto max-w-2xl relative overflow-hidden group-hover:border-gray-600/40 transition-colors duration-300">
                   {/* Quote decoration */}
-                  <div className="absolute top-4 left-4 text-5xl text-teal-500/20 font-serif">"</div>
-                  <div className="absolute bottom-4 right-4 text-5xl text-teal-500/20 font-serif">"</div>
+                  <div className="absolute top-4 left-4 text-5xl text-teal-500/20 font-serif">&quot;</div>
+                  <div className="absolute bottom-4 right-4 text-5xl text-teal-500/20 font-serif">&quot;</div>
                   
                   <p className="text-teal-300 font-medium text-lg relative z-10">
                     AStack adheres to an independently innovative technical approach, providing developers with a more concise and flexible component-based AI framework.
