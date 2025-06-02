@@ -12,7 +12,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "npm run lint:check",
+    "lint": "pnpm run lint:check",
     "lint:check": "eslint \"{packages,examples}/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"{packages,examples}/**/*.{ts,tsx}\" --fix",
     "test": "turbo run test",

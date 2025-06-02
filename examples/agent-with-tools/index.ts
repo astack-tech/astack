@@ -2,6 +2,7 @@ import { Pipeline, Component } from '@astack-tech/core';
 import { Agent, type AgentOutput } from '@astack-tech/components';
 import { createTool } from '@astack-tech/tools';
 import { Deepseek } from '@astack-tech/integrations/model-provider';
+import type { ModelProvider } from '@astack-tech/components';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -115,7 +116,7 @@ async function main() {
   // 创建 Agent 组件
   const agent = new Agent({
     // 模型提供者
-    model: deepseek,
+    model: deepseek as ModelProvider,
 
     // 工具列表
     tools: [readFileTool, writeFileTool],

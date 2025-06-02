@@ -325,11 +325,28 @@ class Deepseek extends Component {
 
     // 如果有工具调用，添加到结果中
     if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
-      result.tool_calls = responseMessage.tool_calls.map(toolCall => ({
-        id: toolCall.id,
-        tool_name: toolCall.function.name,
-        arguments: JSON.parse(toolCall.function.arguments || '{}'),
-      }));
+      // 为了兼容 Agent 组件期望的格式，保留 function 和 type 字段
+      // 同时为了满足内部 ToolCall 接口，也添加 tool_name 和 arguments 字段
+      result.tool_calls = responseMessage.tool_calls.map(toolCall => {
+        // 解析参数，确保是对象形式
+        const args =
+          typeof toolCall.function.arguments === 'string'
+            ? JSON.parse(toolCall.function.arguments || '{}')
+            : toolCall.function.arguments || {};
+
+        return {
+          id: toolCall.id,
+          // 满足 Agent 组件期望的格式
+          function: {
+            name: toolCall.function.name,
+            arguments: toolCall.function.arguments || '{}',
+          },
+          type: 'function',
+          // 满足内部 ToolCall 接口
+          tool_name: toolCall.function.name,
+          arguments: args,
+        };
+      });
     }
 
     return result;
