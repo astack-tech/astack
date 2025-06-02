@@ -479,7 +479,14 @@ astack/
 
 ### 贡献
 
-欢迎贡献！请随时提交 Pull Request。
+欢迎贡献！请查看 [CONTRIBUTING.md](./.github/CONTRIBUTING.md) 获取详细指南。
+
+要点：
+- 我们使用 `dev` 分支进行活跃开发和新功能
+- `master` 分支保留用于稳定发布
+- 所有 Pull Request 应该针对 `dev` 分支
+
+请按照我们的指南随时提交 Pull Request。
 
 ## 📃 许可证
 

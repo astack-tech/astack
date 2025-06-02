@@ -22,6 +22,9 @@ export default function Comparison() {
           <p className="text-lg text-gray-300 max-w-3xl mx-auto">
             AStack is a 100% original framework with completely independent technical implementation and architectural design, inspired only by Haystack&apos;s API design style.
           </p>
+          <p className="text-sm text-gray-400 max-w-3xl mx-auto mt-2">
+            <i>This comparison is based on Haystack v2.0 (May 2025 version). Both frameworks are continuously evolving, and specific features may change over time.</i>
+          </p>
           <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mx-auto mt-6"></div>
         </div>
         
@@ -48,6 +51,9 @@ export default function Comparison() {
                 
                 {/* Enhanced comparison table */}
                 <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl border border-gray-700/40 overflow-hidden">
+                  <div className="text-sm text-gray-400 italic p-3 border-b border-gray-700/40 bg-gray-800/50">
+                    <span className="text-teal-400 font-medium">Note:</span> This comparison is based on Haystack v2.0 (May 2025). Both frameworks are continuously evolving.
+                  </div>
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                       <thead>
@@ -127,6 +133,146 @@ export default function Comparison() {
                             </div>
                           </td>
                           <td className="py-4 px-6 text-gray-400">Connector System</td>
+                        </tr>
+                        <tr className="hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Primary Focus</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-400/20 to-teal-600/20 flex items-center justify-center border border-teal-500/30 mr-3">
+                                <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7c-2 0-3 1-3 3z" />
+                                </svg>
+                              </div>
+                              <span className="text-teal-300 font-medium">General AI application framework</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Primarily NLP and RAG applications</td>
+                        </tr>
+                        <tr className="hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Component Interface</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-blue-600/20 flex items-center justify-center border border-blue-500/30 mr-3">
+                                <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                              </div>
+                              <span className="text-blue-300 font-medium">Unified component interface</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Different interfaces based on component type</td>
+                        </tr>
+                        <tr className="hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Agent Support</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-400/20 to-indigo-600/20 flex items-center justify-center border border-indigo-500/30 mr-3">
+                                <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                                </svg>
+                              </div>
+                              <span className="text-indigo-300 font-medium">Low-overhead multi-round tool execution</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">LangGraph-integrated agent framework</td>
+                        </tr>
+                        <tr className="hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Memory Management</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-600/20 flex items-center justify-center border border-purple-500/30 mr-3">
+                                <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                              </div>
+                              <span className="text-pink-300 font-medium">Built-in memory abstractions</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Memory implemented through specialized components</td>
+                        </tr>
+                        <tr className="border-b border-gray-700/30 hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Tool Integration</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400/20 to-amber-600/20 flex items-center justify-center border border-amber-500/30 mr-3">
+                                <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                                </svg>
+                              </div>
+                              <span className="text-amber-300 font-medium">Standardized tool interface</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Various integration patterns depending on use case</td>
+                        </tr>
+                        <tr className="border-b border-gray-700/30 hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Model Integration</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400/20 to-emerald-600/20 flex items-center justify-center border border-emerald-500/30 mr-3">
+                                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                              </div>
+                              <span className="text-emerald-300 font-medium">Direct model provider integration</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Provider-specific adapters</td>
+                        </tr>
+                        <tr className="border-b border-gray-700/30 hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Learning Curve</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-blue-600/20 flex items-center justify-center border border-blue-500/30 mr-3">
+                                <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                </svg>
+                              </div>
+                              <span className="text-blue-300 font-medium">Minimalist API focused on simplicity</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Comprehensive but more complex API</td>
+                        </tr>
+                        <tr className="border-b border-gray-700/30 hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Customization</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-400/20 to-violet-600/20 flex items-center justify-center border border-violet-500/30 mr-3">
+                                <svg className="w-5 h-5 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                                </svg>
+                              </div>
+                              <span className="text-violet-300 font-medium">High flexibility with minimal boilerplate</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Flexible but requires more implementation code</td>
+                        </tr>
+                        <tr className="border-b border-gray-700/30 hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Programming Language</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-400/20 to-blue-600/20 flex items-center justify-center border border-blue-500/30 mr-3">
+                                <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                </svg>
+                              </div>
+                              <span className="text-blue-300 font-medium">TypeScript</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Python</td>
+                        </tr>
+                        <tr className="hover:bg-gray-800/20 transition-colors duration-150">
+                          <td className="py-4 px-6 text-gray-300">Chinese Support</td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center">
+                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-400/20 to-green-600/20 flex items-center justify-center border border-green-500/30 mr-3">
+                                <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </div>
+                              <span className="text-green-300 font-medium">Complete Chinese documentation</span>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-gray-400">Limited Chinese documentation</td>
                         </tr>
                       </tbody>
                     </table>

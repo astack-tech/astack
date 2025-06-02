@@ -479,7 +479,14 @@ astack/
 
 ### Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for detailed guidelines.
+
+Key points:
+- We use a `dev` branch for active development and new features
+- The `master` branch is reserved for stable releases
+- All pull requests should target the `dev` branch
+
+Please feel free to submit a Pull Request following our guidelines.
 
 ## 📃 License
 

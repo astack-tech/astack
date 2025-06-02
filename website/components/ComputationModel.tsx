@@ -205,7 +205,7 @@ const report = await coordinator.collaborate({
             Computation <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">Model</span>
           </h2>
           <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            AStack implements a sophisticated computation model based on the HLang monadic functional programming paradigm, combining the flexibility of functional programming with the practical advantages of component-based development.
+            AStack implements a sophisticated computation model based on the <a href="https://github.com/hlang-tech/hlang" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">HLang</a> monadic functional programming paradigm, combining the flexibility of functional programming with the practical advantages of component-based development.
           </p>
         </div>
         
