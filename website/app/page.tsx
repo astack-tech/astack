@@ -5,11 +5,15 @@ import ComputationModel from '@/components/ComputationModel';
 import QuickStart from '@/components/QuickStart';
 import Comparison from '@/components/Comparison';
 import UseCases from '@/components/UseCases';
+import BetaNotification from '@/components/BetaNotification';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white">
       <Navbar />
+      <div className="mt-[56px]"> {/* 固定导航栏高度，确保内容不被覆盖 */}
+        <BetaNotification />
+      </div>
       <Hero />
       <Features />
       <ComputationModel />

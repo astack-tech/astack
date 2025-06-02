@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import GitHubStars from './GitHubStars';
 
 export default function Navbar() {
   return (
@@ -15,9 +16,12 @@ export default function Navbar() {
               priority
             />
           </div>
-          <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
-            AStack
-          </span>
+          <div className="flex items-center">
+            <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">
+              AStack
+            </span>
+            <span className="ml-1.5 text-xs px-2 py-0.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium shadow-sm shadow-blue-500/50 border border-blue-500/30 animate-pulse">beta</span>
+          </div>
         </Link>
         
         <div className="hidden md:flex space-x-8">
@@ -39,6 +43,7 @@ export default function Navbar() {
         </div>
         
         <div className="flex items-center space-x-4">
+          <GitHubStars />
           <a 
             href="https://github.com/qddegtya/astack" 
             target="_blank" 
