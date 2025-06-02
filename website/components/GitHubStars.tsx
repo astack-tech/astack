@@ -9,7 +9,7 @@ export default function GitHubStars() {
   useEffect(() => {
     async function fetchStars() {
       try {
-        const response = await fetch('https://api.github.com/repos/qddegtya/astack');
+        const response = await fetch('https://api.github.com/repos/astack-tech/astack');
         if (response.ok) {
           const data = await response.json();
           setStars(data.stargazers_count);
@@ -30,7 +30,7 @@ export default function GitHubStars() {
 
   return (
     <a
-      href="https://github.com/qddegtya/astack"
+      href="https://github.com/astack-tech/astack"
       target="_blank"
       rel="noopener noreferrer"
       className="flex items-center space-x-1 bg-gray-800/80 rounded-full px-2.5 py-1 text-xs hover:bg-gray-700/80 transition"

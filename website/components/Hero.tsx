@@ -35,7 +35,7 @@ export default function Hero() {
                 Get Started
               </a>
               <a 
-                href="https://github.com/qddegtya/astack" 
+                href="https://github.com/astack-tech/astack" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-6 py-3 bg-gray-800 rounded-lg text-white font-medium hover:bg-gray-700 transition border border-gray-700"

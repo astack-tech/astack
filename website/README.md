@@ -1,6 +1,6 @@
 # AStack Official Website
 
-The official website for [AStack](https://github.com/qddegtya/astack) - The Production-Ready Open Source Framework For AI Applications.
+The official website for [AStack](https://github.com/astack-tech/astack) - The Production-Ready Open Source Framework For AI Applications.
 
 **Live Website:** [https://astack.tech](https://astack.tech)
 

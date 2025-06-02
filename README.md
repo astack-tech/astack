@@ -7,8 +7,8 @@
 **A modular component framework for building AI applications**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/qddegtya/astack)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/astack-tech/astack)
 
 🎉 **Beta Version Released** 🎉
 
@@ -132,7 +132,7 @@ flowchart TB
 
 ```bash
 # Clone the repository
-git clone https://github.com/qddegtya/astack.git
+git clone https://github.com/astack-tech/astack.git
 cd astack
 
 # Install dependencies

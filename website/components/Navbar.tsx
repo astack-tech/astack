@@ -45,7 +45,7 @@ export default function Navbar() {
         <div className="flex items-center space-x-4">
           <GitHubStars />
           <a 
-            href="https://github.com/qddegtya/astack" 
+            href="https://github.com/astack-tech/astack" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-gray-300 hover:text-white transition"

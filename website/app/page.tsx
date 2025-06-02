@@ -36,7 +36,7 @@ export default function Home() {
             </div>
             
             <div className="grid grid-cols-2 md:flex md:space-x-8 gap-4 md:gap-0">
-              <a href="https://github.com/qddegtya/astack" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-teal-400 transition">
+              <a href="https://github.com/astack-tech/astack" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-teal-400 transition">
                 GitHub
               </a>
               <a href="#features" className="text-gray-400 hover:text-teal-400 transition">

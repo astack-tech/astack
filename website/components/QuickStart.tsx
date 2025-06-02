@@ -161,7 +161,7 @@ const result = await agent.run("Help me research recent AI advances");`
           
           <div className="mt-16 text-center">
             <a 
-              href="https://github.com/qddegtya/astack" 
+              href="https://github.com/astack-tech/astack" 
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 rounded-lg text-white font-medium hover:from-teal-700 hover:to-blue-700 transition shadow-lg hover:shadow-blue-500/20 inline-flex items-center"

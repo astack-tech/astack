@@ -7,8 +7,8 @@
 **一个用于构建 AI 应用的模块化组件框架**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/qddegtya/astack)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/astack-tech/astack)
 
 🎉 **Beta 版本已发布** 🎉
 
@@ -132,7 +132,7 @@ flowchart TB
 
 ```bash
 # 克隆仓库
-git clone https://github.com/qddegtya/astack.git
+git clone https://github.com/astack-tech/astack.git
 cd astack
 
 # 安装依赖

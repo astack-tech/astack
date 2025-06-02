@@ -23,12 +23,12 @@ export default function BetaNotification() {
     async function fetchReleaseInfo() {
       try {
         // 首先尝试获取最新的非预发布版本
-        let response = await fetch('https://api.github.com/repos/qddegtya/astack/releases/latest');
+        let response = await fetch('https://api.github.com/repos/astack-tech/astack/releases/latest');
         
         // 如果找不到最新的非预发布版本(404)，尝试获取所有版本
         if (response.status === 404) {
           console.log('No non-prerelease version found, fetching all releases');
-          response = await fetch('https://api.github.com/repos/qddegtya/astack/releases');
+          response = await fetch('https://api.github.com/repos/astack-tech/astack/releases');
           
           if (response.ok) {
             const allReleases = await response.json();
@@ -63,7 +63,7 @@ export default function BetaNotification() {
 
   // 如果还在加载或出现错误，使用默认值
   const version = release?.tag_name || 'v0.1.1-beta.0';
-  const releaseUrl = release?.html_url || 'https://github.com/qddegtya/astack/releases/latest';
+  const releaseUrl = release?.html_url || 'https://github.com/astack-tech/astack/releases/latest';
   const isPrerelease = release?.prerelease ?? true;
   
   // 格式化日期 (如果有)

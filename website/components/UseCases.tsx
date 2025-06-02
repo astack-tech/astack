@@ -16,7 +16,7 @@ export default function UseCases() {
       borderColor: "border-blue-500/30",
       textColor: "text-blue-300",
       iconColor: "text-blue-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples/agent-with-tools",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples/agent-with-tools",
     },
     {
       title: "Multi-Round Tool Execution",
@@ -30,7 +30,7 @@ export default function UseCases() {
       borderColor: "border-purple-500/30",
       textColor: "text-purple-300",
       iconColor: "text-purple-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples/agent-with-tools",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples/agent-with-tools",
     },
     {
       title: "Research Pipeline",
@@ -44,7 +44,7 @@ export default function UseCases() {
       borderColor: "border-teal-500/30",
       textColor: "text-teal-300",
       iconColor: "text-teal-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples/simple-deep-research",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples/simple-deep-research",
     },
     {
       title: "Reactive Data Flow",
@@ -58,7 +58,7 @@ export default function UseCases() {
       borderColor: "border-indigo-500/30",
       textColor: "text-indigo-300",
       iconColor: "text-indigo-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples",
     },
     {
       title: "Component Composition",
@@ -72,7 +72,7 @@ export default function UseCases() {
       borderColor: "border-cyan-500/30",
       textColor: "text-cyan-300",
       iconColor: "text-cyan-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples",
     },
     {
       title: "Workflow Orchestration",
@@ -86,7 +86,7 @@ export default function UseCases() {
       borderColor: "border-amber-500/30",
       textColor: "text-amber-300",
       iconColor: "text-amber-400",
-      githubLink: "https://github.com/qddegtya/astack/tree/master/examples",
+      githubLink: "https://github.com/astack-tech/astack/tree/master/examples",
     },
   ];
 
