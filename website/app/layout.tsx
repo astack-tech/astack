@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AStack - The Production-Ready Framework For AI Applications",
+  title: "AStack - A Modular Component Framework For Building AI Applications",
   description: "AStack is a 100% original, component-based AI framework with a pure functional programming approach.",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],

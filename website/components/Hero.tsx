@@ -17,8 +17,8 @@ export default function Hero() {
                 AStack
               </span>
               <span className="block mt-2 text-white">
-                Flexible Component-based 
-                <span className="text-blue-400"> Agent Framework</span>
+                A modular component framework
+                <span className="text-blue-400"> for building AI applications.</span>
               </span>
             </h1>
             
