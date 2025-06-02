@@ -2,12 +2,13 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@astack/components": "0.1.0",
-    "@astack/core": "0.1.0",
-    "@astack/integrations": "0.1.0",
-    "@astack/tools": "0.1.0"
+    "@astack-tech/components": "0.1.0",
+    "@astack-tech/core": "0.1.0",
+    "@astack-tech/integrations": "0.1.0",
+    "@astack-tech/tools": "0.1.0"
   },
   "changesets": [
-    "metal-corners-trade"
+    "metal-corners-trade",
+    "open-cougars-reply"
   ]
 }

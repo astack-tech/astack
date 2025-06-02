@@ -1,8 +1,8 @@
 ---
-'@astack/components': patch
-'@astack/core': patch
-'@astack/integrations': patch
-'@astack/tools': patch
+'@astack-tech/components': patch
+'@astack-tech/core': patch
+'@astack-tech/integrations': patch
+'@astack-tech/tools': patch
 ---
 
 beta release
