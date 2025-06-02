@@ -1,8 +1,10 @@
 <div align="center">
 
-<img src="./assets/banner.svg" alt="AStack Banner" width="100%">
+<img src="./assets/logo.svg" alt="AStack Logo" width="256" height="256">
 
-<br />
+# AStack
+
+**一个用于构建 AI 应用的模块化组件框架**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
@@ -24,36 +26,13 @@ AStack 是一个具有独立技术架构和生态系统的技术框架，它的�
 
 ### 主要特性
 
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 24px; margin-bottom: 32px;">
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">基于组件的架构</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">通过组合简单、可复用的组件构建复杂 AI 系统。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">零适配层设计</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">组件之间无需中间适配层即可协同工作。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">管道执行模型</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">支持独立和管道两种执行模式。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">可扩展的工具系统</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">通过统一的工具接口轻松集成新功能。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">多模型支持</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">与各种 LLM 提供商无缝集成。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">声明式工作流</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">用最少的代码定义复杂的 AI 工作流。</p>
-  </div>
-  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
-    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">极简 API 设计</h4>
-    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">专注于简洁性和表达能力。</p>
-  </div>
-</div>
+- **基于组件的架构**：通过组合简单、可复用的组件构建复杂 AI 系统
+- **零适配层设计**：组件之间无需中间适配层即可协同工作
+- **管道执行模型**：支持独立和管道两种执行模式
+- **可扩展的工具系统**：通过统一的工具接口轻松集成新功能
+- **多模型支持**：与各种 LLM 提供商无缝集成
+- **声明式工作流**：用最少的代码定义复杂的 AI 工作流
+- **极简 API 设计**：专注于简洁性和表达能力
 
 ## 👁 设计理念
 
