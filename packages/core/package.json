@@ -1,5 +1,5 @@
 {
-  "name": "@astack/core",
+  "name": "@astack-tech/core",
   "version": "0.1.1-beta.0",
   "description": "Core for the Astack AI Framework.",
   "main": "dist/index.cjs",

@@ -44,16 +44,16 @@ importers:
 
   examples/agent-with-tools:
     dependencies:
-      '@astack/components':
+      '@astack-tech/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@astack/core':
+      '@astack-tech/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@astack/integrations':
+      '@astack-tech/integrations':
         specifier: workspace:*
         version: link:../../packages/integrations
-      '@astack/tools':
+      '@astack-tech/tools':
         specifier: workspace:*
         version: link:../../packages/tools
     devDependencies:
@@ -63,13 +63,13 @@ importers:
 
   examples/simple-deep-research:
     dependencies:
-      '@astack/components':
+      '@astack-tech/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@astack/core':
+      '@astack-tech/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@astack/integrations':
+      '@astack-tech/integrations':
         specifier: workspace:*
         version: link:../../packages/integrations
       cheerio:
@@ -91,10 +91,10 @@ importers:
 
   examples/text-splitter:
     dependencies:
-      '@astack/components':
+      '@astack-tech/components':
         specifier: workspace:*
         version: link:../../packages/components
-      '@astack/core':
+      '@astack-tech/core':
         specifier: workspace:*
         version: link:../../packages/core
     devDependencies:
@@ -104,10 +104,10 @@ importers:
 
   packages/components:
     dependencies:
-      '@astack/core':
+      '@astack-tech/core':
         specifier: workspace:*
         version: link:../core
-      '@astack/tools':
+      '@astack-tech/tools':
         specifier: workspace:*
         version: link:../tools
     devDependencies:
@@ -157,7 +157,7 @@ importers:
 
   packages/integrations:
     dependencies:
-      '@astack/core':
+      '@astack-tech/core':
         specifier: workspace:*
         version: link:../core
       openai:

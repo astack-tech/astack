@@ -1,5 +1,5 @@
-import { Pipeline } from '@astack/core';
-import { ModelProvider } from '@astack/integrations';
+import { Pipeline } from '@astack-tech/core';
+import { ModelProvider } from '@astack-tech/integrations';
 import WebDriverComponent from './web-driver';
 import ContentAnalyzer, { ResearchReport, ReportSection } from './content-analyzer';
 import ReportEnhancer from './report-enhancer';

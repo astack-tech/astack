@@ -1,4 +1,4 @@
-import { Component } from '@astack/core';
+import { Component } from '@astack-tech/core';
 
 /**
  * 数据中继组件

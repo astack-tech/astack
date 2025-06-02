@@ -1,5 +1,5 @@
 {
-  "name": "@astack/tools",
+  "name": "@astack-tech/tools",
   "version": "0.1.1-beta.0",
   "description": "Tools for the Astack AI Framework.",
   "main": "dist/index.cjs",

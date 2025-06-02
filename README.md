@@ -228,9 +228,9 @@ The pipeline intelligently coordinates web searches, content extraction, and AI-
 ### Creating a Simple Agent with Tools
 
 ```typescript
-import { Agent } from '@astack/components';
-import { createTool } from '@astack/tools';
-import { Deepseek } from '@astack/integrations/model-provider';
+import { Agent } from '@astack-tech/components';
+import { createTool } from '@astack-tech/tools';
+import { Deepseek } from '@astack-tech/integrations/model-provider';
 
 // Define tools
 const readFileTool = createTool(
@@ -262,8 +262,8 @@ const result = await agent.run('Please read the README.md file');
 ### Building a Pipeline
 
 ```typescript
-import { Pipeline } from '@astack/core';
-import { Agent } from '@astack/components';
+import { Pipeline } from '@astack-tech/core';
+import { Agent } from '@astack-tech/components';
 
 // Create pipeline
 const pipeline = new Pipeline();
@@ -451,10 +451,10 @@ This monadic approach allows AStack to maintain both the flexibility of function
 
 AStack is organized into several packages:
 
-- **@astack/core**: Core functionality and pipeline execution engine
-- **@astack/components**: Reusable AI components like Agents and Memories
-- **@astack/tools**: Tool definitions and implementations
-- **@astack/integrations**: Integrations with external services and model providers
+- **@astack-tech/core**: Core functionality and pipeline execution engine
+- **@astack-tech/components**: Reusable AI components like Agents and Memories
+- **@astack-tech/tools**: Tool definitions and implementations
+- **@astack-tech/integrations**: Integrations with external services and model providers
 
 ## 📖 Documentation
 

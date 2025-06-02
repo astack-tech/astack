@@ -8,8 +8,8 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@astack/core": "workspace:*",
-    "@astack/components": "workspace:*"
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/components": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.7.0"

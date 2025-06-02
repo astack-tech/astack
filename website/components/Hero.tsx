@@ -48,10 +48,10 @@ export default function Hero() {
           {/* Code Example */}
           <div className="w-full lg:w-auto shrink-0 max-w-xl">
             <CodeBlock
-              code={`import { Pipeline } from "@astack/core";
-import { Agent } from "@astack/components";
-import { Deepseek } from "@astack/integrations/model-provider";
-import { PromptTemplate } from "@astack/components";
+              code={`import { Pipeline } from "@astack-tech/core";
+import { Agent } from "@astack-tech/components";
+import { Deepseek } from "@astack-tech/integrations/model-provider";
+import { PromptTemplate } from "@astack-tech/components";
 
 // Create a simple pipeline with components
 const pipeline = new Pipeline();

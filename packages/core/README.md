@@ -1,1 +1,1 @@
-> @astack/core
+> @astack-tech/core

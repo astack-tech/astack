@@ -228,9 +228,9 @@ flowchart TB
 ### 创建带工具的简单代理
 
 ```typescript
-import { Agent } from '@astack/components';
-import { createTool } from '@astack/tools';
-import { Deepseek } from '@astack/integrations/model-provider';
+import { Agent } from '@astack-tech/components';
+import { createTool } from '@astack-tech/tools';
+import { Deepseek } from '@astack-tech/integrations/model-provider';
 
 // 定义工具
 const readFileTool = createTool(
@@ -262,8 +262,8 @@ const result = await agent.run('请读取 README.md 文件');
 ### 构建管道
 
 ```typescript
-import { Pipeline } from '@astack/core';
-import { Agent } from '@astack/components';
+import { Pipeline } from '@astack-tech/core';
+import { Agent } from '@astack-tech/components';
 
 // 创建管道
 const pipeline = new Pipeline();
@@ -451,10 +451,10 @@ sequenceDiagram
 
 AStack 组织为几个包：
 
-- **@astack/core**: 核心功能和管道执行引擎
-- **@astack/components**: 可重用的 AI 组件，如代理和内存
-- **@astack/tools**: 工具定义和实现
-- **@astack/integrations**: 与外部服务和模型提供者的集成
+- **@astack-tech/core**: 核心功能和管道执行引擎
+- **@astack-tech/components**: 可重用的 AI 组件，如代理和内存
+- **@astack-tech/tools**: 工具定义和实现
+- **@astack-tech/integrations**: 与外部服务和模型提供者的集成
 
 ## 📖 文档
 

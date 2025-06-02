@@ -1,5 +1,5 @@
 {
-  "name": "@astack/integrations",
+  "name": "@astack-tech/integrations",
   "version": "0.1.1-beta.0",
   "description": "Integrations for the Astack AI Framework.",
   "main": "dist/index.cjs",
@@ -57,7 +57,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@astack/core": "workspace:*",
+    "@astack-tech/core": "workspace:*",
     "openai": "^4.98.0"
   }
 }

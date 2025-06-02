@@ -1,4 +1,4 @@
-# @astack/tools
+# @astack-tech/tools
 
 ## 0.1.1-beta.0
 

@@ -1,4 +1,4 @@
-import { Component } from '@astack/core';
+import { Component } from '@astack-tech/core';
 import { chromium, Browser, Page, BrowserContext } from 'playwright';
 import * as cheerio from 'cheerio';
 

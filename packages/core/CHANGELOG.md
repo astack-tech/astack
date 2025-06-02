@@ -1,4 +1,4 @@
-# @astack/core
+# @astack-tech/core
 
 ## 0.1.1-beta.0
 

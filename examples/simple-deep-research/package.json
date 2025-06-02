@@ -8,9 +8,9 @@
     "start": "tsx index.ts"
   },
   "dependencies": {
-    "@astack/components": "workspace:*",
-    "@astack/core": "workspace:*",
-    "@astack/integrations": "workspace:*",
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/integrations": "workspace:*",
     "cheerio": "^1.0.0-rc.12",
     "mustache": "^4.2.0",
     "playwright": "^1.52.0"

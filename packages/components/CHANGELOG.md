@@ -1,4 +1,4 @@
-# @astack/components
+# @astack-tech/components
 
 ## 0.1.1-beta.0
 
@@ -6,5 +6,5 @@
 
 - beta release
 - Updated dependencies
-  - @astack/core@0.1.1-beta.0
-  - @astack/tools@0.1.1-beta.0
+  - @astack-tech/core@0.1.1-beta.0
+  - @astack-tech/tools@0.1.1-beta.0

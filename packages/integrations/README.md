@@ -1,1 +1,1 @@
-> @astack/integrations
+> @astack-tech/integrations

@@ -5,10 +5,10 @@
     "outDir": "dist",
     "baseUrl": "../..",
     "paths": {
-      "@astack/core": ["packages/core/src"],
-      "@astack/core/*": ["packages/core/src/*"],
-      "@astack/components": ["packages/components/src"],
-      "@astack/components/*": ["packages/components/src/*"]
+      "@astack-tech/core": ["packages/core/src"],
+      "@astack-tech/core/*": ["packages/core/src/*"],
+      "@astack-tech/components": ["packages/components/src"],
+      "@astack-tech/components/*": ["packages/components/src/*"]
     }
   }
 }

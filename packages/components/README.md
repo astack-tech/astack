@@ -1,1 +1,1 @@
-> @astack/components
+> @astack-tech/components

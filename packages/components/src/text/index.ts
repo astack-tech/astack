@@ -1,4 +1,4 @@
-import { Component } from '@astack/core';
+import { Component } from '@astack-tech/core';
 
 export interface TextSplitterConfig {
   // 文本块的最大长度

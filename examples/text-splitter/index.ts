@@ -1,5 +1,5 @@
-import { Pipeline } from '@astack/core';
-import { TextSplitter } from '@astack/components';
+import { Pipeline } from '@astack-tech/core';
+import { TextSplitter } from '@astack-tech/components';
 
 // 创建一个示例长文本
 const sampleText = `

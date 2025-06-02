@@ -1,1 +1,1 @@
-> @astack/tools
+> @astack-tech/tools

@@ -6,17 +6,17 @@ export default function QuickStart() {
       number: 1,
       title: "Install AStack",
       description: "Install AStack core and components packages using npm or yarn",
-      code: `npm install @astack/core @astack/components
+      code: `npm install @astack-tech/core @astack-tech/components
 # yarn
-yarn add @astack/core @astack/components
+yarn add @astack-tech/core @astack-tech/components
 # pnpm
-pnpm add @astack/core @astack/components`
+pnpm add @astack-tech/core @astack-tech/components`
     },
     {
       number: 2,
       title: "Create Your First Component",
       description: "Extend the Component base class to create custom components",
-      code: `import { Component } from '@astack/core';
+      code: `import { Component } from '@astack-tech/core';
 
 class TextProcessor extends Component {
   constructor() {
@@ -45,8 +45,8 @@ class TextProcessor extends Component {
       number: 3,
       title: "Use Built-in Components",
       description: "Leverage AStack's built-in components to quickly build functionality",
-      code: `import { Pipeline } from '@astack/core';
-import { TextSplitter, Embedder } from '@astack/components';
+      code: `import { Pipeline } from '@astack-tech/core';
+import { TextSplitter, Embedder } from '@astack-tech/components';
 
 // Create text processing pipeline
 const pipeline = new Pipeline();
@@ -71,9 +71,9 @@ console.log(result);`
       number: 5,
       title: "Build an Agent",
       description: "Create intelligent agents using the zero adaptation layer design",
-      code: `import { Agent } from '@astack/components';
-import { Deepseek } from '@astack/integrations/model-provider';
-import { createTool } from '@astack/tools';
+      code: `import { Agent } from '@astack-tech/components';
+import { Deepseek } from '@astack-tech/integrations/model-provider';
+import { createTool } from '@astack-tech/tools';
 
 // Create a tool
 const searchTool = createTool(

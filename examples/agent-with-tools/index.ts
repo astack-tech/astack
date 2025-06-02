@@ -1,7 +1,7 @@
-import { Pipeline, Component } from '@astack/core';
-import { Agent, type AgentOutput } from '@astack/components';
-import { createTool } from '@astack/tools';
-import { Deepseek } from '@astack/integrations/model-provider';
+import { Pipeline, Component } from '@astack-tech/core';
+import { Agent, type AgentOutput } from '@astack-tech/components';
+import { createTool } from '@astack-tech/tools';
+import { Deepseek } from '@astack-tech/integrations/model-provider';
 import * as fs from 'fs';
 import * as path from 'path';
 

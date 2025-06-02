@@ -1,4 +1,4 @@
-import { Component } from '@astack/core';
+import { Component } from '@astack-tech/core';
 
 /**
  * Message 接口定义了 Agent 内部的消息格式

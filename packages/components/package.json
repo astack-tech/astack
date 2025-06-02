@@ -1,5 +1,5 @@
 {
-  "name": "@astack/components",
+  "name": "@astack-tech/components",
   "version": "0.1.1-beta.0",
   "description": "Components for the Astack AI Framework.",
   "main": "dist/index.cjs",
@@ -73,7 +73,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@astack/core": "workspace:*",
-    "@astack/tools": "workspace:*"
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/tools": "workspace:*"
   }
 }

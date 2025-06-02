@@ -1,4 +1,4 @@
-# @astack/integrations
+# @astack-tech/integrations
 
 ## 0.1.1-beta.0
 
@@ -6,4 +6,4 @@
 
 - beta release
 - Updated dependencies
-  - @astack/core@0.1.1-beta.0
+  - @astack-tech/core@0.1.1-beta.0

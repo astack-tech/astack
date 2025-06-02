@@ -1,5 +1,5 @@
-import { Component } from '@astack/core';
-import { Tool, ToolCall, ToolCallResult, ToolSet } from '@astack/tools';
+import { Component } from '@astack-tech/core';
+import { Tool, ToolCall, ToolCallResult, ToolSet } from '@astack-tech/tools';
 
 /**
  * 消息角色类型

@@ -1,4 +1,4 @@
-import { Component } from '@astack/core';
+import { Component } from '@astack-tech/core';
 import { ResearchReport } from './content-analyzer';
 
 /**
