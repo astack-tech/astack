@@ -20,23 +20,24 @@ pnpm add @astack/core @astack/components`
 
 class TextProcessor extends Component {
   constructor() {
-    super();
-    // Define input and output ports
-    this.inPort = {};
-    this.outPort = {};
+    super({});
+    // Each component has default 'in' and 'out' ports
+    // We can customize them with Component.Port.I and Component.Port.O
+    Component.Port.I('text').attach(this); // Customize input port
   }
 
-  async _transform(chunk, encoding, callback) {
-    try {
-      // Process data
-      const result = chunk.toString().toUpperCase();
-      
-      // Send to output port
-      this.push(result);
-      callback();
-    } catch (error) {
-      callback(error);
-    }
+  // Standalone mode: direct processing
+  run(input: unknown): string {
+    const text = typeof input === 'string' ? input : String(input);
+    return text.toUpperCase();
+  }
+
+  // Pipeline mode: processing via port system
+  _transform($i: any, $o: any) {
+    $i('text').receive((input: unknown) => {
+      const output = this.run(input);
+      $o('out').send(output);
+    });
   }
 }`
     },

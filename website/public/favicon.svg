@@ -6,10 +6,10 @@
       <stop offset="100%" stop-color="#10B981" />
     </linearGradient>
   </defs>
-  <!-- 外层三角形 -->
-  <path d="M24 4L44 40H4L24 4Z" stroke="url(#logoGradient)" stroke-width="2.5" fill="none" />
-  <!-- 内层三角形 -->
-  <path d="M24 16L36 36H12L24 16Z" fill="url(#logoGradient)" fill-opacity="0.6" />
-  <!-- 中心点 -->
-  <circle cx="24" cy="28" r="4" fill="url(#logoGradient)" />
+  <!-- 六边形外框 -->
+  <path d="M24 8L39.6 17V35L24 44L8.4 35V17L24 8Z" fill="none" stroke="url(#logoGradient)" stroke-width="2" />
+  <!-- 内层六边形 -->
+  <path d="M24 14L35.2 20.5V33.5L24 40L12.8 33.5V20.5L24 14Z" fill="url(#logoGradient)" fill-opacity="0.3" />
+  <!-- 中心菱形 -->
+  <path d="M24 20L30 24V32L24 36L18 32V24L24 20Z" fill="url(#logoGradient)" fill-opacity="0.6" />
 </svg>
