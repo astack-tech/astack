@@ -1,6 +1,6 @@
 {
   "name": "@astack/integrations",
-  "version": "0.1.0",
+  "version": "0.1.1-beta.0",
   "description": "Integrations for the Astack AI Framework.",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

@@ -21,7 +21,11 @@
     "check-types": "turbo run check-types",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build && changeset publish"
+    "release": "turbo run build && changeset publish",
+    "pre:beta": "changeset pre enter beta",
+    "pre:exit": "changeset pre exit",
+    "publish:beta": "pnpm build && pnpm -r publish --tag beta --access public",
+    "publish:latest": "pnpm build && pnpm -r publish --access public"
   },
   "keywords": [
     "ai-framework",

@@ -1,0 +1,13 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@astack/components": "0.1.0",
+    "@astack/core": "0.1.0",
+    "@astack/integrations": "0.1.0",
+    "@astack/tools": "0.1.0"
+  },
+  "changesets": [
+    "metal-corners-trade"
+  ]
+}
