@@ -4,7 +4,7 @@ import GitHubStars from './GitHubStars';
 
 export default function Navbar() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/50 border-b border-gray-800">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-black/80 border-b border-gray-800 before:absolute before:inset-0 before:bg-black/60 before:z-[-1]">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         <Link href="/" className="flex items-center space-x-2">
           <div className="relative h-8 w-8">
