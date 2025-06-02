@@ -46,7 +46,7 @@ export default function Hero() {
           </div>
           
           {/* Code Example */}
-          <div className="w-full lg:w-auto shrink-0 max-w-xl">
+          <div className="w-full lg:w-auto shrink-0 max-w-2xl">
             <CodeBlock
               code={`import { Pipeline } from "@astack-tech/core";
 import { Agent } from "@astack-tech/components";
