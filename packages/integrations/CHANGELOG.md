@@ -1,5 +1,11 @@
 # @astack-tech/integrations
 
+## 0.1.1-beta.2
+
+### Patch Changes
+
+- rebuild package
+
 ## 0.1.1-beta.1
 
 ### Patch Changes
