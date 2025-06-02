@@ -10,7 +10,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/qddegtya/astack)
 
-🚧 **开发中** 🚧
+🎉 **Beta 版本已发布** 🎉
 
 *AStack 正在积极开发中，但已经可以为构建 AI 应用程序提供显著价值*
 
