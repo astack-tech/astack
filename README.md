@@ -1,10 +1,8 @@
 <div align="center">
 
-<img src="./assets/logo.svg" alt="AStack Logo" width="256" height="256">
+<img src="./assets/banner.svg" alt="AStack Banner" width="100%">
 
-# AStack
-
-**A modular component framework for building AI applications**
+<br />
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/qddegtya/astack/pulls)
@@ -26,13 +24,36 @@ AStack is an independent technical framework with its own architecture and ecosy
 
 ### Key Features
 
-- **Component-Based Architecture**: Build complex AI systems by composing simple, reusable components
-- **Zero-Adaptation Layer Design**: Components work together without intermediate adaptation layers
-- **Pipeline Execution Model**: Support for both independent and pipeline execution modes
-- **Extensible Tool System**: Easily integrate new capabilities through a unified tool interface
-- **Multi-Model Support**: Seamless integration with various LLM providers
-- **Declarative Workflow**: Define complex AI workflows with minimal code
-- **Minimalist API Design**: Focus on simplicity and expressiveness
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 24px; margin-bottom: 32px;">
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Component-Based Architecture</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Build complex AI systems by composing simple, reusable components.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Zero-Adaptation Layer Design</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Components work together without intermediate adaptation layers.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Pipeline Execution Model</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Support for both independent and pipeline execution modes.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Extensible Tool System</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Easily integrate new capabilities through a unified tool interface.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Multi-Model Support</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Seamless integration with various LLM providers.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Declarative Workflow</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Define complex AI workflows with minimal code.</p>
+  </div>
+  <div style="background: rgba(31, 41, 55, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-radius: 12px; padding: 20px; border: 1px solid rgba(55, 65, 81, 0.5); box-shadow: 0 8px 16px rgba(0,0,0,0.2);">
+    <h4 style="margin-top: 0; color: #0ea5e9; font-family: 'Arial', sans-serif; font-size: 1.15em; margin-bottom: 10px;">Minimalist API Design</h4>
+    <p style="margin-bottom: 0; color: #D1D5DB; font-family: 'Arial', sans-serif; font-size: 0.9em; line-height: 1.6;">Focus on simplicity and expressiveness.</p>
+  </div>
+</div>
 
 ## 👁 Design Philosophy
 
