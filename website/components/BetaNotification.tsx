@@ -13,7 +13,10 @@ interface Release {
 
 export default function BetaNotification() {
   const [release, setRelease] = useState<Release | null>(null);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [error, setError] = useState(false);
 
   useEffect(() => {
