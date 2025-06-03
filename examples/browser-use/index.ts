@@ -4,6 +4,7 @@ import { PlanningAgent } from './components/PlanningAgent';
 import { BrowserAgent } from './components/BrowserAgent';
 import { ResultFormatter } from './components/ResultFormatter';
 import { BrowserStateComponent } from './components/BrowserStateComponent';
+import type { ModelProvider as ModelProviderType } from '@astack-tech/components';
 
 /**
  * 简单的输出收集组件 - 用于收集并返回 pipeline 的最终结果
@@ -25,8 +26,6 @@ class OutputCollector extends Component {
     });
   }
 }
-
-import type { ModelProvider as ModelProviderType } from '@astack-tech/components';
 
 /**
  * 基于 AStack 框架的浏览器自动化示例
