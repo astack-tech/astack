@@ -1,7 +1,7 @@
 {
-  "name": "agent-with-tools",
-  "version": "0.1.0",
-  "description": "使用 AStack 框架实现的带工具的 Agent 示例",
+  "name": "browser-use-example",
+  "version": "1.0.0",
+  "description": "AStack browser-use example",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -11,9 +11,12 @@
     "@astack-tech/components": "workspace:*",
     "@astack-tech/core": "workspace:*",
     "@astack-tech/integrations": "workspace:*",
-    "@astack-tech/tools": "workspace:*"
+    "@astack-tech/tools": "workspace:*",
+    "playwright": "^1.52.0",
+    "cheerio": "^1.0.0-rc.12"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "@types/node": "^20.11.0"
   }
 }
