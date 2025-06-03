@@ -182,8 +182,8 @@ export class BrowserAgent extends Component {
 
         // 输出浏览器状态缓存的当前情况
         console.log(`[BrowserAgent] 当前本地缓存状态:`);
-        console.log(`  - 缓存URL: ${this.browserState.currentUrl || 'none'}`);
-        console.log(`  - 缓存DOM快照: ${(this.browserState.domSnapshot || '').length} 字符`);
+        console.log(`  - 缓存 URL: ${this.browserState.currentUrl || 'none'}`);
+        console.log(`  - 缓存 DOM 快照: ${(this.browserState.domSnapshot || '').length} 字符`);
 
         // 预处理任务所需的状态变量
         let currentUrl = this.browserState.currentUrl;
@@ -851,7 +851,7 @@ export class BrowserAgent extends Component {
         async (args: Record<string, unknown>) => {
           if (!self.page) throw new Error('Browser not initialized');
           const selector = safeGetString(args, 'selector');
-          const timeout = args.timeout as number || 30000; // 默认30秒超时
+          const timeout = args.timeout as number || 30000; // 默认 30 秒超时
           
           // 记录动作
           self.browserState.lastAction = `等待元素 ${selector} 出现`;
@@ -898,7 +898,7 @@ export class BrowserAgent extends Component {
   }
 
   /**
-   * 获取Agent系统提示词
+   * 获取 Agent 系统提示词
    */
   private getSystemPrompt() {
     return `You are a browser automation assistant that helps users interact with web pages.
