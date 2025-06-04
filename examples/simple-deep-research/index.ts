@@ -108,9 +108,9 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
       const htmlFilePath = path.join(reportDir, htmlFileName);
       await fs.writeFile(htmlFilePath, htmlContent, 'utf8');
 
-      console.log('HTML 报告已保存至 :', htmlFilePath);
+      console.log('HTML 报告已保存至: ', htmlFilePath);
     } catch (error) {
-      console.error('生成 HTML 报告失败 :', error);
+      console.error('生成 HTML 报告失败: ', error);
     }
 
     // 打印报告摘要
@@ -121,9 +121,9 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
     enhancedReport.sections.forEach((section: ReportSection, index: number) => {
       console.log(`  ${index + 1}. ${section.title}`);
     });
-    console.log('\n 完整报告已保存至 :', jsonFilePath);
+    console.log('\n 完整报告已保存至: ', jsonFilePath);
   } catch (error) {
-    console.error('研究过程中出错 :', error);
+    console.error('研究过程中出错: ', error);
   } finally {
     // 关闭 WebDriver
     console.log('关闭浏览器 ...');
@@ -134,7 +134,7 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
 // 从环境变量或命令行参数获取 API 密钥
 const apiKey = process.env.DEEPSEEK_API_KEY || '';
 if (!apiKey) {
-  console.error('错误 : 未提供 API 密钥，请设置 DEEPSEEK_API_KEY 环境变量');
+  console.error('错误: 未提供 API 密钥，请设置 DEEPSEEK_API_KEY 环境变量');
   process.exit(1);
 }
 
@@ -144,5 +144,5 @@ const topic = process.argv[2] || '人工智能在医疗领域的应用';
 // 运行深度研究
 runSimpleDeepResearch(topic, apiKey)
   .then(() => console.log('研究完成!'))
-  .catch(err => console.error('程序运行错误 :', err))
+  .catch(err => console.error('程序运行错误: ', err))
   .finally(() => process.exit(0));

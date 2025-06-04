@@ -74,7 +74,7 @@ class ReportEnhancer extends Component {
       - 语言专业，表达准确
       - 适当引用信息来源
 
-      回复格式要求为JSON，使用以下结构：
+      回复格式要求为 JSON，使用以下结构：
       {
         "title": "报告标题",
         "summary": "执行摘要内容",
@@ -172,7 +172,7 @@ class ReportEnhancer extends Component {
 
       return enhancedReport;
     } catch (error) {
-      console.error('增强报告失败 :', error);
+      console.error('增强报告失败: ', error);
 
       // 如果处理失败，返回原始报告
       return {

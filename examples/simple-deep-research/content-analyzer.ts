@@ -187,7 +187,7 @@ class ContentAnalyzer extends Component {
           return false;
         }
 
-        // 过滤掉广告 URL（通常包含年份和 " 广告 " 字样）
+        // 过滤掉广告 URL（通常包含年份和 "广告" 字样）
         if (url.includes('广告') || /\d{4}-\d{2}广告/.test(url)) {
           console.log(`[ContentAnalyzer] 过滤掉广告 URL: ${url}`);
           return false;
@@ -384,7 +384,7 @@ class ContentAnalyzer extends Component {
           `[ContentAnalyzer] 调用 filterRelevantResults 方法过滤 ${searchResults.length} 条搜索结果...`
         );
         const relevantUrls = this.filterRelevantResults(searchResults, topic);
-        console.log(`[ContentAnalyzer] 过滤完成，获取到 ${relevantUrls.length} 个相关URL`);
+        console.log(`[ContentAnalyzer] 过滤完成，获取到 ${relevantUrls.length} 个相关 URL`);
 
         if (relevantUrls.length > 0) {
           // 当前版本的 tryGenerateReport 中不需要发送 URL，因为我们已经在 _transform 中设置了 URL 接收器
@@ -568,7 +568,7 @@ class ContentAnalyzer extends Component {
               }
               console.log(`[ContentAnalyzer] 所有相关 URL 已发送完成`);
             } catch (error) {
-              console.error(`[ContentAnalyzer] 发送URL时出错:`, error);
+              console.error(`[ContentAnalyzer] 发送 URL 时出错:`, error);
             }
           } else {
             console.warn('[ContentAnalyzer] 没有找到相关 URL，无法发送给 WebDriver');
