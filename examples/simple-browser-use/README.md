@@ -1,10 +1,10 @@
-# Browser Use Example
+# Simple Browser Use Example
 
 This example demonstrates how to use AStack to build a browser automation pipeline that can understand natural language intents, execute web browsing tasks, and return formatted results.
 
 ## Overview
 
-The Browser Use example showcases:
+The Simple Browser Use example showcases:
 
 1. Natural language task planning using an LLM-powered agent
 2. Browser automation with Playwright
