@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DOM Annotator 测试</title>
+</head>
+<body>
+  <h1>DOM Annotator 测试页面</h1>
+  <p>这是一个用于测试 DOM 标注器的简单 HTML 页面。</p>
+  
+  <button id="test-button">测试按钮</button>
+  <a href="#">测试链接</a>
+  <input type="text" placeholder="测试输入框">
+  <input type="checkbox" id="test-checkbox"> <label for="test-checkbox">测试复选框</label>
+  <select>
+    <option>选项 1</option>
+    <option>选项 2</option>
+  </select>
+  
+  <div id="result"></div>
+  
+  <script>
+    // 这里将放置需要测试的 DOM 标注器代码
+    function testAnnotator() {
+      // 用于生成唯一 ID
+      let idCounter = 0;
+
+      // 要标注的交互元素类型
+      const INTERACTIVE_SELECTORS = [
+        'a',
+        'button',
+        'input',
+        'select',
+        'textarea',
+        '[role="button"]',
+        '[tabindex]:not([tabindex="-1"])',
+        '[onclick]',
+      ];
+
+      // 清除之前的标注
+      const existingAnnotations = document.querySelectorAll('.astack-element-annotation');
+      existingAnnotations.forEach(el => el.parentNode?.removeChild(el));
+
+      // 获取元素的 XPath
+      function getXPath(element) {
+        if (!element) return '';
+        if (element === document.body) return '/html/body';
+
+        let ix = 0;
+        const siblings = Array.from(element.parentElement?.children || []);
+
+        for (let i = 0; i < siblings.length; i++) {
+          const sibling = siblings[i];
+          if (sibling === element) {
+            const pathIndex = ix > 0 ? `[${ix + 1}]` : '';
+            const tagName = element.tagName.toLowerCase();
+            return `${getXPath(element.parentElement)}/${tagName}${pathIndex}`;
+          }
+
+          if (sibling.tagName.toLowerCase() === element.tagName.toLowerCase()) {
+            ix++;
+          }
+        }
+
+        return '';
+      }
+
+      // 创建标注
+      function createAnnotation(element, index) {
+        const rect = element.getBoundingClientRect();
+
+        const annotationEl = document.createElement('div');
+        annotationEl.className = 'astack-element-annotation';
+        annotationEl.textContent = `${index}: ${element.tagName.toLowerCase()}`;
+        
+        // 应用标注样式
+        Object.assign(annotationEl.style, {
+          border: '2px solid #2196F3',
+          backgroundColor: 'rgba(33, 150, 243, 0.1)',
+          color: '#0D47A1',
+          fontSize: '11px',
+          padding: '2px 4px',
+          position: 'absolute',
+          zIndex: '9999',
+          pointerEvents: 'none',
+          fontFamily: 'Arial, sans-serif',
+        });
+        
+        // 定位标注
+        annotationEl.style.top = `${rect.top + window.scrollY}px`;
+        annotationEl.style.left = `${rect.left + window.scrollX}px`;
+        
+        document.body.appendChild(annotationEl);
+        
+        return {
+          element,
+          xpath: getXPath(element)
+        };
+      }
+      
+      // 分析交互元素
+      function analyzeInteractiveElements() {
+        const elementSelector = INTERACTIVE_SELECTORS.join(',');
+        const elements = Array.from(document.querySelectorAll(elementSelector));
+        
+        const results = [];
+        
+        elements.forEach((element, index) => {
+          const result = createAnnotation(element, index + 1);
+          results.push(result);
+        });
+        
+        // 在页面上显示结果
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '<h2>分析结果:</h2>' + 
+          results.map(r => `<div>元素: ${r.element.tagName.toLowerCase()}, XPath: ${r.xpath}</div>`).join('');
+        
+        return results;
+      }
+      
+      // 执行分析
+      return analyzeInteractiveElements();
+    }
+    
+    // 延迟执行以确保页面已完全加载
+    setTimeout(testAnnotator, 500);
+  </script>
+</body>
+</html>
