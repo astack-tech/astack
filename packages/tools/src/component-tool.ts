@@ -53,7 +53,7 @@ export interface ComponentToolConfig {
 /**
  * 组件工具
  *
- * 将 astack 组件包装为工具
+ * 将 AStack 组件包装为工具
  */
 export class ComponentTool implements Tool {
   name: string;
