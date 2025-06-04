@@ -9,7 +9,7 @@ The Browser Use example showcases:
 1. Natural language task planning using an LLM-powered agent
 2. Browser automation with Playwright
 3. State management for tracking browser context
-4. Result formatting for structured output
+4. Result processing and DOM snapshot filtering
 5. Automatic resource cleanup
 6. Pipeline-based execution flow
 
@@ -25,7 +25,7 @@ graph TD
     BrowserState[BrowserStateComponent]
     Formatter[ResultFormatter]
     
-    %% Define ports as nodes to show self-connection
+    %% Define ports as nodes to show this-connection
     Browser_Result["browser.result"]
     Browser_Stop["browser.stop"]
     
@@ -52,7 +52,7 @@ graph TD
         Formatter -->|Output| note2[Formatted Result]
     end
     
-    %% Style for self-connection
+    %% Style for this-connection
     linkStyle 4 stroke:#F44336,stroke-width:2px,stroke-dasharray: 5 5;
 ```
 
@@ -61,7 +61,7 @@ graph TD
 - **PlanningAgent**: Converts natural language intent into a step-by-step plan for browser automation
 - **BrowserAgent**: Executes browser automation actions using Playwright
 - **BrowserStateComponent**: Manages and broadcasts browser state (DOM, URL, etc.) to other components
-- **ResultFormatter**: Formats raw data from browser operations into structured, readable cards
+- **ResultFormatter**: Filters DOM snapshot data and passes through relevant results
 
 ### Data Flow
 
@@ -70,7 +70,7 @@ graph TD
 3. `BrowserAgent` executes browser actions and sends state updates to `BrowserStateComponent`
 4. `BrowserStateComponent` broadcasts state to interested components
 5. `BrowserAgent` sends result data to `ResultFormatter` and signals itself to close
-6. `ResultFormatter` creates a structured card output
+6. `ResultFormatter` filters out DOM snapshot data and passes through relevant results
 7. Pipeline returns the formatted result
 
 ## Usage

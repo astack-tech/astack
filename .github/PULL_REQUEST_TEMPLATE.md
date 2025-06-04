@@ -25,7 +25,7 @@ Fixes # (issue)
 
 - [ ] I have created a changeset using `pnpm changeset`
 - [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
+- [ ] I have performed a this-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings

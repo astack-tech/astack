@@ -1,7 +1,7 @@
 import { Component } from '@astack-tech/core';
 
 /**
- * 结果格式化组件 - 将浏览器操作结果转换为卡片格式
+ * 结果格式化组件 - 简化版本，直接传递输入数据
  * 遵循 AStack 的 "一切皆组件" 原则，支持零适配层设计
  */
 export class ResultFormatter extends Component {
@@ -16,9 +16,9 @@ export class ResultFormatter extends Component {
   _transform($i: any) {
     $i('data').receive(async (data: unknown) => {
       try {
-        // 将收集到的数据转换为美观的卡片格式
-        const card = this.formatAsCard(data);
-        this.outPort.send(card);
+        // 简化处理：直接传递输入数据，但过滤掉 DOM 快照相关内容
+        const result = this.processResult(data);
+        this.outPort.send(result);
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         this.outPort.send({ error: errorMessage });
@@ -27,111 +27,30 @@ export class ResultFormatter extends Component {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private formatAsCard(data: any) {
+  private processResult(data: any) {
+    // 如果数据不是对象，则直接返回
     if (!data || typeof data !== 'object') {
-      return { content: 'No valid data received', type: 'error' };
+      return data;
     }
 
-    // 检测数据类型并应用适当的格式
-    if (Array.isArray(data)) {
-      // 处理数据列表
-      return {
-        type: 'listCard',
-        title: '结果列表',
-        items: data.map((item, index) => ({
-          id: `item-${index}`,
-          title: this.extractTitle(item),
-          content: this.extractContent(item),
-          metadata: this.extractMetadata(item),
-        })),
-      };
-    } else if (data.title || data.name) {
-      // 处理单个实体数据
-      return {
-        type: 'entityCard',
-        title: data.title || data.name,
-        description: data.description || data.summary || '',
-        attributes: Object.entries(data)
-          .filter(([key]) => !['title', 'name', 'description', 'summary'].includes(key))
-          .reduce((acc: Record<string, unknown>, [key, value]) => {
-            acc[key] = value;
-            return acc;
-          }, {}),
-      };
-    } else {
-      // 处理通用数据
-      return {
-        type: 'dataCard',
-        content: JSON.stringify(data, null, 2),
-      };
-    }
-  }
-
-  // 从项目中提取标题
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractTitle(item: any): string {
-    if (typeof item !== 'object') return String(item);
-
-    // 尝试找出最适合作为标题的字段
-    const titleFields = ['title', 'name', 'heading', 'subject', 'label'];
-
-    for (const field of titleFields) {
-      if (item[field] && typeof item[field] === 'string') {
-        return item[field];
-      }
+    // 如果是错误对象，直接返回
+    if (data.error) {
+      return data;
     }
 
-    // 如果没有明确的标题字段，使用第一个字符串字段
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    for (const [key, value] of Object.entries(item)) {
-      if (typeof value === 'string' && value.length < 100) {
-        return value;
-      }
+    // 如果是浏览器状态对象，过滤掉 DOM 快照以减少输出
+    if (data.browserState && typeof data.browserState === 'object') {
+      // 创建一个新对象，排除 domSnapshot
+      const { domSnapshot, ...filteredState } = data.browserState;
+      return { ...data, browserState: filteredState };
     }
 
-    return '项目';
-  }
-
-  // 从项目中提取内容
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractContent(item: any): string {
-    if (typeof item !== 'object') return '';
-
-    // 尝试找出最适合作为内容的字段
-    const contentFields = ['description', 'content', 'text', 'body', 'summary'];
-
-    for (const field of contentFields) {
-      if (item[field] && typeof item[field] === 'string') {
-        return item[field];
-      }
+    // 如果是提取的数据结果，直接返回
+    if (data.message && (data.elements || data.content)) {
+      return data;
     }
 
-    return '';
-  }
-
-  // 提取其他元数据
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private extractMetadata(item: any): Record<string, unknown> {
-    if (typeof item !== 'object') return {};
-
-    const ignoredFields = [
-      'title',
-      'name',
-      'heading',
-      'subject',
-      'label',
-      'description',
-      'content',
-      'text',
-      'body',
-      'summary',
-    ];
-
-    return Object.entries(item)
-      .filter(([key]) => !ignoredFields.includes(key))
-      .reduce((acc: Record<string, unknown>, [key, value]) => {
-        acc[key] = value;
-        return acc;
-      }, {});
+    // 其他情况，直接返回输入数据
+    return data;
   }
 }

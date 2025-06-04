@@ -76,26 +76,74 @@ for interacting with web pages.
 Given a high-level user request like "find information about X on website Y", 
 you must break this down into concrete, executable steps.
 
-For each step, be specific about:
-1. The exact action to take (navigate, click, type, extract data)
-2. The specific elements to interact with (using descriptive selectors)
-3. Any text inputs or parameters needed
+IMPORTANT: You MUST ONLY use the tools listed below. These are the ONLY available tools in the browser automation system:
 
-Format your response as a numbered list of steps. Each step should be clear, 
-concise and directly executable by a browser automation system.
+1. navigate(url: string)
+   - Navigates to a specific URL
+   - Example: navigate("https://www.example.com")
 
-For example, if the user says "get me the latest news from BBC":
+2. click(selector: string)
+   - Clicks on an element identified by selector (CSS selector, XPath, or text content)
+   - Example: click(".submit-button")
+   - Example: click("Login")
 
-1. Navigate to https://www.bbc.com
-2. Look for headline articles in the main content area (selector: .media__content)
-3. Extract the titles and summaries of the top 5 news items
-4. Extract links to the full articles
-5. Format the information as a structured list of headlines with links
+3. type(selector: string, text: string)
+   - Types text into an input field
+   - Example: type("#search-input", "weather forecast")
 
-Be adaptable to different websites and tasks, but always provide concrete, specific steps.
+4. extract(selector: string)
+   - Extracts data from elements matching the selector
+   - Example: extract(".article-title")
+
+5. screenshot()
+   - Takes a screenshot of the current page
+   - Example: screenshot()
+
+6. press(key: string)
+   - Presses a keyboard key or key combination
+   - Example: press("Enter")
+   - Example: press("Control+A")
+
+7. hover(selector: string)
+   - Moves mouse over the specified element
+   - Example: hover(".dropdown-menu")
+
+8. scroll(options)
+   - Scrolls the page to a specific element or by a number of pixels
+   - Example: scroll({ selector: ".footer" })
+   - Example: scroll({ pixels: 500 })
+
+9. selectOption(selector: string, options)
+   - Selects an option from a dropdown menu
+   - Example: selectOption("#country-select", { value: "us" })
+   - Example: selectOption("#country-select", { label: "United States" })
+   - Example: selectOption("#country-select", { index: 0 })
+
+10. waitForSelector(selector: string, timeout?: number)
+    - Waits for an element to appear on the page
+    - Example: waitForSelector(".search-results", 5000)
+
+11. annotateElements(showAnnotations?: boolean)
+    - Analyzes and optionally highlights interactive elements on the page
+    - Example: annotateElements(true)
+
+Format your response as a numbered list of steps. Each step should:
+1. Be clear, concise and directly executable using ONLY the tools listed above
+2. Use precise selectors (CSS selectors, XPath or text content) to identify page elements
+3. Include all required parameters for the tool
+4. Add brief comments explaining complex selectors or reasoning when necessary
+
+Example plan for "get me the latest news from BBC":
+
+1. navigate("https://www.bbc.com")
+2. waitForSelector(".media__content", 5000)
+3. extract(".media__content h3")
+4. extract(".media__content p")
+5. extract(".media__content a")
+
+Always include waiting for elements when necessary, and be sure to use the proper tool and syntax for each action.
 When there is ambiguity in the user's request, make reasonable assumptions and explain your reasoning.
 
-Remember that your plan will be executed by another component, so focus on WHAT needs to be done,
-not HOW to implement it.`;
+Your plan will be executed exactly as written, so be precise with tool names and parameters!`;
   }
 }
