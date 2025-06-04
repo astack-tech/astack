@@ -1,4 +1,5 @@
 import { Component } from '@astack-tech/core';
+import { InteractiveElement } from '../utils/dom-annotator';
 
 /**
  * BrowserStateComponent
@@ -10,13 +11,14 @@ export class BrowserStateComponent extends Component {
   // 浏览器状态
   private state: {
     currentUrl: string;
-    domSnapshot: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    domSnapshot: { interactive: InteractiveElement[]; meta: any };
     lastAction?: string;
     lastError?: string;
     lastUpdateTime: number;
   } = {
     currentUrl: 'about:blank',
-    domSnapshot: '<body />\n',
+    domSnapshot: { interactive: [], meta: {} },
     lastUpdateTime: Date.now(),
   };
 
@@ -38,7 +40,7 @@ export class BrowserStateComponent extends Component {
     // 更新状态
     $i('update').receive((update: Partial<typeof this.state>) => {
       const oldUrl = this.state.currentUrl;
-      const oldDomSize = this.state.domSnapshot.length;
+      const oldDomSize = JSON.stringify(this.state.domSnapshot).length;
 
       // 更新状态
       this.state = {
@@ -56,8 +58,10 @@ export class BrowserStateComponent extends Component {
       }
 
       // 记录 DOM 变化
-      if (oldDomSize !== this.state.domSnapshot.length) {
-        console.log(`  DOM快照: ${oldDomSize} => ${this.state.domSnapshot.length} 字符`);
+      if (oldDomSize !== JSON.stringify(this.state.domSnapshot).length) {
+        console.log(
+          `  DOM 快照: ${oldDomSize} => ${JSON.stringify(this.state.domSnapshot).length} 字符`
+        );
       }
 
       // 记录最后动作

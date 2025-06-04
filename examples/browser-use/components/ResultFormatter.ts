@@ -41,6 +41,7 @@ export class ResultFormatter extends Component {
     // 如果是浏览器状态对象，过滤掉 DOM 快照以减少输出
     if (data.browserState && typeof data.browserState === 'object') {
       // 创建一个新对象，排除 domSnapshot
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { domSnapshot, ...filteredState } = data.browserState;
       return { ...data, browserState: filteredState };
     }
