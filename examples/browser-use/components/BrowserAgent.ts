@@ -1,7 +1,11 @@
 import { Component } from '@astack-tech/core';
 import { Agent, AgentConfig, AgentInput } from '@astack-tech/components';
 import { chromium, Browser, Page } from 'playwright';
-import { serializeDom } from '../utils/dom-serializer';
+import {
+  annotateInteractiveElements,
+  removeAnnotations,
+  InteractiveElement,
+} from '../utils/dom-annotator';
 import { createTool } from '@astack-tech/tools';
 import type { ModelProvider } from '@astack-tech/components';
 
@@ -30,12 +34,13 @@ export class BrowserAgent extends Component {
   // 浏览器状态缓存
   private browserState: {
     currentUrl: string;
-    domSnapshot: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    domSnapshot: { interactive: InteractiveElement[]; meta: any };
     lastAction?: string;
     lastError?: string;
   } = {
     currentUrl: 'about:blank',
-    domSnapshot: '',
+    domSnapshot: { interactive: [], meta: {} },
   };
 
   // 存储端口引用，供工具函数使用
@@ -60,6 +65,7 @@ export class BrowserAgent extends Component {
       model: modelProvider,
       systemPrompt: this.getSystemPrompt(),
       tools: this.getBrowserTools(),
+      maxIterations: 50,
     } as AgentConfig);
   }
 
@@ -137,7 +143,7 @@ export class BrowserAgent extends Component {
       console.log('[BrowserAgent] 收到浏览器状态更新');
       if (state && typeof state === 'object') {
         const oldUrl = this.browserState.currentUrl;
-        const oldDomSize = (this.browserState.domSnapshot || '').length;
+        const oldDomSize = JSON.stringify(this.browserState.domSnapshot).length;
 
         // 更新本地缓存
         this.browserState = {
@@ -147,7 +153,9 @@ export class BrowserAgent extends Component {
 
         console.log(`[BrowserAgent] 状态更新详情:`);
         console.log(`  - URL: ${oldUrl} => ${state.currentUrl || 'N/A'}`);
-        console.log(`  - DOM快照: ${oldDomSize} => ${(state.domSnapshot || '').length} 字符`);
+        console.log(
+          `  - DOM快照: ${oldDomSize} => ${JSON.stringify(state.domSnapshot).length} 字符`
+        );
         if (state.lastAction) console.log(`  - 最后动作: ${state.lastAction}`);
         if (state.lastError) console.log(`  - 错误: ${state.lastError}`);
       }
@@ -183,7 +191,9 @@ export class BrowserAgent extends Component {
         // 输出浏览器状态缓存的当前情况
         console.log(`[BrowserAgent] 当前本地缓存状态:`);
         console.log(`  - 缓存 URL: ${this.browserState.currentUrl || 'none'}`);
-        console.log(`  - 缓存 DOM 快照: ${(this.browserState.domSnapshot || '').length} 字符`);
+        console.log(
+          `  - 缓存 DOM 快照: ${JSON.stringify(this.browserState.domSnapshot).length} 字符`
+        );
 
         // 预处理任务所需的状态变量
         let currentUrl = this.browserState.currentUrl;
@@ -200,11 +210,13 @@ export class BrowserAgent extends Component {
           }
         }
 
-        if (!domSnapshot || domSnapshot.length < 10) {
+        if (JSON.stringify(domSnapshot).length < 10) {
           // 如果 DOM 快照为空或很小
           if (this.page) {
             domSnapshot = await this.captureDomSnapshot();
-            console.log(`[BrowserAgent] 实时获取 DOM 快照: ${domSnapshot.length} 字符`);
+            console.log(
+              `[BrowserAgent] 实时获取 DOM 快照: ${JSON.stringify(domSnapshot).length} 字符`
+            );
             needRefresh = true;
           }
         }
@@ -220,7 +232,7 @@ export class BrowserAgent extends Component {
 
         console.log(`[BrowserAgent] 执行任务，使用上下文:`);
         console.log(`  - URL: ${currentUrl}`);
-        console.log(`  - DOM 快照: ${domSnapshot.length} 字符`);
+        console.log(`  - DOM 快照: ${JSON.stringify(domSnapshot).length} 字符`);
         console.log(`  - 最后动作: ${this.browserState.lastAction || 'none'}`);
         console.log(`  - 最后错误: ${this.browserState.lastError || 'none'}`);
 
@@ -235,7 +247,9 @@ export class BrowserAgent extends Component {
 
         console.log(`[BrowserAgent] 执行任务: ${task}`);
         console.log(`[BrowserAgent] 当前 URL: ${metadata.currentUrl}`);
-        console.log(`[BrowserAgent] DOM 快照大小: ${metadata.domSnapshot?.length || 0} 字节`);
+        console.log(
+          `[BrowserAgent] DOM 快照大小: ${JSON.stringify(metadata.domSnapshot).length} 字节`
+        );
 
         // 重要：不要保存初始 input 对象的引用，每次都创建新的对象
         // 这样可以避免因为闭包缓存而使用旧的 metadata
@@ -258,16 +272,29 @@ export class BrowserAgent extends Component {
           // 注意：每次调用 agent.run 都会重置 Agent 的内部状态
           const result = await this.agent.run(input);
 
-          // 将结果发送到输出端口
-          $o('result').send(result);
-
           // 任务完成后更新浏览器状态
           await this.updateBrowserState();
+
+          // 将结果发送到输出端口
+          $o('result').send({
+            success: true,
+            currentUrl,
+            domSnapshot: JSON.stringify(domSnapshot), // 序列化为字符串以兼容原有接口
+            interactiveElements: domSnapshot.interactive, // 新增字段，直接提供结构化数据
+            pageMeta: domSnapshot.meta, // 新增字段，提供页面元数据
+            lastAction: this.browserState.lastAction,
+            ...result,
+          });
         } catch (error) {
           console.error(`[BrowserAgent] 执行任务失败:`, error);
           $o('result').send({
-            message: `执行任务失败: ${error instanceof Error ? error.message : String(error)}`,
-            history: [],
+            success: false,
+            currentUrl,
+            domSnapshot: JSON.stringify(domSnapshot), // 序列化为字符串以兼容原有接口
+            interactiveElements: domSnapshot.interactive, // 新增字段
+            pageMeta: domSnapshot.meta, // 新增字段
+            lastAction: this.browserState.lastAction,
+            lastError: error instanceof Error ? error.message : String(error),
           });
         }
 
@@ -281,35 +308,46 @@ export class BrowserAgent extends Component {
   }
 
   /**
-   * 捕获当前页面的 DOM 快照
+   * 捕获当前页面的交互元素和元数据
+   * 这种方法比完整 DOM 快照更轻量级且信息更聚焦
    */
-  private async captureDomSnapshot(): Promise<string> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private async captureDomSnapshot(): Promise<{ interactive: InteractiveElement[]; meta: any }> {
     try {
       if (!this.page) {
-        console.warn('[BrowserAgent] 尝试捕获 DOM，但页面未初始化');
-        return '';
+        console.warn('[BrowserAgent] 尝试捕获页面数据，但页面未初始化');
+        return { interactive: [], meta: { title: '', url: '' } };
       }
 
-      // 等待页面加载完成，提高 DOM 捕获质量
+      // 等待页面加载完成，提高捕获质量
       await this.page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {
-        console.log('[BrowserAgent] 等待页面加载超时，继续捕获 DOM');
+        console.log('[BrowserAgent] 等待页面加载超时，继续捕获');
       });
 
-      // 获取页面内容并序列化
-      console.log('[BrowserAgent] 捕获 DOM 快照...');
-      const html = await this.page.content();
-      const snapshot = serializeDom(html);
+      // 捕获页面基本元数据
+      const meta = await this.page.evaluate(() => ({
+        title: document.title,
+        url: window.location.href,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+        // 可选：捕获页面主要文本内容，限制大小
+        mainText: document.body.innerText.substring(0, 1000),
+      }));
 
-      // 记录快照大小以便调试
-      console.log(`[BrowserAgent] DOM 快照大小: ${snapshot.length} 字符`);
-      if (snapshot.length < 100) {
-        console.warn('[BrowserAgent] DOM 快照异常小，可能未正确捕获');
-      }
+      // 捕获交互元素
+      console.log('[BrowserAgent] 捕获交互元素...');
+      const interactiveElements = await annotateInteractiveElements(this.page);
 
-      return snapshot;
+      // 移除标注（避免对页面产生视觉干扰）
+      await removeAnnotations(this.page);
+
+      // 记录捕获信息以便调试
+      console.log(`[BrowserAgent] 捕获了 ${interactiveElements.length} 个交互元素`);
+      console.log(`[BrowserAgent] 页面标题: ${meta.title}`);
+
+      return { interactive: interactiveElements, meta };
     } catch (error) {
-      console.error('[BrowserAgent] 捕获 DOM 失败:', error);
-      return '';
+      console.error('[BrowserAgent] 捕获页面数据失败:', error);
+      return { interactive: [], meta: { error: String(error) } };
     }
   }
 
@@ -343,7 +381,7 @@ export class BrowserAgent extends Component {
       // 注意: 由于 _transform 中的 $o 范围限制，这里不直接发送状态更新
       // 状态更新将通过 Tool 的执行过程间接发送
       console.log(
-        `[BrowserAgent] 更新浏览器状态: URL=${currentUrl}, DOM 快照大小=${domSnapshot.length} 字符`
+        `[BrowserAgent] 更新浏览器状态: URL=${currentUrl}, DOM 快照=${domSnapshot}`
       );
       // 由于我们在工具函数内进行状态更新发送，这里不需要处理 $o 的问题
     } catch (error) {
@@ -621,27 +659,27 @@ export class BrowserAgent extends Component {
         async (args: Record<string, unknown>) => {
           if (!self.page) throw new Error('Browser not initialized');
           const key = safeGetString(args, 'key');
-          
+
           // 记录动作
           self.browserState.lastAction = `按键 ${key}`;
           self.browserState.lastError = '';
           console.log(`[BrowserAgent] 执行按键: ${key}`);
-          
+
           try {
             await self.page.keyboard.press(key);
-            
+
             // 等待页面响应并更新状态
             await self.page.waitForTimeout(300);
             await self.updateBrowserState();
-            
+
             // 更新操作状态
             self.browserState.lastAction = `按键 ${key} (成功)`;
-            
+
             // 发送状态更新
             if (self.outputPorts && self.outputPorts.stateUpdate) {
               self.outputPorts.stateUpdate.send(self.browserState);
             }
-            
+
             return `Successfully pressed key: ${key}`;
           } catch (error) {
             self.browserState.lastError = `按键失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -654,7 +692,8 @@ export class BrowserAgent extends Component {
           properties: {
             key: {
               type: 'string',
-              description: 'Key or key combination to press (e.g., "Enter", "ArrowDown", "Control+c")',
+              description:
+                'Key or key combination to press (e.g., "Enter", "ArrowDown", "Control+c")',
             },
           },
           required: ['key'],
@@ -666,27 +705,27 @@ export class BrowserAgent extends Component {
         async (args: Record<string, unknown>) => {
           if (!self.page) throw new Error('Browser not initialized');
           const selector = safeGetString(args, 'selector');
-          
+
           // 记录动作
           self.browserState.lastAction = `鼠标悬停在 ${selector} 上`;
           self.browserState.lastError = '';
           console.log(`[BrowserAgent] 执行鼠标悬停: ${selector}`);
-          
+
           try {
             await self.page.hover(selector);
-            
+
             // 等待页面响应并更新状态
             await self.page.waitForTimeout(300);
             await self.updateBrowserState();
-            
+
             // 更新操作状态
             self.browserState.lastAction = `鼠标悬停在 ${selector} 上 (成功)`;
-            
+
             // 发送状态更新
             if (self.outputPorts && self.outputPorts.stateUpdate) {
               self.outputPorts.stateUpdate.send(self.browserState);
             }
-            
+
             return `Successfully hovered over: ${selector}`;
           } catch (error) {
             self.browserState.lastError = `鼠标悬停失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -712,42 +751,42 @@ export class BrowserAgent extends Component {
           if (!self.page) throw new Error('Browser not initialized');
           const selector = args.selector as string | undefined;
           const pixels = args.pixels as number | undefined;
-          
+
           // 记录动作
-          let actionDesc = selector ? `滚动到元素 ${selector}` : `滚动 ${pixels} 像素`;
+          const actionDesc = selector ? `滚动到元素 ${selector}` : `滚动 ${pixels} 像素`;
           self.browserState.lastAction = actionDesc;
           self.browserState.lastError = '';
           console.log(`[BrowserAgent] 执行${actionDesc}`);
-          
+
           try {
             if (selector) {
               // 滚动到指定元素
-              await self.page.evaluate((sel) => {
+              await self.page.evaluate(sel => {
                 const element = document.querySelector(sel);
                 if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 else throw new Error(`Element not found: ${sel}`);
               }, selector);
             } else if (pixels !== undefined) {
               // 滚动指定像素
-              await self.page.evaluate((px) => {
+              await self.page.evaluate(px => {
                 window.scrollBy({ top: px, behavior: 'smooth' });
               }, pixels);
             } else {
               throw new Error('Either selector or pixels must be provided');
             }
-            
+
             // 等待页面响应并更新状态
             await self.page.waitForTimeout(500);
             await self.updateBrowserState();
-            
+
             // 更新操作状态
             self.browserState.lastAction = `${actionDesc} (成功)`;
-            
+
             // 发送状态更新
             if (self.outputPorts && self.outputPorts.stateUpdate) {
               self.outputPorts.stateUpdate.send(self.browserState);
             }
-            
+
             return `Successfully scrolled ${selector ? 'to element: ' + selector : pixels + ' pixels'}`;
           } catch (error) {
             self.browserState.lastError = `滚动失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -764,7 +803,8 @@ export class BrowserAgent extends Component {
             },
             pixels: {
               type: 'number',
-              description: 'Number of pixels to scroll vertically (positive for down, negative for up)',
+              description:
+                'Number of pixels to scroll vertically (positive for down, negative for up)',
             },
           },
         }
@@ -778,43 +818,43 @@ export class BrowserAgent extends Component {
           const value = args.value as string | undefined;
           const label = args.label as string | undefined;
           const index = args.index as number | undefined;
-          
+
           if (!value && !label && index === undefined) {
             throw new Error('One of value, label, or index must be provided');
           }
-          
+
           // 记录动作
           let actionDesc = `在 ${selector} 中选择选项`;
           if (value) actionDesc += ` (值=${value})`;
           if (label) actionDesc += ` (标签=${label})`;
           if (index !== undefined) actionDesc += ` (索引=${index})`;
-          
+
           self.browserState.lastAction = actionDesc;
           self.browserState.lastError = '';
           console.log(`[BrowserAgent] ${actionDesc}`);
-          
+
           try {
-            let result;
+            // 执行选择操作
             if (value) {
-              result = await self.page.selectOption(selector, { value });
+              await self.page.selectOption(selector, { value });
             } else if (label) {
-              result = await self.page.selectOption(selector, { label });
+              await self.page.selectOption(selector, { label });
             } else if (index !== undefined) {
-              result = await self.page.selectOption(selector, { index });
+              await self.page.selectOption(selector, { index });
             }
-            
+
             // 等待页面响应并更新状态
             await self.page.waitForTimeout(300);
             await self.updateBrowserState();
-            
+
             // 更新操作状态
             self.browserState.lastAction = `${actionDesc} (成功)`;
-            
+
             // 发送状态更新
             if (self.outputPorts && self.outputPorts.stateUpdate) {
               self.outputPorts.stateUpdate.send(self.browserState);
             }
-            
+
             return `Successfully selected option in ${selector}`;
           } catch (error) {
             self.browserState.lastError = `选择选项失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -851,27 +891,27 @@ export class BrowserAgent extends Component {
         async (args: Record<string, unknown>) => {
           if (!self.page) throw new Error('Browser not initialized');
           const selector = safeGetString(args, 'selector');
-          const timeout = args.timeout as number || 30000; // 默认 30 秒超时
-          
+          const timeout = (args.timeout as number) || 30000; // 默认 30 秒超时
+
           // 记录动作
           self.browserState.lastAction = `等待元素 ${selector} 出现`;
           self.browserState.lastError = '';
           console.log(`[BrowserAgent] 等待元素: ${selector}`);
-          
+
           try {
             await self.page.waitForSelector(selector, { timeout });
-            
+
             // 更新操作状态
             self.browserState.lastAction = `等待元素 ${selector} 出现 (成功)`;
-            
+
             // 更新状态
             await self.updateBrowserState();
-            
+
             // 发送状态更新
             if (self.outputPorts && self.outputPorts.stateUpdate) {
               self.outputPorts.stateUpdate.send(self.browserState);
             }
-            
+
             return `Successfully waited for element: ${selector}`;
           } catch (error) {
             self.browserState.lastError = `等待元素失败: ${error instanceof Error ? error.message : String(error)}`;
@@ -892,6 +932,97 @@ export class BrowserAgent extends Component {
             },
           },
           required: ['selector'],
+        }
+      ),
+      createTool(
+        'annotateElements',
+        'Analyze, highlight and return all interactive elements on the page',
+        async (args: Record<string, unknown>) => {
+          if (!self.page) throw new Error('Browser not initialized');
+          // 显示标注模式状态 - 可选参数
+          const showAnnotations = args.showAnnotations === false ? false : true;
+
+          // 记录动作
+          self.browserState.lastAction = '分析和标注页面交互元素';
+          self.browserState.lastError = '';
+          console.log(`[BrowserAgent] 执行元素分析与标注，显示标注: ${showAnnotations}`);
+
+          try {
+            // 使用 DOM 标注工具分析交互元素
+            const interactiveElements = await annotateInteractiveElements(self.page);
+
+            // 如果不需要显示标注，则移除它们
+            if (!showAnnotations) {
+              await removeAnnotations(self.page);
+            }
+
+            // 构建简洁的结构化结果
+            const result = interactiveElements.map(el => ({
+              id: el.id,
+              tagName: el.tagName,
+              type: el.type || el.tagName,
+              text: el.text,
+              interactionType: el.interactionType,
+              rect: el.rect,
+              xpath: el.xpath,
+              cssSelector: el.cssSelector,
+              visible: el.visible,
+              enabled: el.enabled,
+              // 只保留有值的属性
+              ...(el.placeholder ? { placeholder: el.placeholder } : {}),
+              ...(el.value ? { value: el.value } : {}),
+              ...(el.name ? { name: el.name } : {}),
+              ...(el.role ? { role: el.role } : {}),
+            }));
+
+            // 按类型分组的统计信息
+            const stats = {
+              total: result.length,
+              byType: {} as Record<string, number>,
+              byInteractionType: {} as Record<string, number>,
+            };
+
+            // 统计各类型元素
+            result.forEach(el => {
+              // 按元素类型统计
+              if (!stats.byType[el.type]) stats.byType[el.type] = 0;
+              stats.byType[el.type]++;
+
+              // 按交互类型统计
+              el.interactionType.forEach(type => {
+                if (!stats.byInteractionType[type]) stats.byInteractionType[type] = 0;
+                stats.byInteractionType[type]++;
+              });
+            });
+
+            // 发送状态更新，包含交互元素分析结果
+            self.browserState.lastAction = `分析并标注了 ${result.length} 个交互元素 (成功)`;
+            if (self.outputPorts && self.outputPorts.stateUpdate) {
+              self.outputPorts.stateUpdate.send(self.browserState);
+            }
+
+            // 返回结构化的元素信息和统计数据
+            return {
+              message: `Found ${result.length} interactive elements on the page`,
+              elements: result,
+              stats: stats,
+              annotationsVisible: showAnnotations,
+            };
+          } catch (error) {
+            self.browserState.lastError = `元素分析标注失败: ${error instanceof Error ? error.message : String(error)}`;
+            console.error(`[BrowserAgent] ${self.browserState.lastError}`);
+            throw error;
+          }
+        },
+        {
+          type: 'object',
+          properties: {
+            showAnnotations: {
+              type: 'boolean',
+              description: 'Whether to keep visual annotations visible on the page (default: true)',
+            },
+          },
+          required: [],
         }
       ),
     ];
@@ -921,6 +1052,14 @@ Available tools:
 - scroll(selector|pixels): Scroll to an element or by a specific number of pixels
 - selectOption(selector, value|label|index): Select an option from a dropdown menu
 - waitForSelector(selector, timeout): Wait for an element to appear on the page
+- annotateElements(showAnnotations?): Analyze and visually highlight all interactive elements on the page, and return their structured details including position, xpath, and selectors
+
+Element identification best practices:
+1. Always start with annotateElements() when exploring a new page to identify all interactive elements
+2. Use the returned element data (especially xpath and cssSelector) for precise targeting
+3. Look for elements with appropriate interaction types (click, type, select) based on your task
+4. Pay attention to the visual position (rect) of elements to understand page layout
+5. Use the visual annotations to confirm the correct elements are being targeted
 
 When analyzing the DOM, look for:
 - Semantic elements and their hierarchy
