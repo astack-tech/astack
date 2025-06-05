@@ -22,7 +22,7 @@
 
 AStack 是一个模块化组件框架，通过"一切皆组件"的理念简化 AI 应用的开发。它提供零适配层设计，实现各种 AI 模型、工具和自定义业务逻辑之间的无缝集成。
 
-AStack 是一个具有独立技术架构和生态系统的技术框架，它的灵感来源于 [Hlang](https://github.com/hlang-tech)，并在技术上与其兼容。Hlang 是一种高度语义化的[第四代编程语言(4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language)，受到流程基础编程(Flow-Based Programming)范式启发，特别适用于作为计算模型以及被 AI 生成。该框架强调极简主义和性能，允许开发者使用最少的样板代码创建复杂系统，同时保持完全的技术自主性。
+AStack 是一个具有独立技术架构和生态系统的技术框架，构建在 [Hlang](https://github.com/hlang-tech) 之上。Hlang 是一种高度语义化的[第四代编程语言(4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language)，受到流程基础编程(Flow-Based Programming)范式启发，特别适用于作为计算模型以及被 AI 生成。正是这种基于 Hlang 的基础赋予了 AStack 强大的能力。该框架强调极简主义和性能，允许开发者使用最少的样板代码创建复杂系统，同时保持完全的技术自主性。
 
 ### 主要特性
 
