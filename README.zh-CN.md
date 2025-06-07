@@ -62,7 +62,7 @@ AStack 特别适合于：
 
 ## 👏 灵感与比较
 
-AStack 从 AI 生态系统中的几个杰出项目汲取灵感，特别是deepset-ai的 [Haystack](https://github.com/deepset-ai/haystack)。我们对这些项目的开创性工作和对开源社区的贡献表示感谢。
+AStack 从 AI 生态系统中的几个杰出项目汲取灵感，特别是 deepset-ai 的 [Haystack](https://github.com/deepset-ai/haystack)。我们对这些项目的开创性工作和对开源社区的贡献表示感谢。
 
 值得注意的是，AStack 是用 TypeScript 实现的完全原创框架，而 Haystack 是 Python 实现。AStack 为中文开发者提供完整的中文文档和支持，而 Haystack 缺乏中文文档，对中文用户不够友好。
 
