@@ -4,7 +4,7 @@
 
 # AStack
 
-**A modular component framework for building AI applications**
+**A composable framework for building AI applications**
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
@@ -20,7 +20,7 @@ English | [简体中文](./README.zh-CN.md)
 
 ## 📋 Overview
 
-AStack is a modular component framework designed to simplify the development of AI applications through a "everything is a component" philosophy. It provides a zero-adaptation layer design that enables seamless integration between various AI models, tools, and custom business logic.
+AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. It provides a zero-adaptation layer design that enables seamless integration between various AI models, tools, and custom business logic.
 
 AStack is an independent technical framework with its own architecture and ecosystem, built on top of [Hlang](https://github.com/hlang-tech) - a highly semantic [fourth-generation language (4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language) inspired by Flow-Based Programming paradigms. This foundation on Hlang, which is particularly well-suited for computational modeling and AI-generated code, is what gives AStack its power. The framework emphasizes minimalism and performance, allowing developers to create complex systems with minimal boilerplate code while maintaining complete technical autonomy.
 
@@ -289,7 +289,7 @@ While AStack is a technically independent framework, it offers seamless compatib
 
 - **Declarative Programming Approach**: Express complex behaviors in a fraction of the code required by traditional methods
 - **Human-Centric Design**: Intuitive syntax that reduces the learning curve for developers
-- **Component-Based Architecture**: Built around modular components that can be assembled into complex systems
+- **Component-Based Architecture**: Built around composable components that can be assembled into complex systems
 - **Type Safety with Flexibility**: Strong typing system that also accommodates the dynamic nature of modern applications
 
 ### Technical Integration

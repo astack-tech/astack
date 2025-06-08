@@ -1,7 +1,7 @@
 {
   "name": "astack",
   "version": "0.1.0",
-  "description": "A modular component framework for building AI applications.",
+  "description": "A composable framework for building AI applications.",
   "private": true,
   "engines": {
     "node": ">=18.0.0"

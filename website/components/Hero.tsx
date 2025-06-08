@@ -17,14 +17,14 @@ export default function Hero() {
                 AStack
               </span>
               <span className="block mt-2 text-white">
-                A modular component framework
+                A composable framework
                 <span className="text-blue-400"> for building AI applications.</span>
               </span>
             </h1>
             
             <p className="text-lg md:text-xl text-gray-300 mb-8">
               Everything is a component. Build powerful agent workflows with a pure functional 
-              programming approach using AStack&apos;s modular architecture.
+              programming approach using AStack&apos;s composable architecture.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4">
