@@ -171,10 +171,10 @@ export default function Comparison() {
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                                 </svg>
                               </div>
-                              <span className="text-indigo-300 font-medium">Low-overhead multi-round tool execution</span>
+                              <span className="text-indigo-300 font-medium">Support Compound Agentic System</span>
                             </div>
                           </td>
-                          <td className="py-4 px-6 text-gray-400">LangGraph-integrated agent framework</td>
+                          <td className="py-4 px-6 text-gray-400">Support Compound Agentic System</td>
                         </tr>
                         <tr className="hover:bg-gray-800/20 transition-colors duration-150">
                           <td className="py-4 px-6 text-gray-300">Memory Management</td>
