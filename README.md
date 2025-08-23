@@ -76,7 +76,7 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 | **Adaptation Layer** | Zero-adaptation layer design | Component connections often require adapters |
 | **Primary Focus** | General AI application framework | Primarily NLP and RAG applications |
 | **Component Interface** | Unified component interface | Different interfaces based on component types |
-| **Agent Support** | Multi-round tool execution with minimal overhead | Agent framework with LangGraph integration |
+| **Agent Support** | Support Compound Agentic System | Support Compound Agentic System |
 | **Memory Management** | Built-in memory abstractions | Memory implemented through specialized components |
 | **Execution Modes** | Both independent and pipeline execution | Both pipeline and component-level execution |
 | **Tool Integration** | Standardized tool interface | Various integration patterns depending on use case |
