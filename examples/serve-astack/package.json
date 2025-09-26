@@ -1,0 +1,17 @@
+{
+  "name": "serve-astack",
+  "version": "1.0.0",
+  "description": "AStack Server Wrapper Example",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "concurrently \"pnpm -C backend dev\" \"pnpm -C frontend dev\"",
+    "start": "concurrently \"pnpm -C backend start\" \"pnpm -C frontend start\"",
+    "install:deps": "pnpm install",
+    "setup": "node scripts/setup.js",
+    "check": "node scripts/setup.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

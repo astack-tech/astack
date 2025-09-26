@@ -4,6 +4,7 @@ export { default as TextSplitter } from './text';
 // Agent
 export {
   default as Agent,
+  StreamingAgent,
   type Message as AgentMessage,
   type Tool as AgentTool,
   type Memory,
@@ -12,6 +13,7 @@ export {
   type AgentInput,
   type AgentOutput,
   type ModelProvider,
+  type StreamingChunk,
 } from './agents';
 
 // Tool Invoker
