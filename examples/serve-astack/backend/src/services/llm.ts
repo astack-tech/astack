@@ -50,3 +50,27 @@ export async function chatWithLLM(
     content: response.content,
   };
 }
+
+export async function* chatWithLLMStreaming(
+  client: ModelProvider,
+  messages: LLMMessage[]
+): AsyncGenerator<string> {
+  // 检查是否支持流式调用
+  if (!client.streamChatCompletion) {
+    throw new Error('ModelProvider does not support streaming');
+  }
+
+  // 使用流式调用
+  const response = await client.streamChatCompletion(
+    messages.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+    }))
+  );
+
+  for await (const chunk of response) {
+    if (chunk.content) {
+      yield chunk.content;
+    }
+  }
+}

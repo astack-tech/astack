@@ -215,9 +215,9 @@ export class StreamingAgent extends Component {
         };
 
         // 调用模型获取回复（与原 Agent 完全一致）
-        const modelResponse = await model.chatCompletion(currentMessages, {
+        const modelResponse = (await model.chatCompletion(currentMessages, {
           temporaryTools: tools,
-        });
+        })) as MessageWithToolCalls;
 
         if (verbose) {
           console.log(

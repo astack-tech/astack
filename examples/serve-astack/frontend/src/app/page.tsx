@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useChat } from '@ai-sdk/react';
+import { Streamdown } from 'streamdown';
 import {
   Send,
   Bot,
@@ -327,11 +328,8 @@ export default function ChatPage() {
                           {message.parts.map((part, partIndex) => {
                             if (part.type === 'text') {
                               return (
-                                <div
-                                  key={partIndex}
-                                  className="leading-relaxed whitespace-pre-wrap"
-                                >
-                                  {part.text}
+                                <div key={partIndex} className="leading-relaxed">
+                                  <Streamdown>{part.text}</Streamdown>
                                 </div>
                               );
                             }

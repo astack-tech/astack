@@ -225,6 +225,124 @@ class Deepseek extends Component {
   }
 
   /**
+   * 流式处理对话消息
+   * @param messages 对话消息数组
+   * @param options 可选的调用选项，包含临时工具列表
+   * @returns 生成的流式响应消息异步生成器
+   */
+  async *streamChatCompletion(
+    messages: Message[],
+    options?: { temporaryTools?: unknown[] }
+  ): AsyncGenerator<Partial<Message>> {
+    // 转换消息格式 (复用现有逻辑)
+    const formattedMessages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [];
+
+    // 添加系统提示
+    if (this.systemPrompt) {
+      formattedMessages.push({
+        role: 'system',
+        content: this.systemPrompt,
+      });
+    }
+
+    // 添加用户提供的消息
+    formattedMessages.push(
+      ...messages.map(msg => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const formattedMsg: any = {
+          role: msg.role,
+          content: msg.content,
+        };
+
+        if (msg.role === 'tool' && msg.tool_call_id) {
+          formattedMsg.tool_call_id = msg.tool_call_id;
+        }
+
+        return formattedMsg;
+      })
+    );
+
+    // 创建请求参数
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const requestParams: any = {
+      model: this.model,
+      messages: formattedMessages,
+      temperature: this.temperature,
+      max_tokens: this.maxTokens,
+      top_p: this.topP,
+      stream: true, // 开启流式模式
+    };
+
+    // 决定使用哪些工具
+    const toolsToUse = options?.temporaryTools || this.tools;
+
+    // 如果有工具定义，添加到请求中
+    if (toolsToUse && toolsToUse.length > 0) {
+      const formattedTools = toolsToUse.map(tool => {
+        type ToolType = {
+          type?: string;
+          name?: string;
+          description?: string;
+          parameters?: Record<string, unknown>;
+        };
+
+        const typedTool = tool as ToolType;
+
+        if (typedTool.type === 'function') {
+          return tool;
+        }
+
+        return {
+          type: 'function',
+          function: {
+            name: typedTool.name,
+            description: typedTool.description,
+            parameters: typedTool.parameters || {},
+          },
+        };
+      });
+
+      requestParams.tools = formattedTools;
+    }
+
+    // 调用流式 API
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const stream = (await this.client.chat.completions.create(requestParams)) as any;
+
+    // 处理流式响应
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta;
+
+      if (delta?.content) {
+        // 流式文本内容
+        yield {
+          role: 'assistant',
+          content: delta.content,
+        };
+      }
+
+      if (delta?.tool_calls) {
+        // 流式工具调用（如果需要）
+        yield {
+          role: 'assistant',
+          content: '',
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          tool_calls: delta.tool_calls.map((toolCall: any) => ({
+            id: toolCall.id || '',
+            function: {
+              name: toolCall.function?.name || '',
+              arguments: toolCall.function?.arguments || '',
+            },
+            type: 'function',
+            tool_name: toolCall.function?.name || '',
+            arguments: JSON.parse(toolCall.function?.arguments || '{}'),
+          })),
+        };
+      }
+    }
+  }
+
+  /**
    * 处理对话消息
    * @param messages 对话消息数组
    * @param options 可选的调用选项，包含临时工具列表

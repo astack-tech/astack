@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { classifyIntent, getStreamingAgentByIntent } from '../agents/index.js';
-import { createLLMClient, chatWithLLM } from '../services/llm.js';
+import { createLLMClient, chatWithLLMStreaming } from '../services/llm.js';
 
 // AI SDK 5.0 compatible types
 interface UIMessagePart {
@@ -58,34 +58,34 @@ export default async function chatRoutes(fastify: FastifyInstance) {
             .join(' '),
         }));
 
-        const response = await chatWithLLM(llmClient, llmMessages);
-
         // Set proper headers for AI SDK Data Stream Protocol
         reply.type('text/plain; charset=utf-8');
         reply.header('X-Vercel-AI-Data-Stream', 'v1');
 
-        // Send text chunks using AI SDK Data Stream Protocol format
-        const textContent = response.content;
-        const chunks = textContent.split('');
+        let completionTokens = 0;
 
-        // Simulate streaming by sending character by character
-        for (let i = 0; i < chunks.length; i++) {
-          // Text Part: 0:string\n
-          const chunk = `0:${JSON.stringify(chunks[i])}\n`;
-          reply.raw.write(chunk);
+        try {
+          // Real streaming from LLM
+          for await (const chunk of chatWithLLMStreaming(llmClient, llmMessages)) {
+            // Send each chunk as it arrives from LLM
+            const textPart = `0:${JSON.stringify(chunk)}\n`;
+            reply.raw.write(textPart);
+            completionTokens += chunk.length;
+          }
 
-          // Small delay to simulate streaming
-          await new Promise(resolve => setTimeout(resolve, 50));
+          // Send completion using Finish Message Part
+          const finishPart = `d:${JSON.stringify({
+            finishReason: 'stop',
+            usage: { promptTokens: 0, completionTokens },
+          })}\n`;
+          reply.raw.write(finishPart);
+          reply.raw.end();
+        } catch (error) {
+          fastify.log.error(error, 'Error in LLM streaming');
+          const errorPart = `3:${JSON.stringify(error instanceof Error ? error.message : 'LLM streaming error')}\n`;
+          reply.raw.write(errorPart);
+          reply.raw.end();
         }
-
-        // Send completion using Finish Message Part
-        // d:{finishReason:'stop' | 'length' | 'content-filter' | 'tool-calls' | 'error' | 'other' | 'unknown';usage:{promptTokens:number; completionTokens:number;}}
-        const finishPart = `d:${JSON.stringify({
-          finishReason: 'stop',
-          usage: { promptTokens: 0, completionTokens: chunks.length },
-        })}\n`;
-        reply.raw.write(finishPart);
-        reply.raw.end();
       } else {
         // Handle agent-based processing with AI SDK Data Stream Protocol
         const streamingAgent = getStreamingAgentByIntent(intent);

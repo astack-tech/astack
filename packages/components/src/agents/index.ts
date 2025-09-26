@@ -170,6 +170,17 @@ export interface ModelProvider {
     messages: Message[],
     options?: ModelProviderOptions
   ): Promise<MessageWithToolCalls>;
+
+  /**
+   * 流式调用模型生成回复
+   * @param messages 输入消息列表
+   * @param options 可选的模型调用选项
+   * @returns 流式回复消息的异步生成器
+   */
+  streamChatCompletion?(
+    messages: Message[],
+    options?: ModelProviderOptions
+  ): AsyncGenerator<Partial<MessageWithToolCalls>>;
 }
 
 /**
