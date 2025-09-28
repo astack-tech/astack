@@ -24,7 +24,9 @@ export function CalculatorCard({ expression, result, steps }: CalculatorCardProp
       <div className="p-4">
         {/* Expression */}
         <div className="mb-4">
-          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">表达式</label>
+          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+            表达式
+          </label>
           <div className="mt-1 rounded-md bg-neutral-50 px-3 py-2 font-mono text-sm">
             {expression}
           </div>
@@ -32,7 +34,9 @@ export function CalculatorCard({ expression, result, steps }: CalculatorCardProp
 
         {/* Result */}
         <div className="mb-4">
-          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">结果</label>
+          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+            结果
+          </label>
           <div className="mt-1 flex items-center gap-2">
             <div className="rounded-md bg-green-50 px-3 py-2 font-mono text-lg font-semibold text-green-700">
               {result}
@@ -43,7 +47,9 @@ export function CalculatorCard({ expression, result, steps }: CalculatorCardProp
         {/* Steps (if provided) */}
         {steps && steps.length > 0 && (
           <div>
-            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">计算步骤</label>
+            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+              计算步骤
+            </label>
             <div className="mt-2 space-y-2">
               {steps.map((step, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">

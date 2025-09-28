@@ -20,7 +20,7 @@ interface CodeBlockProps {
 function CodeBlock({ children, className, ...props }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
+
   const handleCopy = async () => {
     if (typeof children === 'string') {
       await navigator.clipboard.writeText(children);
@@ -32,7 +32,7 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
   const language = className?.replace('language-', '') || 'text';
 
   return (
-    <div 
+    <div
       className="group relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -59,7 +59,7 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
           </button>
         )}
       </div>
-      
+
       {/* Code content */}
       <pre className="!mt-0 !mb-0 overflow-x-auto bg-neutral-900 px-4 py-4 text-sm">
         <code className={className} {...props}>
@@ -77,7 +77,7 @@ interface InlineCodeProps {
 
 function InlineCode({ children, ...props }: InlineCodeProps) {
   return (
-    <code 
+    <code
       className="rounded bg-neutral-100 px-1.5 py-0.5 text-sm font-mono text-neutral-800"
       {...props}
     >
@@ -88,7 +88,9 @@ function InlineCode({ children, ...props }: InlineCodeProps) {
 
 export function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
   return (
-    <div className={`prose prose-neutral max-w-none prose-headings:font-semibold prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-p:leading-relaxed prose-a:text-neutral-900 prose-a:no-underline hover:prose-a:underline prose-strong:text-neutral-900 prose-strong:font-semibold prose-ul:text-neutral-700 prose-ol:text-neutral-700 prose-blockquote:border-l-neutral-300 prose-blockquote:text-neutral-600 prose-hr:border-neutral-200 ${className}`}>
+    <div
+      className={`prose prose-neutral max-w-none prose-headings:font-semibold prose-headings:text-neutral-900 prose-p:text-neutral-700 prose-p:leading-relaxed prose-a:text-neutral-900 prose-a:no-underline hover:prose-a:underline prose-strong:text-neutral-900 prose-strong:font-semibold prose-ul:text-neutral-700 prose-ol:text-neutral-700 prose-blockquote:border-l-neutral-300 prose-blockquote:text-neutral-600 prose-hr:border-neutral-200 ${className}`}
+    >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         rehypePlugins={[rehypeRaw, rehypeHighlight]}
@@ -97,9 +99,17 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
           code: (props: any) => {
             const { inline, className, children, ...rest } = props;
             if (inline) {
-              return <InlineCode className={className} {...rest}>{children}</InlineCode>;
+              return (
+                <InlineCode className={className} {...rest}>
+                  {children}
+                </InlineCode>
+              );
             }
-            return <CodeBlock className={className} {...rest}>{children}</CodeBlock>;
+            return (
+              <CodeBlock className={className} {...rest}>
+                {children}
+              </CodeBlock>
+            );
           },
           table: ({ children, ...props }) => (
             <div className="overflow-x-auto">
@@ -109,17 +119,26 @@ export function MarkdownRenderer({ content, className = '' }: MarkdownRendererPr
             </div>
           ),
           th: ({ children, ...props }) => (
-            <th className="bg-neutral-50 px-4 py-2 text-left text-xs font-medium text-neutral-700 uppercase tracking-wider" {...props}>
+            <th
+              className="bg-neutral-50 px-4 py-2 text-left text-xs font-medium text-neutral-700 uppercase tracking-wider"
+              {...props}
+            >
               {children}
             </th>
           ),
           td: ({ children, ...props }) => (
-            <td className="px-4 py-2 text-sm text-neutral-700 border-b border-neutral-200" {...props}>
+            <td
+              className="px-4 py-2 text-sm text-neutral-700 border-b border-neutral-200"
+              {...props}
+            >
               {children}
             </td>
           ),
           blockquote: ({ children, ...props }) => (
-            <blockquote className="border-l-4 border-neutral-300 pl-4 italic text-neutral-600 my-4" {...props}>
+            <blockquote
+              className="border-l-4 border-neutral-300 pl-4 italic text-neutral-600 my-4"
+              {...props}
+            >
               {children}
             </blockquote>
           ),

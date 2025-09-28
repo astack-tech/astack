@@ -40,14 +40,14 @@ function analyzeMessageType(message: any, data?: any[]): string {
 
   // 从消息内容推断类型
   const content = message.parts?.find((part: any) => part.type === 'text')?.text || '';
-  
+
   if (content.includes('计算') || /\d+\s*[+\-*/]\s*\d+/.test(content)) {
     return 'math';
   }
   if (content.includes('分析') || content.includes('统计') || content.includes('文本')) {
     return 'analysis';
   }
-  
+
   return 'chat';
 }
 
@@ -77,25 +77,20 @@ function ThinkingIndicator() {
 // 智能内容解析器，从 AI 响应中提取结构化信息
 function parseAIResponse(content: string, messageType: string) {
   const components = [];
-  
+
   if (messageType === 'math') {
     // 尝试提取数学计算信息
     const mathMatch = content.match(/计算[：:]?\s*(.+?)\s*[=＝]\s*(.+?)(?:\n|$)/);
     if (mathMatch) {
       const expression = mathMatch[1].trim();
       const result = mathMatch[2].trim();
-      
+
       // 提取计算步骤（如果有的话）
       const stepsMatch = content.match(/步骤[：:]?\s*([\s\S]*?)(?:\n\n|$)/);
       const steps = stepsMatch ? stepsMatch[1].split('\n').filter(s => s.trim()) : undefined;
-      
+
       components.push(
-        <CalculatorCard 
-          key="calc" 
-          expression={expression} 
-          result={result} 
-          steps={steps} 
-        />
+        <CalculatorCard key="calc" expression={expression} result={result} steps={steps} />
       );
     }
   } else if (messageType === 'analysis') {
@@ -103,24 +98,26 @@ function parseAIResponse(content: string, messageType: string) {
     const textMatch = content.match(/(?:分析文本|原文)[：:]?\s*(.+?)(?:\n|$)/);
     if (textMatch) {
       const text = textMatch[1].trim();
-      
+
       // 提取统计信息
       const wordCountMatch = content.match(/词数[：:]?\s*(\d+)/);
       const charCountMatch = content.match(/字符数[：:]?\s*(\d+)/);
       const sentencesMatch = content.match(/句子数[：:]?\s*(\d+)/);
-      
+
       // 提取关键词
       const keywordsMatch = content.match(/关键词[：:]?\s*(.+?)(?:\n|$)/);
-      const keywords = keywordsMatch ? keywordsMatch[1].split(/[，,、\s]+/).filter(k => k.trim()) : undefined;
-      
+      const keywords = keywordsMatch
+        ? keywordsMatch[1].split(/[，,、\s]+/).filter(k => k.trim())
+        : undefined;
+
       // 提取情感分析
       let sentiment: 'positive' | 'negative' | 'neutral' | undefined;
       if (content.includes('积极') || content.includes('正面')) sentiment = 'positive';
       else if (content.includes('消极') || content.includes('负面')) sentiment = 'negative';
       else if (content.includes('中性')) sentiment = 'neutral';
-      
+
       components.push(
-        <AnalysisCard 
+        <AnalysisCard
           key="analysis"
           text={text}
           wordCount={wordCountMatch ? parseInt(wordCountMatch[1]) : undefined}
@@ -134,13 +131,28 @@ function parseAIResponse(content: string, messageType: string) {
   } else if (messageType === 'agent') {
     // 为 Agent 执行创建步骤
     const steps = [
-      { type: 'thinking' as const, title: '分析用户请求', content: '理解任务需求...', status: 'completed' as const },
-      { type: 'tool_call' as const, title: '调用工具', content: '执行相关操作...', status: 'completed' as const },
-      { type: 'result' as const, title: '生成响应', content: '整合结果...', status: 'completed' as const },
+      {
+        type: 'thinking' as const,
+        title: '分析用户请求',
+        content: '理解任务需求...',
+        status: 'completed' as const,
+      },
+      {
+        type: 'tool_call' as const,
+        title: '调用工具',
+        content: '执行相关操作...',
+        status: 'completed' as const,
+      },
+      {
+        type: 'result' as const,
+        title: '生成响应',
+        content: '整合结果...',
+        status: 'completed' as const,
+      },
     ];
-    
+
     components.push(
-      <AgentCard 
+      <AgentCard
         key="agent"
         agentName="智能助手"
         status="completed"
@@ -149,7 +161,7 @@ function parseAIResponse(content: string, messageType: string) {
       />
     );
   }
-  
+
   return components;
 }
 
@@ -160,19 +172,26 @@ export default function ChatPage() {
 
   // 在用户发送消息时立即创建一个占位的助手消息来显示加载状态
   const displayMessages = [...messages];
-  if (status === 'streaming' && messages.length > 0 && messages[messages.length - 1]?.role === 'user') {
+  if (
+    status === 'streaming' &&
+    messages.length > 0 &&
+    messages[messages.length - 1]?.role === 'user'
+  ) {
     // 分析用户消息类型来预测助手消息类型
     const userMessage = messages[messages.length - 1];
     const userText = userMessage.parts?.find(part => part.type === 'text')?.text || '';
-    const predictedType = analyzeMessageType({ role: 'user', parts: [{ type: 'text', text: userText }] });
-    
+    const predictedType = analyzeMessageType({
+      role: 'user',
+      parts: [{ type: 'text', text: userText }],
+    });
+
     displayMessages.push({
       id: 'loading-message',
       role: 'assistant' as const,
       parts: [{ type: 'text', text: '' }],
       // 添加预测的消息类型用于显示对应头像
       predictedType,
-    });
+    } as any);
   }
 
   return (
@@ -193,15 +212,19 @@ export default function ChatPage() {
             <div className="flex items-center gap-2">
               <div
                 className={`h-2 w-2 rounded-full ${
-                  status === 'ready' 
-                    ? 'bg-green-500' 
-                    : status === 'streaming' 
-                    ? 'bg-orange-500 animate-pulse' 
-                    : 'bg-neutral-400'
+                  status === 'ready'
+                    ? 'bg-green-500'
+                    : status === 'streaming'
+                      ? 'bg-orange-500 animate-pulse'
+                      : 'bg-neutral-400'
                 }`}
               />
               <span className="text-xs text-neutral-500">
-                {status === 'ready' ? 'Ready' : status === 'streaming' ? 'Processing' : 'Connecting'}
+                {status === 'ready'
+                  ? 'Ready'
+                  : status === 'streaming'
+                    ? 'Processing'
+                    : 'Connecting'}
               </span>
             </div>
           </div>
@@ -219,7 +242,7 @@ export default function ChatPage() {
             <p className="mb-8 max-w-md text-neutral-600">
               智能助手支持复杂对话、数学计算、文本分析等多种任务
             </p>
-            
+
             <div className="grid w-full max-w-md gap-3">
               <button
                 onClick={() => {
@@ -236,7 +259,7 @@ export default function ChatPage() {
                 </div>
                 <ChevronRight className="ml-auto h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-1" />
               </button>
-              
+
               <button
                 onClick={() => {
                   handleInputChange({
@@ -252,7 +275,7 @@ export default function ChatPage() {
                 </div>
                 <ChevronRight className="ml-auto h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-1" />
               </button>
-              
+
               <button
                 onClick={() => {
                   handleInputChange({
@@ -273,8 +296,9 @@ export default function ChatPage() {
         ) : (
           <div className="space-y-6">
             {displayMessages.map((message, index) => {
-              const messageType = (message as any).predictedType || analyzeMessageType(message, data);
-              
+              const messageType =
+                (message as any).predictedType || analyzeMessageType(message, data);
+
               return (
                 <div
                   key={message.id}
@@ -304,14 +328,14 @@ export default function ChatPage() {
                           {messageType === 'agent'
                             ? 'AI Agent'
                             : messageType === 'math'
-                            ? '数学计算'
-                            : messageType === 'analysis'
-                            ? '文本分析'
-                            : 'AI 助手'}
+                              ? '数学计算'
+                              : messageType === 'analysis'
+                                ? '文本分析'
+                                : 'AI 助手'}
                         </span>
                       </div>
                     )}
-                    
+
                     <div
                       className={`rounded-lg px-4 py-3 ${
                         message.role === 'user'
@@ -324,19 +348,17 @@ export default function ChatPage() {
                           // 对于助手消息，尝试解析并渲染自定义组件
                           if (message.role === 'assistant') {
                             const customComponents = parseAIResponse(part.text, messageType);
-                            
+
                             return (
                               <div key={partIndex}>
                                 {/* 如果有自定义组件，先渲染组件 */}
                                 {customComponents.length > 0 && (
-                                  <div className="mb-4">
-                                    {customComponents}
-                                  </div>
+                                  <div className="mb-4">{customComponents}</div>
                                 )}
-                                
+
                                 {/* 然后渲染文本内容 */}
-                                <MarkdownRenderer 
-                                  content={part.text} 
+                                <MarkdownRenderer
+                                  content={part.text}
                                   className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                                 />
                               </div>
@@ -344,9 +366,9 @@ export default function ChatPage() {
                           } else {
                             // 用户消息正常渲染
                             return (
-                              <MarkdownRenderer 
+                              <MarkdownRenderer
                                 key={partIndex}
-                                content={part.text} 
+                                content={part.text}
                                 className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
                               />
                             );
@@ -357,15 +379,18 @@ export default function ChatPage() {
 
                       {/* Thinking indicator */}
                       {message.role === 'assistant' &&
-                        (index === displayMessages.length - 1 || message.id === 'loading-message') &&
+                        (index === displayMessages.length - 1 ||
+                          message.id === 'loading-message') &&
                         status === 'streaming' && (
                           <div className="mt-3 border-t border-neutral-100 pt-3">
                             <ThinkingIndicator />
                           </div>
                         )}
                     </div>
-                    
-                    <div className={`mt-1 text-xs text-neutral-400 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+
+                    <div
+                      className={`mt-1 text-xs text-neutral-400 ${message.role === 'user' ? 'text-right' : 'text-left'}`}
+                    >
                       刚刚
                     </div>
                   </div>
@@ -411,9 +436,7 @@ export default function ChatPage() {
 
             {/* 状态栏 */}
             <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
-              <span>
-                {status === 'streaming' ? 'Processing...' : 'Ready to chat'}
-              </span>
+              <span>{status === 'streaming' ? 'Processing...' : 'Ready to chat'}</span>
               <span>Powered by AStack</span>
             </div>
           </form>

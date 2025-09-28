@@ -145,21 +145,24 @@ export default async function chatRoutes(fastify: FastifyInstance) {
               case 'assistant_message': {
                 if (chunk.content) {
                   fullContent = chunk.content;
-                  
+
                   // 智能流式传输：根据配置选择字符级或词语级
-                  const chunks = STREAMING_CONFIG.streamByCharacter 
+                  const chunks = STREAMING_CONFIG.streamByCharacter
                     ? chunk.content.split('')
                     : chunk.content.split(/(\s+)/);
-                  
+
                   for (const textChunk of chunks) {
-                    if (textChunk) { // 跳过空字符串
+                    if (textChunk) {
+                      // 跳过空字符串
                       // Text Part: 0:string\n
                       const textPart = `0:${JSON.stringify(textChunk)}\n`;
                       reply.raw.write(textPart);
-                      
+
                       // 可配置的延迟
                       if (STREAMING_CONFIG.delayPerToken > 0) {
-                        await new Promise(resolve => setTimeout(resolve, STREAMING_CONFIG.delayPerToken));
+                        await new Promise(resolve =>
+                          setTimeout(resolve, STREAMING_CONFIG.delayPerToken)
+                        );
                       }
                     }
                   }

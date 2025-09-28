@@ -51,7 +51,7 @@ export function AgentCard({ agentName = 'AI Agent', status, steps, finalResult }
             <p className="text-sm text-neutral-500">AI Agent Execution</p>
           </div>
         </div>
-        
+
         <span className={`rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(status)}`}>
           {status === 'running' ? '执行中' : status === 'completed' ? '已完成' : '错误'}
         </span>
@@ -62,18 +62,14 @@ export function AgentCard({ agentName = 'AI Agent', status, steps, finalResult }
         <div className="space-y-3">
           {steps.map((step, index) => (
             <div key={index} className="flex items-start gap-3">
-              <div className="mt-1">
-                {getStatusIcon(step.status || 'running')}
-              </div>
-              
+              <div className="mt-1">{getStatusIcon(step.status || 'running')}</div>
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-medium text-neutral-900">{step.title}</h4>
-                  {step.type === 'tool_call' && (
-                    <Zap className="h-3 w-3 text-amber-500" />
-                  )}
+                  {step.type === 'tool_call' && <Zap className="h-3 w-3 text-amber-500" />}
                 </div>
-                
+
                 {step.content && (
                   <div className="mt-1">
                     {step.type === 'thinking' ? (
@@ -85,7 +81,7 @@ export function AgentCard({ agentName = 'AI Agent', status, steps, finalResult }
                     )}
                   </div>
                 )}
-                
+
                 {step.timestamp && (
                   <p className="mt-1 text-xs text-neutral-400">{step.timestamp}</p>
                 )}
@@ -97,7 +93,9 @@ export function AgentCard({ agentName = 'AI Agent', status, steps, finalResult }
         {/* Final Result */}
         {finalResult && status === 'completed' && (
           <div className="mt-4 border-t border-neutral-100 pt-4">
-            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">最终结果</label>
+            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+              最终结果
+            </label>
             <div className="mt-2 rounded-md bg-green-50 p-3 text-sm leading-relaxed">
               {finalResult}
             </div>

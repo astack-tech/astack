@@ -10,28 +10,34 @@ interface AnalysisCardProps {
   readingTime?: number;
 }
 
-export function AnalysisCard({ 
-  text, 
-  wordCount, 
-  charCount, 
-  sentences, 
-  keywords, 
-  sentiment, 
-  readingTime 
+export function AnalysisCard({
+  text,
+  wordCount,
+  charCount,
+  sentences,
+  keywords,
+  sentiment,
+  readingTime,
 }: AnalysisCardProps) {
   const getSentimentColor = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return 'text-green-600 bg-green-50';
-      case 'negative': return 'text-red-600 bg-red-50';
-      default: return 'text-neutral-600 bg-neutral-50';
+      case 'positive':
+        return 'text-green-600 bg-green-50';
+      case 'negative':
+        return 'text-red-600 bg-red-50';
+      default:
+        return 'text-neutral-600 bg-neutral-50';
     }
   };
 
   const getSentimentLabel = (sentiment: string) => {
     switch (sentiment) {
-      case 'positive': return '积极';
-      case 'negative': return '消极';
-      default: return '中性';
+      case 'positive':
+        return '积极';
+      case 'negative':
+        return '消极';
+      default:
+        return '中性';
     }
   };
 
@@ -52,10 +58,10 @@ export function AnalysisCard({
       <div className="p-4">
         {/* Source Text */}
         <div className="mb-4">
-          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">原文</label>
-          <div className="mt-1 rounded-md bg-neutral-50 p-3 text-sm leading-relaxed">
-            {text}
-          </div>
+          <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+            原文
+          </label>
+          <div className="mt-1 rounded-md bg-neutral-50 p-3 text-sm leading-relaxed">{text}</div>
         </div>
 
         {/* Statistics Grid */}
@@ -69,21 +75,21 @@ export function AnalysisCard({
               <p className="text-xs text-neutral-500">词数</p>
             </div>
           )}
-          
+
           {charCount !== undefined && (
             <div className="text-center">
               <div className="text-2xl font-bold text-neutral-900">{charCount}</div>
               <p className="text-xs text-neutral-500">字符数</p>
             </div>
           )}
-          
+
           {sentences !== undefined && (
             <div className="text-center">
               <div className="text-2xl font-bold text-neutral-900">{sentences}</div>
               <p className="text-xs text-neutral-500">句子数</p>
             </div>
           )}
-          
+
           {readingTime !== undefined && (
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 text-2xl font-bold text-neutral-900">
@@ -98,10 +104,14 @@ export function AnalysisCard({
         {/* Sentiment Analysis */}
         {sentiment && (
           <div className="mb-4">
-            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">情感倾向</label>
+            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+              情感倾向
+            </label>
             <div className="mt-2 flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-neutral-500" />
-              <span className={`rounded-full px-3 py-1 text-sm font-medium ${getSentimentColor(sentiment)}`}>
+              <span
+                className={`rounded-full px-3 py-1 text-sm font-medium ${getSentimentColor(sentiment)}`}
+              >
                 {getSentimentLabel(sentiment)}
               </span>
             </div>
@@ -111,10 +121,12 @@ export function AnalysisCard({
         {/* Keywords */}
         {keywords && keywords.length > 0 && (
           <div>
-            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">关键词</label>
+            <label className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
+              关键词
+            </label>
             <div className="mt-2 flex flex-wrap gap-2">
               {keywords.map((keyword, index) => (
-                <span 
+                <span
                   key={index}
                   className="rounded-md bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700"
                 >
