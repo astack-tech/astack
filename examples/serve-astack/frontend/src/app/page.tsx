@@ -3,26 +3,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useChat } from '@ai-sdk/react';
-import { Streamdown } from 'streamdown';
 import {
   Send,
   Bot,
   User,
   Loader2,
-  Zap,
   Calculator,
   FileText,
-  Sparkles,
   Brain,
   MessageSquare,
+  Terminal,
+  ChevronRight,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { CalculatorCard } from '@/components/CalculatorCard';
+import { AnalysisCard } from '@/components/AnalysisCard';
+import { AgentCard } from '@/components/AgentCard';
+import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
 // 分析消息类型的辅助函数
-function analyzeMessageType(message: any, data?: any[], messageIndex?: number, messages?: any[]) {
+function analyzeMessageType(message: any, data?: any[]): string {
   if (message.role === 'user') return 'user';
 
-  // 对于assistant消息，优先基于实际数据流判断
+  // 检查数据流中是否有 agent 相关信息
   const hasAgentData = data?.some(
     item =>
       typeof item === 'object' &&
@@ -33,120 +36,121 @@ function analyzeMessageType(message: any, data?: any[], messageIndex?: number, m
         (item as any).type === 'thinking')
   );
 
-  // 如果有agent数据，说明走的是agent路径
   if (hasAgentData) return 'agent';
 
-  // 如果没有agent数据，基于对应的用户消息内容判断类型
-  let userMessage = null;
-  if (messages && messageIndex !== undefined) {
-    // 向前查找最近的用户消息
-    for (let i = messageIndex - 1; i >= 0; i--) {
-      if (messages[i].role === 'user') {
-        userMessage = messages[i];
-        break;
-      }
-    }
+  // 从消息内容推断类型
+  const content = message.parts?.find((part: any) => part.type === 'text')?.text || '';
+  
+  if (content.includes('计算') || /\d+\s*[+\-*/]\s*\d+/.test(content)) {
+    return 'math';
   }
-
-  if (userMessage) {
-    const content =
-      (userMessage.parts?.find((part: any) => part.type === 'text') as any)?.text || '';
-    // 检查数学计算特征
-    if (content.includes('计算') || /\d+\s*[+\-*/]\s*\d+/.test(content)) {
-      return 'math';
-    }
-    // 检查文本分析特征
-    if (content.includes('分析') || content.includes('统计') || content.includes('文本')) {
-      return 'analysis';
-    }
+  if (content.includes('分析') || content.includes('统计') || content.includes('文本')) {
+    return 'analysis';
   }
-
-  // 默认为普通聊天
+  
   return 'chat';
 }
 
-// 获取消息类型对应的图标和颜色
-function getMessageStyle(messageType: string) {
-  const styles = {
-    user: {
-      icon: User,
-      bgColor: 'bg-blue-600',
-      gradientFrom: 'from-blue-500',
-      gradientTo: 'to-blue-600',
-      textColor: 'text-white',
-    },
-    agent: {
-      icon: Brain,
-      bgColor: 'bg-purple-600',
-      gradientFrom: 'from-purple-500',
-      gradientTo: 'to-purple-600',
-      textColor: 'text-white',
-    },
-    math: {
-      icon: Calculator,
-      bgColor: 'bg-green-600',
-      gradientFrom: 'from-green-500',
-      gradientTo: 'to-green-600',
-      textColor: 'text-white',
-    },
-    analysis: {
-      icon: FileText,
-      bgColor: 'bg-orange-600',
-      gradientFrom: 'from-orange-500',
-      gradientTo: 'to-orange-600',
-      textColor: 'text-white',
-    },
-    chat: {
-      icon: Bot,
-      bgColor: 'bg-gray-600',
-      gradientFrom: 'from-gray-500',
-      gradientTo: 'to-gray-600',
-      textColor: 'text-white',
-    },
-  };
-  return styles[messageType as keyof typeof styles] || styles.chat;
-}
-
-// 智能思考状态组件
-function ThinkingStatus({ messageType }: { messageType: string }) {
+// Vercel 风格的思考状态组件
+function ThinkingIndicator() {
   const [dots, setDots] = useState('');
 
   useEffect(() => {
     const interval = setInterval(() => {
       setDots(prev => (prev.length >= 3 ? '' : prev + '.'));
-    }, 500);
+    }, 400);
     return () => clearInterval(interval);
   }, []);
 
-  const getThinkingText = () => {
-    switch (messageType) {
-      case 'agent':
-        return `AI Agent 正在处理${dots}`;
-      case 'math':
-        return `正在计算${dots}`;
-      case 'analysis':
-        return `正在分析${dots}`;
-      default:
-        return `AI 正在思考${dots}`;
-    }
-  };
-
-  const style = getMessageStyle(messageType);
-  const IconComponent = style.icon;
-
   return (
-    <div className="flex items-center gap-3 px-4 py-2 border border-gray-200 rounded-lg bg-gradient-to-r from-gray-50 to-gray-100">
-      <div
-        className={`w-6 h-6 rounded-full bg-gradient-to-br ${style.gradientFrom} ${style.gradientTo} flex items-center justify-center`}
-      >
-        <IconComponent className="w-3 h-3 text-white" />
+    <div className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-500">
+      <div className="flex space-x-1">
+        <div className="w-1 h-1 bg-neutral-400 rounded-full animate-pulse" />
+        <div className="w-1 h-1 bg-neutral-400 rounded-full animate-pulse delay-100" />
+        <div className="w-1 h-1 bg-neutral-400 rounded-full animate-pulse delay-200" />
       </div>
-      <div className="flex items-center gap-2">
-        <Loader2 className="w-4 h-4 text-gray-600 animate-spin" />
-        <span className="text-sm font-medium text-gray-700">{getThinkingText()}</span>
-      </div>
+      <span>AI 正在思考{dots}</span>
     </div>
   );
+}
+
+// 智能内容解析器，从 AI 响应中提取结构化信息
+function parseAIResponse(content: string, messageType: string) {
+  const components = [];
+  
+  if (messageType === 'math') {
+    // 尝试提取数学计算信息
+    const mathMatch = content.match(/计算[：:]?\s*(.+?)\s*[=＝]\s*(.+?)(?:\n|$)/);
+    if (mathMatch) {
+      const expression = mathMatch[1].trim();
+      const result = mathMatch[2].trim();
+      
+      // 提取计算步骤（如果有的话）
+      const stepsMatch = content.match(/步骤[：:]?\s*([\s\S]*?)(?:\n\n|$)/);
+      const steps = stepsMatch ? stepsMatch[1].split('\n').filter(s => s.trim()) : undefined;
+      
+      components.push(
+        <CalculatorCard 
+          key="calc" 
+          expression={expression} 
+          result={result} 
+          steps={steps} 
+        />
+      );
+    }
+  } else if (messageType === 'analysis') {
+    // 尝试提取文本分析信息
+    const textMatch = content.match(/(?:分析文本|原文)[：:]?\s*(.+?)(?:\n|$)/);
+    if (textMatch) {
+      const text = textMatch[1].trim();
+      
+      // 提取统计信息
+      const wordCountMatch = content.match(/词数[：:]?\s*(\d+)/);
+      const charCountMatch = content.match(/字符数[：:]?\s*(\d+)/);
+      const sentencesMatch = content.match(/句子数[：:]?\s*(\d+)/);
+      
+      // 提取关键词
+      const keywordsMatch = content.match(/关键词[：:]?\s*(.+?)(?:\n|$)/);
+      const keywords = keywordsMatch ? keywordsMatch[1].split(/[，,、\s]+/).filter(k => k.trim()) : undefined;
+      
+      // 提取情感分析
+      let sentiment: 'positive' | 'negative' | 'neutral' | undefined;
+      if (content.includes('积极') || content.includes('正面')) sentiment = 'positive';
+      else if (content.includes('消极') || content.includes('负面')) sentiment = 'negative';
+      else if (content.includes('中性')) sentiment = 'neutral';
+      
+      components.push(
+        <AnalysisCard 
+          key="analysis"
+          text={text}
+          wordCount={wordCountMatch ? parseInt(wordCountMatch[1]) : undefined}
+          charCount={charCountMatch ? parseInt(charCountMatch[1]) : undefined}
+          sentences={sentencesMatch ? parseInt(sentencesMatch[1]) : undefined}
+          keywords={keywords}
+          sentiment={sentiment}
+        />
+      );
+    }
+  } else if (messageType === 'agent') {
+    // 为 Agent 执行创建步骤
+    const steps = [
+      { type: 'thinking' as const, title: '分析用户请求', content: '理解任务需求...', status: 'completed' as const },
+      { type: 'tool_call' as const, title: '调用工具', content: '执行相关操作...', status: 'completed' as const },
+      { type: 'result' as const, title: '生成响应', content: '整合结果...', status: 'completed' as const },
+    ];
+    
+    components.push(
+      <AgentCard 
+        key="agent"
+        agentName="智能助手"
+        status="completed"
+        steps={steps}
+        finalResult={content}
+      />
+    );
+  }
+  
+  return components;
 }
 
 export default function ChatPage() {
@@ -154,249 +158,263 @@ export default function ChatPage() {
     api: '/api/chat',
   });
 
-  const [currentMessageType, setCurrentMessageType] = useState<string>('chat');
-
-  // 分析当前处理的消息类型
-  useEffect(() => {
-    if (status === 'streaming' && messages.length > 0) {
-      const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
-      if (lastUserMessage) {
-        const content =
-          (lastUserMessage.parts?.find((part: any) => part.type === 'text') as any)?.text || '';
-
-        // 检查是否有agent数据流
-        const hasAgentData = data?.some(
-          item =>
-            typeof item === 'object' &&
-            item !== null &&
-            'type' in item &&
-            ((item as any).type === 'tool_result' ||
-              (item as any).type === 'iteration_start' ||
-              (item as any).type === 'thinking')
-        );
-
-        if (hasAgentData) {
-          setCurrentMessageType('agent');
-        } else if (content.includes('计算') || /\d+\s*[+\-*/]\s*\d+/.test(content)) {
-          setCurrentMessageType('math');
-        } else if (content.includes('分析')) {
-          setCurrentMessageType('analysis');
-        } else {
-          setCurrentMessageType('chat');
-        }
-      }
-    }
-  }, [status, messages, data]);
+  // 在用户发送消息时立即创建一个占位的助手消息来显示加载状态
+  const displayMessages = [...messages];
+  if (status === 'streaming' && messages.length > 0 && messages[messages.length - 1]?.role === 'user') {
+    // 分析用户消息类型来预测助手消息类型
+    const userMessage = messages[messages.length - 1];
+    const userText = userMessage.parts?.find(part => part.type === 'text')?.text || '';
+    const predictedType = analyzeMessageType({ role: 'user', parts: [{ type: 'text', text: userText }] });
+    
+    displayMessages.push({
+      id: 'loading-message',
+      role: 'assistant' as const,
+      parts: [{ type: 'text', text: '' }],
+      // 添加预测的消息类型用于显示对应头像
+      predictedType,
+    });
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {/* Enhanced Header */}
-      <header className="sticky top-0 z-10 px-6 py-4 border-b bg-white/80 backdrop-blur-lg border-slate-200/60">
-        <div className="flex items-center justify-between max-w-5xl mx-auto">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-              <Sparkles className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-white text-black">
+      {/* Vercel 风格的极简头部 */}
+      <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto max-w-3xl px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-black">
+                <Terminal className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold">AStack AI</h1>
+                <p className="text-xs text-neutral-500">Intelligent Assistant</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-transparent bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text">
-                AStack AI Assistant
-              </h1>
-              <p className="text-sm text-slate-600">智能对话 · 数学计算 · 文本分析 · 工具调用</p>
+            <div className="flex items-center gap-2">
+              <div
+                className={`h-2 w-2 rounded-full ${
+                  status === 'ready' 
+                    ? 'bg-green-500' 
+                    : status === 'streaming' 
+                    ? 'bg-orange-500 animate-pulse' 
+                    : 'bg-neutral-400'
+                }`}
+              />
+              <span className="text-xs text-neutral-500">
+                {status === 'ready' ? 'Ready' : status === 'streaming' ? 'Processing' : 'Connecting'}
+              </span>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div
-              className={`h-2 w-2 rounded-full ${status === 'ready' ? 'bg-green-400' : status === 'streaming' ? 'bg-blue-400 animate-pulse' : 'bg-yellow-400'}`}
-            ></div>
-            <span className="text-xs font-medium text-slate-500">
-              {status === 'ready' ? '就绪' : status === 'streaming' ? '处理中' : '连接中'}
-            </span>
           </div>
         </div>
       </header>
 
-      {/* Enhanced Messages Area */}
-      <main className="flex-1 w-full max-w-5xl px-6 py-8 mx-auto">
-        <div className="space-y-6">
-          {messages.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="flex items-center justify-center w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl">
-                <Brain className="w-10 h-10 text-white" />
-              </div>
-              <h2 className="mb-3 text-2xl font-bold text-slate-800">AStack AI Assistant</h2>
-              <p className="mb-2 text-lg text-slate-600">
-                你好！我是智能助手，拥有强大的推理和工具调用能力
-              </p>
-              <p className="mb-8 text-sm text-slate-500">
-                支持复杂对话、数学计算、文本分析等多种智能任务
-              </p>
-
-              <div className="grid max-w-2xl grid-cols-1 gap-4 mx-auto md:grid-cols-3">
-                <button
-                  onClick={() => {
-                    handleInputChange({
-                      target: { value: '计算 123 + 456' },
-                    } as React.ChangeEvent<HTMLInputElement>);
-                  }}
-                  className="p-4 transition-all duration-300 bg-white border group rounded-2xl border-slate-200 hover:border-green-300 hover:shadow-lg"
-                >
-                  <Calculator className="w-6 h-6 mx-auto mb-2 text-green-600 transition-transform group-hover:scale-110" />
-                  <h3 className="mb-1 font-semibold text-slate-800">数学计算</h3>
-                  <p className="text-xs text-slate-500">复杂数学运算</p>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleInputChange({
-                      target: { value: '分析文本：人工智能正在改变世界' },
-                    } as React.ChangeEvent<HTMLInputElement>);
-                  }}
-                  className="p-4 transition-all duration-300 bg-white border group rounded-2xl border-slate-200 hover:border-orange-300 hover:shadow-lg"
-                >
-                  <FileText className="w-6 h-6 mx-auto mb-2 text-orange-600 transition-transform group-hover:scale-110" />
-                  <h3 className="mb-1 font-semibold text-slate-800">文本分析</h3>
-                  <p className="text-xs text-slate-500">内容深度解析</p>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleInputChange({
-                      target: { value: '你好，介绍一下你的能力' },
-                    } as React.ChangeEvent<HTMLInputElement>);
-                  }}
-                  className="p-4 transition-all duration-300 bg-white border group rounded-2xl border-slate-200 hover:border-purple-300 hover:shadow-lg"
-                >
-                  <MessageSquare className="w-6 h-6 mx-auto mb-2 text-purple-600 transition-transform group-hover:scale-110" />
-                  <h3 className="mb-1 font-semibold text-slate-800">智能对话</h3>
-                  <p className="text-xs text-slate-500">自然语言交流</p>
-                </button>
-              </div>
+      {/* Vercel 风格的消息区域 */}
+      <main className="mx-auto max-w-3xl px-4 py-8">
+        {messages.length === 0 ? (
+          <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+            <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
+              <Brain className="h-8 w-8 text-neutral-600" />
             </div>
-          ) : (
-            <>
-              {messages.map((message, index) => {
-                const messageType = analyzeMessageType(message, data, index, messages);
-                const style = getMessageStyle(messageType);
-                const IconComponent = style.icon;
+            <h2 className="mb-4 text-2xl font-semibold">AStack AI Assistant</h2>
+            <p className="mb-8 max-w-md text-neutral-600">
+              智能助手支持复杂对话、数学计算、文本分析等多种任务
+            </p>
+            
+            <div className="grid w-full max-w-md gap-3">
+              <button
+                onClick={() => {
+                  handleInputChange({
+                    target: { value: '计算 123 + 456' },
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }}
+                className="group flex items-center gap-3 rounded-lg border border-neutral-200 p-4 text-left transition-colors hover:bg-neutral-50"
+              >
+                <Calculator className="h-5 w-5 text-neutral-500" />
+                <div>
+                  <p className="font-medium">数学计算</p>
+                  <p className="text-sm text-neutral-500">复杂数学运算</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-1" />
+              </button>
+              
+              <button
+                onClick={() => {
+                  handleInputChange({
+                    target: { value: '分析文本：人工智能正在改变世界' },
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }}
+                className="group flex items-center gap-3 rounded-lg border border-neutral-200 p-4 text-left transition-colors hover:bg-neutral-50"
+              >
+                <FileText className="h-5 w-5 text-neutral-500" />
+                <div>
+                  <p className="font-medium">文本分析</p>
+                  <p className="text-sm text-neutral-500">内容深度解析</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-1" />
+              </button>
+              
+              <button
+                onClick={() => {
+                  handleInputChange({
+                    target: { value: '你好，介绍一下你的能力' },
+                  } as React.ChangeEvent<HTMLInputElement>);
+                }}
+                className="group flex items-center gap-3 rounded-lg border border-neutral-200 p-4 text-left transition-colors hover:bg-neutral-50"
+              >
+                <MessageSquare className="h-5 w-5 text-neutral-500" />
+                <div>
+                  <p className="font-medium">智能对话</p>
+                  <p className="text-sm text-neutral-500">自然语言交流</p>
+                </div>
+                <ChevronRight className="ml-auto h-4 w-4 text-neutral-400 transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {displayMessages.map((message, index) => {
+              const messageType = (message as any).predictedType || analyzeMessageType(message, data);
+              
+              return (
+                <div
+                  key={message.id}
+                  className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {/* Avatar */}
+                  {message.role === 'assistant' && (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100">
+                      {messageType === 'agent' ? (
+                        <Brain className="h-4 w-4 text-neutral-600" />
+                      ) : messageType === 'math' ? (
+                        <Calculator className="h-4 w-4 text-neutral-600" />
+                      ) : messageType === 'analysis' ? (
+                        <FileText className="h-4 w-4 text-neutral-600" />
+                      ) : (
+                        <Bot className="h-4 w-4 text-neutral-600" />
+                      )}
+                    </div>
+                  )}
 
-                return (
-                  <div
-                    key={message.id}
-                    className={`flex gap-4 ${
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
+                  {/* Message Content */}
+                  <div className={`max-w-[80%] ${message.role === 'user' ? 'order-first' : ''}`}>
+                    {/* Message Type Label */}
+                    {message.role === 'assistant' && (
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-xs font-medium text-neutral-500">
+                          {messageType === 'agent'
+                            ? 'AI Agent'
+                            : messageType === 'math'
+                            ? '数学计算'
+                            : messageType === 'analysis'
+                            ? '文本分析'
+                            : 'AI 助手'}
+                        </span>
+                      </div>
+                    )}
+                    
                     <div
-                      className={`flex gap-4 max-w-[85%] ${
-                        message.role === 'user' ? 'flex-row-reverse' : 'flex-row'
+                      className={`rounded-lg px-4 py-3 ${
+                        message.role === 'user'
+                          ? 'bg-black text-white'
+                          : 'border border-neutral-200 bg-white'
                       }`}
                     >
-                      {/* Enhanced Avatar */}
-                      <div className="flex-shrink-0">
-                        <div
-                          className={`w-10 h-10 rounded-2xl bg-gradient-to-br ${style.gradientFrom} ${style.gradientTo} flex items-center justify-center shadow-lg`}
-                        >
-                          <IconComponent className="w-5 h-5 text-white" />
-                        </div>
-                        {/* Message type indicator */}
-                        {message.role === 'assistant' && (
-                          <div className="mt-1 text-center">
-                            <span className="text-xs font-medium capitalize text-slate-500">
-                              {messageType === 'agent'
-                                ? 'Agent'
-                                : messageType === 'math'
-                                  ? '数学'
-                                  : messageType === 'analysis'
-                                    ? '分析'
-                                    : '聊天'}
-                            </span>
+                      {message.parts.map((part, partIndex) => {
+                        if (part.type === 'text') {
+                          // 对于助手消息，尝试解析并渲染自定义组件
+                          if (message.role === 'assistant') {
+                            const customComponents = parseAIResponse(part.text, messageType);
+                            
+                            return (
+                              <div key={partIndex}>
+                                {/* 如果有自定义组件，先渲染组件 */}
+                                {customComponents.length > 0 && (
+                                  <div className="mb-4">
+                                    {customComponents}
+                                  </div>
+                                )}
+                                
+                                {/* 然后渲染文本内容 */}
+                                <MarkdownRenderer 
+                                  content={part.text} 
+                                  className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                                />
+                              </div>
+                            );
+                          } else {
+                            // 用户消息正常渲染
+                            return (
+                              <MarkdownRenderer 
+                                key={partIndex}
+                                content={part.text} 
+                                className="[&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                              />
+                            );
+                          }
+                        }
+                        return null;
+                      })}
+
+                      {/* Thinking indicator */}
+                      {message.role === 'assistant' &&
+                        (index === displayMessages.length - 1 || message.id === 'loading-message') &&
+                        status === 'streaming' && (
+                          <div className="mt-3 border-t border-neutral-100 pt-3">
+                            <ThinkingIndicator />
                           </div>
                         )}
-                      </div>
-
-                      {/* Enhanced Message Content */}
-                      <div
-                        className={`relative group ${message.role === 'user' ? 'ml-4' : 'mr-4'}`}
-                      >
-                        <div
-                          className={`px-6 py-4 rounded-2xl shadow-sm ${
-                            message.role === 'user'
-                              ? `bg-gradient-to-br ${style.gradientFrom} ${style.gradientTo} text-white`
-                              : 'bg-white border border-slate-200 text-slate-800 hover:shadow-md transition-shadow'
-                          }`}
-                        >
-                          {message.parts.map((part, partIndex) => {
-                            if (part.type === 'text') {
-                              return (
-                                <div key={partIndex} className="leading-relaxed">
-                                  <Streamdown>{part.text}</Streamdown>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-
-                          {/* Thinking indicator for assistant messages while streaming */}
-                          {message.role === 'assistant' &&
-                            index === messages.length - 1 &&
-                            status === 'streaming' && (
-                              <div className="pt-3 mt-3 border-t border-slate-100">
-                                <ThinkingStatus messageType={currentMessageType} />
-                              </div>
-                            )}
-                        </div>
-
-                        {/* Message timestamp */}
-                        <div
-                          className={`text-xs text-slate-400 mt-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}
-                        >
-                          刚刚
-                        </div>
-                      </div>
+                    </div>
+                    
+                    <div className={`mt-1 text-xs text-neutral-400 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                      刚刚
                     </div>
                   </div>
-                );
-              })}
-            </>
-          )}
-        </div>
+
+                  {/* User Avatar */}
+                  {message.role === 'user' && (
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-black">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </main>
 
-      {/* Enhanced Input Area */}
-      <footer className="sticky bottom-0 px-6 py-6 border-t bg-white/80 backdrop-blur-lg border-slate-200/60">
-        <div className="max-w-5xl mx-auto">
+      {/* Vercel 风格的输入区域 */}
+      <footer className="sticky bottom-0 border-t border-neutral-200 bg-white/80 backdrop-blur-md">
+        <div className="mx-auto max-w-3xl px-4 py-4">
           <form onSubmit={handleSubmit} className="relative">
             <div className="relative">
               <input
                 type="text"
                 value={input}
                 onChange={handleInputChange}
-                placeholder="输入你的消息，开始智能对话..."
+                placeholder="Type your message..."
                 disabled={status !== 'ready'}
-                className="w-full px-6 py-4 pr-16 transition-all duration-200 bg-white border-2 shadow-sm border-slate-200 rounded-2xl focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100 disabled:bg-slate-100 disabled:cursor-not-allowed text-slate-800 placeholder-slate-500"
+                className="w-full rounded-lg border border-neutral-200 bg-white px-4 py-3 pr-12 text-sm focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-400"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || status !== 'ready'}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 p-2.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:from-blue-600 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 disabled:pointer-events-none disabled:opacity-50"
               >
                 {status === 'streaming' ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <Send className="w-5 h-5" />
+                  <Send className="h-4 w-4" />
                 )}
               </button>
             </div>
 
-            {/* Status bar */}
-            <div className="flex items-center justify-between px-2 mt-3">
-              <div className="text-xs text-slate-500">
-                {status === 'streaming' ? '正在处理中...' : '准备就绪，开始对话'}
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <Zap className="w-3 h-3" />
-                <span>由 AStack 强力驱动</span>
-              </div>
+            {/* 状态栏 */}
+            <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
+              <span>
+                {status === 'streaming' ? 'Processing...' : 'Ready to chat'}
+              </span>
+              <span>Powered by AStack</span>
             </div>
           </form>
         </div>

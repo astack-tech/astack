@@ -2,6 +2,14 @@ import type { FastifyInstance } from 'fastify';
 import { classifyIntent, getStreamingAgentByIntent } from '../agents/index.js';
 import { createLLMClient, chatWithLLMStreaming } from '../services/llm.js';
 
+// 流式配置
+const STREAMING_CONFIG = {
+  // 每个token/字符的延迟（毫秒），可以通过环境变量配置
+  delayPerToken: parseInt(process.env.STREAMING_DELAY_MS || '0'),
+  // 是否按字符流式传输，否则按词语
+  streamByCharacter: process.env.STREAM_BY_CHARACTER === 'true',
+};
+
 // AI SDK 5.0 compatible types
 interface UIMessagePart {
   type: 'text';
@@ -65,9 +73,9 @@ export default async function chatRoutes(fastify: FastifyInstance) {
         let completionTokens = 0;
 
         try {
-          // Real streaming from LLM
+          // Real streaming from LLM with optimized chunking
           for await (const chunk of chatWithLLMStreaming(llmClient, llmMessages)) {
-            // Send each chunk as it arrives from LLM
+            // Send each chunk as it arrives from LLM - no artificial delays
             const textPart = `0:${JSON.stringify(chunk)}\n`;
             reply.raw.write(textPart);
             completionTokens += chunk.length;
@@ -137,14 +145,23 @@ export default async function chatRoutes(fastify: FastifyInstance) {
               case 'assistant_message': {
                 if (chunk.content) {
                   fullContent = chunk.content;
-                  // Send text chunks character by character using Text Parts
-                  const chars = chunk.content.split('');
-                  for (const char of chars) {
-                    // Text Part: 0:string\n
-                    const textPart = `0:${JSON.stringify(char)}\n`;
-                    reply.raw.write(textPart);
-                    // Small delay for streaming effect
-                    await new Promise(resolve => setTimeout(resolve, 50));
+                  
+                  // 智能流式传输：根据配置选择字符级或词语级
+                  const chunks = STREAMING_CONFIG.streamByCharacter 
+                    ? chunk.content.split('')
+                    : chunk.content.split(/(\s+)/);
+                  
+                  for (const textChunk of chunks) {
+                    if (textChunk) { // 跳过空字符串
+                      // Text Part: 0:string\n
+                      const textPart = `0:${JSON.stringify(textChunk)}\n`;
+                      reply.raw.write(textPart);
+                      
+                      // 可配置的延迟
+                      if (STREAMING_CONFIG.delayPerToken > 0) {
+                        await new Promise(resolve => setTimeout(resolve, STREAMING_CONFIG.delayPerToken));
+                      }
+                    }
                   }
                 }
                 break;

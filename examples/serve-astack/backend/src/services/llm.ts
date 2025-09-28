@@ -16,6 +16,8 @@ export function createLLMClient(): ModelProvider {
     apiKey,
     model: 'deepseek-chat',
     temperature: 0.7,
+    // 优化流式性能的参数
+    maxTokens: parseInt(process.env.LLM_MAX_TOKENS || '2048'),
   });
 
   return model as ModelProvider;
