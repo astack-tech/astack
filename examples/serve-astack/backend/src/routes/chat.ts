@@ -146,10 +146,26 @@ export default async function chatRoutes(fastify: FastifyInstance) {
                 if (chunk.content) {
                   fullContent = chunk.content;
 
-                  // 智能流式传输：根据配置选择字符级或词语级
-                  const chunks = STREAMING_CONFIG.streamByCharacter
-                    ? chunk.content.split('')
-                    : chunk.content.split(/(\s+)/);
+                  // 智能流式传输：针对代码内容优化
+                  let chunks: string[];
+                  if (STREAMING_CONFIG.streamByCharacter) {
+                    // 字符级流式
+                    chunks = chunk.content.split('');
+                  } else {
+                    // 智能分块：对于包含代码的内容，使用更细粒度的分割
+                    if (
+                      chunk.content.includes('```') ||
+                      chunk.content.includes('def ') ||
+                      chunk.content.includes('function ') ||
+                      chunk.content.includes('class ')
+                    ) {
+                      // 代码内容：按行分割，保持良好的流式效果
+                      chunks = chunk.content.split(/(\n)/);
+                    } else {
+                      // 普通文本：按词语分割
+                      chunks = chunk.content.split(/(\s+)/);
+                    }
+                  }
 
                   for (const textChunk of chunks) {
                     if (textChunk) {

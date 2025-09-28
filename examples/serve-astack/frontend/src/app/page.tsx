@@ -22,10 +22,15 @@ import { AgentCard } from '@/components/AgentCard';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 
 // 分析消息类型的辅助函数
-function analyzeMessageType(message: any, data?: any[]): string {
+function analyzeMessageType(
+  message: any,
+  data?: any[],
+  allMessages?: any[],
+  messageIndex?: number
+): string {
   if (message.role === 'user') return 'user';
 
-  // 检查数据流中是否有 agent 相关信息
+  // 对于assistant消息，优先检查数据流中的实际agent信息
   const hasAgentData = data?.some(
     item =>
       typeof item === 'object' &&
@@ -38,16 +43,44 @@ function analyzeMessageType(message: any, data?: any[]): string {
 
   if (hasAgentData) return 'agent';
 
-  // 从消息内容推断类型
-  const content = message.parts?.find((part: any) => part.type === 'text')?.text || '';
+  // 对于assistant消息，分析对应的用户请求内容来判断类型
+  let userContent = '';
+  if (allMessages && messageIndex !== undefined && messageIndex > 0) {
+    // 找到对应的用户消息（通常是前一条消息）
+    const userMessage = allMessages[messageIndex - 1];
+    if (userMessage && userMessage.role === 'user') {
+      userContent = userMessage.parts?.find((part: any) => part.type === 'text')?.text || '';
+    }
+  }
 
-  if (content.includes('计算') || /\d+\s*[+\-*/]\s*\d+/.test(content)) {
+  // 如果没有找到用户消息，使用当前消息内容作为fallback（但这种情况很少）
+  if (!userContent) {
+    userContent = message.parts?.find((part: any) => part.type === 'text')?.text || '';
+  }
+
+  // 数学计算相关关键词 - 更精确的匹配
+  if (
+    userContent.includes('计算') ||
+    /计算.*\d+.*[+\-*/].*\d+/.test(userContent) ||
+    /\d+\s*[+\-*/]\s*\d+/.test(userContent) ||
+    userContent.includes('数学运算')
+  ) {
     return 'math';
   }
-  if (content.includes('分析') || content.includes('统计') || content.includes('文本')) {
+
+  // 文本分析相关关键词 - 更精确的匹配，避免误判
+  if (
+    userContent.includes('分析文本') ||
+    userContent.includes('文本分析') ||
+    (userContent.includes('分析') &&
+      (userContent.includes('统计') ||
+        userContent.includes('关键词') ||
+        userContent.includes('情感')))
+  ) {
     return 'analysis';
   }
 
+  // 默认为普通聊天
   return 'chat';
 }
 
@@ -297,7 +330,8 @@ export default function ChatPage() {
           <div className="space-y-6">
             {displayMessages.map((message, index) => {
               const messageType =
-                (message as any).predictedType || analyzeMessageType(message, data);
+                (message as any).predictedType ||
+                analyzeMessageType(message, data, displayMessages, index);
 
               return (
                 <div
@@ -306,13 +340,23 @@ export default function ChatPage() {
                 >
                   {/* Avatar */}
                   {message.role === 'assistant' && (
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100">
+                    <div
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                        messageType === 'agent'
+                          ? 'bg-purple-100'
+                          : messageType === 'math'
+                            ? 'bg-green-100'
+                            : messageType === 'analysis'
+                              ? 'bg-blue-100'
+                              : 'bg-neutral-100'
+                      }`}
+                    >
                       {messageType === 'agent' ? (
-                        <Brain className="h-4 w-4 text-neutral-600" />
+                        <Brain className="h-4 w-4 text-purple-600" />
                       ) : messageType === 'math' ? (
-                        <Calculator className="h-4 w-4 text-neutral-600" />
+                        <Calculator className="h-4 w-4 text-green-600" />
                       ) : messageType === 'analysis' ? (
-                        <FileText className="h-4 w-4 text-neutral-600" />
+                        <FileText className="h-4 w-4 text-blue-600" />
                       ) : (
                         <Bot className="h-4 w-4 text-neutral-600" />
                       )}
@@ -324,13 +368,23 @@ export default function ChatPage() {
                     {/* Message Type Label */}
                     {message.role === 'assistant' && (
                       <div className="mb-2 flex items-center gap-2">
-                        <span className="text-xs font-medium text-neutral-500">
+                        <span
+                          className={`text-xs font-medium ${
+                            messageType === 'agent'
+                              ? 'text-purple-600'
+                              : messageType === 'math'
+                                ? 'text-green-600'
+                                : messageType === 'analysis'
+                                  ? 'text-blue-600'
+                                  : 'text-neutral-500'
+                          }`}
+                        >
                           {messageType === 'agent'
                             ? 'AI Agent'
                             : messageType === 'math'
-                              ? '数学计算'
+                              ? '数学计算助手'
                               : messageType === 'analysis'
-                                ? '文本分析'
+                                ? '文本分析助手'
                                 : 'AI 助手'}
                         </span>
                       </div>

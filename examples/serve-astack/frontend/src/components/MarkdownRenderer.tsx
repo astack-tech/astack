@@ -31,6 +31,9 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
 
   const language = className?.replace('language-', '') || 'text';
 
+  // 检查是否为纯文本代码块（无语法高亮）
+  const isPlainText = !className || className === 'language-text' || language === 'text';
+
   return (
     <div
       className="group relative"
@@ -62,7 +65,11 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
 
       {/* Code content */}
       <pre className="!mt-0 !mb-0 overflow-x-auto bg-neutral-900 px-4 py-4 text-sm">
-        <code className={className} {...props}>
+        <code
+          className={className}
+          style={isPlainText ? { color: '#e6edf3' } : undefined}
+          {...props}
+        >
           {children}
         </code>
       </pre>
