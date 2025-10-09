@@ -199,8 +199,11 @@ function parseAIResponse(content: string, messageType: string) {
 }
 
 export default function ChatPage() {
+  // 使用相对路径，通过 API 路由代理到后端
+  const apiUrl = '/api/chat';
+
   const { messages, input, handleInputChange, handleSubmit, status, data } = useChat({
-    api: '/api/chat',
+    api: apiUrl,
   });
 
   // 在用户发送消息时立即创建一个占位的助手消息来显示加载状态
