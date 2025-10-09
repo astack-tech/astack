@@ -34,7 +34,7 @@
   ],
   "author": "xiaoa",
   "license": "MIT",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.18.1",
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
     "@types/node": "^20.11.5",

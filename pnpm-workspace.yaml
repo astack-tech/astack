@@ -1,6 +1,2 @@
 packages:
-  - "apps/*"
   - "packages/*"
-  - "examples/*"
-  - "examples/serve-astack/backend"
-  - "examples/serve-astack/frontend"
