@@ -4,15 +4,15 @@ import { NextRequest } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     // 运行时动态确定后端地址
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL 
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL
       ? process.env.NEXT_PUBLIC_API_URL.replace('/api', '') // 移除 /api 后缀
       : process.env.BACKEND_URL || 'http://localhost:8080';
 
     const targetUrl = `${backendUrl}/api/chat`;
-    
+
     // 获取请求体
     const body = await request.text();
-    
+
     // 转发请求到实际后端
     const response = await fetch(targetUrl, {
       method: 'POST',
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         // 转发其他相关头
         ...(request.headers.get('authorization') && {
-          'authorization': request.headers.get('authorization')!
+          authorization: request.headers.get('authorization')!,
         }),
       },
       body,
@@ -29,13 +29,10 @@ export async function POST(request: NextRequest) {
     // 检查响应是否成功
     if (!response.ok) {
       console.error(`Backend API error: ${response.status} ${response.statusText}`);
-      return new Response(
-        JSON.stringify({ error: 'Backend API error', status: response.status }), 
-        { 
-          status: response.status,
-          headers: { 'Content-Type': 'application/json' }
-        }
-      );
+      return new Response(JSON.stringify({ error: 'Backend API error', status: response.status }), {
+        status: response.status,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     // 转发响应，保持流式传输
@@ -46,7 +43,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': response.headers.get('content-type') || 'application/json',
         // 保持流式传输的头
         ...(response.headers.get('transfer-encoding') && {
-          'Transfer-Encoding': response.headers.get('transfer-encoding')!
+          'Transfer-Encoding': response.headers.get('transfer-encoding')!,
         }),
         // CORS 头（如果需要）
         'Access-Control-Allow-Origin': '*',
@@ -54,17 +51,16 @@ export async function POST(request: NextRequest) {
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       },
     });
-
   } catch (error) {
     console.error('API proxy error:', error);
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal proxy error', 
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }), 
-      { 
+      JSON.stringify({
+        error: 'Internal proxy error',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       }
     );
   }
