@@ -57,6 +57,12 @@ export interface DeepseekConfig {
    * 使用 OpenAI 兼容的工具定义格式
    */
   tools?: unknown[];
+
+  /**
+   * dangerouslyAllowBrowser
+   * 是否允许在浏览器等非安全环境内运行
+   */
+  dangerouslyAllowBrowser?: boolean;
 }
 
 /**
@@ -141,6 +147,7 @@ class Deepseek extends Component {
     this.client = new OpenAI({
       apiKey: config.apiKey,
       baseURL: config.baseURL || 'https://api.deepseek.com/v1',
+      dangerouslyAllowBrowser: config.dangerouslyAllowBrowser ?? false,
     });
 
     // 保存基本配置
