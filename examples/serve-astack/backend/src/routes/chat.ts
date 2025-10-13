@@ -121,6 +121,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
         reply.header('X-Vercel-AI-Data-Stream', 'v1');
 
         let fullContent = '';
+        let lastSentLength = 0; // 🎯 追踪已发送的内容长度
 
         try {
           // Stream the agent processing using AI SDK Data Stream Protocol
@@ -144,37 +145,38 @@ export default async function chatRoutes(fastify: FastifyInstance) {
 
               case 'assistant_message': {
                 if (chunk.content) {
+                  // 🎯 真流式修复：现在 chunk.content 已经是实时incremental的了
+                  // 不需要二次分割，直接发送即可获得最佳流式体验
+
                   fullContent = chunk.content;
 
-                  // 智能流式传输：针对代码内容优化
-                  let chunks: string[];
-                  if (STREAMING_CONFIG.streamByCharacter) {
-                    // 字符级流式
-                    chunks = chunk.content.split('');
-                  } else {
-                    // 智能分块：对于包含代码的内容，使用更细粒度的分割
-                    if (
-                      chunk.content.includes('```') ||
-                      chunk.content.includes('def ') ||
-                      chunk.content.includes('function ') ||
-                      chunk.content.includes('class ')
-                    ) {
-                      // 代码内容：按行分割，保持良好的流式效果
-                      chunks = chunk.content.split(/(\n)/);
-                    } else {
-                      // 普通文本：按词语分割
-                      chunks = chunk.content.split(/(\s+)/);
-                    }
-                  }
+                  // 获取新增的内容（incremental delta）
+                  const newContent = fullContent.slice(lastSentLength);
+                  lastSentLength = fullContent.length;
 
-                  for (const textChunk of chunks) {
-                    if (textChunk) {
-                      // 跳过空字符串
-                      // Text Part: 0:string\n
-                      const textPart = `0:${JSON.stringify(textChunk)}\n`;
+                  if (newContent) {
+                    // 🔧 保持配置化的流式传输选项
+                    if (STREAMING_CONFIG.streamByCharacter) {
+                      // 字符级流式：对新增内容进行字符分割
+                      const chars = newContent.split('');
+                      for (const char of chars) {
+                        if (char) {
+                          const textPart = `0:${JSON.stringify(char)}\n`;
+                          reply.raw.write(textPart);
+
+                          if (STREAMING_CONFIG.delayPerToken > 0) {
+                            await new Promise(resolve =>
+                              setTimeout(resolve, STREAMING_CONFIG.delayPerToken)
+                            );
+                          }
+                        }
+                      }
+                    } else {
+                      // 直接发送增量内容（推荐，性能最佳）
+                      const textPart = `0:${JSON.stringify(newContent)}\n`;
                       reply.raw.write(textPart);
 
-                      // 可配置的延迟
+                      // 可选的小延迟（现在主要用于视觉效果）
                       if (STREAMING_CONFIG.delayPerToken > 0) {
                         await new Promise(resolve =>
                           setTimeout(resolve, STREAMING_CONFIG.delayPerToken)

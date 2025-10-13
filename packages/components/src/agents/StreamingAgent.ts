@@ -186,7 +186,13 @@ export class StreamingAgent extends Component {
       const tools = (this.agent as unknown as { tools?: unknown[] }).tools || [];
       const model = (
         this.agent as unknown as {
-          model: { chatCompletion: (...args: unknown[]) => Promise<unknown> };
+          model: {
+            chatCompletion: (...args: unknown[]) => Promise<unknown>;
+            streamChatCompletion: (
+              messages: Message[],
+              options?: { temporaryTools?: unknown[] }
+            ) => AsyncGenerator<Partial<MessageWithToolCalls>>;
+          };
         }
       ).model;
       const verbose = (this.agent as unknown as { verbose?: boolean }).verbose || false;
@@ -214,27 +220,53 @@ export class StreamingAgent extends Component {
           type: 'model_thinking',
         };
 
-        // 调用模型获取回复（与原 Agent 完全一致）
-        const modelResponse = (await model.chatCompletion(currentMessages, {
+        // 调用模型获取流式回复（真正的SSE流式）
+        const streamGenerator = model.streamChatCompletion(currentMessages, {
           temporaryTools: tools,
-        })) as MessageWithToolCalls;
+        });
+
+        let accumulatedContent = '';
+        let finalToolCalls: MessageWithToolCalls['tool_calls'] = [];
+        const modelResponse: MessageWithToolCalls = {
+          role: 'assistant',
+          content: '',
+          tool_calls: [],
+        };
+
+        // 处理真正的流式响应
+        for await (const chunk of streamGenerator) {
+          if (chunk.content) {
+            accumulatedContent += chunk.content;
+            modelResponse.content = accumulatedContent;
+
+            if (verbose) {
+              console.log('[StreamingAgent Debug] 收到流式chunk:', chunk.content);
+            }
+
+            // 实时流式输出每个 content chunk
+            yield {
+              type: 'assistant_message',
+              content: accumulatedContent,
+              toolCalls: finalToolCalls,
+            };
+          }
+
+          // 处理工具调用（通常在流式结束时到达）
+          if (chunk.tool_calls) {
+            finalToolCalls = chunk.tool_calls;
+            modelResponse.tool_calls = finalToolCalls;
+          }
+        }
 
         if (verbose) {
           console.log(
-            '[StreamingAgent Debug] 收到模型回复:',
+            '[StreamingAgent Debug] 流式完成，最终回复:',
             JSON.stringify(modelResponse, null, 2)
           );
         }
 
         // 保存模型回复作为最后的助手消息
         lastAssistantMessage = modelResponse;
-
-        // 流式输出：助手消息
-        yield {
-          type: 'assistant_message',
-          content: modelResponse.content || '',
-          toolCalls: modelResponse.tool_calls,
-        };
 
         // 检查是否有工具调用（与原 Agent 逻辑一致）
         if (!modelResponse.tool_calls || modelResponse.tool_calls.length === 0) {
