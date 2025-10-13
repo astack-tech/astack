@@ -637,7 +637,7 @@ export class Agent extends Component {
   }
 }
 
-// 导出StreamingAgent
+// 导出 StreamingAgent
 export { StreamingAgent, type StreamingChunk } from './StreamingAgent';
 
 export default Agent;
