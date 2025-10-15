@@ -104,13 +104,51 @@ export class StreamingAgent extends Component {
   async *runStream(input: string | AgentInput): AsyncGenerator<StreamingChunk, AgentOutput> {
     try {
       // 标准化输入，与原 Agent 保持一致
-      const standardizedInput =
-        typeof input === 'string' ? { messages: [{ role: 'user', content: input }] } : input;
+      const standardizedInput: AgentInput =
+        typeof input === 'string'
+          ? { messages: [{ role: 'user', content: input }] }
+          : {
+              messages: input.messages,
+              context: input.context,
+            };
+
+      // 重置内部 Agent，确保记忆与迭代计数一致
+      this.agent.reset();
+
+      const agentInternals = this.agent as unknown as {
+        buildSystemPrompt: () => string;
+        tools: unknown[];
+        verbose?: boolean;
+      };
+
+      const systemPrompt = agentInternals.buildSystemPrompt();
+      const context = standardizedInput.context;
+
+      const initialMessages: Message[] = [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
+      ];
+
+      for (const message of standardizedInput.messages) {
+        initialMessages.push({
+          ...message,
+          metadata: message.metadata ?? context,
+        });
+      }
+
+      if (agentInternals.verbose) {
+        console.log('[StreamingAgent Debug] 工具列表:');
+        agentInternals.tools.forEach((tool, index) => {
+          console.log(`  ${index + 1}. ${(tool as { name?: string }).name ?? 'unknown'}`);
+        });
+      }
 
       // 执行流式处理
       let finalOutput: AgentOutput | null = null;
 
-      for await (const chunk of this.executeWithToolsStream(standardizedInput.messages)) {
+      for await (const chunk of this.executeWithToolsStream(initialMessages)) {
         if (chunk.type === 'completed') {
           // 构造与原 Agent 完全一致的输出格式
           finalOutput = {
@@ -226,6 +264,18 @@ export class StreamingAgent extends Component {
         });
 
         let accumulatedContent = '';
+        const toolCallBuffer = new Map<
+          string,
+          {
+            id: string;
+            type: string;
+            function: {
+              name: string;
+              arguments: string;
+            };
+          }
+        >();
+        let lastToolCallKey: string | null = null;
         let finalToolCalls: MessageWithToolCalls['tool_calls'] = [];
         const modelResponse: MessageWithToolCalls = {
           role: 'assistant',
@@ -253,7 +303,74 @@ export class StreamingAgent extends Component {
 
           // 处理工具调用（通常在流式结束时到达）
           if (chunk.tool_calls) {
-            finalToolCalls = chunk.tool_calls;
+            chunk.tool_calls.forEach((partialCall, index) => {
+              if (verbose) {
+                console.log('[StreamingAgent Debug] tool_call delta:', partialCall);
+              }
+
+              const rawId = partialCall.id && partialCall.id.length > 0 ? partialCall.id : null;
+              let key: string;
+
+              if (rawId) {
+                key = rawId;
+                if (
+                  lastToolCallKey &&
+                  lastToolCallKey !== key &&
+                  toolCallBuffer.has(lastToolCallKey)
+                ) {
+                  const previous = toolCallBuffer.get(lastToolCallKey)!;
+                  toolCallBuffer.delete(lastToolCallKey);
+                  previous.id = key;
+                  toolCallBuffer.set(key, previous);
+                }
+                lastToolCallKey = key;
+              } else {
+                key = lastToolCallKey ?? `index-${index}`;
+                if (!lastToolCallKey) {
+                  lastToolCallKey = key;
+                }
+              }
+
+              const existing = toolCallBuffer.get(key) || {
+                id: rawId || key,
+                type: partialCall.type || 'function',
+                function: {
+                  name: '',
+                  arguments: '',
+                },
+              };
+
+              if (partialCall.function?.name) {
+                existing.function.name = partialCall.function.name;
+              }
+              if (partialCall.function?.arguments) {
+                existing.function.arguments += partialCall.function.arguments;
+              }
+
+              if (partialCall.type) {
+                existing.type = partialCall.type;
+              }
+
+              if (!existing.id) {
+                existing.id = rawId || key;
+              }
+
+              toolCallBuffer.set(key, existing);
+            });
+
+            finalToolCalls = Array.from(toolCallBuffer.values()).map(call => ({
+              id: call.id || call.function.name || '',
+              type: call.type,
+              function: {
+                name: call.function.name,
+                arguments: call.function.arguments,
+              },
+              tool_name: call.function.name,
+              arguments: call.function.arguments,
+            }));
+            if (verbose) {
+              console.log('[StreamingAgent Debug] 累计工具调用:', finalToolCalls);
+            }
             modelResponse.tool_calls = finalToolCalls;
           }
         }

@@ -13,12 +13,14 @@ export class BrowserStateComponent extends Component {
     currentUrl: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     domSnapshot: { interactive: InteractiveElement[]; meta: any };
+    domSnapshotSize: number;
     lastAction?: string;
     lastError?: string;
     lastUpdateTime: number;
   } = {
     currentUrl: 'about:blank',
     domSnapshot: { interactive: [], meta: {} },
+    domSnapshotSize: 0,
     lastUpdateTime: Date.now(),
   };
 
@@ -40,7 +42,7 @@ export class BrowserStateComponent extends Component {
     // 更新状态
     $i('update').receive((update: Partial<typeof this.state>) => {
       const oldUrl = this.state.currentUrl;
-      const oldDomSize = JSON.stringify(this.state.domSnapshot).length;
+      const oldDomSize = this.state.domSnapshotSize;
 
       // 更新状态
       this.state = {
@@ -58,10 +60,8 @@ export class BrowserStateComponent extends Component {
       }
 
       // 记录 DOM 变化
-      if (oldDomSize !== JSON.stringify(this.state.domSnapshot).length) {
-        console.log(
-          `  DOM 快照: ${oldDomSize} => ${JSON.stringify(this.state.domSnapshot).length} 字符`
-        );
+      if (typeof update.domSnapshotSize === 'number' && oldDomSize !== update.domSnapshotSize) {
+        console.log(`  DOM 快照: ${oldDomSize} => ${update.domSnapshotSize} 字符`);
       }
 
       // 记录最后动作

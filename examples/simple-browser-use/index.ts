@@ -4,6 +4,7 @@ import { PlanningAgent } from './components/PlanningAgent';
 import { BrowserAgent } from './components/BrowserAgent';
 import { ResultFormatter } from './components/ResultFormatter';
 import { BrowserStateComponent } from './components/BrowserStateComponent';
+import { StreamCollector } from './components/StreamCollector';
 import type { ModelProvider as ModelProviderType } from '@astack-tech/components';
 
 /**
@@ -21,7 +22,8 @@ class OutputCollector extends Component {
   _transform($i: any, $o: any) {
     $i('result').receive((data: unknown) => {
       console.log('[OutputCollector] 收集到最终结果', data);
-      $o('output').send(data); // 返回结果给 pipeline
+      this.outPort.send(data); // 默认输出端口供 pipeline 回收
+      $o('output').send(data); // 保持向外暴露的自定义端口
       $o('result').send(data); // 将结果转发到停止端口
     });
   }
@@ -48,15 +50,27 @@ async function main() {
     temperature: 0.5,
   }) as ModelProviderType;
 
+  const parsedInterval = Number(process.env.BROWSER_SNAPSHOT_INTERVAL_MS);
+  const snapshotIntervalMs =
+    Number.isFinite(parsedInterval) && parsedInterval > 0 ? parsedInterval : 1500;
+  const headless = process.env.BROWSER_HEADLESS !== 'false';
+
+  const browserAgent = new BrowserAgent({
+    modelProvider,
+    headless,
+    snapshotIntervalMs,
+  });
+
   // 创建主 Pipeline
   const pipeline = new Pipeline();
 
   // 添加组件，遵循 "一切皆组件" 原则
   pipeline.addComponent('planner', new PlanningAgent({ modelProvider }));
   pipeline.addComponent('browserState', new BrowserStateComponent());
-  pipeline.addComponent('browser', new BrowserAgent({ modelProvider }));
+  pipeline.addComponent('browser', browserAgent);
   pipeline.addComponent('formatter', new ResultFormatter());
   pipeline.addComponent('collector', new OutputCollector()); // 添加输出收集组件
+  pipeline.addComponent('stream', new StreamCollector());
 
   // 建立组件之间的连接
 
@@ -66,9 +80,11 @@ async function main() {
 
   // 任务规划与执行
   pipeline.connect('planner.plan', 'browser.task'); // 规划器输出任务到浏览器
-
+  pipeline.connect('planner.stream', 'stream.planner');
+  pipeline.connect('browser.progress', 'stream.browser');
   pipeline.connect('browser.result', 'browser.stop');
   pipeline.connect('browser.result', 'formatter.data'); // 浏览器结果输出到格式化组件
+  pipeline.connect('formatter.out', 'collector.result'); // 格式化结果传递给收集器
 
   try {
     // 示例：执行自然语言任务

@@ -342,7 +342,7 @@ class Deepseek extends Component {
             },
             type: 'function',
             tool_name: toolCall.function?.name || '',
-            arguments: JSON.parse(toolCall.function?.arguments || '{}'),
+            arguments: toolCall.function?.arguments || '',
           })),
         };
       }
@@ -454,10 +454,22 @@ class Deepseek extends Component {
       // 同时为了满足内部 ToolCall 接口，也添加 tool_name 和 arguments 字段
       result.tool_calls = responseMessage.tool_calls.map(toolCall => {
         // 解析参数，确保是对象形式
-        const args =
-          typeof toolCall.function.arguments === 'string'
-            ? JSON.parse(toolCall.function.arguments || '{}')
-            : toolCall.function.arguments || {};
+        let args: Record<string, unknown>;
+
+        const rawArgs = toolCall.function.arguments;
+
+        if (typeof rawArgs === 'string') {
+          const raw = rawArgs;
+          try {
+            args = raw && raw.trim().length > 0 ? (JSON.parse(raw) as Record<string, unknown>) : {};
+          } catch {
+            args = {};
+          }
+        } else if (rawArgs && typeof rawArgs === 'object') {
+          args = rawArgs as Record<string, unknown>;
+        } else {
+          args = {};
+        }
 
         return {
           id: toolCall.id,

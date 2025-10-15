@@ -1,6 +1,6 @@
 import { Component } from '@astack-tech/core';
 import type { ModelProvider } from '@astack-tech/components';
-import { Agent, AgentConfig, AgentOutput } from '@astack-tech/components';
+import { StreamingAgent, type AgentConfig, type AgentOutput } from '@astack-tech/components';
 
 // 定义组件配置类型接口
 interface PlanningAgentConfig {
@@ -18,16 +18,17 @@ interface Plan {
  * 遵循 AStack 的 "一切皆组件" 原则，支持零适配层设计
  */
 export class PlanningAgent extends Component {
-  private agent: Agent;
+  private agent: StreamingAgent;
 
   constructor({ modelProvider }: PlanningAgentConfig) {
     super({});
     // 组件端口定义
     Component.Port.I('intent').attach(this);
     Component.Port.O('plan').attach(this);
+    Component.Port.O('stream').attach(this);
 
     // 初始化规划 Agent
-    this.agent = new Agent({
+    this.agent = new StreamingAgent({
       model: modelProvider,
       systemPrompt: this.buildPlanningPrompt(),
     } as AgentConfig);
@@ -37,13 +38,80 @@ export class PlanningAgent extends Component {
   _transform($i: any, $o: any) {
     $i('intent').receive(async (userIntent: string) => {
       try {
-        // 分析用户意图并生成执行计划
-        const agentOutput: AgentOutput = await this.agent.run(userIntent);
+        let finalOutput: AgentOutput | undefined;
+        let streamedText = '';
+
+        for await (const chunk of this.agent.runStream(userIntent)) {
+          if (chunk.type === 'assistant_message') {
+            const content = chunk.content ?? '';
+            let delta = content;
+            if (content.startsWith(streamedText)) {
+              delta = content.slice(streamedText.length);
+            }
+            streamedText = content;
+
+            if (delta) {
+              $o('stream').send({
+                source: 'planner',
+                chunk: {
+                  ...chunk,
+                  content: delta,
+                },
+              });
+            }
+          } else if (chunk.type !== 'model_thinking') {
+            $o('stream').send({
+              source: 'planner',
+              chunk,
+            });
+          }
+
+          if (chunk.type === 'completed') {
+            finalOutput = {
+              message: chunk.finalMessage ?? '',
+              history: chunk.history ?? [],
+              toolCalls: chunk.allToolCalls ?? [],
+            };
+
+            // 最终完整结果再发送给前端一次
+            if (chunk.finalMessage && chunk.finalMessage !== streamedText) {
+              const delta = chunk.finalMessage.startsWith(streamedText)
+                ? chunk.finalMessage.slice(streamedText.length)
+                : chunk.finalMessage;
+              if (delta) {
+                streamedText = chunk.finalMessage;
+                $o('stream').send({
+                  source: 'planner',
+                  chunk: {
+                    type: 'assistant_message',
+                    content: delta,
+                    toolCalls: chunk.allToolCalls,
+                  },
+                });
+              }
+            }
+          }
+        }
+
+        const finalOutputNormalized: AgentOutput =
+          finalOutput ??
+          ({
+            message: '',
+            history: [],
+            toolCalls: [],
+          } as AgentOutput);
 
         // 将计划发送到输出端口
-        $o('plan').send(this.structurePlan(agentOutput.message));
+        $o('plan').send(this.structurePlan(finalOutputNormalized.message));
       } catch (error: unknown) {
         $o('plan').send({ error: error instanceof Error ? error.message : String(error) });
+        $o('stream').send({
+          source: 'planner',
+          chunk: {
+            type: 'error',
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
       }
     });
   }

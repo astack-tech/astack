@@ -1,5 +1,10 @@
 import { Component } from '@astack-tech/core';
-import { Agent, AgentConfig, AgentInput } from '@astack-tech/components';
+import {
+  StreamingAgent,
+  type AgentConfig,
+  type AgentInput,
+  type AgentOutput,
+} from '@astack-tech/components';
 import { chromium, Browser, Page } from 'playwright';
 import {
   annotateInteractiveElements,
@@ -12,7 +17,17 @@ import type { ModelProvider } from '@astack-tech/components';
 // 定义组件配置类型
 interface BrowserAgentConfig {
   modelProvider: ModelProvider;
+  maxIterations?: number;
+  headless?: boolean;
+  snapshotIntervalMs?: number;
+  waitForLoadState?: 'domcontentloaded' | 'load' | 'networkidle';
 }
+
+type DomSnapshotPayload = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  domSnapshot: { interactive: InteractiveElement[]; meta: any };
+  domSnapshotSize: number;
+};
 
 function safeGetString(obj: Record<string, unknown>, key: string): string {
   const value = obj[key];
@@ -27,20 +42,26 @@ function safeGetString(obj: Record<string, unknown>, key: string): string {
  * 遵循 AStack 的 "一切皆组件" 原则，支持零适配层设计
  */
 export class BrowserAgent extends Component {
-  private agent: Agent;
+  private agent: StreamingAgent;
   private browser: Browser | null = null;
   private page: Page | null = null;
+  private readonly headless: boolean;
+  private readonly snapshotIntervalMs: number;
+  private readonly waitForLoadState: 'domcontentloaded' | 'load' | 'networkidle';
+  private lastSnapshotAt = 0;
 
   // 浏览器状态缓存
   private browserState: {
     currentUrl: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     domSnapshot: { interactive: InteractiveElement[]; meta: any };
+    domSnapshotSize: number;
     lastAction?: string;
     lastError?: string;
   } = {
     currentUrl: 'about:blank',
     domSnapshot: { interactive: [], meta: {} },
+    domSnapshotSize: 0,
   };
 
   // 存储端口引用，供工具函数使用
@@ -49,9 +70,17 @@ export class BrowserAgent extends Component {
     stateUpdate?: any;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     result?: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progress?: any;
   } = {};
 
-  constructor({ modelProvider }: BrowserAgentConfig) {
+  constructor({
+    modelProvider,
+    maxIterations = 12,
+    headless = true,
+    snapshotIntervalMs = 1500,
+    waitForLoadState = 'domcontentloaded',
+  }: BrowserAgentConfig) {
     super({});
     // 组件端口定义
     Component.Port.I('task').attach(this); // 接收任务输入
@@ -59,13 +88,18 @@ export class BrowserAgent extends Component {
     Component.Port.I('stop').attach(this); // 接收停止信号
     Component.Port.O('result').attach(this); // 输出任务执行结果
     Component.Port.O('stateUpdate').attach(this); // 向 BrowserStateComponent 发送状态更新
+    Component.Port.O('progress').attach(this); // 流式进度输出
+
+    this.headless = headless;
+    this.snapshotIntervalMs = snapshotIntervalMs;
+    this.waitForLoadState = waitForLoadState;
 
     // 初始化 Agent
-    this.agent = new Agent({
+    this.agent = new StreamingAgent({
       model: modelProvider,
       systemPrompt: this.getSystemPrompt(),
       tools: this.getBrowserTools(),
-      maxIterations: 50,
+      maxIterations,
     } as AgentConfig);
   }
 
@@ -105,7 +139,7 @@ export class BrowserAgent extends Component {
 
       // 启动浏览器，优先使用无头模式以提高兼容性
       this.browser = await chromium.launch({
-        headless: false, // 开发调试时可以设为 false 以查看浏览器界面
+        headless: this.headless,
         args: ['--no-sandbox', '--disable-setuid-sandbox'], // 添加参数提高稳定性
       });
 
@@ -118,7 +152,7 @@ export class BrowserAgent extends Component {
       await this.page.setDefaultTimeout(30000); // 30 秒超时
 
       // 导航到一个初始页面确保浏览器正常工作
-      await this.page.goto('about:blank');
+      await this.page.goto('about:blank', { waitUntil: this.waitForLoadState });
       console.log('[BrowserAgent] 浏览器初始化完成');
     } catch (error) {
       console.error(
@@ -135,6 +169,7 @@ export class BrowserAgent extends Component {
     this.outputPorts = {
       stateUpdate: $o('stateUpdate'),
       result: $o('result'),
+      progress: $o('progress'),
     };
 
     // 接收浏览器状态组件的状态更新
@@ -143,7 +178,7 @@ export class BrowserAgent extends Component {
       console.log('[BrowserAgent] 收到浏览器状态更新');
       if (state && typeof state === 'object') {
         const oldUrl = this.browserState.currentUrl;
-        const oldDomSize = JSON.stringify(this.browserState.domSnapshot).length;
+        const oldDomSize = this.browserState.domSnapshotSize;
 
         // 更新本地缓存
         this.browserState = {
@@ -153,9 +188,9 @@ export class BrowserAgent extends Component {
 
         console.log(`[BrowserAgent] 状态更新详情:`);
         console.log(`  - URL: ${oldUrl} => ${state.currentUrl || 'N/A'}`);
-        console.log(
-          `  - DOM 快照: ${oldDomSize} => ${JSON.stringify(state.domSnapshot).length} 字符`
-        );
+        if (typeof state.domSnapshotSize === 'number') {
+          console.log(`  - DOM 快照: ${oldDomSize} => ${state.domSnapshotSize} 字符`);
+        }
         if (state.lastAction) console.log(`  - 最后动作: ${state.lastAction}`);
         if (state.lastError) console.log(`  - 错误: ${state.lastError}`);
       }
@@ -184,20 +219,22 @@ export class BrowserAgent extends Component {
           await this.initBrowser();
           // 初始化后更新状态
           if (this.page) {
-            await this.updateBrowserState();
+            await this.updateBrowserState(true);
           }
         }
 
         // 输出浏览器状态缓存的当前情况
         console.log(`[BrowserAgent] 当前本地缓存状态:`);
         console.log(`  - 缓存 URL: ${this.browserState.currentUrl || 'none'}`);
-        console.log(
-          `  - 缓存 DOM 快照: ${JSON.stringify(this.browserState.domSnapshot).length} 字符`
-        );
+        console.log(`  - 缓存 DOM 快照: ${this.browserState.domSnapshotSize} 字符`);
+
+        // 重置错误状态，避免遗留值干扰后续逻辑
+        this.browserState.lastError = '';
 
         // 预处理任务所需的状态变量
         let currentUrl = this.browserState.currentUrl;
         let domSnapshot = this.browserState.domSnapshot;
+        let domSnapshotSize = this.browserState.domSnapshotSize;
 
         // 如果状态不完整，尝试实时获取
         let needRefresh = false;
@@ -210,13 +247,16 @@ export class BrowserAgent extends Component {
           }
         }
 
-        if (JSON.stringify(domSnapshot).length < 10) {
+        if (this.browserState.domSnapshotSize < 10) {
           // 如果 DOM 快照为空或很小
           if (this.page) {
-            domSnapshot = await this.captureDomSnapshot();
-            console.log(
-              `[BrowserAgent] 实时获取 DOM 快照: ${JSON.stringify(domSnapshot).length} 字符`
-            );
+            const payload = await this.captureDomSnapshot();
+            domSnapshot = payload.domSnapshot;
+            domSnapshotSize = payload.domSnapshotSize;
+            this.browserState.domSnapshot = domSnapshot;
+            this.browserState.domSnapshotSize = domSnapshotSize;
+            this.lastSnapshotAt = Date.now();
+            console.log(`[BrowserAgent] 实时获取 DOM 快照: ${payload.domSnapshotSize} 字符`);
             needRefresh = true;
           }
         }
@@ -225,6 +265,7 @@ export class BrowserAgent extends Component {
         if (needRefresh) {
           this.browserState.currentUrl = currentUrl;
           this.browserState.domSnapshot = domSnapshot;
+          this.browserState.domSnapshotSize = domSnapshotSize;
           // 将新状态发送给状态组件
           $o('stateUpdate').send(this.browserState);
           console.log(`[BrowserAgent] 已刷新并发送状态更新`);
@@ -232,7 +273,7 @@ export class BrowserAgent extends Component {
 
         console.log(`[BrowserAgent] 执行任务，使用上下文:`);
         console.log(`  - URL: ${currentUrl}`);
-        console.log(`  - DOM 快照: ${JSON.stringify(domSnapshot).length} 字符`);
+        console.log(`  - DOM 快照: ${this.browserState.domSnapshotSize} 字符`);
         console.log(`  - 最后动作: ${this.browserState.lastAction || 'none'}`);
         console.log(`  - 最后错误: ${this.browserState.lastError || 'none'}`);
 
@@ -241,15 +282,14 @@ export class BrowserAgent extends Component {
         const metadata = {
           currentUrl: this.browserState.currentUrl,
           domSnapshot: this.browserState.domSnapshot,
+          domSnapshotSize: this.browserState.domSnapshotSize,
           lastAction: this.browserState.lastAction,
           lastError: this.browserState.lastError,
         };
 
         console.log(`[BrowserAgent] 执行任务: ${task}`);
         console.log(`[BrowserAgent] 当前 URL: ${metadata.currentUrl}`);
-        console.log(
-          `[BrowserAgent] DOM 快照大小: ${JSON.stringify(metadata.domSnapshot).length} 字节`
-        );
+        console.log(`[BrowserAgent] DOM 快照大小: ${this.browserState.domSnapshotSize} 字节`);
 
         // 重要：不要保存初始 input 对象的引用，每次都创建新的对象
         // 这样可以避免因为闭包缓存而使用旧的 metadata
@@ -269,32 +309,119 @@ export class BrowserAgent extends Component {
 
         // 调用 Agent
         try {
-          // 注意：每次调用 agent.run 都会重置 Agent 的内部状态
-          const result = await this.agent.run(input);
+          let agentOutput: AgentOutput | undefined;
+          let streamedText = '';
 
-          // 任务完成后更新浏览器状态
+          for await (const chunk of this.agent.runStream(input)) {
+            if (chunk.type === 'assistant_message') {
+              const content = chunk.content ?? '';
+              let addition = content;
+              if (content.startsWith(streamedText)) {
+                addition = content.slice(streamedText.length);
+              }
+              if (addition) {
+                streamedText = content;
+                $o('progress').send({
+                  source: 'browser',
+                  chunk: {
+                    ...chunk,
+                    content: addition,
+                  },
+                  context: {
+                    currentUrl: this.browserState.currentUrl,
+                    lastAction: this.browserState.lastAction,
+                  },
+                });
+              }
+              continue;
+            }
+
+            if (chunk.type !== 'model_thinking') {
+              $o('progress').send({
+                source: 'browser',
+                chunk,
+                context: {
+                  currentUrl: this.browserState.currentUrl,
+                  lastAction: this.browserState.lastAction,
+                },
+              });
+            }
+
+            if (chunk.type === 'completed') {
+              agentOutput = {
+                message: chunk.finalMessage ?? '',
+                history: chunk.history ?? [],
+                toolCalls: chunk.allToolCalls ?? [],
+              };
+
+              if (chunk.finalMessage && chunk.finalMessage !== streamedText) {
+                const addition = chunk.finalMessage.startsWith(streamedText)
+                  ? chunk.finalMessage.slice(streamedText.length)
+                  : chunk.finalMessage;
+                if (addition) {
+                  streamedText = chunk.finalMessage;
+                  $o('progress').send({
+                    source: 'browser',
+                    chunk: {
+                      type: 'assistant_message',
+                      content: addition,
+                      toolCalls: chunk.allToolCalls,
+                    },
+                    context: {
+                      currentUrl: this.browserState.currentUrl,
+                      lastAction: this.browserState.lastAction,
+                    },
+                  });
+                }
+              }
+            }
+          }
+
           await this.updateBrowserState();
 
-          // 将结果发送到输出端口
+          const finalDomSnapshot = this.browserState.domSnapshot;
+          const finalDomSize = this.browserState.domSnapshotSize;
+          const finalUrl = this.browserState.currentUrl;
+
+          const finalOutput: AgentOutput =
+            agentOutput ??
+            ({
+              message: '',
+              history: [],
+              toolCalls: [],
+            } as AgentOutput);
+
           $o('result').send({
             success: true,
-            currentUrl,
-            domSnapshot: JSON.stringify(domSnapshot), // 序列化为字符串以兼容原有接口
-            interactiveElements: domSnapshot.interactive, // 新增字段，直接提供结构化数据
-            pageMeta: domSnapshot.meta, // 新增字段，提供页面元数据
+            currentUrl: finalUrl,
+            domSnapshot: JSON.stringify(finalDomSnapshot), // 序列化为字符串以兼容原有接口
+            domSnapshotSize: finalDomSize,
+            interactiveElements: finalDomSnapshot.interactive, // 新增字段，直接提供结构化数据
+            pageMeta: finalDomSnapshot.meta, // 新增字段，提供页面元数据
             lastAction: this.browserState.lastAction,
-            ...result,
+            ...finalOutput,
           });
         } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
           console.error(`[BrowserAgent] 执行任务失败:`, error);
+          this.browserState.lastError = errorMessage;
+          $o('progress').send({
+            source: 'browser',
+            chunk: {
+              type: 'error',
+              error: errorMessage,
+            },
+          });
+          await this.updateBrowserState();
           $o('result').send({
             success: false,
-            currentUrl,
-            domSnapshot: JSON.stringify(domSnapshot), // 序列化为字符串以兼容原有接口
-            interactiveElements: domSnapshot.interactive, // 新增字段
-            pageMeta: domSnapshot.meta, // 新增字段
+            currentUrl: this.browserState.currentUrl,
+            domSnapshot: JSON.stringify(this.browserState.domSnapshot), // 序列化为字符串以兼容原有接口
+            domSnapshotSize: this.browserState.domSnapshotSize,
+            interactiveElements: this.browserState.domSnapshot.interactive, // 新增字段
+            pageMeta: this.browserState.domSnapshot.meta, // 新增字段
             lastAction: this.browserState.lastAction,
-            lastError: error instanceof Error ? error.message : String(error),
+            lastError: errorMessage,
           });
         }
 
@@ -311,16 +438,16 @@ export class BrowserAgent extends Component {
    * 捕获当前页面的交互元素和元数据
    * 这种方法比完整 DOM 快照更轻量级且信息更聚焦
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async captureDomSnapshot(): Promise<{ interactive: InteractiveElement[]; meta: any }> {
+  private async captureDomSnapshot(): Promise<DomSnapshotPayload> {
     try {
       if (!this.page) {
         console.warn('[BrowserAgent] 尝试捕获页面数据，但页面未初始化');
-        return { interactive: [], meta: { title: '', url: '' } };
+        const fallback = { interactive: [], meta: { title: '', url: '' } };
+        return { domSnapshot: fallback, domSnapshotSize: JSON.stringify(fallback).length };
       }
 
       // 等待页面加载完成，提高捕获质量
-      await this.page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {
+      await this.page.waitForLoadState(this.waitForLoadState, { timeout: 5000 }).catch(() => {
         console.log('[BrowserAgent] 等待页面加载超时，继续捕获');
       });
 
@@ -344,10 +471,16 @@ export class BrowserAgent extends Component {
       console.log(`[BrowserAgent] 捕获了 ${interactiveElements.length} 个交互元素`);
       console.log(`[BrowserAgent] 页面标题: ${meta.title}`);
 
-      return { interactive: interactiveElements, meta };
+      const domSnapshot = { interactive: interactiveElements, meta };
+
+      return {
+        domSnapshot,
+        domSnapshotSize: JSON.stringify(domSnapshot).length,
+      };
     } catch (error) {
       console.error('[BrowserAgent] 捕获页面数据失败:', error);
-      return { interactive: [], meta: { error: String(error) } };
+      const fallback = { interactive: [], meta: { error: String(error) } };
+      return { domSnapshot: fallback, domSnapshotSize: JSON.stringify(fallback).length };
     }
   }
 
@@ -356,7 +489,7 @@ export class BrowserAgent extends Component {
    * 注意：此方法只更新本地状态，不发送到状态组件
    * 发送状态更新需要在 _transform 中使用 $o 或在工具函数中使用 Component.Port
    */
-  private async updateBrowserState(): Promise<void> {
+  private async updateBrowserState(force = false): Promise<void> {
     if (!this.page) {
       console.warn('[BrowserAgent] 尝试更新状态，但浏览器未初始化');
       return;
@@ -365,24 +498,30 @@ export class BrowserAgent extends Component {
     try {
       // 获取当前 URL 和 DOM 快照
       const currentUrl = await this.page.url();
-      const domSnapshot = await this.captureDomSnapshot();
+      const now = Date.now();
+      let payload: DomSnapshotPayload | null = null;
 
-      // 构建状态更新
-      const stateUpdate = {
+      if (force || now - this.lastSnapshotAt >= this.snapshotIntervalMs) {
+        payload = await this.captureDomSnapshot();
+        this.lastSnapshotAt = now;
+        this.browserState.domSnapshot = payload.domSnapshot;
+        this.browserState.domSnapshotSize = payload.domSnapshotSize;
+      }
+
+      this.browserState = {
+        ...this.browserState,
         currentUrl,
-        domSnapshot,
-        lastAction: this.browserState.lastAction,
-        lastError: this.browserState.lastError,
       };
-
-      // 更新本地缓存
-      this.browserState = stateUpdate;
 
       // 注意: 由于 _transform 中的 $o 范围限制，这里不直接发送状态更新
       // 状态更新将通过 Tool 的执行过程间接发送
-      console.log(
-        `[BrowserAgent] 更新浏览器状态: URL=${currentUrl}, DOM 快照=${JSON.stringify(domSnapshot).length} 字符`
-      );
+      if (payload) {
+        console.log(
+          `[BrowserAgent] 更新浏览器状态: URL=${currentUrl}, DOM 快照=${payload.domSnapshotSize} 字符`
+        );
+      } else {
+        console.log(`[BrowserAgent] 更新浏览器状态: URL=${currentUrl} (使用缓存 DOM 快照)`);
+      }
       // 由于我们在工具函数内进行状态更新发送，这里不需要处理 $o 的问题
     } catch (error) {
       console.error('[BrowserAgent] 更新状态失败:', error);
@@ -407,10 +546,10 @@ export class BrowserAgent extends Component {
           try {
             // 再次检查 page 是否存在
             if (!this.page) throw new Error('Browser not initialized');
-            await this.page.goto(url, { waitUntil: 'networkidle' });
+            await this.page.goto(url, { waitUntil: this.waitForLoadState });
 
-            // 更新状态
-            await this.updateBrowserState();
+            // 更新状态（强制刷新 DOM 快照）
+            await this.updateBrowserState(true);
 
             // 记录当前工具作为最后一次操作
             this.browserState.lastAction = `导航到 ${url} (成功)`;
