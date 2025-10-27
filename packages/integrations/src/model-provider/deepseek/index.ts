@@ -91,6 +91,36 @@ export interface ToolCall {
 }
 
 /**
+ * Token 使用统计
+ */
+export interface TokenUsage {
+  /**
+   * 完成部分的 token 数量
+   */
+  completion_tokens: number;
+
+  /**
+   * 提示部分的 token 数量
+   */
+  prompt_tokens: number;
+
+  /**
+   * 提示缓存命中的 token 数量（可选）
+   */
+  prompt_cache_hit_tokens?: number;
+
+  /**
+   * 提示缓存未命中的 token 数量（可选）
+   */
+  prompt_cache_miss_tokens?: number;
+
+  /**
+   * 总 token 数量
+   */
+  total_tokens: number;
+}
+
+/**
  * 对话消息类型
  */
 export interface Message {
@@ -113,6 +143,11 @@ export interface Message {
    * 工具调用 ID，用于工具响应消息
    */
   tool_call_id?: string;
+
+  /**
+   * Token 使用统计（可选）
+   */
+  usage?: TokenUsage;
 }
 
 /**
@@ -346,6 +381,21 @@ class Deepseek extends Component {
           })),
         };
       }
+
+      // 提取并返回 token 使用统计信息
+      if (chunk.usage) {
+        yield {
+          role: 'assistant',
+          content: '',
+          usage: {
+            completion_tokens: chunk.usage.completion_tokens || 0,
+            prompt_tokens: chunk.usage.prompt_tokens || 0,
+            prompt_cache_hit_tokens: chunk.usage.prompt_cache_hit_tokens,
+            prompt_cache_miss_tokens: chunk.usage.prompt_cache_miss_tokens,
+            total_tokens: chunk.usage.total_tokens || 0,
+          },
+        };
+      }
     }
   }
 
@@ -447,6 +497,21 @@ class Deepseek extends Component {
       role: 'assistant',
       content: responseMessage.content || '',
     };
+
+    // 提取并添加 token 使用统计信息
+    if (response.usage) {
+      const usage = response.usage as typeof response.usage & {
+        prompt_cache_hit_tokens?: number;
+        prompt_cache_miss_tokens?: number;
+      };
+      result.usage = {
+        completion_tokens: usage.completion_tokens || 0,
+        prompt_tokens: usage.prompt_tokens || 0,
+        prompt_cache_hit_tokens: usage.prompt_cache_hit_tokens,
+        prompt_cache_miss_tokens: usage.prompt_cache_miss_tokens,
+        total_tokens: usage.total_tokens || 0,
+      };
+    }
 
     // 如果有工具调用，添加到结果中
     if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
