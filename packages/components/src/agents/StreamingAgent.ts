@@ -79,6 +79,17 @@ export interface StreamingChunk {
    * 错误信息（当 type 为 error 时）
    */
   error?: string;
+
+  /**
+   * Token 使用统计信息（当 type 为 completed 时）
+   */
+  usage?: {
+    completion_tokens: number;
+    prompt_tokens: number;
+    prompt_cache_hit_tokens?: number;
+    prompt_cache_miss_tokens?: number;
+    total_tokens: number;
+  };
 }
 
 /**
@@ -217,6 +228,7 @@ export class StreamingAgent extends Component {
       let iteration = 0;
       let lastAssistantMessage: MessageWithToolCalls | null = null;
       let hasMoreToolsToCall = true;
+      let capturedUsage: StreamingChunk['usage'] | undefined;
 
       // 获取 Agent 的配置（通过反射访问私有属性）
       const maxIterations =
@@ -372,6 +384,23 @@ export class StreamingAgent extends Component {
               console.log('[StreamingAgent Debug] 累计工具调用:', finalToolCalls);
             }
             modelResponse.tool_calls = finalToolCalls;
+          }
+
+          // 捕获 token 使用统计信息
+          const chunkWithUsage = chunk as Partial<MessageWithToolCalls> & {
+            usage?: StreamingChunk['usage'];
+          };
+          if (chunkWithUsage.usage) {
+            capturedUsage = {
+              completion_tokens: chunkWithUsage.usage.completion_tokens || 0,
+              prompt_tokens: chunkWithUsage.usage.prompt_tokens || 0,
+              prompt_cache_hit_tokens: chunkWithUsage.usage.prompt_cache_hit_tokens,
+              prompt_cache_miss_tokens: chunkWithUsage.usage.prompt_cache_miss_tokens,
+              total_tokens: chunkWithUsage.usage.total_tokens || 0,
+            };
+            if (verbose) {
+              console.log('[StreamingAgent Debug] 捕获到 usage 信息:', capturedUsage);
+            }
           }
         }
 
@@ -551,6 +580,7 @@ export class StreamingAgent extends Component {
         finalMessage: lastAssistantMessage?.content || '',
         history: currentMessages,
         allToolCalls: toolCalls,
+        usage: capturedUsage,
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);

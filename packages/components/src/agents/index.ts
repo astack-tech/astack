@@ -35,6 +35,17 @@ export interface Message {
    * 消息的附加元数据
    */
   metadata?: Record<string, unknown>;
+
+  /**
+   * Token 使用统计（可选）
+   */
+  usage?: {
+    completion_tokens: number;
+    prompt_tokens: number;
+    prompt_cache_hit_tokens?: number;
+    prompt_cache_miss_tokens?: number;
+    total_tokens: number;
+  };
 }
 
 /**
@@ -225,6 +236,17 @@ export interface AgentOutput {
    * 完整的消息历史
    */
   history: Message[];
+
+  /**
+   * Token 使用统计（可选）
+   */
+  usage?: {
+    completion_tokens: number;
+    prompt_tokens: number;
+    prompt_cache_hit_tokens?: number;
+    prompt_cache_miss_tokens?: number;
+    total_tokens: number;
+  };
 }
 
 /**
@@ -406,6 +428,7 @@ export class Agent extends Component {
       let iteration = 0;
       let lastAssistantMessage: MessageWithToolCalls | null = null;
       let hasMoreToolsToCall = true;
+      let accumulatedUsage: AgentOutput['usage'] | undefined;
 
       // 2. 开始迭代循环，直到达到最大迭代次数或模型没有更多工具调用
       while (hasMoreToolsToCall && iteration < this.maxIterations) {
@@ -421,6 +444,30 @@ export class Agent extends Component {
 
         // 保存模型回复作为最后的助手消息
         lastAssistantMessage = modelResponse;
+
+        // 累积 token 使用统计
+        if (modelResponse.usage) {
+          if (!accumulatedUsage) {
+            accumulatedUsage = {
+              completion_tokens: 0,
+              prompt_tokens: 0,
+              total_tokens: 0,
+            };
+          }
+          accumulatedUsage.completion_tokens += modelResponse.usage.completion_tokens || 0;
+          accumulatedUsage.prompt_tokens += modelResponse.usage.prompt_tokens || 0;
+          accumulatedUsage.total_tokens += modelResponse.usage.total_tokens || 0;
+          if (modelResponse.usage.prompt_cache_hit_tokens) {
+            accumulatedUsage.prompt_cache_hit_tokens =
+              (accumulatedUsage.prompt_cache_hit_tokens || 0) +
+              modelResponse.usage.prompt_cache_hit_tokens;
+          }
+          if (modelResponse.usage.prompt_cache_miss_tokens) {
+            accumulatedUsage.prompt_cache_miss_tokens =
+              (accumulatedUsage.prompt_cache_miss_tokens || 0) +
+              modelResponse.usage.prompt_cache_miss_tokens;
+          }
+        }
 
         // 4. 检查是否有工具调用
         if (!modelResponse.tool_calls || modelResponse.tool_calls.length === 0) {
@@ -538,6 +585,7 @@ export class Agent extends Component {
         message: lastAssistantMessage?.content || '',
         history: currentMessages,
         toolCalls,
+        usage: accumulatedUsage,
       };
     } catch (error) {
       console.error(

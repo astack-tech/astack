@@ -1,6 +1,6 @@
 {
   "name": "@astack-tech/components",
-  "version": "0.1.1-beta.3",
+  "version": "0.1.1-beta.4",
   "description": "Components for the Astack AI Framework.",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
