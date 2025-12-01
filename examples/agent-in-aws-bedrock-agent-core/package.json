@@ -1,0 +1,27 @@
+{
+  "name": "agent-in-aws-bedrock-agent-core",
+  "version": "1.0.0",
+  "description": "Minimal AStack agent runtime for AWS Bedrock AgentCore",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/integrations": "workspace:*",
+    "@astack-tech/tools": "workspace:*",
+    "@hono/node-server": "^1.13.7",
+    "dotenv": "^17.2.2",
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
