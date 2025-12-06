@@ -58,6 +58,6 @@
   },
   "dependencies": {
     "@astack-tech/core": "workspace:*",
-    "openai": "^4.98.0"
+    "openai": "^6.10.0"
   }
 }
