@@ -518,6 +518,11 @@ class Deepseek extends Component {
       // 为了兼容 Agent 组件期望的格式，保留 function 和 type 字段
       // 同时为了满足内部 ToolCall 接口，也添加 tool_name 和 arguments 字段
       result.tool_calls = responseMessage.tool_calls.map(toolCall => {
+        // Type guard: only handle function tool calls (not custom tool calls)
+        if (toolCall.type !== 'function' || !('function' in toolCall)) {
+          throw new Error(`Unsupported tool call type: ${toolCall.type}`);
+        }
+
         // 解析参数，确保是对象形式
         let args: Record<string, unknown>;
 
