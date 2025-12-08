@@ -6,7 +6,7 @@
   "homepage": "https://astack.tech",
   "packageManager": "pnpm@10.10.0",
   "engines": {
-    "node": ">=18",
+    "node": ">=18 <25",
     "pnpm": ">=8"
   },
   "scripts": {
@@ -31,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4",
+    "turbo": "2.6.3",
     "typescript": "^5"
   }
 }
