@@ -38,7 +38,7 @@
   "author": "xiaoa",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.11.5",
+    "@types/node": "^25.0.2",
     "eslint": "^8.56.0",
     "rimraf": "^6.1.2",
     "tsup": "^8.4.0",
