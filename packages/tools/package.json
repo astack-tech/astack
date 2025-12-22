@@ -43,7 +43,7 @@
     "rimraf": "^6.1.2",
     "tsup": "^8.4.0",
     "typescript": "^5.8.3",
-    "vitest": "^1.2.1"
+    "vitest": "^4.0.16"
   },
   "engines": {
     "node": ">=18.0.0"
