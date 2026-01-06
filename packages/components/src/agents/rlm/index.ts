@@ -9,3 +9,10 @@ export type {
   RLMExecutionMetadata,
   SubLLMCall,
 } from './RLMCore';
+export { FileSystemContext } from './FileSystemContext';
+export type {
+  FileInfo,
+  ContextStats,
+  MemoryUsage,
+  FileSystemContextOptions,
+} from './FileSystemContext';

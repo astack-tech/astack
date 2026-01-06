@@ -1,10 +1,11 @@
 import vm from 'node:vm';
+import type { FileSystemContext } from './FileSystemContext';
 
 /**
  * RLM input configuration
  */
 export interface RLMInput {
-  context: string;
+  context: string | FileSystemContext;
   query: string;
   maxDepth?: number;
 }
@@ -108,6 +109,11 @@ export class RLMCore {
     const depth = 0;
     const subLLMCallDetails: SubLLMCall[] = [];
 
+    // Reset memory tracking if using FileSystemContext
+    if (typeof input.context !== 'string' && 'resetMemoryTracking' in input.context) {
+      input.context.resetMemoryTracking();
+    }
+
     yield { type: 'code', content: 'Generating code...\n\n' };
 
     const codeGenStart = Date.now();
@@ -148,6 +154,9 @@ export class RLMCore {
     const totalExecutionTime = Date.now() - startTime;
 
     // Generate execution summary
+    const contextLength =
+      typeof input.context === 'string' ? input.context.length : input.context.getStats().totalSize;
+
     const metadata: RLMExecutionMetadata = {
       maxDepth: this.maxDepth,
       actualDepth,
@@ -156,7 +165,7 @@ export class RLMCore {
       totalExecutionTime,
       codeGenTime,
       replExecutionTime,
-      contextLength: input.context.length,
+      contextLength,
       generatedCodeLength: code.length,
     };
 
@@ -181,12 +190,77 @@ export class RLMCore {
   /**
    * Build prompt for root LLM
    */
-  private buildPrompt(context: string, query: string): string {
+  private buildPrompt(context: string | FileSystemContext, query: string): string {
+    const isFileSystem = typeof context !== 'string';
+
+    if (isFileSystem) {
+      const stats = (context as FileSystemContext).getStats();
+      return `You are a code generator for a Recursive Language Model (RLM) system.
+
+TASK: ${query}
+
+CONTEXT: A file system with ${stats.totalFiles} files, ${stats.totalSize.toLocaleString()} bytes total.
+
+AVAILABLE TOOLS:
+- listFiles(): string[] - list all available file paths
+- readFile(path): string - read a specific file's content
+- getFileInfo(path): {path, size, lines} - get file metadata without reading
+- searchFiles(pattern): string[] - search files by regex pattern (returns paths)
+- sampleFiles(pattern, limit): string[] - get limited sample of matching files
+- getFilesInDirectory(dir): string[] - get all files in a directory
+- getStats(): {totalFiles, totalSize, totalLines, fileTypes} - context statistics
+- llm_query(prompt): async function - send a prompt to sub-LLM, returns Promise<string>
+- FINAL(answer): function - mark your final answer
+
+YOUR JOB:
+1. Use searchFiles() or listFiles() to find relevant files
+2. Use getFileInfo() to check file sizes before reading (avoid huge files)
+3. Use readFile() ONLY for files you need - be selective to avoid memory issues
+4. Use llm_query() to process individual files or groups of files
+5. Synthesize results and call FINAL() with your answer
+
+CRITICAL RULES:
+- Write code at TOP LEVEL, do NOT define functions and call them
+- You MUST output ONLY valid JavaScript code, no explanations
+- Use 'await' directly at top level (supported in this environment)
+- DO NOT read all files at once - be strategic and sample intelligently
+- Limit file reads to avoid memory issues (e.g., max 50 files per batch)
+- Always end with FINAL(your_answer)
+
+MEMORY-EFFICIENT STRATEGY:
+1. Search for relevant files first
+2. Sample a representative subset
+3. Process in batches
+4. Use llm_query() for detailed analysis
+
+BAD example (WILL CAUSE OOM):
+const all = listFiles();
+for (const f of all) {
+  const content = readFile(f); // Reading ALL files!
+}
+
+GOOD example:
+const tsFiles = searchFiles(/\\.ts$/);
+const coreFiles = sampleFiles(/core.*\\.ts$/, 20); // Sample 20 files
+for (const file of coreFiles) {
+  const info = getFileInfo(file);
+  if (info.size < 100000) { // Only read files < 100KB
+    const content = readFile(file);
+    const analysis = await llm_query(\`Analyze: \${content}\`);
+    // Process...
+  }
+}
+FINAL(summary);
+
+Generate the JavaScript code now:`;
+    }
+
+    // Legacy string mode
     return `You are a code generator for a Recursive Language Model (RLM) system.
 
 TASK: ${query}
 
-CONTEXT: The 'context' variable contains ${context.length} characters of information.
+CONTEXT: The 'context' variable contains ${(context as string).length} characters of information.
 
 AVAILABLE TOOLS:
 - context: string - the full context data
@@ -263,7 +337,7 @@ Generate the JavaScript code now:`;
    */
   private async *runREPLStream(
     code: string,
-    context: string,
+    context: string | FileSystemContext,
     depth: number,
     subLLMCallDetails: SubLLMCall[]
   ): AsyncGenerator<RLMChunk> {
@@ -280,8 +354,19 @@ Generate the JavaScript code now:`;
       }
     };
 
-    const sandbox = {
-      context,
+    // Declare all variables first to avoid TDZ issues
+    const maxDepth = this.maxDepth;
+    const subLLM = this.subLLM;
+    const pendingChunks: RLMChunk[] = [];
+    const pendingYield = (chunk: RLMChunk) => {
+      pendingChunks.push(chunk);
+    };
+
+    const isFileSystem = typeof context !== 'string';
+    const contextObj = isFileSystem ? (context as FileSystemContext) : undefined;
+
+    // Build sandbox with all APIs in one go
+    const sandbox: Record<string, unknown> = {
       llm_query: async (prompt: string) => {
         if (depth >= maxDepth) {
           throw new Error('Maximum recursion depth reached');
@@ -310,6 +395,10 @@ Generate the JavaScript code now:`;
         });
 
         // Yield metadata update
+        const contextLength = isFileSystem
+          ? (contextObj as FileSystemContext).getStats().totalSize
+          : (context as string).length;
+
         pendingYield({
           type: 'metadata',
           content: '',
@@ -321,7 +410,7 @@ Generate the JavaScript code now:`;
             totalExecutionTime: 0,
             codeGenTime: 0,
             replExecutionTime: 0,
-            contextLength: context.length,
+            contextLength,
             generatedCodeLength: code.length,
           },
         });
@@ -331,13 +420,23 @@ Generate the JavaScript code now:`;
       FINAL: (answer: string) => {
         finalAnswer = answer;
       },
-    };
-
-    const maxDepth = this.maxDepth;
-    const subLLM = this.subLLM;
-    const pendingChunks: RLMChunk[] = [];
-    const pendingYield = (chunk: RLMChunk) => {
-      pendingChunks.push(chunk);
+      // Add context-specific APIs directly in sandbox creation
+      ...(isFileSystem && contextObj
+        ? {
+            // File system mode APIs
+            listFiles: () => contextObj.listFiles(),
+            readFile: (path: string) => contextObj.readFile(path),
+            getFileInfo: (path: string) => contextObj.getFileInfo(path),
+            searchFiles: (pattern: string | RegExp) => contextObj.searchFiles(pattern),
+            sampleFiles: (pattern: string | RegExp, limit: number) =>
+              contextObj.sampleFiles(pattern, limit),
+            getFilesInDirectory: (dir: string) => contextObj.getFilesInDirectory(dir),
+            getStats: () => contextObj.getStats(),
+          }
+        : {
+            // String mode: direct context access
+            context: context as string,
+          }),
     };
 
     const wrappedCode = `(async () => { ${code} })()`;
