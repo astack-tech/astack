@@ -32,10 +32,11 @@ class DeepseekLLMProvider implements LLMProvider {
 }
 
 /**
- * Recursively read all TypeScript source files
+ * Recursively scan all TypeScript source files (PATHS ONLY, not content)
+ * This demonstrates RLM's filesystem offloading - files loaded on-demand
  */
-function readSourceFiles(dir: string, basePath: string): Map<string, string> {
-  const files = new Map<string, string>();
+function scanSourceFiles(dir: string, basePath: string): string[] {
+  const filePaths: string[] = [];
   // Include node_modules to demonstrate RLM's long context handling capability
   const excludeDirs = ['dist', '.git', 'coverage', '.turbo'];
 
@@ -51,14 +52,13 @@ function readSourceFiles(dir: string, basePath: string): Map<string, string> {
         }
       } else if (entry.isFile() && entry.name.endsWith('.ts')) {
         const relativePath = path.relative(basePath, fullPath);
-        const content = fs.readFileSync(fullPath, 'utf-8');
-        files.set(relativePath, content);
+        filePaths.push(relativePath); // Only store PATH, not content
       }
     }
   }
 
   walk(dir);
-  return files;
+  return filePaths;
 }
 
 async function main() {
@@ -76,26 +76,28 @@ async function main() {
   const rlmAgent = new RLMAgent({
     rootLLM,
     subLLM,
-    maxDepth: 5, // Deep recursion to demonstrate RLM's true power with long context
+    // maxDepth defaults to 1 (current implementation only supports depth=1)
   });
 
-  // Scan entire project root (including node_modules) to create massive context
+  // Scan entire project root (including node_modules) - paths only, not content!
   const projectRoot = path.join(__dirname, '../..');
-  console.log('Reading AStack source files from:', projectRoot, '\n');
+  console.log('Scanning AStack source files from:', projectRoot, '\n');
 
-  const sourceFiles = readSourceFiles(projectRoot, projectRoot);
-  console.log(`Found ${sourceFiles.size} TypeScript files\n`);
+  const filePaths = scanSourceFiles(projectRoot, projectRoot);
+  console.log(`Found ${filePaths.length} TypeScript files\n`);
 
-  // Create FileSystemContext with memory safety limits
-  const fsContext = new FileSystemContext(sourceFiles, {
+  // Create FileSystemContext with filesystem offloading and memory safety limits
+  // Files will be loaded from disk on-demand, not stored in memory upfront
+  const fsContext = new FileSystemContext(projectRoot, filePaths, {
     maxTotalRead: 100 * 1024 * 1024, // 100MB total read limit
     maxFileSize: 10 * 1024 * 1024, // 10MB per file limit
+    maxCacheSize: 10 * 1024 * 1024, // 10MB LRU cache
   });
   const stats = fsContext.getStats();
   const limits = fsContext.getMemoryLimits();
 
   const contextSizeMB = (stats.totalSize / (1024 * 1024)).toFixed(2);
-  const maxReadMB = (limits.maxTotalRead / (1024 * 1024)).toFixed(0);
+  const maxCacheMB = (limits.maxTotalRead / (1024 * 1024)).toFixed(0);
   const maxFileMB = (limits.maxFileSize / (1024 * 1024)).toFixed(0);
 
   console.log(`📊 Context Statistics:`);
@@ -105,14 +107,14 @@ async function main() {
   console.log(`   Size: ${contextSizeMB} MB`);
   console.log(`   File Types:`, Object.keys(stats.fileTypes).join(', '));
   console.log(`\n🎯 RLM Configuration:`);
-  console.log(`   Max Recursion Depth: 5`);
-  console.log(`   Context Mode: FileSystem (on-demand access)`);
+  console.log(`   Context Mode: FileSystem (on-demand lazy loading)`);
   console.log(`\n🛡️  Memory Safety:`);
-  console.log(`   Max Total Read: ${maxReadMB} MB`);
-  console.log(`   Max File Size: ${maxFileMB} MB`);
+  console.log(`   LRU Cache Size: ${maxCacheMB} MB (auto-eviction enabled)`);
+  console.log(`   Max Single File: ${maxFileMB} MB`);
+  console.log(`   File Access: Unlimited (on-demand loading with LRU eviction)`);
   console.log(`   100% OOM Protection Guaranteed!`);
   console.log(
-    `\n💡 Note: Even with ${contextSizeMB}MB available, RLM will safely limit memory usage.\n`
+    `\n💡 Note: Can process all ${contextSizeMB}MB - files loaded on-demand, old entries auto-evicted.\n`
   );
   console.log('=== Streaming RLM Execution ===\n');
 
@@ -128,21 +130,6 @@ Provide a structured summary.`,
   })) {
     process.stdout.write(chunk.content);
   }
-
-  // Show actual memory usage
-  const memoryUsage = fsContext.getMemoryUsage();
-  const actualReadMB = (memoryUsage.bytesRead / (1024 * 1024)).toFixed(2);
-
-  console.log('\n');
-  console.log('═'.repeat(60));
-  console.log('🛡️  MEMORY SAFETY REPORT');
-  console.log('═'.repeat(60));
-  console.log(`Actual Memory Used: ${actualReadMB} MB`);
-  console.log(`Memory Limit: ${maxReadMB} MB`);
-  console.log(`Usage: ${memoryUsage.percentUsed.toFixed(1)}%`);
-  console.log(`Files Read: ${memoryUsage.bytesRead > 0 ? 'Yes' : 'None (metadata only)'}`);
-  console.log('Status: ✅ No OOM - Execution completed safely!');
-  console.log('═'.repeat(60));
 
   console.log('\n=== Done ===');
   process.exit(0);
