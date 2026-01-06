@@ -1,4 +1,4 @@
-import { RLMAgent, type LLMProvider } from '@astack-tech/components/agents';
+import { RLMAgent, FileSystemContext, type LLMProvider } from '@astack-tech/components/agents';
 import { Deepseek } from '@astack-tech/integrations/model-provider';
 
 /**
@@ -65,12 +65,15 @@ Recent developments include models like GPT-4, Claude, and other large language
 models that can handle complex reasoning tasks.
   `.trim();
 
+  // Create FileSystemContext in memory mode
+  const context = new FileSystemContext(longContext);
+
   console.log('Long context prepared (length:', longContext.length, 'characters)\n');
   console.log('Query: "What are the main AI architectures mentioned?"\n');
   console.log('=== Streaming RLM Execution ===\n');
 
   for await (const chunk of rlmAgent.runStream({
-    context: longContext,
+    context,
     query: 'What are the main AI architectures mentioned in the document?',
   })) {
     process.stdout.write(chunk.content);
