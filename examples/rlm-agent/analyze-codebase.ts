@@ -37,8 +37,7 @@ class DeepseekLLMProvider implements LLMProvider {
  */
 function scanSourceFiles(dir: string, basePath: string): string[] {
   const filePaths: string[] = [];
-  // Include node_modules to demonstrate RLM's long context handling capability
-  const excludeDirs = ['dist', '.git', 'coverage', '.turbo'];
+  const excludeDirs = ['node_modules', 'dist', '.git', 'coverage', '.turbo'];
 
   function walk(currentPath: string) {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });

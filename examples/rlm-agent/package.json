@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "tsx index.ts",
-    "analyze": "tsx analyze-codebase.ts"
+    "analyze": "tsx analyze-codebase.ts",
+    "benchmark": "tsx oolong-pairs-benchmark.ts"
   },
   "dependencies": {
     "@astack-tech/components": "workspace:*",
