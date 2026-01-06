@@ -36,7 +36,8 @@ class DeepseekLLMProvider implements LLMProvider {
  */
 function readSourceFiles(dir: string, basePath: string): Map<string, string> {
   const files = new Map<string, string>();
-  const excludeDirs = ['node_modules', 'dist', '.git', 'coverage', '.turbo'];
+  // Include node_modules to demonstrate RLM's long context handling capability
+  const excludeDirs = ['dist', '.git', 'coverage', '.turbo'];
 
   function walk(currentPath: string) {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });
@@ -75,13 +76,14 @@ async function main() {
   const rlmAgent = new RLMAgent({
     rootLLM,
     subLLM,
-    maxDepth: 1,
+    maxDepth: 5, // Deep recursion to demonstrate RLM's true power with long context
   });
 
-  const packagesPath = path.join(__dirname, '../../packages');
-  console.log('Reading AStack source files from:', packagesPath, '\n');
+  // Scan entire project root (including node_modules) to create massive context
+  const projectRoot = path.join(__dirname, '../..');
+  console.log('Reading AStack source files from:', projectRoot, '\n');
 
-  const sourceFiles = readSourceFiles(packagesPath, packagesPath);
+  const sourceFiles = readSourceFiles(projectRoot, projectRoot);
   console.log(`Found ${sourceFiles.size} TypeScript files\n`);
 
   let context = '# AStack Codebase\n\n';
@@ -93,8 +95,15 @@ async function main() {
     context += `## File: ${filePath} (${lines} lines)\n\n\`\`\`typescript\n${content}\n\`\`\`\n\n`;
   }
 
-  console.log(`Total context: ${context.length} characters, ${totalLines} lines of code\n`);
-  console.log('Query: "Analyze the architecture of this codebase"\n');
+  const contextSizeMB = (context.length / (1024 * 1024)).toFixed(2);
+  console.log(`📊 Context Statistics:`);
+  console.log(`   Files: ${sourceFiles.size}`);
+  console.log(`   Lines: ${totalLines.toLocaleString()}`);
+  console.log(`   Characters: ${context.length.toLocaleString()}`);
+  console.log(`   Size: ${contextSizeMB} MB`);
+  console.log(`\n🎯 RLM Configuration:`);
+  console.log(`   Max Recursion Depth: 5`);
+  console.log(`   This demonstrates RLM's ability to handle massive contexts!\n`);
   console.log('=== Streaming RLM Execution ===\n');
 
   for await (const chunk of rlmAgent.runStream({

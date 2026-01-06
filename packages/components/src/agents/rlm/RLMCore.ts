@@ -22,8 +22,37 @@ export interface RLMResult {
  * RLM streaming chunk
  */
 export interface RLMChunk {
-  type: 'code' | 'execution' | 'answer' | 'error';
+  type: 'code' | 'execution' | 'answer' | 'error' | 'metadata' | 'summary';
   content: string;
+  metadata?: RLMExecutionMetadata;
+}
+
+/**
+ * Sub-LLM call details
+ */
+export interface SubLLMCall {
+  depth: number;
+  prompt: string;
+  promptLength: number;
+  result: string;
+  resultLength: number;
+  duration: number;
+  timestamp: number;
+}
+
+/**
+ * RLM execution metadata
+ */
+export interface RLMExecutionMetadata {
+  maxDepth: number;
+  actualDepth: number;
+  subLLMCalls: number;
+  subLLMCallDetails: SubLLMCall[];
+  totalExecutionTime: number;
+  codeGenTime: number;
+  replExecutionTime: number;
+  contextLength: number;
+  generatedCodeLength: number;
 }
 
 /**
@@ -54,11 +83,12 @@ export class RLMCore {
    */
   async execute(input: RLMInput): Promise<RLMResult> {
     const depth = 0;
+    const subLLMCallDetails: SubLLMCall[] = [];
     const rawCode = await this.rootLLM.generate(this.buildPrompt(input.context, input.query));
     const code = this.extractCode(rawCode);
 
     let answer = '';
-    for await (const chunk of this.runREPLStream(code, input.context, depth)) {
+    for await (const chunk of this.runREPLStream(code, input.context, depth, subLLMCallDetails)) {
       if (chunk.type === 'answer') {
         const match = chunk.content.match(/Answer:\s*(.+)/);
         if (match) {
@@ -74,10 +104,13 @@ export class RLMCore {
    * Execute RLM with streaming output
    */
   async *executeStream(input: RLMInput): AsyncGenerator<RLMChunk> {
+    const startTime = Date.now();
     const depth = 0;
+    const subLLMCallDetails: SubLLMCall[] = [];
 
     yield { type: 'code', content: 'Generating code...\n\n' };
 
+    const codeGenStart = Date.now();
     let rawCode = '';
     const prompt = this.buildPrompt(input.context, input.query);
     if (this.rootLLM.generateStream) {
@@ -89,20 +122,49 @@ export class RLMCore {
       rawCode = await this.rootLLM.generate(prompt);
       yield { type: 'code', content: rawCode };
     }
+    const codeGenTime = Date.now() - codeGenStart;
 
     const code = this.extractCode(rawCode);
 
     yield { type: 'code', content: '\n\n' };
     yield { type: 'execution', content: 'Executing code...\n' };
 
+    const replStart = Date.now();
+    let actualDepth = 0;
+
     try {
-      for await (const chunk of this.runREPLStream(code, input.context, depth)) {
+      for await (const chunk of this.runREPLStream(code, input.context, depth, subLLMCallDetails)) {
+        if (chunk.metadata) {
+          actualDepth = Math.max(actualDepth, chunk.metadata.actualDepth);
+        }
         yield chunk;
       }
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       yield { type: 'error', content: `\nError: ${errorMsg}\n` };
     }
+
+    const replExecutionTime = Date.now() - replStart;
+    const totalExecutionTime = Date.now() - startTime;
+
+    // Generate execution summary
+    const metadata: RLMExecutionMetadata = {
+      maxDepth: this.maxDepth,
+      actualDepth,
+      subLLMCalls: subLLMCallDetails.length,
+      subLLMCallDetails,
+      totalExecutionTime,
+      codeGenTime,
+      replExecutionTime,
+      contextLength: input.context.length,
+      generatedCodeLength: code.length,
+    };
+
+    yield {
+      type: 'summary',
+      content: this.formatExecutionSummary(metadata),
+      metadata,
+    };
   }
 
   /**
@@ -158,12 +220,52 @@ Generate the JavaScript code now:`;
   }
 
   /**
+   * Format execution summary for display
+   */
+  private formatExecutionSummary(metadata: RLMExecutionMetadata): string {
+    const lines = [
+      '\n',
+      '═'.repeat(60),
+      '📊 RLM EXECUTION SUMMARY',
+      '═'.repeat(60),
+      '',
+      '🔢 Recursion Statistics:',
+      `   Max Depth Configured: ${metadata.maxDepth}`,
+      `   Actual Depth Reached: ${metadata.actualDepth}`,
+      `   Sub-LLM Calls: ${metadata.subLLMCalls}`,
+      '',
+      '📏 Context & Code:',
+      `   Context Length: ${metadata.contextLength.toLocaleString()} characters`,
+      `   Generated Code Length: ${metadata.generatedCodeLength} characters`,
+      '',
+      '⏱️  Execution Time:',
+      `   Total Time: ${(metadata.totalExecutionTime / 1000).toFixed(2)}s`,
+      `   Code Generation: ${(metadata.codeGenTime / 1000).toFixed(2)}s`,
+      `   REPL Execution: ${(metadata.replExecutionTime / 1000).toFixed(2)}s`,
+    ];
+
+    if (metadata.subLLMCallDetails.length > 0) {
+      lines.push('', '🔍 Sub-LLM Call Details:');
+      metadata.subLLMCallDetails.forEach((call, idx) => {
+        lines.push(
+          `   ${idx + 1}. Depth ${call.depth} | ${(call.duration / 1000).toFixed(2)}s | Prompt: ${call.promptLength} chars → Result: ${call.resultLength} chars`
+        );
+      });
+    }
+
+    lines.push('═'.repeat(60), '');
+
+    return lines.join('\n');
+  }
+
+  /**
    * Run code in REPL environment with streaming
    */
   private async *runREPLStream(
     code: string,
     context: string,
-    depth: number
+    depth: number,
+    subLLMCallDetails: SubLLMCall[]
   ): AsyncGenerator<RLMChunk> {
     let finalAnswer = '';
 
@@ -185,11 +287,45 @@ Generate the JavaScript code now:`;
           throw new Error('Maximum recursion depth reached');
         }
 
+        const callStart = Date.now();
         let result = '';
+
+        // Record sub-LLM call
         for await (const chunk of streamingLLMQuery(subLLM, prompt)) {
           result += chunk;
           pendingYield({ type: 'execution', content: chunk });
         }
+
+        const callDuration = Date.now() - callStart;
+
+        // Track sub-LLM call details
+        subLLMCallDetails.push({
+          depth: depth + 1,
+          prompt,
+          promptLength: prompt.length,
+          result,
+          resultLength: result.length,
+          duration: callDuration,
+          timestamp: Date.now(),
+        });
+
+        // Yield metadata update
+        pendingYield({
+          type: 'metadata',
+          content: '',
+          metadata: {
+            maxDepth,
+            actualDepth: depth + 1,
+            subLLMCalls: subLLMCallDetails.length,
+            subLLMCallDetails,
+            totalExecutionTime: 0,
+            codeGenTime: 0,
+            replExecutionTime: 0,
+            contextLength: context.length,
+            generatedCodeLength: code.length,
+          },
+        });
+
         return result;
       },
       FINAL: (answer: string) => {
