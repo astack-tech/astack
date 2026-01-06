@@ -212,45 +212,76 @@ AVAILABLE TOOLS:
 - llm_query(prompt): async function - send a prompt to sub-LLM, returns Promise<string>
 - FINAL(answer): function - mark your final answer
 
-YOUR JOB:
-1. Use searchFiles() or listFiles() to find relevant files
-2. Use getFileInfo() to check file sizes before reading (avoid huge files)
-3. Use readFile() ONLY for files you need - be selective to avoid memory issues
-4. Use llm_query() to process individual files or groups of files
-5. Synthesize results and call FINAL() with your answer
+RLM CORE PRINCIPLE - RECURSIVE DECOMPOSITION:
+The ENTIRE purpose of RLM is to handle unlimited context by:
+1. Process ONE small piece at a time
+2. Use llm_query() to analyze it
+3. Combine result with previous findings
+4. Repeat until done
+5. NEVER accumulate large content before calling llm_query
 
 CRITICAL RULES:
 - Write code at TOP LEVEL, do NOT define functions and call them
 - You MUST output ONLY valid JavaScript code, no explanations
 - Use 'await' directly at top level (supported in this environment)
-- DO NOT read all files at once - be strategic and sample intelligently
-- Limit file reads to avoid memory issues (e.g., max 50 files per batch)
+- PROCESS INCREMENTALLY: one file → llm_query → combine → next file
+- NEVER concatenate multiple files' content before llm_query
+- Keep intermediate results SHORT (summaries, not full content)
 - Always end with FINAL(your_answer)
 
-MEMORY-EFFICIENT STRATEGY:
-1. Search for relevant files first
-2. Sample a representative subset
-3. Process in batches
-4. Use llm_query() for detailed analysis
-
-BAD example (WILL CAUSE OOM):
-const all = listFiles();
-for (const f of all) {
-  const content = readFile(f); // Reading ALL files!
+❌ ANTI-PATTERN 1 (Concatenating before llm_query):
+const files = sampleFiles(/\\.ts$/, 10);
+let bigContent = '';
+for (const f of files) {
+  bigContent += readFile(f); // WRONG! Accumulating huge string
 }
+const result = await llm_query(\`Analyze: \${bigContent}\`); // FAILS!
 
-GOOD example:
-const tsFiles = searchFiles(/\\.ts$/);
-const coreFiles = sampleFiles(/core.*\\.ts$/, 20); // Sample 20 files
-for (const file of coreFiles) {
-  const info = getFileInfo(file);
-  if (info.size < 100000) { // Only read files < 100KB
-    const content = readFile(file);
-    const analysis = await llm_query(\`Analyze: \${content}\`);
-    // Process...
-  }
+❌ ANTI-PATTERN 2 (Accumulating analysis results):
+const results = [];
+for (const f of files) {
+  const content = readFile(f);
+  const analysis = await llm_query(\`Full analysis: \${content}\`);
+  results.push(analysis); // WRONG! Analysis might be huge
+}
+const final = results.join('\\n'); // FAILS! Huge accumulated string
+
+✅ CORRECT PATTERN (Incremental processing):
+const files = sampleFiles(/\\.ts$/, 10);
+let summary = '';
+for (const f of files) {
+  const content = readFile(f);
+  // Ask for CONCISE analysis only
+  const analysis = await llm_query(\`Summarize key points of \${f}: \${content}\`);
+  // Combine with previous summary incrementally
+  summary = await llm_query(\`Current: \${summary}\\nNew: \${analysis}\\nCombine into brief summary:\`);
 }
 FINAL(summary);
+
+✅ ALTERNATIVE PATTERN (Divide and conquer):
+const files = sampleFiles(/\\.ts$/, 20);
+// Process in small groups
+let findings = '';
+for (let i = 0; i < files.length; i += 5) {
+  const batch = files.slice(i, i + 5);
+  const batchInfo = batch.map(f => {
+    const info = getFileInfo(f);
+    return \`\${f}: \${info.lines} lines\`;
+  }).join('\\n');
+  // Ask sub-LLM to identify most important files
+  const important = await llm_query(\`Which files are most relevant? \${batchInfo}\`);
+  findings += important + '\\n';
+}
+FINAL(findings);
+
+MEMORY-EFFICIENT STRATEGY:
+1. Search/sample to find relevant files (metadata only)
+2. Process ONE file at a time
+3. Call llm_query with SINGLE file's content
+4. Get CONCISE result (summary, not full analysis)
+5. Incrementally combine with previous results via llm_query
+6. Repeat until all files processed
+7. FINAL with synthesized answer
 
 Generate the JavaScript code now:`;
     }
