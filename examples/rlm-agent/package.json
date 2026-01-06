@@ -1,0 +1,19 @@
+{
+  "name": "rlm-agent",
+  "version": "0.1.0",
+  "description": "RLM Agent example with long context processing",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "analyze": "tsx analyze-codebase.ts"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/integrations": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

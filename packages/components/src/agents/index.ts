@@ -688,4 +688,8 @@ export class Agent extends Component {
 // 导出 StreamingAgent
 export { StreamingAgent, type StreamingChunk } from './StreamingAgent';
 
+// 导出 RLMAgent
+export { RLMAgent, type RLMAgentConfig } from './rlm';
+export type { RLMCore, RLMInput, RLMResult, LLMProvider } from './rlm';
+
 export default Agent;
