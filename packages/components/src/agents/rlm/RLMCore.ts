@@ -195,133 +195,138 @@ export class RLMCore {
 
     if (isFileSystem) {
       const stats = (context as FileSystemContext).getStats();
-      return `You are a code generator for a Recursive Language Model (RLM) system.
+      return `You are generating code for a Recursive Language Model (RLM) system.
+
+RLM SOLVES: Long context window challenges through recursive decomposition
+- Prevents model hallucination from excessive context
+- Avoids context window corruption
+- Handles unlimited context size via divide-and-conquer
 
 TASK: ${query}
 
-CONTEXT: A file system with ${stats.totalFiles} files, ${stats.totalSize.toLocaleString()} bytes total.
+CONTEXT TYPE: File system with ${stats.totalFiles} files (${stats.totalSize.toLocaleString()} bytes total)
 
-AVAILABLE TOOLS:
-- listFiles(): string[] - list all available file paths
-- readFile(path): string - read a specific file's content
-- getFileInfo(path): {path, size, lines} - get file metadata without reading
-- searchFiles(pattern): string[] - search files by regex pattern (returns paths)
-- sampleFiles(pattern, limit): string[] - get limited sample of matching files
-- getFilesInDirectory(dir): string[] - get all files in a directory
-- getStats(): {totalFiles, totalSize, totalLines, fileTypes} - context statistics
-- llm_query(prompt): async function - send a prompt to sub-LLM, returns Promise<string>
-- FINAL(answer): function - mark your final answer
+AVAILABLE APIS:
+- listFiles(): string[]
+- readFile(path): string
+- getFileInfo(path): {path, size, lines}
+- searchFiles(pattern): string[]
+- sampleFiles(pattern, limit): string[]
+- getFilesInDirectory(dir): string[]
+- getStats(): {totalFiles, totalSize, totalLines, fileTypes}
+- llm_query(prompt): Promise<string> - send small prompt to sub-LLM
+- FINAL(answer): void - mark final answer
 
-RLM CORE PRINCIPLE - RECURSIVE DECOMPOSITION:
-The ENTIRE purpose of RLM is to handle unlimited context by:
-1. Process ONE small piece at a time
-2. Use llm_query() to analyze it
-3. Combine result with previous findings
-4. Repeat until done
-5. NEVER accumulate large content before calling llm_query
+CORE PRINCIPLE:
+Break large context into small pieces, process each via llm_query recursively.
+NEVER feed large context to llm_query - defeats RLM's purpose.
 
-CRITICAL RULES:
-- Write code at TOP LEVEL, do NOT define functions and call them
-- You MUST output ONLY valid JavaScript code, no explanations
-- Use 'await' directly at top level (supported in this environment)
-- PROCESS INCREMENTALLY: one file → llm_query → combine → next file
-- NEVER concatenate multiple files' content before llm_query
-- Keep intermediate results SHORT (summaries, not full content)
-- Always end with FINAL(your_answer)
+MANDATORY RULES:
+1. Write TOP-LEVEL code only (no function definitions)
+2. Output ONLY JavaScript code, no explanations
+3. Use 'await' at top level (supported)
+4. ALWAYS specify word limits in llm_query prompts
+5. Keep intermediate results under 200 words
+6. Process incrementally: piece → llm_query → combine → next piece
+7. End with FINAL(result)
 
-❌ ANTI-PATTERN 1 (Concatenating before llm_query):
-const files = sampleFiles(/\\.ts$/, 10);
-let bigContent = '';
-for (const f of files) {
-  bigContent += readFile(f); // WRONG! Accumulating huge string
+ANTI-PATTERN - Accumulating large strings:
+const items = searchFiles(/pattern/);
+let big = '';
+for (const item of items) {
+  big += readFile(item); // WRONG: accumulating
 }
-const result = await llm_query(\`Analyze: \${bigContent}\`); // FAILS!
+const result = await llm_query(\`Analyze: \${big}\`); // WRONG: large prompt
 
-❌ ANTI-PATTERN 2 (Accumulating analysis results):
-const results = [];
-for (const f of files) {
-  const content = readFile(f);
-  const analysis = await llm_query(\`Full analysis: \${content}\`);
-  results.push(analysis); // WRONG! Analysis might be huge
-}
-const final = results.join('\\n'); // FAILS! Huge accumulated string
-
-✅ CORRECT PATTERN (Incremental processing):
-const files = sampleFiles(/\\.ts$/, 10);
+ANTI-PATTERN - No word limits causing exponential growth:
 let summary = '';
-for (const f of files) {
-  const content = readFile(f);
-  // Ask for CONCISE analysis only
-  const analysis = await llm_query(\`Summarize key points of \${f}: \${content}\`);
-  // Combine with previous summary incrementally
-  summary = await llm_query(\`Current: \${summary}\\nNew: \${analysis}\\nCombine into brief summary:\`);
+for (const item of items) {
+  const data = readFile(item);
+  const analysis = await llm_query(\`Analyze: \${data}\`); // No word limit
+  summary = await llm_query(\`Combine: \${summary} + \${analysis}\`); // Grows exponentially
+}
+
+CORRECT PATTERN - Incremental with word limits:
+const items = sampleFiles(/pattern/, 10);
+let summary = '';
+for (const item of items) {
+  const data = readFile(item);
+  const brief = await llm_query(\`Key points from \${item} (MAX 50 words): \${data}\`);
+  summary = await llm_query(\`Merge into 5 bullets (MAX 100 words): Current[\${summary}] + New[\${brief}]\`);
 }
 FINAL(summary);
 
-✅ ALTERNATIVE PATTERN (Divide and conquer):
-const files = sampleFiles(/\\.ts$/, 20);
-// Process in small groups
-let findings = '';
-for (let i = 0; i < files.length; i += 5) {
-  const batch = files.slice(i, i + 5);
-  const batchInfo = batch.map(f => {
-    const info = getFileInfo(f);
-    return \`\${f}: \${info.lines} lines\`;
-  }).join('\\n');
-  // Ask sub-LLM to identify most important files
-  const important = await llm_query(\`Which files are most relevant? \${batchInfo}\`);
-  findings += important + '\\n';
-}
-FINAL(findings);
+STRATEGY:
+1. Use metadata APIs to explore (getFileInfo, searchFiles)
+2. Sample representative subset
+3. Process one item at a time
+4. Demand concise output from llm_query (specify MAX words)
+5. Combine incrementally via llm_query
+6. Keep intermediate results small
 
-MEMORY-EFFICIENT STRATEGY:
-1. Search/sample to find relevant files (metadata only)
-2. Process ONE file at a time
-3. Call llm_query with SINGLE file's content
-4. Get CONCISE result (summary, not full analysis)
-5. Incrementally combine with previous results via llm_query
-6. Repeat until all files processed
-7. FINAL with synthesized answer
-
-Generate the JavaScript code now:`;
+Generate JavaScript code now:`;
     }
 
-    // Legacy string mode
-    return `You are a code generator for a Recursive Language Model (RLM) system.
+    // String mode
+    return `You are generating code for a Recursive Language Model (RLM) system.
+
+RLM SOLVES: Long context window challenges through recursive decomposition
+- Prevents model hallucination from excessive context
+- Avoids context window corruption
+- Handles unlimited context size via divide-and-conquer
 
 TASK: ${query}
 
-CONTEXT: The 'context' variable contains ${(context as string).length} characters of information.
+CONTEXT TYPE: String variable containing ${(context as string).length} characters
 
-AVAILABLE TOOLS:
+AVAILABLE APIS:
 - context: string - the full context data
-- llm_query(prompt): async function - send a prompt to sub-LLM, returns Promise<string>
-- FINAL(answer): function - mark your final answer
+- llm_query(prompt): Promise<string> - send small prompt to sub-LLM
+- FINAL(answer): void - mark final answer
 
-YOUR JOB:
-1. Analyze how to best solve the task given the long context
-2. Decide how to break down the context (by parsing, splitting, extracting sections, etc.)
-3. Use llm_query() to process parts of context or ask analytical questions
-4. Synthesize results and call FINAL() with your answer
+CORE PRINCIPLE:
+Break large context into small pieces, process each via llm_query recursively.
+NEVER feed large context to llm_query - defeats RLM's purpose.
 
-CRITICAL RULES:
-- Write code at TOP LEVEL, do NOT define functions and call them
-- You MUST output ONLY valid JavaScript code, no explanations
-- Use 'await' directly at top level (supported in this environment)
-- Be creative in how you split/process the context based on the task
-- You can call llm_query() multiple times if needed
-- Always end with FINAL(your_answer)
+MANDATORY RULES:
+1. Write TOP-LEVEL code only (no function definitions)
+2. Output ONLY JavaScript code, no explanations
+3. Use 'await' at top level (supported)
+4. ALWAYS specify word limits in llm_query prompts
+5. Keep intermediate results under 200 words
+6. Process incrementally: piece → llm_query → combine → next piece
+7. End with FINAL(result)
 
-BAD example (DO NOT DO THIS):
-async function main() { ... }
-main();
-
-GOOD example:
-const chunks = context.split('\\n');
-const result = await llm_query('analyze: ' + chunks[0]);
+ANTI-PATTERN - Passing entire context:
+const result = await llm_query(\`Analyze this: \${context}\`); // WRONG: too large
 FINAL(result);
 
-Generate the JavaScript code now:`;
+ANTI-PATTERN - No word limits causing exponential growth:
+const chunks = context.split('\\n\\n');
+let summary = '';
+for (const chunk of chunks) {
+  const analysis = await llm_query(\`Analyze: \${chunk}\`); // No word limit
+  summary = await llm_query(\`Combine: \${summary} and \${analysis}\`); // Grows exponentially
+}
+
+CORRECT PATTERN - Incremental with word limits:
+const chunks = context.split('\\n\\n').slice(0, 20); // Sample
+let summary = '';
+for (const chunk of chunks) {
+  const brief = await llm_query(\`Extract key point (MAX 30 words): \${chunk}\`);
+  summary = await llm_query(\`Merge into brief summary (MAX 150 words): Current[\${summary}] + New[\${brief}]\`);
+}
+FINAL(summary);
+
+STRATEGY:
+1. Split context into manageable pieces (paragraphs, sections, lines, etc.)
+2. Sample representative subset if too many pieces
+3. Process one piece at a time
+4. Demand concise output from llm_query (specify MAX words)
+5. Combine incrementally via llm_query
+6. Keep intermediate results small
+
+Generate JavaScript code now:`;
   }
 
   /**
