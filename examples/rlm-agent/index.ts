@@ -40,7 +40,7 @@ async function main() {
   const rlmAgent = new RLMAgent({
     rootLLM,
     subLLM,
-    maxDepth: 5, // Deep recursion to demonstrate RLM's capabilities
+    // maxDepth defaults to 1 (current implementation only supports depth=1)
   });
 
   const longContext = `

@@ -1,4 +1,7 @@
 import vm from 'node:vm';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 import type { FileSystemContext } from './FileSystemContext';
 
 /**
@@ -30,12 +33,12 @@ export interface RLMChunk {
 
 /**
  * Sub-LLM call details
+ * Full prompt/result content is offloaded to temporary log files to prevent OOM
  */
 export interface SubLLMCall {
   depth: number;
-  prompt: string;
+  logFile: string; // Path to temporary log file containing full prompt and result
   promptLength: number;
-  result: string;
   resultLength: number;
   duration: number;
   timestamp: number;
@@ -66,17 +69,63 @@ export interface LLMProvider {
 
 /**
  * RLM Core - Recursive Language Model with REPL environment
- * Based on the paper: handles long contexts by treating prompts as external environment
+ * Based on the paper arXiv:2512.24601
+ *
+ * Handles long contexts by allowing the LLM to generate code that orchestrates
+ * multiple sub-LLM calls for chunking and analysis tasks.
+ *
+ * @example
+ * ```typescript
+ * const rlm = new RLMCore(rootLLM, subLLM);
+ * const result = await rlm.executeStream({
+ *   context: fileSystemContext,
+ *   query: "Analyze this codebase architecture"
+ * });
+ * ```
  */
 export class RLMCore {
   private rootLLM: LLMProvider;
   private subLLM: LLMProvider;
   private maxDepth: number;
+  private executionId: string;
+  private logDir: string;
 
+  /**
+   * Create an RLM instance
+   *
+   * @param rootLLM - LLM for generating orchestration code
+   * @param subLLM - LLM for answering sub-queries (called via llm_query in generated code)
+   * @param maxDepth - Maximum nesting depth for RLM instances (default: 1)
+   *
+   * @remarks
+   * The current implementation only supports `maxDepth=1` (Root → Sub-LLM).
+   * To support `maxDepth > 1`, Sub-LLM would need to be another RLM instance
+   * with its own REPL environment (recursive RLM architecture).
+   * This limitation matches the paper's implementation: "Currently, only depth 1 is supported"
+   * (see rlm/core/rlm.py:62)
+   */
   constructor(rootLLM: LLMProvider, subLLM: LLMProvider, maxDepth: number = 1) {
     this.rootLLM = rootLLM;
     this.subLLM = subLLM;
     this.maxDepth = maxDepth;
+
+    // Create unique execution ID and log directory
+    this.executionId = `rlm-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    this.logDir = path.join(os.tmpdir(), this.executionId);
+
+    // Create log directory
+    if (!fs.existsSync(this.logDir)) {
+      fs.mkdirSync(this.logDir, { recursive: true });
+    }
+
+    // Warn if maxDepth > 1 since it's not yet supported
+    if (maxDepth > 1) {
+      console.warn(
+        `[RLM] maxDepth=${maxDepth} is configured, but the current implementation only supports depth=1. ` +
+          `Nested RLM instances (where Sub-LLM is itself an RLM) are not yet supported. ` +
+          `The parameter is reserved for future extension.`
+      );
+    }
   }
 
   /**
@@ -108,6 +157,17 @@ export class RLMCore {
     const startTime = Date.now();
     const depth = 0;
     const subLLMCallDetails: SubLLMCall[] = [];
+
+    // If we're at max depth, the RLM acts as a regular LLM (no REPL environment)
+    // This matches the paper's implementation: rlm.py:171-173
+    // Used for nested RLM calls where Sub-LLM itself is an RLM instance
+    // Currently depth is always 0 (single-level RLM), but kept for future extensibility
+    if (depth >= this.maxDepth) {
+      // Fallback to direct LLM call without REPL
+      const response = await this.rootLLM.generate(this.buildPrompt(input.context, input.query));
+      yield { type: 'answer', content: response };
+      return;
+    }
 
     // Reset memory tracking if using FileSystemContext
     if (typeof input.context !== 'string' && 'resetMemoryTracking' in input.context) {
@@ -223,34 +283,7 @@ CRITICAL RULES:
 - Write code at TOP LEVEL, do NOT define functions and call them
 - You MUST output ONLY valid JavaScript code, no explanations
 - Use 'await' directly at top level (supported in this environment)
-- DO NOT read all files at once - be strategic and sample intelligently
-- Limit file reads to avoid memory issues (e.g., max 50 files per batch)
 - Always end with FINAL(your_answer)
-
-MEMORY-EFFICIENT STRATEGY:
-1. Search for relevant files first
-2. Sample a representative subset
-3. Process in batches
-4. Use llm_query() for detailed analysis
-
-BAD example (WILL CAUSE OOM):
-const all = listFiles();
-for (const f of all) {
-  const content = readFile(f); // Reading ALL files!
-}
-
-GOOD example:
-const tsFiles = searchFiles(/\\.ts$/);
-const coreFiles = sampleFiles(/core.*\\.ts$/, 20); // Sample 20 files
-for (const file of coreFiles) {
-  const info = getFileInfo(file);
-  if (info.size < 100000) { // Only read files < 100KB
-    const content = readFile(file);
-    const analysis = await llm_query(\`Analyze: \${content}\`);
-    // Process...
-  }
-}
-FINAL(summary);
 
 Generate the JavaScript code now:`;
     }
@@ -365,82 +398,142 @@ Generate the JavaScript code now:`;
     const isFileSystem = typeof context !== 'string';
     const contextObj = isFileSystem ? (context as FileSystemContext) : undefined;
 
-    // Build sandbox with all APIs in one go
-    const sandbox: Record<string, unknown> = {
-      llm_query: async (prompt: string) => {
-        if (depth >= maxDepth) {
-          throw new Error('Maximum recursion depth reached');
-        }
+    // Queue for handling llm_query requests OUTSIDE VM context
+    const llmQueryQueue: Array<{
+      prompt: string;
+      resolve: (result: string) => void;
+      reject: (error: Error) => void;
+    }> = [];
 
-        const callStart = Date.now();
-        let result = '';
-
-        // Record sub-LLM call
-        for await (const chunk of streamingLLMQuery(subLLM, prompt)) {
-          result += chunk;
-          pendingYield({ type: 'execution', content: chunk });
-        }
-
-        const callDuration = Date.now() - callStart;
-
-        // Track sub-LLM call details
-        subLLMCallDetails.push({
-          depth: depth + 1,
-          prompt,
-          promptLength: prompt.length,
-          result,
-          resultLength: result.length,
-          duration: callDuration,
-          timestamp: Date.now(),
-        });
-
-        // Yield metadata update
-        const contextLength = isFileSystem
-          ? (contextObj as FileSystemContext).getStats().totalSize
-          : (context as string).length;
-
-        pendingYield({
-          type: 'metadata',
-          content: '',
-          metadata: {
-            maxDepth,
-            actualDepth: depth + 1,
-            subLLMCalls: subLLMCallDetails.length,
-            subLLMCallDetails,
-            totalExecutionTime: 0,
-            codeGenTime: 0,
-            replExecutionTime: 0,
-            contextLength,
-            generatedCodeLength: code.length,
-          },
-        });
-
-        return result;
-      },
-      FINAL: (answer: string) => {
-        finalAnswer = answer;
-      },
-      // Add context-specific APIs directly in sandbox creation
-      ...(isFileSystem && contextObj
-        ? {
-            // File system mode APIs
-            listFiles: () => contextObj.listFiles(),
-            readFile: (path: string) => contextObj.readFile(path),
-            getFileInfo: (path: string) => contextObj.getFileInfo(path),
-            searchFiles: (pattern: string | RegExp) => contextObj.searchFiles(pattern),
-            sampleFiles: (pattern: string | RegExp, limit: number) =>
-              contextObj.sampleFiles(pattern, limit),
-            getFilesInDirectory: (dir: string) => contextObj.getFilesInDirectory(dir),
-            getStats: () => contextObj.getStats(),
-          }
-        : {
-            // String mode: direct context access
-            context: context as string,
-          }),
+    // Inject llm_query function - called FROM VM but processed OUTSIDE
+    const llm_query = async (prompt: string): Promise<string> => {
+      return new Promise<string>((resolve, reject) => {
+        llmQueryQueue.push({ prompt, resolve, reject });
+      });
     };
 
-    const wrappedCode = `(async () => { ${code} })()`;
+    let queryProcessingActive: Promise<void> | null = null;
+
+    // Process llm_query queue in background - CRITICAL: for await in EXTERNAL context!
+    const startQueryProcessing = () => {
+      if (queryProcessingActive) return;
+
+      queryProcessingActive = (async () => {
+        while (llmQueryQueue.length > 0) {
+          const request = llmQueryQueue.shift()!;
+          const { prompt, resolve, reject } = request;
+
+          try {
+            const callStart = Date.now();
+            let result = '';
+
+            // CRITICAL: for await in EXTERNAL context prevents VM memory leak
+            for await (const chunk of streamingLLMQuery(subLLM, prompt)) {
+              result += chunk;
+              pendingYield({ type: 'execution', content: chunk });
+            }
+
+            const callDuration = Date.now() - callStart;
+            const callIndex = subLLMCallDetails.length;
+            const logFile = path.join(this.logDir, `call-${callIndex}.json`);
+
+            fs.writeFileSync(
+              logFile,
+              JSON.stringify(
+                { prompt, result, duration: callDuration, timestamp: Date.now() },
+                null,
+                2
+              )
+            );
+
+            subLLMCallDetails.push({
+              depth: depth + 1,
+              logFile,
+              promptLength: prompt.length,
+              resultLength: result.length,
+              duration: callDuration,
+              timestamp: Date.now(),
+            });
+
+            const contextLength = isFileSystem
+              ? (contextObj as FileSystemContext).getStats().totalSize
+              : (context as string).length;
+
+            pendingYield({
+              type: 'metadata',
+              content: '',
+              metadata: {
+                maxDepth,
+                actualDepth: depth + 1,
+                subLLMCalls: subLLMCallDetails.length,
+                subLLMCallDetails,
+                totalExecutionTime: 0,
+                codeGenTime: 0,
+                replExecutionTime: 0,
+                contextLength,
+                generatedCodeLength: code.length,
+              },
+            });
+
+            resolve(result);
+          } catch (error) {
+            reject(error as Error);
+          }
+        }
+        queryProcessingActive = null;
+      })();
+    };
+
+    // Inject FINAL function
+    const FINAL = (answer: string) => {
+      finalAnswer = answer;
+    };
+
+    // Create fresh VM context for this execution to prevent variable accumulation
+    // All user-defined variables from generated code will be GC'd after execution
+    const sandbox: Record<string, unknown> = {
+      // Built-in JavaScript globals
+      console,
+      JSON,
+      Math,
+      Date,
+      Promise,
+      Array,
+      Object,
+      String,
+      Number,
+      Boolean,
+      RegExp,
+      Error,
+      setTimeout,
+      setInterval,
+      clearTimeout,
+      clearInterval,
+      // RLM APIs
+      llm_query,
+      FINAL,
+    };
+
+    // Inject FileSystem APIs or context string
+    if (isFileSystem && contextObj) {
+      sandbox.listFiles = () => contextObj.listFiles();
+      sandbox.readFile = (filePath: string) => contextObj.readFile(filePath);
+      sandbox.getFileInfo = (filePath: string) => contextObj.getFileInfo(filePath);
+      sandbox.searchFiles = (pattern: string | RegExp) => contextObj.searchFiles(pattern);
+      sandbox.sampleFiles = (pattern: string | RegExp, limit: number) =>
+        contextObj.sampleFiles(pattern, limit);
+      sandbox.getFilesInDirectory = (dir: string) => contextObj.getFilesInDirectory(dir);
+      sandbox.getStats = () => contextObj.getStats();
+    } else {
+      sandbox.context = context as string;
+    }
+
+    // Create fresh VM context for this execution to prevent variable accumulation
+    // All user-defined variables from generated code will be GC'd after execution
     const vmContext = vm.createContext(sandbox);
+
+    // Wrap and execute code in the fresh context
+    const wrappedCode = `(async () => { ${code} })()`;
     const scriptResult = vm.runInContext(wrappedCode, vmContext);
 
     let isDone = false;
@@ -459,19 +552,33 @@ Generate the JavaScript code now:`;
 
     const executionRace = Promise.race([executionPromise, timeoutPromise]);
 
+    // Stream pending chunks AND process llm_query queue while execution is running
     while (!isDone) {
+      // Trigger background processing of llm_query queue (non-blocking!)
+      if (llmQueryQueue.length > 0) {
+        startQueryProcessing();
+      }
+
+      // Stream chunks to user in real-time
       if (pendingChunks.length > 0) {
         const chunk = pendingChunks.shift();
         if (chunk) {
           yield chunk;
         }
       }
+
       await Promise.race([
         new Promise(resolve => setImmediate(resolve)),
         executionRace.catch(() => {}),
       ]);
     }
 
+    // Wait for any ongoing query processing to complete
+    if (queryProcessingActive) {
+      await queryProcessingActive;
+    }
+
+    // Flush remaining chunks
     while (pendingChunks.length > 0) {
       const chunk = pendingChunks.shift();
       if (chunk) {
@@ -480,6 +587,9 @@ Generate the JavaScript code now:`;
     }
 
     await executionRace;
+
+    // Context cleanup: vmContext and all user-defined variables will be GC'd
+    // after this function returns (no manual cleanup needed)
 
     if (!finalAnswer) {
       throw new Error('Code executed but FINAL() was never called');
