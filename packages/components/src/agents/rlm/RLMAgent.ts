@@ -3,6 +3,11 @@ import { RLMCore, RLMInput, RLMResult, RLMChunk, LLMProvider } from './RLMCore';
 import type { FileSystemContext } from './FileSystemContext';
 
 /**
+ * System prompt builder function type
+ */
+export type SystemPromptBuilder = (context: FileSystemContext, query: string) => string;
+
+/**
  * RLMAgent configuration
  */
 export interface RLMAgentConfig {
@@ -29,6 +34,28 @@ export interface RLMAgentConfig {
    * avoiding redundant file reads through shared LRU cache.
    */
   sharedContext?: FileSystemContext;
+  /**
+   * Task-specific additional prompt (optional)
+   *
+   * @remarks
+   * This prompt is APPENDED to the default RLM system prompt.
+   * The default prompt describes REPL environment basics (tools, FINAL(), etc.).
+   * Your custom prompt should add task-specific strategies and examples.
+   *
+   * - String: Additional task-specific instructions
+   * - Function: Dynamic prompt generation based on context and query
+   * - Undefined: Uses only the default REPL environment prompt
+   *
+   * @example
+   * ```typescript
+   * // Static task-specific prompt
+   * systemPrompt: "OOLONG-Pairs Strategy: Find all user pairs where both have entity/location..."
+   *
+   * // Dynamic prompt builder
+   * systemPrompt: (context, query) => `Task-specific guidance for: ${query}`
+   * ```
+   */
+  systemPrompt?: string | SystemPromptBuilder;
 }
 
 /**
@@ -70,7 +97,8 @@ export class RLMAgent extends Component {
       config.rootLLM,
       config.subLLM,
       config.maxDepth ?? 1,
-      config.sharedContext
+      config.sharedContext,
+      config.systemPrompt
     );
   }
 

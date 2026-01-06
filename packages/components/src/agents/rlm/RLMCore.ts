@@ -92,6 +92,7 @@ export class RLMCore implements LLMProvider {
   private executionId: string;
   private logDir: string;
   private sharedContext: FileSystemContext | null = null;
+  private customPrompt?: string | ((context: FileSystemContext, query: string) => string);
 
   /**
    * Create an RLM instance with optional recursive nesting
@@ -100,6 +101,7 @@ export class RLMCore implements LLMProvider {
    * @param subLLM - LLM for answering sub-queries (can be another RLM for recursion)
    * @param maxDepth - Maximum nesting depth (default: 1)
    * @param sharedContext - Shared FileSystemContext across all recursion levels (internal use)
+   * @param customPrompt - Additional task-specific prompt (appended to default)
    *
    * @remarks
    * When `maxDepth > 1`, the constructor automatically creates nested RLM instances:
@@ -114,11 +116,13 @@ export class RLMCore implements LLMProvider {
     rootLLM: LLMProvider,
     subLLM: LLMProvider,
     maxDepth: number = 1,
-    sharedContext?: FileSystemContext
+    sharedContext?: FileSystemContext,
+    customPrompt?: string | ((context: FileSystemContext, query: string) => string)
   ) {
     this.rootLLM = rootLLM;
     this.maxDepth = maxDepth;
     this.sharedContext = sharedContext || null;
+    this.customPrompt = customPrompt;
 
     // Create unique execution ID and log directory
     this.executionId = `rlm-${Date.now()}-${Math.random().toString(36).substring(7)}`;
@@ -131,8 +135,14 @@ export class RLMCore implements LLMProvider {
 
     // Recursive construction: if maxDepth > 1, create nested RLM as subLLM
     if (maxDepth > 1) {
-      // Create nested RLM with depth-1, sharing the same context
-      const nestedRLM = new RLMCore(rootLLM, subLLM, maxDepth - 1, this.sharedContext || undefined);
+      // Create nested RLM with depth-1, sharing the same context and custom prompt
+      const nestedRLM = new RLMCore(
+        rootLLM,
+        subLLM,
+        maxDepth - 1,
+        this.sharedContext || undefined,
+        customPrompt
+      );
       this.subLLM = nestedRLM; // Nested RLM implements LLMProvider
     } else {
       // Termination: use the provided base LLM
@@ -261,11 +271,16 @@ export class RLMCore implements LLMProvider {
    */
   private buildPrompt(context: FileSystemContext, query: string): string {
     const stats = context.getStats();
-    return `You are a code generator for a Recursive Language Model (RLM) system.
+    const fileList = context.listFiles();
+    const isMemoryMode = fileList.length === 1 && fileList[0] === '__memory__.txt';
+
+    // Default RLM system prompt (REPL environment basics)
+    let prompt = `You are a code generator for a Recursive Language Model (RLM) system.
 
 TASK: ${query}
 
-CONTEXT: A file system with ${stats.totalFiles} files, ${stats.totalSize.toLocaleString()} bytes total.
+CONTEXT: ${isMemoryMode ? `In-memory data (single virtual file: __memory__.txt)` : `A file system with ${stats.totalFiles} files`}, ${stats.totalSize.toLocaleString()} bytes total.
+${isMemoryMode ? `\nIMPORTANT: All data is in a single file called "__memory__.txt". Use readFile("__memory__.txt") to access it directly.` : ''}
 
 AVAILABLE TOOLS:
 - listFiles(): string[] - list all available file paths
@@ -279,19 +294,80 @@ AVAILABLE TOOLS:
 - FINAL(answer): function - mark your final answer
 
 YOUR JOB:
-1. Use searchFiles() or listFiles() to find relevant files
+${
+  isMemoryMode
+    ? `1. Read data from "__memory__.txt" using readFile("__memory__.txt")
+2. Use llm_query() to process chunks of data if needed
+3. Synthesize results and call FINAL() with your answer`
+    : `1. Use searchFiles() or listFiles() to find relevant files
 2. Use getFileInfo() to check file sizes before reading (avoid huge files)
 3. Use readFile() ONLY for files you need - be selective to avoid memory issues
 4. Use llm_query() to process individual files or groups of files
-5. Synthesize results and call FINAL() with your answer
+5. Synthesize results and call FINAL() with your answer`
+}
 
 CRITICAL RULES:
 - Write code at TOP LEVEL, do NOT define functions and call them
-- You MUST output ONLY valid JavaScript code, no explanations
+- You MUST output ONLY valid JavaScript code, no explanations or markdown
 - Use 'await' directly at top level (supported in this environment)
-- Always end with FINAL(your_answer)
+- MANDATORY: Your code MUST call FINAL(result) exactly once before ending
+- MANDATORY: Even if errors occur, wrap ENTIRE code in try-catch and call FINAL() in both branches
+- MANDATORY: FINAL() must receive a STRING argument, not an object or array directly
+- MANDATORY: Convert arrays/objects to strings before passing to FINAL (use .join() or JSON.stringify())
+- MANDATORY: DO NOT use return, break, continue, or any statement that exits early
+- MANDATORY: Ensure ALL code paths lead to exactly ONE FINAL() call
+- NEVER reuse function names as variable names (e.g., don't use: const sampleFiles = sampleFiles(...))
+- Use descriptive variable names that don't conflict with provided functions
 
-Generate the JavaScript code now:`;
+EXECUTION GUARANTEE:
+Every code path must end with FINAL(). Examples:
+
+CORRECT - simple string:
+  const data = readFile('file.txt');
+  FINAL(data);
+
+CORRECT - array to string:
+  const pairs = ['(1,2)', '(3,4)'];
+  FINAL(pairs.join('\\n'));
+
+CORRECT - object to string:
+  const result = {count: 5};
+  FINAL(JSON.stringify(result));
+
+CORRECT - with error handling:
+  try {
+    const pairs = findPairs();
+    FINAL(pairs.join('\\n'));
+  } catch (error) {
+    FINAL("Error: " + error.message);
+  }
+
+WRONG - no FINAL:
+  const data = readFile('file.txt');
+  console.log(data);
+
+WRONG - passing object directly:
+  const result = {count: 5};
+  FINAL(result);  // BAD: FINAL needs string
+
+WRONG - using return:
+  const data = readFile('file.txt');
+  return data;  // BAD: not in a function
+`;
+
+    // Append custom task-specific prompt if provided
+    if (this.customPrompt) {
+      const customPart =
+        typeof this.customPrompt === 'function'
+          ? this.customPrompt(context, query)
+          : this.customPrompt;
+
+      prompt += `\n\n${customPart}`;
+    }
+
+    prompt += `\n\nGenerate the JavaScript code now:`;
+
+    return prompt;
   }
 
   /**
@@ -449,14 +525,42 @@ Generate the JavaScript code now:`;
 
     // Inject FINAL function
     const FINAL = (answer: string) => {
-      finalAnswer = answer;
+      finalAnswer = String(answer); // Ensure it's always a string
+      pendingYield({
+        type: 'execution',
+        content: `FINAL() called with ${finalAnswer.length} characters\n`,
+      });
+    };
+
+    // Create custom console that streams output
+    const customConsole = {
+      log: (...args: unknown[]) => {
+        const message = args.map(arg => String(arg)).join(' ');
+        pendingYield({ type: 'execution', content: message + '\n' });
+        console.log(...args); // Also log to actual console for debugging
+      },
+      error: (...args: unknown[]) => {
+        const message = args.map(arg => String(arg)).join(' ');
+        pendingYield({ type: 'execution', content: 'Error: ' + message + '\n' });
+        console.error(...args);
+      },
+      warn: (...args: unknown[]) => {
+        const message = args.map(arg => String(arg)).join(' ');
+        pendingYield({ type: 'execution', content: 'Warning: ' + message + '\n' });
+        console.warn(...args);
+      },
+      info: (...args: unknown[]) => {
+        const message = args.map(arg => String(arg)).join(' ');
+        pendingYield({ type: 'execution', content: message + '\n' });
+        console.info(...args);
+      },
     };
 
     // Create fresh VM context for this execution to prevent variable accumulation
     // All user-defined variables from generated code will be GC'd after execution
     const sandbox: Record<string, unknown> = {
       // Built-in JavaScript globals
-      console,
+      console: customConsole,
       JSON,
       Math,
       Date,
