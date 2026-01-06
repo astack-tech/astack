@@ -2,13 +2,13 @@ import vm from 'node:vm';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import type { FileSystemContext } from './FileSystemContext';
+import { FileSystemContext } from './FileSystemContext';
 
 /**
  * RLM input configuration
  */
 export interface RLMInput {
-  context: string | FileSystemContext;
+  context: FileSystemContext;
   query: string;
   maxDepth?: number;
 }
@@ -74,40 +74,51 @@ export interface LLMProvider {
  * Handles long contexts by allowing the LLM to generate code that orchestrates
  * multiple sub-LLM calls for chunking and analysis tasks.
  *
+ * Supports true recursion: Sub-LLM can itself be an RLM instance with REPL capabilities.
+ *
  * @example
  * ```typescript
- * const rlm = new RLMCore(rootLLM, subLLM);
+ * const rlm = new RLMCore(rootLLM, subLLM, 2); // depth=2 enables recursive RLM
  * const result = await rlm.executeStream({
  *   context: fileSystemContext,
  *   query: "Analyze this codebase architecture"
  * });
  * ```
  */
-export class RLMCore {
+export class RLMCore implements LLMProvider {
   private rootLLM: LLMProvider;
   private subLLM: LLMProvider;
   private maxDepth: number;
   private executionId: string;
   private logDir: string;
+  private sharedContext: FileSystemContext | null = null;
 
   /**
-   * Create an RLM instance
+   * Create an RLM instance with optional recursive nesting
    *
-   * @param rootLLM - LLM for generating orchestration code
-   * @param subLLM - LLM for answering sub-queries (called via llm_query in generated code)
-   * @param maxDepth - Maximum nesting depth for RLM instances (default: 1)
+   * @param rootLLM - LLM for generating orchestration code at this level
+   * @param subLLM - LLM for answering sub-queries (can be another RLM for recursion)
+   * @param maxDepth - Maximum nesting depth (default: 1)
+   * @param sharedContext - Shared FileSystemContext across all recursion levels (internal use)
    *
    * @remarks
-   * The current implementation only supports `maxDepth=1` (Root → Sub-LLM).
-   * To support `maxDepth > 1`, Sub-LLM would need to be another RLM instance
-   * with its own REPL environment (recursive RLM architecture).
-   * This limitation matches the paper's implementation: "Currently, only depth 1 is supported"
-   * (see rlm/core/rlm.py:62)
+   * When `maxDepth > 1`, the constructor automatically creates nested RLM instances:
+   * - depth=2: Root RLM → Sub RLM → Base LLM
+   * - depth=3: Root RLM → Sub RLM → Sub RLM → Base LLM
+   *
+   * All nested RLMs share the same FileSystemContext (if provided) to avoid redundant file reads.
+   *
+   * For most tasks, depth=1 is sufficient. Use depth>1 only for extremely complex multi-layer analysis.
    */
-  constructor(rootLLM: LLMProvider, subLLM: LLMProvider, maxDepth: number = 1) {
+  constructor(
+    rootLLM: LLMProvider,
+    subLLM: LLMProvider,
+    maxDepth: number = 1,
+    sharedContext?: FileSystemContext
+  ) {
     this.rootLLM = rootLLM;
-    this.subLLM = subLLM;
     this.maxDepth = maxDepth;
+    this.sharedContext = sharedContext || null;
 
     // Create unique execution ID and log directory
     this.executionId = `rlm-${Date.now()}-${Math.random().toString(36).substring(7)}`;
@@ -118,13 +129,14 @@ export class RLMCore {
       fs.mkdirSync(this.logDir, { recursive: true });
     }
 
-    // Warn if maxDepth > 1 since it's not yet supported
+    // Recursive construction: if maxDepth > 1, create nested RLM as subLLM
     if (maxDepth > 1) {
-      console.warn(
-        `[RLM] maxDepth=${maxDepth} is configured, but the current implementation only supports depth=1. ` +
-          `Nested RLM instances (where Sub-LLM is itself an RLM) are not yet supported. ` +
-          `The parameter is reserved for future extension.`
-      );
+      // Create nested RLM with depth-1, sharing the same context
+      const nestedRLM = new RLMCore(rootLLM, subLLM, maxDepth - 1, this.sharedContext || undefined);
+      this.subLLM = nestedRLM; // Nested RLM implements LLMProvider
+    } else {
+      // Termination: use the provided base LLM
+      this.subLLM = subLLM;
     }
   }
 
@@ -169,10 +181,8 @@ export class RLMCore {
       return;
     }
 
-    // Reset memory tracking if using FileSystemContext
-    if (typeof input.context !== 'string' && 'resetMemoryTracking' in input.context) {
-      input.context.resetMemoryTracking();
-    }
+    // Reset memory tracking for context
+    input.context.resetMemoryTracking();
 
     yield { type: 'code', content: 'Generating code...\n\n' };
 
@@ -214,8 +224,7 @@ export class RLMCore {
     const totalExecutionTime = Date.now() - startTime;
 
     // Generate execution summary
-    const contextLength =
-      typeof input.context === 'string' ? input.context.length : input.context.getStats().totalSize;
+    const contextLength = input.context.getStats().totalSize;
 
     const metadata: RLMExecutionMetadata = {
       maxDepth: this.maxDepth,
@@ -250,12 +259,9 @@ export class RLMCore {
   /**
    * Build prompt for root LLM
    */
-  private buildPrompt(context: string | FileSystemContext, query: string): string {
-    const isFileSystem = typeof context !== 'string';
-
-    if (isFileSystem) {
-      const stats = (context as FileSystemContext).getStats();
-      return `You are a code generator for a Recursive Language Model (RLM) system.
+  private buildPrompt(context: FileSystemContext, query: string): string {
+    const stats = context.getStats();
+    return `You are a code generator for a Recursive Language Model (RLM) system.
 
 TASK: ${query}
 
@@ -284,44 +290,6 @@ CRITICAL RULES:
 - You MUST output ONLY valid JavaScript code, no explanations
 - Use 'await' directly at top level (supported in this environment)
 - Always end with FINAL(your_answer)
-
-Generate the JavaScript code now:`;
-    }
-
-    // Legacy string mode
-    return `You are a code generator for a Recursive Language Model (RLM) system.
-
-TASK: ${query}
-
-CONTEXT: The 'context' variable contains ${(context as string).length} characters of information.
-
-AVAILABLE TOOLS:
-- context: string - the full context data
-- llm_query(prompt): async function - send a prompt to sub-LLM, returns Promise<string>
-- FINAL(answer): function - mark your final answer
-
-YOUR JOB:
-1. Analyze how to best solve the task given the long context
-2. Decide how to break down the context (by parsing, splitting, extracting sections, etc.)
-3. Use llm_query() to process parts of context or ask analytical questions
-4. Synthesize results and call FINAL() with your answer
-
-CRITICAL RULES:
-- Write code at TOP LEVEL, do NOT define functions and call them
-- You MUST output ONLY valid JavaScript code, no explanations
-- Use 'await' directly at top level (supported in this environment)
-- Be creative in how you split/process the context based on the task
-- You can call llm_query() multiple times if needed
-- Always end with FINAL(your_answer)
-
-BAD example (DO NOT DO THIS):
-async function main() { ... }
-main();
-
-GOOD example:
-const chunks = context.split('\\n');
-const result = await llm_query('analyze: ' + chunks[0]);
-FINAL(result);
 
 Generate the JavaScript code now:`;
   }
@@ -370,7 +338,7 @@ Generate the JavaScript code now:`;
    */
   private async *runREPLStream(
     code: string,
-    context: string | FileSystemContext,
+    context: FileSystemContext,
     depth: number,
     subLLMCallDetails: SubLLMCall[]
   ): AsyncGenerator<RLMChunk> {
@@ -394,9 +362,6 @@ Generate the JavaScript code now:`;
     const pendingYield = (chunk: RLMChunk) => {
       pendingChunks.push(chunk);
     };
-
-    const isFileSystem = typeof context !== 'string';
-    const contextObj = isFileSystem ? (context as FileSystemContext) : undefined;
 
     // Queue for handling llm_query requests OUTSIDE VM context
     const llmQueryQueue: Array<{
@@ -455,9 +420,7 @@ Generate the JavaScript code now:`;
               timestamp: Date.now(),
             });
 
-            const contextLength = isFileSystem
-              ? (contextObj as FileSystemContext).getStats().totalSize
-              : (context as string).length;
+            const contextLength = context.getStats().totalSize;
 
             pendingYield({
               type: 'metadata',
@@ -512,21 +475,15 @@ Generate the JavaScript code now:`;
       // RLM APIs
       llm_query,
       FINAL,
+      // FileSystem APIs
+      listFiles: () => context.listFiles(),
+      readFile: (filePath: string) => context.readFile(filePath),
+      getFileInfo: (filePath: string) => context.getFileInfo(filePath),
+      searchFiles: (pattern: string | RegExp) => context.searchFiles(pattern),
+      sampleFiles: (pattern: string | RegExp, limit: number) => context.sampleFiles(pattern, limit),
+      getFilesInDirectory: (dir: string) => context.getFilesInDirectory(dir),
+      getStats: () => context.getStats(),
     };
-
-    // Inject FileSystem APIs or context string
-    if (isFileSystem && contextObj) {
-      sandbox.listFiles = () => contextObj.listFiles();
-      sandbox.readFile = (filePath: string) => contextObj.readFile(filePath);
-      sandbox.getFileInfo = (filePath: string) => contextObj.getFileInfo(filePath);
-      sandbox.searchFiles = (pattern: string | RegExp) => contextObj.searchFiles(pattern);
-      sandbox.sampleFiles = (pattern: string | RegExp, limit: number) =>
-        contextObj.sampleFiles(pattern, limit);
-      sandbox.getFilesInDirectory = (dir: string) => contextObj.getFilesInDirectory(dir);
-      sandbox.getStats = () => contextObj.getStats();
-    } else {
-      sandbox.context = context as string;
-    }
 
     // Create fresh VM context for this execution to prevent variable accumulation
     // All user-defined variables from generated code will be GC'd after execution
@@ -596,5 +553,30 @@ Generate the JavaScript code now:`;
     }
 
     yield { type: 'answer', content: `\nAnswer: ${finalAnswer}\n` };
+  }
+
+  /**
+   * Implement LLMProvider.generate - allows RLM to be used as sub-LLM
+   * This enables true recursive RLM where Sub-LLM is itself an RLM instance
+   */
+  async generate(prompt: string): Promise<string> {
+    // Use sharedContext if available, otherwise create memory mode context
+    const context = this.sharedContext || new FileSystemContext(prompt);
+    const result = await this.execute({ context, query: prompt });
+    return result.answer;
+  }
+
+  /**
+   * Implement LLMProvider.generateStream - streaming variant for recursive RLM
+   */
+  async *generateStream(prompt: string): AsyncGenerator<string> {
+    const context = this.sharedContext || new FileSystemContext(prompt);
+
+    for await (const chunk of this.executeStream({ context, query: prompt })) {
+      // Only yield actual content, skip metadata/summary
+      if (chunk.type === 'execution' || chunk.type === 'answer') {
+        yield chunk.content;
+      }
+    }
   }
 }

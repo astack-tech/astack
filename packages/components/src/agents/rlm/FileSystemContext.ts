@@ -127,39 +127,77 @@ class LRUCache<K, V> {
 
 /**
  * File system context provider for RLM
- * Provides on-demand access to files with memory safety guarantees
+ * Provides unified access to context data with memory safety guarantees
  *
- * This implementation uses filesystem offloading - files are loaded from disk
- * on-demand rather than being stored in memory upfront. This enables handling
- * massive codebases (100MB+, 10k+ files) without OOM issues.
+ * Supports two modes:
+ * - **Filesystem mode**: On-demand loading from disk with LRU cache
+ * - **Memory mode**: Direct string content (virtual single-file context)
+ *
+ * Both modes enable handling massive contexts (100MB+) without OOM issues.
  */
 export class FileSystemContext {
+  private mode: 'filesystem' | 'memory';
   private basePath: string;
   private filePaths: Set<string>;
   private fileMetadata: Map<string, FileInfo>;
   private contentCache: LRUCache<string, string>;
   private stats: ContextStats | null = null;
 
+  // Memory mode
+  private memoryContent: string | null = null;
+
   // Memory safety tracking
   private readonly maxCacheSize: number;
   private readonly maxFileSize: number;
 
   /**
-   * Create FileSystemContext from base path and file paths
+   * Create FileSystemContext from filesystem or memory
    *
-   * @param basePath - Absolute path to project root
-   * @param filePaths - Array of relative file paths from basePath
+   * @param basePathOrContent - Filesystem: absolute path; Memory: string content
+   * @param filePaths - Filesystem: relative file paths; Memory: omit/undefined
    * @param options - Memory safety configuration
+   *
+   * @example
+   * Filesystem mode:
+   * ```typescript
+   * const ctx = new FileSystemContext('/project', ['src/index.ts']);
+   * ```
+   *
+   * @example
+   * Memory mode:
+   * ```typescript
+   * const ctx = new FileSystemContext('long text content...');
+   * ```
    */
-  constructor(basePath: string, filePaths: string[], options?: FileSystemContextOptions) {
-    this.basePath = basePath;
-    this.filePaths = new Set(filePaths);
+  constructor(basePathOrContent: string, filePaths?: string[], options?: FileSystemContextOptions) {
     this.maxCacheSize = options?.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
     this.maxFileSize = options?.maxFileSize ?? DEFAULT_MAX_FILE_SIZE;
     this.contentCache = new LRUCache(this.maxCacheSize);
 
-    // Pre-compute file metadata without loading content
-    this.fileMetadata = this.computeMetadata();
+    if (!filePaths || filePaths.length === 0) {
+      // Memory mode: treat input as string content
+      this.mode = 'memory';
+      this.basePath = '';
+      this.memoryContent = basePathOrContent;
+      this.filePaths = new Set(['__memory__.txt']);
+      this.fileMetadata = new Map([
+        [
+          '__memory__.txt',
+          {
+            path: '__memory__.txt',
+            size: basePathOrContent.length,
+            lines: basePathOrContent.split('\n').length,
+          },
+        ],
+      ]);
+    } else {
+      // Filesystem mode: on-demand loading from disk
+      this.mode = 'filesystem';
+      this.basePath = basePathOrContent;
+      this.filePaths = new Set(filePaths);
+      this.memoryContent = null;
+      this.fileMetadata = this.computeMetadata();
+    }
   }
 
   /**
@@ -195,13 +233,19 @@ export class FileSystemContext {
 
   /**
    * Read a specific file with memory safety checks
-   * Files are loaded from disk on-demand and cached in LRU cache
-   *
-   * IMPORTANT: No cumulative read limit - you can read unlimited files as long as
-   * the cache size stays within maxCacheSize. LRU automatically evicts old entries.
+   * Filesystem: loaded from disk on-demand with LRU cache
+   * Memory: returns the stored string content
    */
   readFile(filePath: string): string {
-    // Check cache first
+    // Memory mode: return stored content directly
+    if (this.mode === 'memory') {
+      if (filePath !== '__memory__.txt') {
+        throw new Error(`File not found: ${filePath}`);
+      }
+      return this.memoryContent!;
+    }
+
+    // Filesystem mode: check cache first
     const cached = this.contentCache.get(filePath);
     if (cached !== undefined) {
       return cached;
@@ -221,7 +265,6 @@ export class FileSystemContext {
     }
 
     // ONLY check if single file is larger than entire cache capacity
-    // This is the only real limit - LRU will handle everything else automatically
     if (metadata.size > this.maxCacheSize) {
       throw new Error(
         `File size exceeds cache capacity: ${filePath} (${metadata.size.toLocaleString()} bytes > ${this.maxCacheSize.toLocaleString()} bytes cache)`
