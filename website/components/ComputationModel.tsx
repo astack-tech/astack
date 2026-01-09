@@ -1,538 +1,429 @@
-import Image from 'next/image';
+'use client';
 
-import CodeBlock from './CodeBlock';
+/**
+ * ComputationModel Component
+ *
+ * Visual explanation of AStack's computation model based on HLang's TransformNode.
+ * Shows the real architecture:
+ * - Port-based composition (Port.I, Port.O)
+ * - Dual execution modes (run vs _transform)
+ * - Agent tool loop iteration
+ * - Zero adaptation layer
+ */
+
+import { useState } from 'react';
+import SyntaxHighlight from './SyntaxHighlight';
 
 export default function ComputationModel() {
-  const computationModes = [
+  const [activeTab, setActiveTab] = useState(0);
+
+  const modes = [
     {
-      title: "Operator Composition",
-      description: [
-        "Each component is a composable transformation operator",
-        "Maintains function purity with clear inputs and outputs",
-        "Ensures type safety and transparent data flow through the port system"
-      ],
-      code: `// Component as transformation operator
-const textProcessor = new Pipeline();
+      id: 'component',
+      label: 'Component',
+      title: 'Monadic Component Base',
+      description: 'Built on HLang\'s TransformNode with monadic composition laws',
+      visual: <ComponentVisual />,
+      code: `// Every component extends TransformNode
+class MyComponent extends Component {
+  // Type-safe input/output ports
+  inPort = Port.I('in');
+  outPort = Port.O('out');
 
-// Adding components with proper names
-textProcessor.addComponent('splitter', new TextSplitter());
-textProcessor.addComponent('embedder', new Embedder());
-textProcessor.addComponent('vectorStore', new VectorStore());
-
-// Function-style pipeline execution
-const result = await textProcessor.run('splitter.input', document);`,
-      diagram: (
-        <svg className="w-full h-auto" viewBox="0 0 300 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="20" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="50" y="85" textAnchor="middle" fill="white" fontSize="12">Component A</text>
-          
-          <rect x="120" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="85" textAnchor="middle" fill="white" fontSize="12">组件B</text>
-          
-          <rect x="220" y="60" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="250" y="85" textAnchor="middle" fill="white" fontSize="12">组件C</text>
-          
-          <path d="M80 80 H120" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead)"/>
-          <path d="M180 80 H220" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead)"/>
-          
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#5EEAD4"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    },
-    {
-      title: "Workflow Orchestration",
-      description: [
-        "Supports complex workflows with branching, merging, and conditional paths",
-        "Provides dynamic routing, parallel processing, incremental building, and error handling",
-        "Visualizes workflows and data paths"
-      ],
-      code: `// Complex workflow example
-const workflow = new Pipeline();
-
-// Add branch conditions
-workflow.addComponent('classifier', new TextClassifier());
-workflow.addComponent('router', new Router({
-  routes: {
-    question: new QuestionAnswer(),
-    command: new CommandExecutor(),
-    chat: new ChatHandler()
+  // Dual execution modes:
+  // 1. Independent execution
+  async run(data) {
+    return this.process(data);
   }
-}));`,
-      diagram: (
-        <svg className="w-full h-auto" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="120" y="20" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="45" textAnchor="middle" fill="white" fontSize="12">入口</text>
-          
-          <rect x="120" y="90" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="115" textAnchor="middle" fill="white" fontSize="12">路由器</text>
-          
-          <rect x="40" y="160" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="70" y="185" textAnchor="middle" fill="white" fontSize="12">分支A</text>
-          
-          <rect x="120" y="160" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="185" textAnchor="middle" fill="white" fontSize="12">分支B</text>
-          
-          <rect x="200" y="160" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="230" y="185" textAnchor="middle" fill="white" fontSize="12">分支C</text>
-          
-          <path d="M150 60 V90" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead2)"/>
-          <path d="M150 130 L70 160" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead2)"/>
-          <path d="M150 130 V160" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead2)"/>
-          <path d="M150 130 L230 160" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead2)"/>
-          
-          <defs>
-            <marker id="arrowhead2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#5EEAD4"/>
-            </marker>
-          </defs>
-        </svg>
-      )
+
+  // 2. Reactive pipeline execution
+  _transform($i, $o) {
+    $i(this.inPort, async (data) => {
+      const result = await this.process(data);
+      $o(this.outPort, result);
+    });
+  }
+}`,
     },
     {
-      title: "Reactive Data Flow",
-      description: [
-        "Implements an event-driven asynchronous data processing model",
-        "Components respond to data events rather than passive polling",
-        "Supports backpressure handling and hot/cold data streams"
-      ],
-      code: `// Reactive data flow example
-const dataStream = new DataStream();
+      id: 'pipeline',
+      label: 'Pipeline',
+      title: 'Direct Port Connections',
+      description: 'Components connect via ports without adaptation layers or serialization',
+      visual: <PipelineVisual />,
+      code: `// Components connect directly via ports
+const pipeline = new Pipeline();
 
-// Add data listeners
-dataStream.on('newData', async (data) => {
-  const result = await processor.run(data);
-  dataStream.emit('processedData', result);
+pipeline.addComponent('splitter', new TextSplitter());
+pipeline.addComponent('embedder', new Embedder());
+pipeline.addComponent('store', new VectorStore());
+
+// Direct port-to-port connections
+// No adapters, no serialization, no protocol translation
+pipeline.connect('splitter.out', 'embedder.in');
+pipeline.connect('embedder.out', 'store.in');
+
+// Execute the pipeline
+const result = await pipeline.run('splitter.in', document);`,
+    },
+    {
+      id: 'agent',
+      label: 'Agent',
+      title: 'Agent as Component',
+      description: 'Agents are components that use LLMs - composable with any other component type',
+      visual: <AgentVisual />,
+      code: `// Agent is just another component type
+const agent = new Agent({
+  model: new Deepseek({ model: "deepseek-chat" }),
+  tools: [searchTool, writeTool],
+  maxIterations: 10,
 });
 
-// 从外部源接收数据
-externalSource.pipe(dataStream);`,
-      diagram: (
-        <svg className="w-full h-auto" viewBox="0 0 300 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="40" y="70" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="70" y="95" textAnchor="middle" fill="white" fontSize="12">事件源</text>
-          
-          <rect x="150" y="40" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="180" y="65" textAnchor="middle" fill="white" fontSize="12">处理器A</text>
-          
-          <rect x="150" y="100" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="180" y="125" textAnchor="middle" fill="white" fontSize="12">处理器B</text>
-          
-          <rect x="220" y="70" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="250" y="95" textAnchor="middle" fill="white" fontSize="12">汇聚点</text>
-          
-          <path d="M100 80 C120 80, 130 60, 150 60" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead3)"/>
-          <path d="M100 90 C120 90, 130 120, 150 120" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead3)"/>
-          <path d="M210 60 C230 60, 240 80, 220 80" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead3)"/>
-          <path d="M210 120 C230 120, 240 100, 220 100" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead3)"/>
-          
-          <defs>
-            <marker id="arrowhead3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#5EEAD4"/>
-            </marker>
-          </defs>
-        </svg>
-      )
+// Multi-round execution loop:
+// 1. LLM decides which tool to call
+// 2. Execute tool, add result to context
+// 3. LLM processes result, decides next action
+// 4. Repeat until complete or max iterations
+
+const result = await agent.run("Research and write about AI");
+
+// Or use in a pipeline like any other component
+pipeline.addComponent('agent', agent);
+pipeline.connect('input.out', 'agent.in');`,
     },
-    {
-      title: "Inter-Agent Communication",
-      description: [
-        "Supports complex interactions and message passing between agents",
-        "Maintains context continuity across multiple exchanges",
-        "Enables multi-agent coordination and tool integration"
-      ],
-      code: `// Inter-agent communication example
-const coordinator = new AgentCoordinator();
-
-// Register multiple specialized agents
-coordinator.register([
-  new ResearchAgent({ name: 'researcher' }),
-  new AnalysisAgent({ name: 'analyst' }),
-  new WriterAgent({ name: 'writer' })
-]);
-
-// Start collaboration process
-const report = await coordinator.collaborate({
-  task: "Analyze market trends and generate a report"
-});`,
-      diagram: (
-        <svg className="w-full h-auto" viewBox="0 0 300 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="120" y="20" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="45" textAnchor="middle" fill="white" fontSize="12">协调器</text>
-          
-          <rect x="40" y="100" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="70" y="125" textAnchor="middle" fill="white" fontSize="12">代理A</text>
-          
-          <rect x="120" y="100" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="150" y="125" textAnchor="middle" fill="white" fontSize="12">代理B</text>
-          
-          <rect x="200" y="100" width="60" height="40" rx="4" fill="#1E40AF" stroke="#3B82F6" strokeWidth="2"/>
-          <text x="230" y="125" textAnchor="middle" fill="white" fontSize="12">代理C</text>
-          
-          <path d="M150 60 L70 100" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)"/>
-          <path d="M150 60 V100" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)"/>
-          <path d="M150 60 L230 100" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)"/>
-          
-          <path d="M70 100 L120 40" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)" strokeDasharray="4"/>
-          <path d="M150 100 L150 60" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)" strokeDasharray="4"/>
-          <path d="M230 100 L180 40" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)" strokeDasharray="4"/>
-          
-          <path d="M90 120 H120" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)" strokeDasharray="4"/>
-          <path d="M180 120 H200" stroke="#5EEAD4" strokeWidth="2" markerEnd="url(#arrowhead4)" strokeDasharray="4"/>
-          
-          <defs>
-            <marker id="arrowhead4" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
-              <polygon points="0 0, 10 3.5, 0 7" fill="#5EEAD4"/>
-            </marker>
-          </defs>
-        </svg>
-      )
-    }
   ];
 
   return (
-    <section id="computation-model" className="py-16 md:py-24 relative overflow-hidden">
-      {/* Background gradient and grid */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black opacity-90"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="computation-model" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-black" />
+        <div className="absolute inset-0 bg-grid opacity-30" />
+        <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-[#00F0FF]/5 rounded-full blur-[200px]" />
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        {/* Section header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Computation <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">Model</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Computation </span>
+            <span className="gradient-text">Model</span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            AStack implements a sophisticated computation model based on the <a href="https://github.com/hlang-tech/hlang" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors duration-200">HLang</a> monadic functional programming paradigm, combining the flexibility of functional programming with the practical advantages of component-based development.
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Built on{' '}
+            <a
+              href="https://github.com/hlang-tech/hlang"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#00F0FF] hover:underline font-medium"
+            >
+              HLang
+            </a>
+            &apos;s monadic paradigm - the foundation for all agent patterns
           </p>
         </div>
-        
-        {/* Bento Grid Layout for Computation Models */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {/* Operator Composition - Larger Card */}
-          <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1 md:col-span-2 group overflow-hidden shadow-lg shadow-black/20">
-            {/* Inner content with glass effect */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8 h-full relative overflow-hidden">
-              {/* Background glow effect */}
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
-              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl group-hover:bg-teal-500/20 transition-all duration-700"></div>
-              
-              {/* Subtle grid pattern */}
-              <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:20px_20px]"></div>
-              
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="w-2 h-2 rounded-full bg-teal-500 shadow-glow-teal"></span>
-                  <h3 className="text-2xl font-bold text-white">Operator Composition</h3>
-                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
-                  <div className="space-y-6">
-                    {/* Feature list with enhanced styling */}
-                    <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-                      <h4 className="text-sm uppercase tracking-wider text-gray-400 mb-3 font-medium">Key Features</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-teal-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Each component is a composable transformation operator</span>
-                        </li>
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-teal-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Maintains function purity with clear inputs and outputs</span>
-                        </li>
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-teal-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Ensures type safety and transparent data flow through the port system</span>
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    {/* Code example with enhanced styling */}
-                    <div className="mt-6">
-                      <CodeBlock
-                        code={computationModes[0].code}
-                        language="typescript"
-                        showLineNumbers={true}
-                        fileName="operator-composition.ts"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* SVG with enhanced container */}
-                  <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/30 relative overflow-hidden group-hover:from-gray-800/40 group-hover:to-gray-900/40 transition-colors duration-500">
-                    <div className="relative h-64 md:h-72 w-full">
-                      <Image 
-                        src="/images/operator-composition.svg" 
-                        alt="Operator Composition Diagram" 
-                        fill
-                        className="object-contain p-2"
-                      />
-                    </div>
-                  </div>
+        {/* Main visualization card */}
+        <div className="w-full mx-auto">
+          <div className="glass rounded-2xl overflow-hidden">
+            {/* Tab navigation */}
+            <div className="flex border-b border-white/5">
+              {modes.map((mode, index) => (
+                <button
+                  key={mode.id}
+                  type="button"
+                  onClick={() => setActiveTab(index)}
+                  className={`flex-1 px-6 py-4 text-sm font-medium transition-all duration-300 ${
+                    activeTab === index
+                      ? 'text-[#00F0FF] bg-[#00F0FF]/5 border-b-2 border-[#00F0FF]'
+                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Tab content */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4 md:p-8">
+              {/* Left: Visual */}
+              <div className="w-full">
+                <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
+                  {modes[activeTab].title}
+                </h3>
+                <p className="text-sm md:text-base text-gray-400 mb-6">
+                  {modes[activeTab].description}
+                </p>
+
+                {/* Visual diagram */}
+                <div className="min-h-[250px] md:min-h-[300px] flex items-center justify-center bg-black/30 rounded-xl p-4 md:p-6 overflow-x-auto">
+                  {modes[activeTab].visual}
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Workflow Orchestration */}
-          <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1 group overflow-hidden shadow-md shadow-black/20">
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-5 h-full relative overflow-hidden">
-              {/* Background glow effect */}
-              <div className="absolute -bottom-16 -right-16 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
-              
-              {/* Subtle grid pattern */}
-              <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:20px_20px]"></div>
-              
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-glow-blue"></span>
-                  <h3 className="text-lg font-bold text-white">Workflow Orchestration</h3>
-                </div>
-                
-                <div className="space-y-4">
-                  {/* SVG with enhanced container */}
-                  <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30 relative overflow-hidden group-hover:from-gray-800/40 group-hover:to-gray-900/40 transition-colors duration-500">
-                    <div className="relative h-40 w-full">
-                      <Image 
-                        src="/images/workflow-orchestration.svg" 
-                        alt="Workflow Orchestration Diagram" 
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
+              {/* Right: Code */}
+              <div className="w-full">
+                <div className="rounded-xl bg-black/50 border border-white/5 overflow-hidden h-full">
+                  <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between">
+                    <span className="text-xs text-gray-500 font-mono">
+                      {modes[activeTab].id}.ts
+                    </span>
                   </div>
-                  
-                  {/* Feature list with enhanced styling */}
-                  <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-3 border border-gray-700/50">
-                    <h4 className="text-xs uppercase tracking-wider text-gray-400 mb-2 font-medium">Key Features</h4>
-                    <ul className="space-y-2">
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 text-blue-400 mt-0.5 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-300 text-sm">Supports complex workflows with branching and merging</span>
-                      </li>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 text-blue-400 mt-0.5 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-300 text-sm">Provides dynamic routing and parallel processing</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Reactive Data Flow */}
-          <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1 group overflow-hidden shadow-md shadow-black/20">
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-5 h-full relative overflow-hidden">
-              {/* Background glow effect */}
-              <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl group-hover:bg-indigo-500/20 transition-all duration-700"></div>
-              
-              {/* Subtle grid pattern */}
-              <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:20px_20px]"></div>
-              
-              <div className="relative">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shadow-glow-indigo"></span>
-                  <h3 className="text-lg font-bold text-white">Reactive Data Flow</h3>
-                </div>
-                
-                <div className="space-y-4">
-                  {/* SVG with enhanced container */}
-                  <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-sm rounded-xl p-4 border border-gray-700/30 relative overflow-hidden group-hover:from-gray-800/40 group-hover:to-gray-900/40 transition-colors duration-500">
-                    <div className="relative h-40 w-full">
-                      <Image 
-                        src="/images/reactive-dataflow.svg" 
-                        alt="Reactive Data Flow Diagram" 
-                        fill
-                        className="object-contain p-1"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Feature list with enhanced styling */}
-                  <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-3 border border-gray-700/50">
-                    <h4 className="text-xs uppercase tracking-wider text-gray-400 mb-2 font-medium">Key Features</h4>
-                    <ul className="space-y-2">
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 text-indigo-400 mt-0.5 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-300 text-sm">Implements event-driven asynchronous processing</span>
-                      </li>
-                      <li className="flex items-start">
-                        <svg className="w-4 h-4 text-indigo-400 mt-0.5 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span className="text-gray-300 text-sm">Supports backpressure and hot/cold data streams</span>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Inter-Agent Communication */}
-          <div className="bg-gradient-to-br from-gray-800/70 to-gray-900/80 backdrop-blur-sm border border-gray-700/50 rounded-2xl p-1 md:col-span-2 group overflow-hidden shadow-lg shadow-black/20">
-            {/* Inner content with glass effect */}
-            <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 md:p-8 h-full relative overflow-hidden">
-              {/* Background glow effect */}
-              <div className="absolute -top-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700"></div>
-              <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
-              
-              {/* Subtle grid pattern */}
-              <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:20px_20px]"></div>
-              
-              <div className="relative">
-                <div className="flex items-center gap-3 mb-6">
-                  <span className="w-2 h-2 rounded-full bg-purple-500 shadow-glow-purple"></span>
-                  <h3 className="text-2xl font-bold text-white">Inter-Agent Communication</h3>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
-                  <div className="space-y-6 order-2 lg:order-1">
-                    {/* Feature list with enhanced styling */}
-                    <div className="bg-gray-800/40 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50">
-                      <h4 className="text-sm uppercase tracking-wider text-gray-400 mb-3 font-medium">Key Features</h4>
-                      <ul className="space-y-3">
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-purple-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Supports complex interactions between agents</span>
-                        </li>
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-purple-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Maintains context continuity across multiple exchanges</span>
-                        </li>
-                        <li className="flex items-start">
-                          <svg className="w-5 h-5 text-purple-400 mt-1 mr-2 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-300">Enables multi-agent coordination and tool integration</span>
-                        </li>
-                      </ul>
-                    </div>
-                    
-                    {/* Code example with enhanced styling */}
-                    <div className="mt-6">
-                      <CodeBlock
-                        code={computationModes[3].code}
-                        language="typescript"
-                        showLineNumbers={true}
-                        fileName="agent-communication.ts"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* SVG with enhanced container */}
-                  <div className="bg-gradient-to-br from-gray-800/30 to-gray-900/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/30 relative overflow-hidden order-1 lg:order-2 group-hover:from-gray-800/40 group-hover:to-gray-900/40 transition-colors duration-500">
-                    <div className="relative h-64 md:h-72 w-full">
-                      <Image 
-                        src="/images/agent-events.svg" 
-                        alt="Inter-Agent Communication Diagram" 
-                        fill
-                        className="object-contain p-2"
-                      />
-                    </div>
+                  <div className="p-4 overflow-auto max-h-[350px] md:max-h-[400px]">
+                    <SyntaxHighlight code={modes[activeTab].code} />
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
-        {/* Core Features section with enhanced design */}
-        <div className="mt-16">
-          <div className="bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-md rounded-2xl overflow-hidden relative border border-gray-800/50 shadow-xl shadow-black/30">
-            {/* Background elements */}
-            <div className="absolute inset-0 bg-grid-white/[0.02] bg-[length:20px_20px]"></div>
-            <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-2/3 h-60 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-teal-500/10 blur-3xl rounded-full"></div>
-            
-            <div className="relative p-8 md:p-10">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white inline-flex items-center gap-3">
-                  <span className="bg-gradient-to-r from-teal-400 via-blue-500 to-purple-500 bg-clip-text text-transparent">Core Features</span>
-                  <span className="text-gray-400 text-lg">of the Monadic Design Pattern</span>
-                </h3>
-                <div className="w-20 h-1 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full mx-auto mt-4"></div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/40 hover:border-gray-600/40 transition-colors duration-300 group">
-                  <div className="flex gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-teal-400/20 to-teal-600/20 flex items-center justify-center border border-teal-500/30 group-hover:from-teal-400/30 group-hover:to-teal-600/30 transition-colors duration-300">
-                      <svg className="w-5 h-5 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">State Encapsulation</h4>
-                      <p className="text-gray-400 text-sm">Encapsulates state, ensuring data immutability and predictable transformations</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/40 hover:border-gray-600/40 transition-colors duration-300 group">
-                  <div className="flex gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400/20 to-blue-600/20 flex items-center justify-center border border-blue-500/30 group-hover:from-blue-400/30 group-hover:to-blue-600/30 transition-colors duration-300">
-                      <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">Chained Operations</h4>
-                      <p className="text-gray-400 text-sm">Chain operations seamlessly, simplifying complex workflows and data pipelines</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/40 hover:border-gray-600/40 transition-colors duration-300 group">
-                  <div className="flex gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-400/20 to-indigo-600/20 flex items-center justify-center border border-indigo-500/30 group-hover:from-indigo-400/30 group-hover:to-indigo-600/30 transition-colors duration-300">
-                      <svg className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">Composable Transformations</h4>
-                      <p className="text-gray-400 text-sm">Create reusable components that can be composed in different ways to form complex systems</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-gray-800/30 backdrop-blur-sm rounded-xl p-5 border border-gray-700/40 hover:border-gray-600/40 transition-colors duration-300 group">
-                  <div className="flex gap-4">
-                    <div className="shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-purple-400/20 to-purple-600/20 flex items-center justify-center border border-purple-500/30 group-hover:from-purple-400/30 group-hover:to-purple-600/30 transition-colors duration-300">
-                      <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-white mb-1">Error Propagation</h4>
-                      <p className="text-gray-400 text-sm">Control error propagation in a predictable way, enhancing system stability and reliability</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+        {/* Core principles */}
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 w-full mx-auto">
+          <div className="text-center p-6 glass rounded-xl">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
             </div>
+            <h4 className="font-semibold text-white mb-2">Monadic Laws</h4>
+            <p className="text-sm text-gray-400">Composition follows mathematical laws ensuring predictable behavior</p>
+          </div>
+
+          <div className="text-center p-6 glass rounded-xl">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-white mb-2">Direct Connections</h4>
+            <p className="text-sm text-gray-400">Port-to-port data flow without intermediate layers</p>
+          </div>
+
+          <div className="text-center p-6 glass rounded-xl">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
+              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h4 className="font-semibold text-white mb-2">Reactive Streams</h4>
+            <p className="text-sm text-gray-400">Built-in backpressure and flow control for real-time processing</p>
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Component architecture visualization
+ */
+function ComponentVisual() {
+  return (
+    <div className="w-full max-w-md mx-auto px-4">
+      {/* Component box with ports */}
+      <div className="relative mx-auto w-full max-w-[224px]">
+        {/* Main component */}
+        <div className="relative w-full h-32 rounded-xl bg-gradient-to-br from-[#00F0FF]/20 to-[#00F0FF]/5 border-2 border-[#00F0FF] flex flex-col items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.3)]">
+          <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">Component</span>
+          <span className="text-gray-400 text-xs">extends TransformNode</span>
+
+          {/* Input port (left side) */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2">
+            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
+          </div>
+
+          {/* Output port (right side) */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
+            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
+          </div>
+        </div>
+
+        {/* Port labels */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-2 md:pr-3 text-right">
+          <div className="flex items-center gap-1 md:gap-2">
+            <span className="text-gray-400 text-[10px] md:text-xs font-mono">data</span>
+            <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+          </div>
+          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap">
+            Port.I(&apos;in&apos;)
+          </code>
+        </div>
+
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-2 md:pl-3 text-left">
+          <div className="flex items-center gap-1 md:gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" style={{ animationDelay: '0.5s' }} />
+            <span className="text-gray-400 text-[10px] md:text-xs font-mono">result</span>
+          </div>
+          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap">
+            Port.O(&apos;out&apos;)
+          </code>
+        </div>
+      </div>
+
+      {/* Dual mode indicator */}
+      <div className="mt-12 md:mt-16 flex justify-center gap-4 md:gap-8">
+        <div className="text-center">
+          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1">
+            <code className="text-[10px] md:text-xs text-[#00F0FF] font-mono">run(data)</code>
+          </div>
+          <span className="text-[9px] md:text-[10px] text-gray-500">Standalone</span>
+        </div>
+        <div className="text-center">
+          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1">
+            <code className="text-[10px] md:text-xs text-[#00F0FF] font-mono">_transform($i, $o)</code>
+          </div>
+          <span className="text-[9px] md:text-[10px] text-gray-500">Pipeline</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Pipeline composition visualization
+ */
+function PipelineVisual() {
+  return (
+    <div className="w-full space-y-6 md:space-y-8 px-2">
+      {/* Pipeline flow */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
+        {/* Component 1 */}
+        <div className="flex flex-col items-center">
+          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+            <span className="text-[#00F0FF] text-sm font-bold">Split</span>
+          </div>
+          <code className="text-[9px] text-gray-500 font-mono mt-1">.out</code>
+        </div>
+
+        {/* Connection arrow */}
+        <div className="flex md:flex-1 items-center justify-center">
+          <div className="flex flex-col md:flex-row items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+            <div className="w-px h-8 md:w-8 md:h-px bg-[#00F0FF]/30" />
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Component 2 */}
+        <div className="flex flex-col items-center">
+          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+            <span className="text-[#00F0FF] text-sm font-bold">Embed</span>
+          </div>
+          <code className="text-[9px] text-gray-500 font-mono mt-1">.in → .out</code>
+        </div>
+
+        {/* Connection arrow */}
+        <div className="flex md:flex-1 items-center justify-center">
+          <div className="flex flex-col md:flex-row items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" style={{ animationDelay: '0.3s' }} />
+            <div className="w-px h-8 md:w-8 md:h-px bg-[#00F0FF]/30" />
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        {/* Component 3 */}
+        <div className="flex flex-col items-center">
+          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+            <span className="text-[#00F0FF] text-sm font-bold">Store</span>
+          </div>
+          <code className="text-[9px] text-gray-500 font-mono mt-1">.in</code>
+        </div>
+      </div>
+
+      {/* Connection code */}
+      <div className="text-center">
+        <div className="inline-block px-3 md:px-4 py-2 rounded-lg bg-black/50 border border-[#00F0FF]/20">
+          <code className="text-[10px] md:text-xs text-gray-400 font-mono break-all">
+            pipeline.connect(<span className="text-green-400">&apos;split.out&apos;</span>, <span className="text-green-400">&apos;embed.in&apos;</span>)
+          </code>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Agent tool loop visualization
+ */
+function AgentVisual() {
+  return (
+    <div className="w-full max-w-md mx-auto px-2">
+      {/* Iteration loop */}
+      <div className="relative">
+        {/* Loop container */}
+        <div className="border-2 border-dashed border-[#00F0FF]/30 rounded-2xl p-4 md:p-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+            <span className="text-[10px] md:text-xs text-gray-500 font-mono">while (iteration &lt; maxIterations)</span>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+              <span className="text-xs text-[#00F0FF]">Iterating...</span>
+            </div>
+          </div>
+
+          {/* Steps */}
+          <div className="space-y-3 md:space-y-4">
+            {/* Step 1: LLM Decision */}
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF] flex items-center justify-center text-[#00F0FF] text-xs md:text-sm font-bold">
+                1
+              </div>
+              <div className="flex-1 p-2 md:p-3 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30">
+                <div className="text-xs md:text-sm text-white font-medium mb-1">LLM Decides</div>
+                <code className="text-[10px] md:text-xs text-gray-400 font-mono break-all">model.chatCompletion(messages, tools)</code>
+              </div>
+            </div>
+
+            {/* Arrow down */}
+            <div className="flex justify-center">
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+
+            {/* Step 2: Tool Execution */}
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF] flex items-center justify-center text-[#00F0FF] text-xs md:text-sm font-bold">
+                2
+              </div>
+              <div className="flex-1 p-2 md:p-3 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30">
+                <div className="text-xs md:text-sm text-white font-medium mb-1">Execute Tool</div>
+                <code className="text-[10px] md:text-xs text-gray-400 font-mono break-all">tool.invoke(args) → result</code>
+              </div>
+            </div>
+
+            {/* Arrow down */}
+            <div className="flex justify-center">
+              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              </svg>
+            </div>
+
+            {/* Step 3: Context Update */}
+            <div className="flex items-start gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full bg-[#00F0FF]/20 border border-[#00F0FF] flex items-center justify-center text-[#00F0FF] text-xs md:text-sm font-bold">
+                3
+              </div>
+              <div className="flex-1 p-2 md:p-3 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30">
+                <div className="text-xs md:text-sm text-white font-medium mb-1">Add to Context</div>
+                <code className="text-[10px] md:text-xs text-gray-400 font-mono break-all">messages.push(toolResult)</code>
+              </div>
+            </div>
+          </div>
+
+          {/* Loop back arrow */}
+          <div className="mt-3 md:mt-4 flex items-center justify-center gap-2">
+            <svg className="w-4 h-4 md:w-5 md:h-5 text-[#00F0FF]/50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="text-[10px] md:text-xs text-gray-500">Repeat until complete</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

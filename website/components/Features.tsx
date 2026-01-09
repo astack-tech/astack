@@ -1,110 +1,271 @@
-export default function Features() {
-  const features = [
-    {
-      title: "Everything is a Component",
-      description: "All elements inherit from the Component base class, with input and output ports for data flow, enabling both standalone and pipeline execution.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <rect x="9" y="9" width="6" height="6" />
-          <path d="M15 2v2" />
-          <path d="M15 20v2" />
-          <path d="M2 15h2" />
-          <path d="M20 15h2" />
-        </svg>
-      )
-    },
-    {
-      title: "Zero Adaptation Layer",
-      description: "Agents directly accept any model provider component and tools without middleware adapters, creating a cleaner and more intuitive API.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M7 7h10v10H7z" />
-          <path d="M13 7V3h7v7h-4" />
-          <path d="M13 17v4H6v-7h4" />
-        </svg>
-      )
-    },
-    {
-      title: "Dual Run Modes",
-      description: "Run components independently with run() or compose them into pipelines with _transform() - same interface, maximum flexibility.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="17 1 21 5 17 9" />
-          <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-          <polyline points="7 23 3 19 7 15" />
-          <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-        </svg>
-      )
-    },
-    {
-      title: "Type-Safe Ports",
-      description: "Components communicate through a port system that ensures type safety and transparent data flow between components.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 15v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-          <polyline points="7 10 12 15 17 10" />
-          <line x1="12" y1="15" x2="12" y2="3" />
-        </svg>
-      )
-    },
-    {
-      title: "Modular Package Design",
-      description: "Organized into core abstractions, domain-specific components, and external integrations for maximum code reuse and extensibility.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-          <polyline points="3.29 7 12 12 20.71 7" />
-          <line x1="12" y1="22" x2="12" y2="12" />
-        </svg>
-      )
-    },
-    {
-      title: "External Ecosystem Integration",
-      description: "Leverage OpenAI-compatible interfaces to integrate external model providers without requiring specialized SDKs.",
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2H2v10h10V2z" />
-          <path d="M22 12h-10v10h10V12z" />
-          <path d="M12 12H2v10h10V12z" />
-          <path d="M22 2h-10v10h10V2z" />
-        </svg>
-      )
-    }
-  ];
+'use client';
 
+/**
+ * Features Component - Bento Grid Layout
+ *
+ * Showcases AStack's core features in an asymmetric bento grid.
+ * Features:
+ * - Large feature cards with animated SVG illustrations
+ * - Small feature cards for secondary features
+ * - Glass morphism with hover effects
+ * - Responsive grid layout
+ *
+ * Design: Asymmetric bento grid for visual interest
+ */
+
+import { useEffect, useRef } from 'react';
+
+export default function Features() {
   return (
-    <section id="features" className="py-16 md:py-24 relative overflow-hidden">
-      {/* Background gradient and grid */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black opacity-90"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="features" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[#0A0A0A]" />
+        <div className="absolute inset-0 bg-grid opacity-30" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00F0FF]/3 rounded-full blur-[200px]" />
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        {/* Section header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Core <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">Features</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Technical </span>
+            <span className="gradient-text">Innovations</span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            AStack implements a modern, component-based approach to building AI agents and workflows,
-            with a focus on functional programming principles and composability.
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Built on{' '}
+            <a
+              href="https://github.com/hlang-tech/hlang"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#00F0FF] hover:underline"
+            >
+              HLang
+            </a>
+            &apos;s monadic foundation with mathematical composition guarantees
           </p>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div 
-              key={index} 
-              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-800/70 transition duration-300 hover:shadow-lg hover:shadow-blue-500/10"
-            >
-              <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center mb-4 text-white">
-                {feature.icon}
+
+        {/* Bento Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full mx-auto">
+          {/* Large Card 1 - Everything is a Component (spans 2 cols) */}
+          <div className="lg:col-span-2 lg:row-span-2 group">
+            <div className="h-full glass rounded-2xl p-8 hover:bg-white/5 transition-all duration-500 relative overflow-hidden">
+              {/* Animated illustration */}
+              <div className="absolute top-4 right-4 w-32 h-32 opacity-20 group-hover:opacity-40 transition-opacity">
+                <ComponentAnimation />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
+
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-6 group-hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] transition-all">
+                  <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2" strokeWidth="1.5" />
+                    <rect x="9" y="9" width="6" height="6" strokeWidth="1.5" />
+                  </svg>
+                </div>
+
+                <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-[#00F0FF] transition-colors">
+                  Monadic Component System
+                </h3>
+
+                <p className="text-gray-400 mb-6 leading-relaxed">
+                  Every component extends{' '}
+                  <a
+                    href="https://github.com/hlang-tech/hlang"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#00F0FF] hover:underline"
+                  >
+                    HLang
+                  </a>
+                  &apos;s TransformNode, providing mathematical composition guarantees.
+                  Agents, tools, and pipelines share the same base interface with type-safe ports.
+                </p>
+
+                {/* Visual diagram */}
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-black/30">
+                  <div className="flex-1 text-center">
+                    <div className="w-10 h-10 mx-auto rounded-lg bg-[#00F0FF]/20 border border-[#00F0FF]/30 flex items-center justify-center mb-2">
+                      <span className="text-[#00F0FF] text-xs font-mono">In</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Input Port</span>
+                  </div>
+                  <svg className="w-8 h-8 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <div className="flex-1 text-center">
+                    <div className="w-12 h-12 mx-auto rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/50 flex items-center justify-center mb-2">
+                      <span className="text-[#00F0FF] text-sm font-bold">C</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Component</span>
+                  </div>
+                  <svg className="w-8 h-8 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                  <div className="flex-1 text-center">
+                    <div className="w-10 h-10 mx-auto rounded-lg bg-[#00F0FF]/20 border border-[#00F0FF]/30 flex items-center justify-center mb-2">
+                      <span className="text-[#00F0FF] text-xs font-mono">Out</span>
+                    </div>
+                    <span className="text-xs text-gray-500">Output Port</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
+
+          {/* Small Card - Zero Adaptation Layer */}
+          <div className="group">
+            <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300">
+              <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
+                <svg className="w-5 h-5 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
+                Zero Adaptation
+              </h3>
+              <p className="text-sm text-gray-400">
+                Components connect directly via ports without serialization or protocol translation
+              </p>
+            </div>
+          </div>
+
+          {/* Small Card - Dual Run Modes */}
+          <div className="group">
+            <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300">
+              <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
+                <svg className="w-5 h-5 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
+                Dual Execution Modes
+              </h3>
+              <p className="text-sm text-gray-400">
+                Independent execution with run() or reactive pipeline mode with _transform()
+              </p>
+            </div>
+          </div>
+
+          {/* Medium Card - Type-Safe Ports (spans 2 cols) */}
+          <div className="lg:col-span-2 group">
+            <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300 relative overflow-hidden">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center shrink-0 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
+                  <svg className="w-5 h-5 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
+                    Type-Safe Port System
+                  </h3>
+                  <p className="text-sm text-gray-400">
+                    Port.I() and Port.O() provide compile-time type checking and runtime validation for component connections
+                  </p>
+                </div>
+              </div>
+
+              {/* Type visualization */}
+              <div className="mt-4 flex items-center gap-2 text-xs font-mono">
+                <span className="px-2 py-1 rounded bg-[#00F0FF]/10 text-[#00F0FF]">string</span>
+                <span className="text-gray-600">→</span>
+                <span className="px-2 py-1 rounded bg-[#00F0FF]/10 text-[#00F0FF]">Component</span>
+                <span className="text-gray-600">→</span>
+                <span className="px-2 py-1 rounded bg-[#00F0FF]/10 text-[#00F0FF]">Result&lt;T&gt;</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Small Card - Modular Design */}
+          <div className="group">
+            <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300">
+              <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
+                <svg className="w-5 h-5 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
+                Modular Design
+              </h3>
+              <p className="text-sm text-gray-400">
+                Core, components, and integrations as separate packages
+              </p>
+            </div>
+          </div>
+
+          {/* Small Card - External Integration */}
+          <div className="group">
+            <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300">
+              <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
+                <svg className="w-5 h-5 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
+                Easy Integration
+              </h3>
+              <p className="text-sm text-gray-400">
+                OpenAI-compatible interfaces for any model provider
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
+}
+
+/**
+ * Animated component illustration
+ */
+function ComponentAnimation() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let angle = 0;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, 128, 128);
+
+      // Draw rotating squares
+      ctx.save();
+      ctx.translate(64, 64);
+      ctx.rotate(angle);
+
+      // Outer square
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-40, -40, 80, 80);
+
+      // Inner square
+      ctx.rotate(-angle * 2);
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
+      ctx.strokeRect(-25, -25, 50, 50);
+
+      // Center dot
+      ctx.fillStyle = 'rgba(0, 240, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+
+      angle += 0.01;
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+
+  return <canvas ref={canvasRef} width={128} height={128} className="w-full h-full" />;
 }

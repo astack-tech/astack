@@ -449,12 +449,39 @@ This monadic approach allows AStack to maintain both the flexibility of function
 
 ## 📦 Packages
 
-AStack is organized into several packages:
+AStack is organized into several packages, all published on npm:
 
-- **@astack-tech/core**: Core functionality and pipeline execution engine
-- **@astack-tech/components**: Reusable AI components like Agents and Memories
-- **@astack-tech/tools**: Tool definitions and implementations
-- **@astack-tech/integrations**: Integrations with external services and model providers
+| Package | Version | Description |
+|---------|---------|-------------|
+| [@astack-tech/core](https://www.npmjs.com/package/@astack-tech/core) | [![npm](https://img.shields.io/npm/v/@astack-tech/core.svg)](https://www.npmjs.com/package/@astack-tech/core) | Core functionality and pipeline execution engine |
+| [@astack-tech/components](https://www.npmjs.com/package/@astack-tech/components) | [![npm](https://img.shields.io/npm/v/@astack-tech/components.svg)](https://www.npmjs.com/package/@astack-tech/components) | Reusable AI components like Agents and Memories |
+| [@astack-tech/tools](https://www.npmjs.com/package/@astack-tech/tools) | [![npm](https://img.shields.io/npm/v/@astack-tech/tools.svg)](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions and implementations |
+| [@astack-tech/integrations](https://www.npmjs.com/package/@astack-tech/integrations) | [![npm](https://img.shields.io/npm/v/@astack-tech/integrations.svg)](https://www.npmjs.com/package/@astack-tech/integrations) | Integrations with external services and model providers |
+
+### Installation
+
+Install the packages you need:
+
+```bash
+# Core package (required)
+npm install @astack-tech/core
+
+# Components package (for Agents, Memory, etc.)
+npm install @astack-tech/components
+
+# Tools package (for tool implementations)
+npm install @astack-tech/tools
+
+# Integrations package (for model providers like OpenAI, Deepseek, etc.)
+npm install @astack-tech/integrations
+```
+
+Or install all packages at once:
+
+```bash
+npm install @astack-tech/core @astack-tech/components @astack-tech/tools @astack-tech/integrations
+```
+
 
 ## 📖 Documentation
 
