@@ -1,3 +1,20 @@
+/**
+ * Home Page
+ *
+ * Main landing page for AStack website.
+ * Assembles all section components in order:
+ * 1. Beta notification banner
+ * 2. Navigation bar
+ * 3. Hero section with canvas animation
+ * 4. Features overview
+ * 5. Computation model explanation
+ * 6. Quick start guide
+ * 7. Technical comparison
+ * 8. Use cases showcase
+ * 9. Footer
+ */
+
+import BetaNotification from '@/components/BetaNotification';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
@@ -5,62 +22,99 @@ import ComputationModel from '@/components/ComputationModel';
 import QuickStart from '@/components/QuickStart';
 import Comparison from '@/components/Comparison';
 import UseCases from '@/components/UseCases';
-import BetaNotification from '@/components/BetaNotification';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-black">
+      {/* Fixed navigation */}
       <Navbar />
-      <div className="mt-[56px]"> {/* 固定导航栏高度，确保内容不被覆盖 */}
+
+      {/* Top notification banner - positioned below navbar */}
+      <div className="pt-16">
         <BetaNotification />
       </div>
+
+      {/* Hero section with particle animation */}
       <Hero />
+
+      {/* Core features grid */}
       <Features />
+
+      {/* Computation model explanation */}
       <ComputationModel />
+
+      {/* Quick start guide */}
       <QuickStart />
+
+      {/* Framework comparison */}
       <Comparison />
+
+      {/* Use cases showcase */}
       <UseCases />
-      
-      <footer className="py-16 mt-12 relative overflow-hidden">
-        {/* Subtle gradient border instead of hard line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent"></div>
-        
-        {/* Background subtle glow */}
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-2/3 h-40 bg-blue-500/10 blur-3xl rounded-full"></div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="mb-8 md:mb-0 text-center md:text-left">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">AStack</h2>
-              <p className="text-gray-400 mt-2">Everything is a Component</p>
+
+      {/* Footer */}
+      <footer className="relative py-16 border-t border-white/5">
+        {/* Background */}
+        <div className="absolute inset-0 bg-black" />
+
+        {/* Subtle glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-[#00F0FF]/5 rounded-full blur-[100px]" />
+
+        <div className="container mx-auto px-4 md:px-6 relative z-10">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            {/* Brand */}
+            <div className="text-center md:text-left">
+              <h2 className="text-2xl font-bold gradient-text mb-2">AStack</h2>
+              <p className="text-gray-500">Everything is a Component</p>
             </div>
-            
-            <div className="grid grid-cols-2 md:flex md:space-x-8 gap-4 md:gap-0">
-              <a href="https://github.com/astack-tech/astack" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-teal-400 transition">
+
+            {/* Navigation links */}
+            <div className="flex flex-wrap justify-center gap-6">
+              <a
+                href="https://github.com/astack-tech/astack"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-[#00F0FF] transition-colors"
+              >
                 GitHub
               </a>
-              <a href="#features" className="text-gray-400 hover:text-teal-400 transition">
+              <a
+                href="#features"
+                className="text-gray-400 hover:text-[#00F0FF] transition-colors"
+              >
                 Features
               </a>
-              <a href="#quickstart" className="text-gray-400 hover:text-teal-400 transition">
+              <a
+                href="#quickstart"
+                className="text-gray-400 hover:text-[#00F0FF] transition-colors"
+              >
                 Quick Start
               </a>
-              <a href="#computation-model" className="text-gray-400 hover:text-teal-400 transition">
+              <a
+                href="#computation-model"
+                className="text-gray-400 hover:text-[#00F0FF] transition-colors"
+              >
                 Computation Model
               </a>
-              <a href="#use-cases" className="text-gray-400 hover:text-teal-400 transition">
+              <a
+                href="#use-cases"
+                className="text-gray-400 hover:text-[#00F0FF] transition-colors"
+              >
                 Use Cases
               </a>
             </div>
           </div>
-          
-          <div className="mt-12 text-center text-gray-500 text-sm">
-            <div className="flex items-center justify-center space-x-3 mb-4">
-              <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+
+          {/* Copyright */}
+          <div className="mt-12 text-center">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]/60" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#00F0FF]/30" />
             </div>
-            <p>&copy; {new Date().getFullYear()} AStack. All rights reserved.</p>
+            <p className="text-gray-500 text-sm">
+              &copy; {new Date().getFullYear()} AStack. MIT License.
+            </p>
           </div>
         </div>
       </footer>

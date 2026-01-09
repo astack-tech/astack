@@ -1,176 +1,160 @@
-import CodeBlock from './CodeBlock';
+'use client';
+
+/**
+ * QuickStart Component
+ *
+ * Simplified getting started guide with tab-based package manager selection.
+ * Features:
+ * - Tab switching for npm/yarn/pnpm
+ * - Minimal code examples
+ * - Copy to clipboard functionality
+ * - Clean, focused design
+ *
+ * Design: Streamlined 3-step guide with visual emphasis
+ */
+
+import { useState } from 'react';
+import CopyButton from './CopyButton';
+import SyntaxHighlight from './SyntaxHighlight';
 
 export default function QuickStart() {
-  const steps = [
-    {
-      number: 1,
-      title: "Install AStack",
-      description: "Install AStack core and components packages using npm or yarn",
-      code: `npm install @astack-tech/core @astack-tech/components
-# yarn
-yarn add @astack-tech/core @astack-tech/components
-# pnpm
-pnpm add @astack-tech/core @astack-tech/components`
-    },
-    {
-      number: 2,
-      title: "Create Your First Component",
-      description: "Extend the Component base class to create custom components",
-      code: `import { Component } from '@astack-tech/core';
+  const [packageManager, setPackageManager] = useState<'npm' | 'yarn' | 'pnpm'>('npm');
 
-class TextProcessor extends Component {
-  constructor() {
-    super({});
-    // Each component has default 'in' and 'out' ports
-    // We can customize them with Component.Port.I and Component.Port.O
-    Component.Port.I('text').attach(this); // Customize input port
-  }
+  // Install commands for different package managers
+  const installCommands = {
+    npm: 'npm install @astack-tech/core @astack-tech/components',
+    yarn: 'yarn add @astack-tech/core @astack-tech/components',
+    pnpm: 'pnpm add @astack-tech/core @astack-tech/components',
+  };
 
-  // Standalone mode: direct processing
-  run(input: unknown): string {
-    const text = typeof input === 'string' ? input : String(input);
-    return text.toUpperCase();
-  }
+  // Simple example code - matches real AStack API
+  const exampleCode = `import { Agent } from "@astack-tech/components";
+import { Deepseek } from "@astack-tech/integrations";
 
-  // Pipeline mode: processing via port system
-  _transform($i: any, $o: any) {
-    $i('text').receive((input: unknown) => {
-      const output = this.run(input);
-      $o('out').send(output);
-    });
-  }
-}`
-    },
-    {
-      number: 3,
-      title: "Use Built-in Components",
-      description: "Leverage AStack's built-in components to quickly build functionality",
-      code: `import { Pipeline } from '@astack-tech/core';
-import { TextSplitter, Embedder } from '@astack-tech/components';
-
-// Create text processing pipeline
-const pipeline = new Pipeline();
-
-// Add components to pipeline
-pipeline.addComponent('splitter', new TextSplitter({ chunkSize: 1000 }));
-pipeline.addComponent('embedder', new Embedder({ model: 'text-embedding-ada-002' }));`
-    },
-    {
-      number: 4,
-      title: "Run Components and Pipelines",
-      description: "Process data using two running modes",
-      code: `// Method 1: Run component independently
-const splitter = new TextSplitter({ chunkSize: 1000 });
-const chunks = await splitter.run("This is a long text...");
-
-// Method 2: Run through pipeline
-const result = await pipeline.run('splitter.text', "This is another long text...");
-console.log(result);`
-    },
-    {
-      number: 5,
-      title: "Build an Agent",
-      description: "Create intelligent agents using the zero adaptation layer design",
-      code: `import { Agent } from '@astack-tech/components';
-import { Deepseek } from '@astack-tech/integrations/model-provider';
-import { createTool } from '@astack-tech/tools';
-
-// Create a tool
-const searchTool = createTool(
-  'search',
-  'Search the internet for information',
-  async (args) => {
-    // Implement search functionality
-    const query = args.query;
-    return { results: ["Search results for: " + query] };
-  },
-  {
-    type: 'object',
-    properties: {
-      query: { type: 'string', description: 'The search query' }
-    },
-    required: ['query']
-  }
-);
-
-// Create model provider
-const deepseek = new Deepseek({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  model: 'deepseek-chat'
-});
-
-// Create agent with model and tools
 const agent = new Agent({
-  model: deepseek,
-  tools: [searchTool],
-  systemPrompt: 'You are a helpful assistant that can search for information.',
-  verbose: true,
-  maxIterations: 3
+  model: new Deepseek({ model: "deepseek-chat" }),
+  tools: [searchTool, writeTool],
 });
 
-// Run the agent
-const result = await agent.run("Help me research recent AI advances");`
-    }
-  ];
+const result = await agent.run("Research AI trends");`;
 
   return (
-    <section id="quickstart" className="py-16 md:py-24 relative overflow-hidden">
-      {/* Background gradient and grid */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-900 opacity-90"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
+    <section id="quickstart" className="relative py-24 md:py-32 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[#0A0A0A]" />
+        <div className="absolute inset-0 bg-grid opacity-30" />
+        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#00F0FF]/5 rounded-full blur-[200px]" />
+      </div>
+
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        {/* Section header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">
-            Quick <span className="bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent">Start</span>
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
+            <span className="text-white">Quick </span>
+            <span className="gradient-text">Start</span>
           </h2>
-          <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-            Follow these steps to start building component-based AI applications with AStack.
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
+            Get up and running with AStack in minutes
           </p>
         </div>
-        
-        <div className="max-w-4xl mx-auto">
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-[22px] top-0 bottom-0 w-[2px] bg-gradient-to-b from-teal-500 to-blue-600"></div>
-            
-            {/* Steps */}
-            <div className="space-y-12">
-              {steps.map((step, index) => (
-                <div key={index} className="relative pl-14">
-                  {/* Step Number Circle */}
-                  <div className="absolute left-0 top-0 w-11 h-11 rounded-full bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center text-white font-bold">
-                    {step.number}
-                  </div>
-                  
-                  <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
-                    <h3 className="text-xl font-semibold mb-2 text-white">{step.title}</h3>
-                    <p className="text-gray-300 mb-4">{step.description}</p>
-                    
-                    <CodeBlock 
-                      code={step.code} 
-                      language="typescript" 
-                      showLineNumbers={true} 
-                      fileName={step.number === 1 ? 'terminal' : 'index.ts'}
-                    />
-                  </div>
-                </div>
+
+        {/* Steps */}
+        <div className="w-full mx-auto space-y-8">
+          {/* Step 1: Install */}
+          <div className="glass rounded-2xl p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-[#00F0FF] flex items-center justify-center text-black font-bold">
+                1
+              </div>
+              <h3 className="text-xl font-semibold text-white">Install AStack</h3>
+            </div>
+
+            {/* Package manager tabs */}
+            <div className="flex gap-2 mb-4">
+              {(['npm', 'yarn', 'pnpm'] as const).map((pm) => (
+                <button
+                  key={pm}
+                  onClick={() => setPackageManager(pm)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    packageManager === pm
+                      ? 'bg-[#00F0FF]/20 text-[#00F0FF] border border-[#00F0FF]/50'
+                      : 'bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10'
+                  }`}
+                >
+                  {pm}
+                </button>
               ))}
             </div>
+
+            {/* Install command */}
+            <div className="flex items-center gap-3 p-4 rounded-xl bg-black/50 border border-white/5">
+              <span className="text-gray-500">$</span>
+              <code className="flex-1 font-mono text-gray-300">
+                {installCommands[packageManager]}
+              </code>
+              <CopyButton text={installCommands[packageManager]} size="sm" />
+            </div>
           </div>
-          
-          <div className="mt-16 text-center">
-            <a 
-              href="https://github.com/astack-tech/astack" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-gradient-to-r from-teal-600 to-blue-600 rounded-lg text-white font-medium hover:from-teal-700 hover:to-blue-700 transition shadow-lg hover:shadow-blue-500/20 inline-flex items-center"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" />
-              </svg>
-              View Full Documentation
-            </a>
+
+          {/* Step 2: Create Agent */}
+          <div className="glass rounded-2xl p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-[#00F0FF] flex items-center justify-center text-black font-bold">
+                2
+              </div>
+              <h3 className="text-xl font-semibold text-white">Create Your First Agent</h3>
+            </div>
+
+            {/* Code example */}
+            <div className="rounded-xl bg-black/50 border border-white/5 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
+                <span className="text-xs text-gray-500 font-mono">agent.ts</span>
+                <CopyButton text={exampleCode} size="sm" />
+              </div>
+              <div className="p-4">
+                <SyntaxHighlight code={exampleCode} />
+              </div>
+            </div>
+          </div>
+
+          {/* Step 3: Run */}
+          <div className="glass rounded-2xl p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-10 h-10 rounded-full bg-[#00F0FF] flex items-center justify-center text-black font-bold">
+                3
+              </div>
+              <h3 className="text-xl font-semibold text-white">Run & Explore</h3>
+            </div>
+
+            <p className="text-gray-400 mb-6">
+              Your agent is ready! Explore more examples and documentation on GitHub.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4">
+              <a
+                href="https://github.com/astack-tech/astack/tree/master/examples"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/50 text-[#00F0FF] hover:bg-[#00F0FF]/20 transition-all"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.462-1.11-1.462-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .267.18.578.688.48C19.138 20.161 22 16.416 22 12c0-5.523-4.477-10-10-10z" clipRule="evenodd" />
+                </svg>
+                <span>View Examples</span>
+              </a>
+              <a
+                href="https://github.com/astack-tech/astack"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-white/20 text-gray-300 hover:bg-white/5 hover:border-white/30 transition-all"
+              >
+                <span>Read Documentation</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
           </div>
         </div>
       </div>

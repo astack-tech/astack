@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="240" height="240" viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Dark background with subtle grid -->
-  <rect width="240" height="240" fill="#0F172A"/>
-  <g opacity="0.08">
-    <path d="M0 20H240M0 40H240M0 60H240M0 80H240M0 100H240M0 120H240M0 140H240M0 160H240M0 180H240M0 200H240M0 220H240" stroke="#FFFFFF" stroke-width="0.5"/>
-    <path d="M20 0V240M40 0V240M60 0V240M80 0V240M100 0V240M120 0V240M140 0V240M160 0V240M180 0V240M200 0V240M220 0V240" stroke="#FFFFFF" stroke-width="0.5"/>
+  <!-- Grid overlay (optional, can be removed for cleaner look) -->
+  <g opacity="0.1">
+    <path d="M0 20H240M0 40H240M0 60H240M0 80H240M0 100H240M0 120H240M0 140H240M0 160H240M0 180H240M0 200H240M0 220H240" stroke="#00F0FF" stroke-width="0.5"/>
+    <path d="M20 0V240M40 0V240M60 0V240M80 0V240M100 0V240M120 0V240M140 0V240M160 0V240M180 0V240M200 0V240M220 0V240" stroke="#00F0FF" stroke-width="0.5"/>
   </g>
-  
+
   <!-- Main hexagon shape -->
-  <path d="M120 40L195.9808 85V175L120 220L44.0192 175V85L120 40Z" fill="url(#hexGradient)" stroke="#2DD4BF" stroke-width="2"/>
-  
+  <path d="M120 40L195.9808 85V175L120 220L44.0192 175V85L120 40Z" fill="url(#hexGradient)" stroke="#00F0FF" stroke-width="2"/>
+
   <!-- Inner hexagon layers -->
-  <path d="M120 60L178.5641 95V165L120 200L61.4359 165V95L120 60Z" fill="#0F172A" stroke="#2DD4BF" stroke-width="1.5" opacity="0.7"/>
-  <path d="M120 80L161.1474 105V155L120 180L78.8526 155V105L120 80Z" fill="#0F172A" stroke="#2DD4BF" stroke-width="1" opacity="0.5"/>
-  <path d="M120 100L143.7308 115V145L120 160L96.2692 145V115L120 100Z" fill="#0F172A" stroke="#2DD4BF" stroke-width="0.5" opacity="0.3"/>
-  
+  <path d="M120 60L178.5641 95V165L120 200L61.4359 165V95L120 60Z" fill="none" stroke="#00F0FF" stroke-width="1.5" opacity="0.7"/>
+  <path d="M120 80L161.1474 105V155L120 180L78.8526 155V105L120 80Z" fill="none" stroke="#00F0FF" stroke-width="1" opacity="0.5"/>
+  <path d="M120 100L143.7308 115V145L120 160L96.2692 145V115L120 100Z" fill="none" stroke="#00F0FF" stroke-width="0.5" opacity="0.3"/>
+
   <!-- A letter stylized -->
-  <path d="M88 160L120 80L152 160" stroke="#10B981" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M100 135H140" stroke="#10B981" stroke-width="10" stroke-linecap="round"/>
-  
+  <path d="M88 160L120 80L152 160" stroke="#00F0FF" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M100 135H140" stroke="#00F0FF" stroke-width="10" stroke-linecap="round"/>
+
   <!-- Digital circuit paths -->
-  <path d="M80 60L60 60L60 180L80 180" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 4"/>
-  <path d="M160 60L180 60L180 180L160 180" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 4"/>
-  
+  <path d="M80 60L60 60L60 180L80 180" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 4" opacity="0.5"/>
+  <path d="M160 60L180 60L180 180L160 180" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="2 4" opacity="0.5"/>
+
   <!-- Small nodes -->
-  <circle cx="60" cy="60" r="3" fill="#06B6D4"/>
-  <circle cx="60" cy="180" r="3" fill="#06B6D4"/>
-  <circle cx="180" cy="60" r="3" fill="#06B6D4"/>
-  <circle cx="180" cy="180" r="3" fill="#06B6D4"/>
-  
+  <circle cx="60" cy="60" r="3" fill="#00F0FF"/>
+  <circle cx="60" cy="180" r="3" fill="#00F0FF"/>
+  <circle cx="180" cy="60" r="3" fill="#00F0FF"/>
+  <circle cx="180" cy="180" r="3" fill="#00F0FF"/>
+
   <!-- Gradient Definitions -->
   <defs>
     <linearGradient id="hexGradient" x1="44.0192" y1="85" x2="195.981" y2="175" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0D9488"/>
-      <stop offset="0.5" stop-color="#0F766E" stop-opacity="0.8"/>
-      <stop offset="1" stop-color="#0E7490"/>
+      <stop offset="0" stop-color="#00F0FF" stop-opacity="0.3"/>
+      <stop offset="0.5" stop-color="#00F0FF" stop-opacity="0.2"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.1"/>
     </linearGradient>
   </defs>
 </svg>

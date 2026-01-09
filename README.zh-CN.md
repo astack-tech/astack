@@ -449,12 +449,39 @@ sequenceDiagram
 
 ## 📦 包结构
 
-AStack 组织为几个包：
+AStack 组织为几个包，均已发布到 npm：
 
-- **@astack-tech/core**: 核心功能和管道执行引擎
-- **@astack-tech/components**: 可重用的 AI 组件，如代理和内存
-- **@astack-tech/tools**: 工具定义和实现
-- **@astack-tech/integrations**: 与外部服务和模型提供者的集成
+| 包名 | 版本 | 描述 |
+|------|------|------|
+| [@astack-tech/core](https://www.npmjs.com/package/@astack-tech/core) | [![npm](https://img.shields.io/npm/v/@astack-tech/core.svg)](https://www.npmjs.com/package/@astack-tech/core) | 核心功能和管道执行引擎 |
+| [@astack-tech/components](https://www.npmjs.com/package/@astack-tech/components) | [![npm](https://img.shields.io/npm/v/@astack-tech/components.svg)](https://www.npmjs.com/package/@astack-tech/components) | 可重用的 AI 组件，如代理和内存 |
+| [@astack-tech/tools](https://www.npmjs.com/package/@astack-tech/tools) | [![npm](https://img.shields.io/npm/v/@astack-tech/tools.svg)](https://www.npmjs.com/package/@astack-tech/tools) | 工具定义和实现 |
+| [@astack-tech/integrations](https://www.npmjs.com/package/@astack-tech/integrations) | [![npm](https://img.shields.io/npm/v/@astack-tech/integrations.svg)](https://www.npmjs.com/package/@astack-tech/integrations) | 与外部服务和模型提供者的集成 |
+
+### 安装
+
+安装你需要的包：
+
+```bash
+# 核心包（必需）
+npm install @astack-tech/core
+
+# 组件包（用于 Agent、Memory 等）
+npm install @astack-tech/components
+
+# 工具包（用于工具实现）
+npm install @astack-tech/tools
+
+# 集成包（用于 OpenAI、Deepseek 等模型提供者）
+npm install @astack-tech/integrations
+```
+
+或一次性安装所有包：
+
+```bash
+npm install @astack-tech/core @astack-tech/components @astack-tech/tools @astack-tech/integrations
+```
+
 
 ## 📖 文档
 

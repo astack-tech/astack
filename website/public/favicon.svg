@@ -1,15 +1,14 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4F46E5" />
-      <stop offset="50%" stop-color="#3B82F6" />
-      <stop offset="100%" stop-color="#10B981" />
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="100%" stop-color="#FFFFFF" />
     </linearGradient>
   </defs>
   <!-- 六边形外框 -->
   <path d="M24 8L39.6 17V35L24 44L8.4 35V17L24 8Z" fill="none" stroke="url(#logoGradient)" stroke-width="2" />
   <!-- 内层六边形 -->
-  <path d="M24 14L35.2 20.5V33.5L24 40L12.8 33.5V20.5L24 14Z" fill="url(#logoGradient)" fill-opacity="0.3" />
+  <path d="M24 14L35.2 20.5V33.5L24 40L12.8 33.5V20.5L24 14Z" fill="url(#logoGradient)" fill-opacity="0.2" />
   <!-- 中心菱形 -->
-  <path d="M24 20L30 24V32L24 36L18 32V24L24 20Z" fill="url(#logoGradient)" fill-opacity="0.6" />
+  <path d="M24 20L30 24V32L24 36L18 32V24L24 20Z" fill="url(#logoGradient)" fill-opacity="0.5" />
 </svg>

@@ -1,82 +1,144 @@
-// Image import removed
-import CodeBlock from './CodeBlock';
+'use client';
+
+/**
+ * Hero Component
+ *
+ * Main landing section with centered layout and dynamic elements.
+ * Features:
+ * - Centered headline with gradient text
+ * - Typewriter code animation
+ * - Floating component icons
+ * - Particle canvas background
+ * - Glass morphism CTA buttons
+ *
+ * Design: Bold, centered layout with maximum visual impact
+ */
+
+import ParticleCanvas from './ParticleCanvas';
+import FloatingIcons from './FloatingIcons';
+import TypewriterCode from './TypewriterCode';
+import CopyButton from './CopyButton';
 
 export default function Hero() {
-  return (
-    <section className="pt-24 pb-16 md:pt-32 md:pb-24 relative overflow-hidden">
-      {/* Background gradient and grid */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-gray-800 opacity-90"></div>
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[length:30px_30px]"></div>
-      
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Text Content */}
-          <div className="max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-teal-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
-                AStack
-              </span>
-              <span className="block mt-2 text-white">
-                A composable framework
-                <span className="text-blue-400"> for building AI applications.</span>
-              </span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-gray-300 mb-8">
-              Everything is a component. Build powerful agent workflows with a pure functional 
-              programming approach using AStack&apos;s composable architecture.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4">
-              <a 
-                href="#quickstart" 
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-teal-500 rounded-lg text-white font-medium hover:from-blue-700 hover:to-teal-600 transition shadow-lg hover:shadow-blue-500/20"
-              >
-                Get Started
-              </a>
-              <a 
-                href="https://github.com/astack-tech/astack" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-gray-800 rounded-lg text-white font-medium hover:bg-gray-700 transition border border-gray-700"
-              >
-                View on GitHub
-              </a>
-            </div>
-          </div>
-          
-          {/* Code Example */}
-          <div className="w-full lg:w-auto shrink-0 max-w-2xl">
-            <CodeBlock
-              code={`import { Pipeline } from "@astack-tech/core";
-import { Agent } from "@astack-tech/components";
-import { Deepseek } from "@astack-tech/integrations/model-provider";
-import { PromptTemplate } from "@astack-tech/components";
+  // Code for typewriter effect - matches real AStack API with proper indentation
+  const code = `import { Agent } from "@astack-tech/components";
+import { Deepseek } from "@astack-tech/integrations";
 
-// Create a simple pipeline with components
-const pipeline = new Pipeline();
-
-// Add components to the pipeline
-pipeline.addComponent('template', new PromptTemplate({
-  template: "Answer this question: {{question}}"
-}));
-pipeline.addComponent('model', new Deepseek({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  model: "deepseek-chat"
-}));
-pipeline.addComponent('agent', new Agent());
-
-// Run the pipeline
-const response = await pipeline.run('template.input', {
-  question: "What is functional programming?"
+const agent = new Agent({
+  model: new Deepseek({ model: "deepseek-chat" }),
+  tools: [searchTool, writeTool],
 });
 
-console.log(response);`}
-              language="typescript"
-              showLineNumbers={true}
-              fileName="example.ts"
-            />
+const result = await agent.run("Research AI trends");`;
+
+  return (
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background layers */}
+      <div className="absolute inset-0">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black to-[#0A0A0A]" />
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-grid opacity-50" />
+
+        {/* Central radial glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[#00F0FF]/5 rounded-full blur-[150px]" />
+
+        {/* Particle canvas animation */}
+        <ParticleCanvas />
+
+        {/* Floating icons */}
+        <FloatingIcons />
+      </div>
+
+      {/* Main content - centered */}
+      <div className="container mx-auto px-4 md:px-6 relative z-10 text-center py-20">
+        {/* Tagline badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-glow mb-8">
+          <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+          <span className="text-sm text-gray-300 font-medium">
+            Built on Monadic Paradigm
+          </span>
+        </div>
+
+        {/* Main headline */}
+        <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold leading-tight mb-6">
+          <span className="gradient-text text-glow">AStack</span>
+        </h1>
+
+        {/* Subheadline */}
+        <p className="text-xl md:text-2xl lg:text-3xl text-gray-300 mb-4 font-light">
+          The composable framework for{' '}
+          <span className="text-[#00F0FF] font-medium">AI applications</span>
+        </p>
+
+        {/* Description */}
+        <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed">
+          Build any AI pattern with type-safe components, zero adaptation layers,
+          and mathematical composition guarantees from HLang&apos;s monadic foundation.
+        </p>
+
+        {/* Typewriter code display */}
+        <div className="max-w-lg mx-auto mb-12">
+          <div className="glass rounded-xl p-6 text-left">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+              <div className="w-3 h-3 rounded-full bg-red-500/60" />
+              <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
+              <div className="w-3 h-3 rounded-full bg-green-500/60" />
+              <span className="ml-2 text-xs text-gray-500 font-mono">example.ts</span>
+            </div>
+            <div className="overflow-x-auto max-h-[300px] overflow-y-auto">
+              <TypewriterCode
+                code={code}
+                typingSpeed={25}
+                loop={true}
+                loopDelay={4000}
+              />
+            </div>
           </div>
+        </div>
+
+        {/* CTA buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+          {/* Primary CTA */}
+          <a
+            href="#quickstart"
+            className="group relative px-8 py-4 rounded-xl font-medium overflow-hidden transition-all duration-300"
+          >
+            <div className="absolute inset-0 bg-[#00F0FF] rounded-xl transition-all duration-300 group-hover:shadow-[0_0_40px_rgba(0,240,255,0.5)]" />
+            <span className="relative z-10 text-black font-semibold">
+              Get Started
+            </span>
+          </a>
+
+          {/* Secondary CTA */}
+          <a
+            href="https://github.com/astack-tech/astack"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group px-8 py-4 rounded-xl font-medium border border-white/20 hover:border-[#00F0FF]/50 hover:bg-[#00F0FF]/5 transition-all duration-300"
+          >
+            <span className="text-gray-300 group-hover:text-white transition-colors">
+              View on GitHub
+            </span>
+          </a>
+        </div>
+
+        {/* Quick install */}
+        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-lg glass mb-16">
+          <span className="text-gray-500 text-sm">$</span>
+          <code className="text-sm font-mono text-gray-300">
+            npm install @astack-tech/core
+          </code>
+          <CopyButton text="npm install @astack-tech/core" size="sm" />
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="flex flex-col items-center gap-3 text-gray-500">
+          <div className="w-8 h-12 rounded-full border-2 border-gray-600 flex items-start justify-center p-2">
+            <div className="w-1.5 h-3 bg-[#00F0FF] rounded-full animate-bounce" />
+          </div>
+          <span className="text-sm">Scroll to explore</span>
         </div>
       </div>
     </section>
