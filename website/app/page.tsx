@@ -24,8 +24,46 @@ import Comparison from '@/components/Comparison';
 import UseCases from '@/components/UseCases';
 
 export default function Home() {
+  // Structured data for SEO (JSON-LD)
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'AStack',
+    applicationCategory: 'DeveloperApplication',
+    operatingSystem: 'Cross-platform',
+    description:
+      'AStack is a composable AI agent framework built on HLang\'s monadic paradigm. Create powerful AI agents with type-safe components, zero adaptation layers, and direct port connections.',
+    url: 'https://astack.tech',
+    downloadUrl: 'https://www.npmjs.com/package/@astack-tech/core',
+    softwareVersion: 'v0.1.1-beta.0',
+    programmingLanguage: 'TypeScript',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    author: {
+      '@type': 'Organization',
+      name: 'AStack Team',
+      url: 'https://github.com/astack-tech',
+    },
+    sameAs: [
+      'https://github.com/astack-tech/astack',
+      'https://www.npmjs.com/package/@astack-tech/core',
+    ],
+    keywords:
+      'AI agent framework, autonomous agents, TypeScript AI, monadic programming, LLM framework, RAG framework, AI workflow, agent orchestration',
+  };
+
   return (
-    <main className="min-h-screen bg-black">
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+
+      <main className="min-h-screen bg-black">
       {/* Fixed navigation */}
       <Navbar />
 
@@ -119,5 +157,6 @@ export default function Home() {
         </div>
       </footer>
     </main>
+    </>
   );
 }

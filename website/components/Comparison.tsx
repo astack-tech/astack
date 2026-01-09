@@ -73,7 +73,16 @@ export default function Comparison() {
             <span className="gradient-text">Independence</span>
           </h2>
           <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            100% original framework with independent architecture, inspired by Haystack&apos;s API style
+            100% original framework with independent architecture, inspired by{' '}
+            <a
+              href="https://haystack.deepset.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#00F0FF] hover:underline font-medium"
+            >
+              Haystack
+            </a>
+            &apos;s API style
           </p>
         </div>
 
