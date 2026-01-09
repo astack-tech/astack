@@ -27,6 +27,7 @@ export default function Navbar() {
     { href: '#quickstart', label: 'Quick Start' },
     { href: '#comparison', label: 'Comparison' },
     { href: '#use-cases', label: 'Use Cases' },
+    { href: '/blog', label: 'Blog' },
   ];
 
   return (
