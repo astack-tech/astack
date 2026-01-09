@@ -42,7 +42,10 @@ const result = await agent.run("Research AI trends");`;
         <div className="absolute inset-0 bg-grid opacity-50" />
 
         {/* Central radial glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[#00F0FF]/5 rounded-full blur-[150px]" />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-[#00F0FF]/5 rounded-full"
+          style={{ filter: 'blur(150px)' }}
+        />
 
         {/* Particle canvas animation */}
         <ParticleCanvas />

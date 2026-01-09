@@ -44,7 +44,10 @@ const result = await agent.run("Research AI trends");`;
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[#0A0A0A]" />
         <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#00F0FF]/5 rounded-full blur-[200px]" />
+        <div
+          className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-[#00F0FF]/5 rounded-full"
+          style={{ filter: 'blur(200px)' }}
+        />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">

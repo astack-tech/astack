@@ -99,7 +99,10 @@ pipeline.connect('input.out', 'agent.in');`,
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-black" />
         <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-[#00F0FF]/5 rounded-full blur-[200px]" />
+        <div
+          className="absolute top-1/2 left-1/4 w-[600px] h-[600px] bg-[#00F0FF]/5 rounded-full"
+          style={{ filter: 'blur(200px)' }}
+        />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">

@@ -43,7 +43,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-black" />
           <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#00F0FF]/10 rounded-full blur-[200px]" />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-[#00F0FF]/10 rounded-full"
+            style={{ filter: 'blur(200px)' }}
+          />
         </div>
 
         <div className="container mx-auto px-4 md:px-6 relative z-10">

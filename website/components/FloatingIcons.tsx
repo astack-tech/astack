@@ -105,7 +105,10 @@ export default function FloatingIcons() {
               {/* Icon container with glass effect */}
               <div className="group relative">
                 {/* Glow effect */}
-                <div className="absolute inset-0 bg-[#00F0FF]/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div
+                  className="absolute inset-0 bg-[#00F0FF]/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ filter: 'blur(24px)' }}
+                />
 
                 {/* Icon box */}
                 <div className="relative w-14 h-14 rounded-xl glass border border-[#00F0FF]/20 flex items-center justify-center text-[#00F0FF] hover:border-[#00F0FF]/50 hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] transition-all duration-300 pointer-events-auto cursor-default">

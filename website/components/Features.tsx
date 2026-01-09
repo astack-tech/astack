@@ -22,7 +22,10 @@ export default function Features() {
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[#0A0A0A]" />
         <div className="absolute inset-0 bg-grid opacity-30" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00F0FF]/3 rounded-full blur-[200px]" />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#00F0FF]/3 rounded-full"
+          style={{ filter: 'blur(200px)' }}
+        />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">

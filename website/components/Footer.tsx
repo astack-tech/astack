@@ -13,7 +13,10 @@ export default function Footer() {
       <div className="absolute inset-0 bg-black" />
 
       {/* Subtle glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-[#00F0FF]/5 rounded-full blur-[100px]" />
+      <div
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[200px] bg-[#00F0FF]/5 rounded-full"
+        style={{ filter: 'blur(100px)' }}
+      />
 
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-8">
