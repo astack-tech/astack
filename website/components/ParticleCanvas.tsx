@@ -36,7 +36,7 @@ const CONFIG = {
 
   // Connection settings
   connectionDistance: 150,
-  connectionOpacity: 0.15,
+  connectionOpacity: 0.25,
 
   // Mouse interaction
   mouseRadius: 200,
