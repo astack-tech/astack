@@ -232,18 +232,18 @@ function ComponentVisual() {
           <span className="text-gray-400 text-xs">extends TransformNode</span>
 
           {/* Input port (left side) */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2">
+          <div className="absolute top-1/2" style={{ left: 0, transform: 'translate(-50%, -50%)' }}>
             <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
           </div>
 
           {/* Output port (right side) */}
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2">
+          <div className="absolute top-1/2" style={{ right: 0, transform: 'translate(50%, -50%)' }}>
             <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
           </div>
         </div>
 
         {/* Port labels */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-2 md:pr-3 text-right">
+        <div className="absolute top-1/2 pr-2 md:pr-3 text-right" style={{ right: '100%', transform: 'translateY(-50%)' }}>
           <div className="flex items-center gap-1 md:gap-2">
             <span className="text-gray-400 text-[10px] md:text-xs font-mono">data</span>
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
@@ -253,7 +253,7 @@ function ComponentVisual() {
           </code>
         </div>
 
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-2 md:pl-3 text-left">
+        <div className="absolute top-1/2 pl-2 md:pl-3 text-left" style={{ left: '100%', transform: 'translateY(-50%)' }}>
           <div className="flex items-center gap-1 md:gap-2">
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" style={{ animationDelay: '0.5s' }} />
             <span className="text-gray-400 text-[10px] md:text-xs font-mono">result</span>
