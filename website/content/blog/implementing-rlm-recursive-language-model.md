@@ -239,7 +239,14 @@ Real execution on AStack codebase **including node_modules** (8,466 TypeScript f
    Sub-LLM Calls: 0
 ```
 
-**The key insight:** Even with a **44.63MB context (8,466 files)**, the LRU cache only holds 10MB maximum. The model successfully analyzed the entire codebase by:
+**Why include node_modules?** This is a real-world scenario. When analyzing a codebase, you often need to:
+- Understand how dependencies are used and integrated
+- Trace function calls into third-party libraries
+- Identify version-specific behaviors or bugs
+- Analyze the full dependency tree for security audits
+- Debug issues that span your code and dependencies
+
+**The key insight:** Even with a **44.63MB context (8,466 files including all dependencies)**, the LRU cache only holds 10MB maximum. The model successfully analyzed the entire codebase by:
 - Loading files on-demand through `readFile()` calls
 - Using `searchFiles()` and `getFileInfo()` to explore without loading content
 - Automatically evicting old entries when cache is full
