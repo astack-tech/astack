@@ -1,12 +1,12 @@
 ---
-title: "Implementing RLM: Breaking Through LLM Context Limits with Recursive Code Generation"
+title: "Implementing RLM: Context Offloading and Dynamic Discovery for Long-Context Reasoning"
 date: "2026-01-09"
-excerpt: "How we implemented the Recursive Language Model (RLM) from arXiv:2512.24601 in AStack's core package, solving real-world engineering challenges for processing 100MB+ contexts without OOM errors."
+excerpt: "How we implemented the Recursive Language Model (RLM) from arXiv:2512.24601 in AStack's core package, using context offloading and dynamic discovery to process 100MB+ contexts without OOM errors."
 author: "AStack Team"
 tags: ["Release", "Tutorial", "RLM", "Long Context"]
 ---
 
-# Implementing RLM: Breaking Through LLM Context Limits with Recursive Code Generation
+# Implementing RLM: Context Offloading and Dynamic Discovery for Long-Context Reasoning
 
 Today, we're excited to share our production-ready implementation of the **Recursive Language Model (RLM)** architecture from the recent paper ["Recursive Language Model: A Recursive Approach to Long Context Reasoning"](https://arxiv.org/abs/2512.24601). This implementation is now available in AStack's core package (`@astack-tech/components`) as the RLM Agent Pattern.
 
@@ -139,47 +139,6 @@ class FileSystemContext {
 ```
 
 This abstraction is crucial: it means RLM isn't limited to "code" as the interface. In theory, any programmatic interface could work—code just happens to be the most expressive. The essence is: **context outside, programmatic access inside**.
-
-**Problem 2: Inefficient File Discovery**
-
-The paper doesn't specify how the LLM discovers relevant files in large codebases.
-
-**Our Solution: Rich File Operations API**
-
-```typescript
-// Available in generated code
-const files = listFiles(); // Get all files
-const matches = searchFiles('*.ts'); // Pattern matching
-const info = getFileInfo('src/auth.ts'); // Metadata without reading
-const content = readFile('src/auth.ts'); // Lazy load content
-```
-
-**Problem 3: Asynchronous Queue Management**
-
-The paper's `llm_query` function needs careful handling to prevent memory leaks.
-
-**Our Solution: Background Queue Processing**
-
-```typescript
-// Queue requests outside VM context
-const llmQueryQueue: Array<{
-  prompt: string;
-  resolve: (result: string) => void;
-  reject: (error: Error) => void;
-}> = [];
-
-// Process asynchronously with streaming support
-async function processQueue() {
-  for (const request of llmQueryQueue) {
-    try {
-      const result = await subLLM.generate(request.prompt);
-      request.resolve(result);
-    } catch (error) {
-      request.reject(error);
-    }
-  }
-}
-```
 
 ## Real-World Performance
 
@@ -435,16 +394,17 @@ This demonstrates RLM's core strength: **intelligent, selective access to massiv
 
 ### Comparison with Official Implementation
 
-The paper's authors released an [official Python implementation](https://github.com/recursion-labs/rlm). While their implementation validates the core concept, AStack's implementation addresses several production challenges and extends the architecture in meaningful ways.
+The paper's authors released an [official Python implementation](https://github.com/recursion-labs/rlm). While their implementation validates the core concept, AStack's implementation addresses several challenges that the paper explicitly identifies as limitations or future work.
 
 #### 1. True Recursive RLM Support
+
+**Paper's Limitation (Section: Future Work):**
+> "We chose to use a max recursion depth of one (i.e. sub-calls are LMs); while we found strong performance on existing long-context benchmarks, we believe that future work should investigate deeper layers of recursion."
 
 **Official Implementation (rlm.py:63):**
 ```python
 max_depth: int = 1,  # Currently, only depth 1 is supported.
 ```
-
-The official code explicitly limits recursion depth to 1. The paper mentions deeper recursion as "future work."
 
 **AStack Implementation:**
 ```typescript
@@ -461,15 +421,45 @@ if (maxDepth > 1) {
 }
 ```
 
-We implement true recursive RLM where Sub-LLM can itself be an RLM instance with full REPL capabilities. This enables multi-layer decomposition for extremely complex tasks.
+We implement true recursive RLM where Sub-LLM can itself be an RLM instance with full REPL capabilities. This addresses the paper's identified future work direction.
 
-#### 2. Filesystem Abstraction for Context
+#### 2. Asynchronous Sub-LLM Calls
 
-**Official Implementation:**
-The official code loads context directly into the REPL namespace as Python variables. For large codebases, this means loading everything into memory.
+**Paper's Limitation (Section: Limitations):**
+> "We focused on synchronous sub-calls inside of a Python REPL environment, but we note that alternative strategies involving asynchronous sub-calls and sandboxed REPLs can potentially significantly reduce the runtime and inference cost of RLMs."
+
+> "RLMs without asynchronous LM calls are slow. We implemented all sub-LM queries naively as blocking / sequential calls, which caused our RLM experiments to be slow."
 
 **AStack Implementation:**
-We abstract context as a filesystem interface with LRU caching:
+We implement background queue processing for `llm_query` calls:
+
+```typescript
+// Queue for handling llm_query requests OUTSIDE VM context
+const llmQueryQueue: Array<{
+  prompt: string;
+  resolve: (result: string) => void;
+  reject: (error: Error) => void;
+}> = [];
+
+// Process asynchronously with streaming support
+const startQueryProcessing = () => {
+  queryProcessingActive = (async () => {
+    while (llmQueryQueue.length > 0) {
+      const request = llmQueryQueue.shift()!;
+      const result = await subLLM.generate(request.prompt);
+      request.resolve(result);
+    }
+  })();
+};
+```
+
+While still sequential, our architecture separates queue management from VM execution, enabling future parallel processing without breaking the API.
+
+#### 3. Filesystem Abstraction for Context
+
+**Our Innovation Beyond the Paper:**
+
+The paper treats context abstractly. We realized context should be a filesystem abstraction:
 
 ```typescript
 class FileSystemContext {
@@ -489,14 +479,11 @@ class FileSystemContext {
 ```
 
 This abstraction:
-- Prevents OOM errors on 100MB+ contexts
+- Prevents OOM errors through LRU caching
 - Enables future extensions (databases, APIs, remote storage)
 - Provides a unified interface regardless of context source
 
-#### 3. Shared Context Across Recursion Levels
-
-**Official Implementation:**
-Each RLM instance manages its own context independently.
+#### 4. Shared Context Across Recursion Levels
 
 **AStack Implementation:**
 ```typescript
