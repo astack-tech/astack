@@ -16,7 +16,7 @@ Modern LLMs face a fundamental challenge: even with extended context windows (12
 
 1. **Lost-in-the-middle problem**: Information buried in long contexts gets overlooked
 2. **Quadratic complexity**: Attention mechanisms scale poorly with context length
-3. **Memory constraints**: Processing 100MB+ codebases causes OOM errors
+3. **Memory constraints**: Processing massive contexts causes OOM errors
 4. **Reasoning degradation**: Performance drops significantly on long-context tasks
 
 ## The RLM Solution: Context Outside the REPL
@@ -38,7 +38,7 @@ This architectural choice fundamentally changes how the model processes informat
 
 ```typescript
 // 1. Context is placed in the environment (NOT fed to the model)
-const context = new FileSystemContext('./codebase', filePaths);
+const context = new FileSystemContext('./data', filePaths);
 
 // 2. Root LLM generates code to explore the context
 const code = await rootLLM.generate(`
@@ -73,7 +73,7 @@ const agent = new RLMAgent({
   maxDepth: 2, // Support nested recursion
 });
 
-const context = new FileSystemContext('./my-codebase', filePaths);
+const context = new FileSystemContext('./my-project', filePaths);
 const result = await agent.run({
   context,
   query: 'Find all authentication vulnerabilities',
@@ -165,13 +165,13 @@ The paper's results used GPT-4o and showed degradation at scale (78% → 65%). T
 **Key Findings:**
 - Direct LLM approaches fail catastrophically at scale (45% → 18%)
 - RLM architecture fundamentally solves the long-context problem
-- Our implementation handles **100MB+ contexts** without OOM errors
+- Our implementation handles **massive contexts** without OOM errors
 - Model choice significantly impacts RLM effectiveness (code generation capability is critical)
 - Non-reasoning mode models can achieve excellent results with RLM's structured approach
 
 ### Memory Usage
 
-Real execution on AStack codebase **including node_modules** (8,466 TypeScript files):
+Real execution on AStack project **including node_modules** (8,466 TypeScript files):
 
 ```
 📊 Context Statistics:
@@ -198,14 +198,14 @@ Real execution on AStack codebase **including node_modules** (8,466 TypeScript f
    Sub-LLM Calls: 0
 ```
 
-**Why include node_modules?** This is a real-world scenario. When analyzing a codebase, you often need to:
+**Why include node_modules?** This is a real-world scenario. When analyzing a project, you often need to:
 - Understand how dependencies are used and integrated
 - Trace function calls into third-party libraries
 - Identify version-specific behaviors or bugs
 - Analyze the full dependency tree for security audits
 - Debug issues that span your code and dependencies
 
-**The key insight:** Even with a **44.63MB context (8,466 files including all dependencies)**, the LRU cache only holds 10MB maximum. The model successfully analyzed the entire codebase by:
+**The key insight:** Even with a **44.63MB context (8,466 files including all dependencies)**, the LRU cache only holds 10MB maximum. The model successfully analyzed the entire project by:
 - Loading files on-demand through `readFile()` calls
 - Using `searchFiles()` and `getFileInfo()` to explore without loading content
 - Automatically evicting old entries when cache is full
@@ -213,15 +213,15 @@ Real execution on AStack codebase **including node_modules** (8,466 TypeScript f
 
 This demonstrates RLM's true power: **handling contexts orders of magnitude larger than model context windows**, with guaranteed memory safety.
 
-## Code Example: Codebase Analysis
+## Code Example: Project Analysis
 
-Here's a complete example analyzing a codebase for security issues:
+Here's a complete example analyzing a project for security issues:
 
 ```typescript
 import { RLMAgent, FileSystemContext } from '@astack-tech/components';
 import { DeepseekLLMProvider } from '@astack-tech/llm-deepseek';
 
-async function analyzeCodebase() {
+async function analyzeProject() {
   // 1. Setup RLM Agent
   const agent = new RLMAgent({
     rootLLM: new DeepseekLLMProvider(process.env.DEEPSEEK_API_KEY, 'deepseek-chat'),
@@ -241,12 +241,12 @@ async function analyzeCodebase() {
   );
 
   // 3. Run analysis with streaming
-  console.log('Analyzing codebase for security issues...\n');
+  console.log('Analyzing project for security issues...\n');
 
   for await (const chunk of agent.runStream({
     context,
     query: `
-      Analyze this codebase for security vulnerabilities.
+      Analyze this project for security vulnerabilities.
       Focus on:
       1. SQL injection risks
       2. XSS vulnerabilities
@@ -272,16 +272,16 @@ async function analyzeCodebase() {
   console.log(`- Max Depth Used: ${metadata.actualDepth}/${metadata.maxDepth}`);
 }
 
-analyzeCodebase();
+analyzeProject();
 ```
 
 ## Generated Code Example
 
-Here's what the Root LLM (DeepSeek-V3, deepseek-chat) actually generated for analyzing the **44.63MB AStack codebase with 8,466 files**:
+Here's what the Root LLM (DeepSeek-V3, deepseek-chat) actually generated for analyzing the **44.63MB AStack project with 8,466 files**:
 
 ```javascript
 try {
-    // First, get overall statistics to understand the codebase scope
+    // First, get overall statistics to understand the project scope
     const stats = getStats();
 
     // Look for key architectural files
@@ -380,7 +380,7 @@ try {
 }
 ```
 
-**Key observations from this 44.63MB codebase analysis:**
+**Key observations from this 44.63MB project analysis:**
 - **7,317 characters of generated code** to analyze 8,466 files
 - The model uses `searchFiles()` with regex patterns to discover files **without loading them**
 - It uses `getFileInfo()` to check file sizes before reading (avoiding huge files)
@@ -553,13 +553,11 @@ The pattern isn't limited by task type—it's a fundamental architectural choice
 
 ## Future Directions
 
-We're actively working on:
+We're actively working on two key areas:
 
-1. **Multi-Modal Support**: Extending RLM to handle images, PDFs, and other formats
-2. **Parallel Execution**: Running multiple sub-LLM calls concurrently
-3. **Caching Strategies**: Intelligent caching of sub-LLM results
-4. **Cost Optimization**: Reducing token usage through smarter orchestration
-5. **Tool Integration**: Adding external tool calls (web search, databases, APIs)
+1. **Agent-Level RLM Abstraction**: Extending RLM from Root LLM → Sub-LLM to Root Agent → Sub-Agent architecture. This will enable exploration of RLM's performance on ultra-long contexts and long-running tasks, where agents can maintain state and execute complex multi-step workflows.
+
+2. **Production Integration**: Integrating AStack's RLM implementation into real consumer-facing products. This will validate RLM's practical value in production environments and gather real-world usage data to guide further improvements.
 
 ## Conclusion
 
