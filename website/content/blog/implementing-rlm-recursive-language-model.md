@@ -394,17 +394,15 @@ This demonstrates RLM's core strength: **intelligent, selective access to massiv
 
 ### Comparison with Official Implementation
 
-The paper's authors released an [official Python implementation](https://github.com/recursion-labs/rlm). While their implementation validates the core concept, AStack's implementation addresses several challenges that the paper explicitly identifies as limitations or future work.
+The paper's authors released an [official Python implementation](https://github.com/alexzhang13/rlm). While their implementation validates the core concept, AStack's implementation addresses several challenges that the paper explicitly identifies as limitations or future work.
 
 #### 1. True Recursive RLM Support
 
 **Paper's Limitation (Section: Future Work):**
 > "We chose to use a max recursion depth of one (i.e. sub-calls are LMs); while we found strong performance on existing long-context benchmarks, we believe that future work should investigate deeper layers of recursion."
 
-**Official Implementation (rlm.py:63):**
-```python
-max_depth: int = 1,  # Currently, only depth 1 is supported.
-```
+**Official Implementation:**
+The official Python implementation currently limits recursion depth to 1, as noted in the paper's future work section.
 
 **AStack Implementation:**
 ```typescript
@@ -588,9 +586,9 @@ This implementation is available now in AStack's core package (`@astack-tech/com
 ## Resources
 
 - **Paper**: [arXiv:2512.24601](https://arxiv.org/abs/2512.24601)
-- **Official Implementation**: [recursion-labs/rlm (Python)](https://github.com/recursion-labs/rlm)
-- **AStack Implementation**: [packages/components/src/agents/rlm (TypeScript)](https://github.com/astack-tech/astack/tree/main/packages/components/src/agents/rlm)
-- **Documentation**: [AStack RLM Agent Pattern](https://github.com/astack-tech/astack)
+- **Official Implementation**: [alexzhang13/rlm (Python)](https://github.com/alexzhang13/rlm)
+- **AStack Implementation**: [RLMCore.ts (TypeScript)](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/rlm/RLMCore.ts)
+- **Documentation**: [AStack GitHub Repository](https://github.com/astack-tech/astack)
 
 ## Join the Discussion
 
