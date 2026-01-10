@@ -199,9 +199,9 @@ We validated our implementation using the OOLONG-Pairs benchmark from the paper.
 
 **AStack Implementation Results:**
 
-In our testing with Deepseek-V3 on synthetic OOLONG-Pairs datasets (100/200/500 entries), we achieved 100% accuracy across all sizes. However, this result should be interpreted with appropriate context:
+In our testing with **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** on synthetic OOLONG-Pairs datasets (100/200/500 entries), we achieved 100% accuracy across all sizes. However, this result should be interpreted with appropriate context:
 
-- **Model capability**: Deepseek-V3 demonstrates exceptional code generation abilities, which is crucial for RLM's code-based reasoning approach
+- **Model specification**: DeepSeek-V3 (deepseek-chat) in non-reasoning mode demonstrates exceptional code generation abilities, which is crucial for RLM's code-based reasoning approach
 - **Synthetic data**: Our test datasets were synthetically generated, which may not fully represent the complexity of real-world scenarios
 - **Implementation quality**: Our engineering improvements (filesystem abstraction, memory management, true recursion) contribute to reliability
 
@@ -212,6 +212,7 @@ The paper's results used GPT-4o and showed degradation at scale (78% → 65%). T
 - RLM architecture fundamentally solves the long-context problem
 - Our implementation handles **100MB+ contexts** without OOM errors
 - Model choice significantly impacts RLM effectiveness (code generation capability is critical)
+- Non-reasoning mode models can achieve excellent results with RLM's structured approach
 
 ### Memory Usage
 
@@ -488,7 +489,7 @@ AStack's implementation builds on the paper's foundation while addressing produc
 - Robust error handling and recovery
 - TypeScript implementation with full type safety
 
-Our testing with Deepseek-V3 on synthetic OOLONG-Pairs benchmarks achieved 100% accuracy, though this should be interpreted considering model capability and data characteristics. The key insight: **both the RLM pattern and implementation quality matter**.
+Our testing with **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** on synthetic OOLONG-Pairs benchmarks achieved 100% accuracy, though this should be interpreted considering model capability and data characteristics. Notably, this demonstrates that non-reasoning mode models can achieve excellent results when paired with RLM's structured, code-based approach. The key insight: **both the RLM pattern and implementation quality matter**.
 
 The RLM pattern isn't limited to code generation or specific tasks. It's a general architectural principle: when context is too large to fit in attention, place it in the environment and let the model explore programmatically. Code happens to be the most expressive interface, but the essence is **context outside, programmatic access inside**.
 
