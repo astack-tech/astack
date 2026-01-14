@@ -7,15 +7,13 @@
  * Features:
  * - Centered headline with gradient text
  * - Typewriter code animation
- * - Floating component icons
- * - Particle canvas background
+ * - Data flow canvas background
  * - Glass morphism CTA buttons
  *
  * Design: Bold, centered layout with maximum visual impact
  */
 
 import ParticleCanvas from './ParticleCanvas';
-import FloatingIcons from './FloatingIcons';
 import TypewriterCode from './TypewriterCode';
 import CopyButton from './CopyButton';
 
@@ -47,11 +45,16 @@ const result = await agent.run("Research AI trends");`;
           style={{ filter: 'blur(150px)' }}
         />
 
-        {/* Particle canvas animation */}
+        {/* Data flow canvas animation */}
         <ParticleCanvas />
 
-        {/* Floating icons */}
-        <FloatingIcons />
+        {/* Center focus vignette - darkens center for better text readability */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 600px 450px at center, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 70%)'
+          }}
+        />
       </div>
 
       {/* Main content - centered */}

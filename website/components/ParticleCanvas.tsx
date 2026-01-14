@@ -3,171 +3,267 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 /**
- * Particle Network Canvas Animation
+ * Data Flow Canvas Animation
  *
- * Creates an interactive particle network effect with:
- * - Floating particles that move organically
- * - Connection lines between nearby particles
- * - Mouse interaction for dynamic effects
- * - Responsive canvas sizing
+ * Visualizes AStack's core concept: data flowing through connected components
+ * Features:
+ * - Component nodes (representing AStack components)
+ * - Data packets flowing between nodes (representing port-to-port data flow)
+ * - Connection lines showing the pipeline structure
+ * - Responsive and performant
  *
- * Design: Cyan accent color on black background for tech aesthetic
+ * Design: Reflects AStack's port-based composition and data flow paradigm
  */
 
-// Type definitions for particles
-interface Particle {
+// Type definitions
+interface Node {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
   radius: number;
-  opacity: number;
+  label: string;
+  connections: number[]; // Indices of connected nodes
 }
 
-// Configuration constants
+interface DataPacket {
+  fromNode: number;
+  toNode: number;
+  progress: number; // 0 to 1
+  speed: number;
+  size: number;
+}
+
+// Configuration
 const CONFIG = {
-  // Particle settings
-  particleCount: 80,
-  particleMinRadius: 1,
-  particleMaxRadius: 2.5,
-  particleSpeed: 0.3,
-  particleOpacityMin: 0.3,
-  particleOpacityMax: 0.8,
+  // Node settings
+  nodeCount: 6,
+  nodeRadius: 8,
+  nodeColor: '0, 240, 255',
+  nodeOpacity: 0.6,
+
+  // Data packet settings
+  packetCount: 12,
+  packetSize: 3,
+  packetSpeed: 0.008,
+  packetColor: '0, 240, 255',
+  packetOpacity: 0.9,
 
   // Connection settings
-  connectionDistance: 150,
-  connectionOpacity: 0.25,
+  connectionOpacity: 0.15,
+  connectionWidth: 1,
 
-  // Mouse interaction
-  mouseRadius: 200,
-  mouseForce: 0.02,
-
-  // Colors (cyan accent)
-  particleColor: '0, 240, 255',
-  connectionColor: '0, 240, 255',
+  // Layout
+  padding: 100,
 } as const;
 
 export default function ParticleCanvas() {
-  // Canvas and animation refs
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const particlesRef = useRef<Particle[]>([]);
-  const mouseRef = useRef({ x: -1000, y: -1000 });
+  const nodesRef = useRef<Node[]>([]);
+  const packetsRef = useRef<DataPacket[]>([]);
   const animationFrameRef = useRef<number>(0);
 
   /**
-   * Initialize particles with random positions and velocities
+   * Initialize nodes in a distributed layout
    */
-  const initParticles = useCallback((width: number, height: number) => {
-    const particles: Particle[] = [];
+  const initNodes = useCallback((width: number, height: number) => {
+    const nodes: Node[] = [];
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-    for (let i = 0; i < CONFIG.particleCount; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * CONFIG.particleSpeed,
-        vy: (Math.random() - 0.5) * CONFIG.particleSpeed,
-        radius:
-          CONFIG.particleMinRadius +
-          Math.random() * (CONFIG.particleMaxRadius - CONFIG.particleMinRadius),
-        opacity:
-          CONFIG.particleOpacityMin +
-          Math.random() * (CONFIG.particleOpacityMax - CONFIG.particleOpacityMin),
+    // Scale radius based on screen size for better coverage
+    const baseRadius = Math.min(width, height) / 2.5;
+    const radius = Math.max(baseRadius, 250); // Minimum radius for small screens
+
+    // Create nodes in a circular layout
+    for (let i = 0; i < CONFIG.nodeCount; i++) {
+      const angle = (i / CONFIG.nodeCount) * Math.PI * 2;
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
+
+      // Each node connects to 1-2 nearby nodes (creating a pipeline structure)
+      const connections: number[] = [];
+      connections.push((i + 1) % CONFIG.nodeCount); // Connect to next node
+      if (Math.random() > 0.5) {
+        connections.push((i + 2) % CONFIG.nodeCount); // Sometimes skip one
+      }
+
+      nodes.push({
+        x,
+        y,
+        radius: CONFIG.nodeRadius,
+        label: `C${i + 1}`,
+        connections,
       });
     }
 
-    particlesRef.current = particles;
+    nodesRef.current = nodes;
   }, []);
 
   /**
-   * Update particle positions and handle boundary collisions
+   * Initialize data packets
    */
-  const updateParticles = useCallback((width: number, height: number) => {
-    const particles = particlesRef.current;
-    const mouse = mouseRef.current;
+  const initPackets = useCallback(() => {
+    const packets: DataPacket[] = [];
+    const nodes = nodesRef.current;
 
-    particles.forEach((particle) => {
-      // Apply mouse interaction force
-      const dx = mouse.x - particle.x;
-      const dy = mouse.y - particle.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    for (let i = 0; i < CONFIG.packetCount; i++) {
+      // Random starting node
+      const fromNode = Math.floor(Math.random() * nodes.length);
+      const node = nodes[fromNode];
 
-      if (distance < CONFIG.mouseRadius && distance > 0) {
-        const force = (CONFIG.mouseRadius - distance) / CONFIG.mouseRadius;
-        particle.vx -= (dx / distance) * force * CONFIG.mouseForce;
-        particle.vy -= (dy / distance) * force * CONFIG.mouseForce;
-      }
+      // Pick a random connection from this node
+      if (node.connections.length > 0) {
+        const toNode = node.connections[Math.floor(Math.random() * node.connections.length)];
 
-      // Update position
-      particle.x += particle.vx;
-      particle.y += particle.vy;
-
-      // Boundary collision with smooth wrapping
-      if (particle.x < 0) particle.x = width;
-      if (particle.x > width) particle.x = 0;
-      if (particle.y < 0) particle.y = height;
-      if (particle.y > height) particle.y = 0;
-
-      // Apply slight friction to prevent runaway velocities
-      particle.vx *= 0.999;
-      particle.vy *= 0.999;
-
-      // Ensure minimum velocity for continuous movement
-      const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy);
-      if (speed < CONFIG.particleSpeed * 0.5) {
-        particle.vx += (Math.random() - 0.5) * 0.01;
-        particle.vy += (Math.random() - 0.5) * 0.01;
-      }
-    });
-  }, []);
-
-  /**
-   * Draw particles and connections on canvas
-   */
-  const draw = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const particles = particlesRef.current;
-
-    // Clear canvas with transparent background
-    ctx.clearRect(0, 0, width, height);
-
-    // Draw connections between nearby particles
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < CONFIG.connectionDistance) {
-          // Calculate opacity based on distance
-          const opacity =
-            CONFIG.connectionOpacity * (1 - distance / CONFIG.connectionDistance);
-
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(${CONFIG.connectionColor}, ${opacity})`;
-          ctx.lineWidth = 0.5;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
+        packets.push({
+          fromNode,
+          toNode,
+          progress: Math.random(), // Random starting position
+          speed: CONFIG.packetSpeed * (0.8 + Math.random() * 0.4), // Varied speed
+          size: CONFIG.packetSize,
+        });
       }
     }
 
-    // Draw particles
-    particles.forEach((particle) => {
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${CONFIG.particleColor}, ${particle.opacity})`;
-      ctx.fill();
+    packetsRef.current = packets;
+  }, []);
 
-      // Add subtle glow effect
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, particle.radius * 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${CONFIG.particleColor}, ${particle.opacity * 0.2})`;
-      ctx.fill();
+  /**
+   * Update data packet positions
+   */
+  const updatePackets = useCallback(() => {
+    const packets = packetsRef.current;
+    const nodes = nodesRef.current;
+
+    packets.forEach((packet) => {
+      // Move packet along the connection
+      packet.progress += packet.speed;
+
+      // When packet reaches destination, pick new route
+      if (packet.progress >= 1) {
+        packet.fromNode = packet.toNode;
+        const fromNode = nodes[packet.fromNode];
+
+        if (fromNode.connections.length > 0) {
+          packet.toNode = fromNode.connections[Math.floor(Math.random() * fromNode.connections.length)];
+        }
+
+        packet.progress = 0;
+      }
     });
   }, []);
 
   /**
-   * Main animation loop
+   * Draw the visualization
+   */
+  const draw = useCallback((ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const nodes = nodesRef.current;
+    const packets = packetsRef.current;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw connections (pipeline structure)
+    nodes.forEach((node, i) => {
+      node.connections.forEach((targetIdx) => {
+        const target = nodes[targetIdx];
+
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${CONFIG.nodeColor}, ${CONFIG.connectionOpacity})`;
+        ctx.lineWidth = CONFIG.connectionWidth;
+        ctx.moveTo(node.x, node.y);
+        ctx.lineTo(target.x, target.y);
+        ctx.stroke();
+
+        // Draw arrow to show direction
+        const angle = Math.atan2(target.y - node.y, target.x - node.x);
+        const arrowSize = 6;
+        const arrowPos = 0.7; // Position along the line
+        const arrowX = node.x + (target.x - node.x) * arrowPos;
+        const arrowY = node.y + (target.y - node.y) * arrowPos;
+
+        ctx.beginPath();
+        ctx.moveTo(arrowX, arrowY);
+        ctx.lineTo(
+          arrowX - arrowSize * Math.cos(angle - Math.PI / 6),
+          arrowY - arrowSize * Math.sin(angle - Math.PI / 6)
+        );
+        ctx.lineTo(
+          arrowX - arrowSize * Math.cos(angle + Math.PI / 6),
+          arrowY - arrowSize * Math.sin(angle + Math.PI / 6)
+        );
+        ctx.closePath();
+        ctx.fillStyle = `rgba(${CONFIG.nodeColor}, ${CONFIG.connectionOpacity * 1.5})`;
+        ctx.fill();
+      });
+    });
+
+    // Draw nodes (components)
+    nodes.forEach((node) => {
+      // Node glow
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.radius * 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${CONFIG.nodeColor}, ${CONFIG.nodeOpacity * 0.2})`;
+      ctx.fill();
+
+      // Node core
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${CONFIG.nodeColor}, ${CONFIG.nodeOpacity})`;
+      ctx.fill();
+
+      // Node border
+      ctx.strokeStyle = `rgba(${CONFIG.nodeColor}, ${CONFIG.nodeOpacity + 0.2})`;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    // Draw data packets (flowing data)
+    packets.forEach((packet) => {
+      const fromNode = nodes[packet.fromNode];
+      const toNode = nodes[packet.toNode];
+
+      // Calculate current position using easing
+      const easeProgress = packet.progress < 0.5
+        ? 2 * packet.progress * packet.progress
+        : 1 - Math.pow(-2 * packet.progress + 2, 2) / 2;
+
+      const x = fromNode.x + (toNode.x - fromNode.x) * easeProgress;
+      const y = fromNode.y + (toNode.y - fromNode.y) * easeProgress;
+
+      // Packet glow
+      ctx.beginPath();
+      ctx.arc(x, y, packet.size * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${CONFIG.packetColor}, ${CONFIG.packetOpacity * 0.3})`;
+      ctx.fill();
+
+      // Packet core
+      ctx.beginPath();
+      ctx.arc(x, y, packet.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${CONFIG.packetColor}, ${CONFIG.packetOpacity})`;
+      ctx.fill();
+
+      // Packet trail
+      const trailLength = 0.1;
+      const trailProgress = Math.max(0, easeProgress - trailLength);
+      const trailX = fromNode.x + (toNode.x - fromNode.x) * trailProgress;
+      const trailY = fromNode.y + (toNode.y - fromNode.y) * trailProgress;
+
+      const gradient = ctx.createLinearGradient(trailX, trailY, x, y);
+      gradient.addColorStop(0, `rgba(${CONFIG.packetColor}, 0)`);
+      gradient.addColorStop(1, `rgba(${CONFIG.packetColor}, ${CONFIG.packetOpacity * 0.5})`);
+
+      ctx.beginPath();
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = packet.size * 1.5;
+      ctx.lineCap = 'round';
+      ctx.moveTo(trailX, trailY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    });
+  }, []);
+
+  /**
+   * Animation loop
    */
   const animate = useCallback(() => {
     const canvas = canvasRef.current;
@@ -176,14 +272,14 @@ export default function ParticleCanvas() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const width = canvas.width / (window.devicePixelRatio || 1);
+    const height = canvas.height / (window.devicePixelRatio || 1);
 
-    updateParticles(width, height);
+    updatePackets();
     draw(ctx, width, height);
 
     animationFrameRef.current = requestAnimationFrame(animate);
-  }, [updateParticles, draw]);
+  }, [updatePackets, draw]);
 
   /**
    * Handle canvas resize
@@ -195,7 +291,6 @@ export default function ParticleCanvas() {
     const parent = canvas.parentElement;
     if (!parent) return;
 
-    // Set canvas size to match parent container
     const rect = parent.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
 
@@ -204,55 +299,27 @@ export default function ParticleCanvas() {
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
-    // Scale context for high DPI displays
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.scale(dpr, dpr);
     }
 
-    // Reinitialize particles for new dimensions
-    initParticles(rect.width, rect.height);
-  }, [initParticles]);
+    initNodes(rect.width, rect.height);
+    initPackets();
+  }, [initNodes, initPackets]);
 
-  /**
-   * Handle mouse movement
-   */
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const rect = canvas.getBoundingClientRect();
-    mouseRef.current = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
-  }, []);
-
-  /**
-   * Handle mouse leave
-   */
-  const handleMouseLeave = useCallback(() => {
-    mouseRef.current = { x: -1000, y: -1000 };
-  }, []);
-
-  // Setup and cleanup effects
+  // Setup and cleanup
   useEffect(() => {
     handleResize();
     animate();
 
-    // Event listeners
     window.addEventListener('resize', handleResize);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseleave', handleMouseLeave);
 
     return () => {
-      // Cleanup
       cancelAnimationFrame(animationFrameRef.current);
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
     };
-  }, [handleResize, animate, handleMouseMove, handleMouseLeave]);
+  }, [handleResize, animate]);
 
   return (
     <canvas
