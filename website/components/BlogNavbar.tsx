@@ -13,7 +13,7 @@ import Link from 'next/link';
 export default function BlogNavbar() {
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(12px)',

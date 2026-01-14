@@ -105,8 +105,8 @@ const result = await agent.run("Research AI trends");`;
               </div>
 
               {/* Install command */}
-              <div className="rounded-xl bg-black/50 border border-white/5 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
+              <div className="rounded-xl bg-black/50 border border-white/10 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
                   <span className="text-xs text-gray-500 font-mono">terminal</span>
                   <CopyButton text={installCommands[packageManager]} size="sm" />
                 </div>
@@ -145,8 +145,8 @@ const result = await agent.run("Research AI trends");`;
               </div>
 
               {/* Code example */}
-              <div className="rounded-xl bg-black/50 border border-white/5 overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2 border-b border-white/5">
+              <div className="rounded-xl bg-black/50 border border-white/10 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-white/10">
                   <span className="text-xs text-gray-500 font-mono">agent.ts</span>
                   <CopyButton text={exampleCode} size="sm" />
                 </div>

@@ -84,7 +84,7 @@ export default function BetaNotification() {
   }
 
   return (
-    <div className="relative overflow-hidden border-b border-white/5 bg-[#00F0FF]/5">
+    <div className="relative overflow-hidden border-b border-white/10 bg-[#00F0FF]/5">
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00F0FF]/10 to-transparent" />
 

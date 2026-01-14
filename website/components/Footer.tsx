@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function Footer() {
   return (
-    <footer className="relative py-16 border-t border-white/5">
+    <footer className="relative py-16 border-t border-white/10">
       {/* Background */}
       <div className="absolute inset-0 bg-black" />
 

@@ -130,7 +130,7 @@ pipeline.connect('input.out', 'agent.in');`,
         <div className="w-full mx-auto">
           <div className="glass rounded-2xl overflow-hidden">
             {/* Tab navigation */}
-            <div className="flex border-b border-white/5">
+            <div className="flex border-b border-white/10">
               {modes.map((mode, index) => (
                 <button
                   key={mode.id}
@@ -166,8 +166,8 @@ pipeline.connect('input.out', 'agent.in');`,
 
               {/* Right: Code */}
               <div className="w-full">
-                <div className="rounded-xl bg-black/50 border border-white/5 overflow-hidden h-full">
-                  <div className="px-4 py-2 border-b border-white/5 flex items-center justify-between">
+                <div className="rounded-xl bg-black/50 border border-white/10 overflow-hidden h-full">
+                  <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between">
                     <span className="text-xs text-gray-500 font-mono">
                       {modes[activeTab].id}.ts
                     </span>

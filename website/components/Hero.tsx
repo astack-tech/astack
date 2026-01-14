@@ -83,8 +83,13 @@ const result = await agent.run("Research AI trends");`;
 
         {/* Typewriter code display */}
         <div className="max-w-lg mx-auto mb-12">
-          <div className="glass rounded-xl p-6 text-left">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/5">
+          <div className="rounded-xl p-6 text-left relative" style={{
+            background: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255, 255, 255, 0.15)'
+          }}>
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10">
               <div className="w-3 h-3 rounded-full bg-red-500/60" />
               <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
               <div className="w-3 h-3 rounded-full bg-green-500/60" />
@@ -127,12 +132,19 @@ const result = await agent.run("Research AI trends");`;
         </div>
 
         {/* Quick install */}
-        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-lg glass mb-16">
-          <span className="text-gray-500 text-sm">$</span>
-          <code className="text-sm font-mono text-gray-300">
+        <div className="inline-flex items-center gap-3 px-4 py-3 rounded-lg mb-16" style={{
+          background: 'rgba(0, 0, 0, 0.6)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid rgba(255, 255, 255, 0.15)'
+        }}>
+          <span className="text-gray-500 text-sm flex items-center">$</span>
+          <code className="text-sm font-mono text-gray-300 flex items-center">
             npm install @astack-tech/core
           </code>
-          <CopyButton text="npm install @astack-tech/core" size="sm" />
+          <div className="flex items-center">
+            <CopyButton text="npm install @astack-tech/core" size="sm" />
+          </div>
         </div>
 
         {/* Scroll indicator */}

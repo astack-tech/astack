@@ -32,7 +32,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b border-white/5"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-white/10"
       style={{
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         backdropFilter: 'blur(12px)',
@@ -163,7 +163,7 @@ export default function Navbar() {
 
       {/* Mobile menu slide-out */}
       <div
-        className={`md:hidden fixed top-16 left-0 right-0 border-b border-white/5 transition-all duration-300 ease-in-out ${
+        className={`md:hidden fixed top-16 left-0 right-0 border-b border-white/10 transition-all duration-300 ease-in-out ${
           mobileMenuOpen
             ? 'max-h-screen opacity-100'
             : 'max-h-0 opacity-0 overflow-hidden'
@@ -180,7 +180,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
-              className="text-sm text-gray-400 hover:text-white transition-colors duration-200 py-2 border-b border-white/5 last:border-0"
+              className="text-sm text-gray-400 hover:text-white transition-colors duration-200 py-2 border-b border-white/10 last:border-0"
             >
               {link.label}
             </Link>

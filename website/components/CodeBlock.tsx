@@ -66,7 +66,7 @@ export default function CodeBlock({
     <div className="w-full rounded-xl glass overflow-hidden group">
       {/* File header with window controls */}
       {fileName && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/[0.02]">
           {/* File name with icon */}
           <div className="flex items-center gap-2 text-gray-400 text-sm font-mono">
             <svg
