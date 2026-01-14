@@ -106,10 +106,9 @@ const result = await agent.run("Research AI trends");`;
           {/* Primary CTA */}
           <a
             href="#quickstart"
-            className="group relative px-8 py-4 rounded-xl font-medium overflow-hidden transition-all duration-300"
+            className="group relative px-8 py-4 rounded-xl font-medium overflow-hidden transition-all duration-300 bg-[#00F0FF]/10 border border-[#00F0FF]/50 hover:bg-[#00F0FF]/20 hover:border-[#00F0FF] hover:shadow-[0_0_30px_rgba(0,240,255,0.4)]"
           >
-            <div className="absolute inset-0 bg-[#00F0FF] rounded-xl transition-all duration-300 group-hover:shadow-[0_0_40px_rgba(0,240,255,0.5)]" />
-            <span className="relative z-10 text-black font-semibold">
+            <span className="relative z-10 text-[#00F0FF] font-semibold group-hover:text-white transition-colors">
               Get Started
             </span>
           </a>

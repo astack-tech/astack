@@ -70,19 +70,21 @@ const result = await agent.run("Research AI trends");`;
             {/* Hover glow effect */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full blur-3xl" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
 
             <div className="relative z-10">
               {/* Step badge and title */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="relative flex-shrink-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">1</span>
+                  <div className="w-10 h-10 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                    <span className="text-base font-bold text-[#00F0FF]">1</span>
                   </div>
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] opacity-20 blur-md" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Install AStack</h3>
+                <h3 className="text-xl font-semibold text-white group-hover:text-[#00F0FF] transition-colors">Install AStack</h3>
               </div>
 
               {/* Package manager tabs */}
@@ -125,19 +127,21 @@ const result = await agent.run("Research AI trends");`;
             {/* Hover glow effect */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full blur-3xl" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
 
             <div className="relative z-10">
               {/* Step badge and title */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="relative flex-shrink-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">2</span>
+                  <div className="w-10 h-10 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                    <span className="text-base font-bold text-[#00F0FF]">2</span>
                   </div>
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] opacity-20 blur-md" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Create Your First Agent</h3>
+                <h3 className="text-xl font-semibold text-white group-hover:text-[#00F0FF] transition-colors">Create Your First Agent</h3>
               </div>
 
               {/* Code example */}
@@ -158,19 +162,21 @@ const result = await agent.run("Research AI trends");`;
             {/* Hover glow effect */}
             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
-              <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full blur-3xl" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
 
             <div className="relative z-10">
               {/* Step badge and title */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="relative flex-shrink-0">
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] flex items-center justify-center">
-                    <span className="text-sm font-bold text-white">3</span>
+                  <div className="w-10 h-10 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                    <span className="text-base font-bold text-[#00F0FF]">3</span>
                   </div>
-                  <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#00B8CC] opacity-20 blur-md" />
                 </div>
-                <h3 className="text-xl font-semibold text-white">Run & Explore</h3>
+                <h3 className="text-xl font-semibold text-white group-hover:text-[#00F0FF] transition-colors">Run & Explore</h3>
               </div>
 
               <p className="text-gray-400 mb-6">

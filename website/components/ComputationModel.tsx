@@ -183,34 +183,91 @@ pipeline.connect('input.out', 'agent.in');`,
 
         {/* Core principles */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 w-full mx-auto">
-          <div className="text-center p-6 glass rounded-xl">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+          <div className="text-center p-6 glass rounded-xl relative overflow-hidden group hover:bg-white/5 hover:border-[#00F0FF]/30 transition-all duration-300">
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
-            <h4 className="font-semibold text-white mb-2">Monadic Laws</h4>
-            <p className="text-sm text-gray-400">Composition follows mathematical laws ensuring predictable behavior</p>
+
+            <div className="relative z-10">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    style={{
+                      strokeDasharray: '60',
+                      animation: 'dashFlow 3s linear infinite'
+                    }}
+                  />
+                </svg>
+              </div>
+              <h4 className="font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">Monadic Laws</h4>
+              <p className="text-sm text-gray-400">Composition follows mathematical laws ensuring predictable behavior</p>
+            </div>
           </div>
 
-          <div className="text-center p-6 glass rounded-xl">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
+          <div className="text-center p-6 glass rounded-xl relative overflow-hidden group hover:bg-white/5 hover:border-[#00F0FF]/30 transition-all duration-300">
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
-            <h4 className="font-semibold text-white mb-2">Direct Connections</h4>
-            <p className="text-sm text-gray-400">Port-to-port data flow without intermediate layers</p>
+
+            <div className="relative z-10">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <g style={{ animation: 'electricPulse 1.5s ease-in-out infinite' }}>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="1.5"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </g>
+                </svg>
+              </div>
+              <h4 className="font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">Direct Connections</h4>
+              <p className="text-sm text-gray-400">Port-to-port data flow without intermediate layers</p>
+            </div>
           </div>
 
-          <div className="text-center p-6 glass rounded-xl">
-            <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center">
-              <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
+          <div className="text-center p-6 glass rounded-xl relative overflow-hidden group hover:bg-white/5 hover:border-[#00F0FF]/30 transition-all duration-300">
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#00F0FF]/5 via-transparent to-transparent" />
+              <div
+                className="absolute -top-24 -right-24 w-48 h-48 bg-[#00F0FF]/10 rounded-full"
+                style={{ filter: 'blur(100px)' }}
+              />
             </div>
-            <h4 className="font-semibold text-white mb-2">Reactive Streams</h4>
-            <p className="text-sm text-gray-400">Built-in backpressure and flow control for real-time processing</p>
+
+            <div className="relative z-10">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center group-hover:shadow-[0_0_20px_rgba(0,240,255,0.3)] transition-all">
+                <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    style={{
+                      animation: 'rotatePulse 4s ease-in-out infinite'
+                    }}
+                  />
+                </svg>
+              </div>
+              <h4 className="font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">Reactive Streams</h4>
+              <p className="text-sm text-gray-400">Built-in backpressure and flow control for real-time processing</p>
+            </div>
           </div>
         </div>
       </div>
@@ -227,18 +284,32 @@ function ComponentVisual() {
       {/* Component box with ports */}
       <div className="relative mx-auto w-full max-w-[224px]">
         {/* Main component */}
-        <div className="relative w-full h-32 rounded-xl bg-gradient-to-br from-[#00F0FF]/20 to-[#00F0FF]/5 border-2 border-[#00F0FF] flex flex-col items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.3)]">
+        <div
+          className="relative w-full h-32 rounded-xl bg-gradient-to-br from-[#00F0FF]/20 to-[#00F0FF]/5 border-2 border-[#00F0FF] flex flex-col items-center justify-center"
+          style={{ animation: 'componentGlow 3s ease-in-out infinite' }}
+        >
           <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">Component</span>
           <span className="text-gray-400 text-xs">extends TransformNode</span>
 
           {/* Input port (left side) */}
           <div className="absolute top-1/2" style={{ left: 0, transform: 'translate(-50%, -50%)' }}>
-            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
+            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" />
           </div>
 
           {/* Output port (right side) */}
           <div className="absolute top-1/2" style={{ right: 0, transform: 'translate(50%, -50%)' }}>
-            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black" />
+            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" style={{ animationDelay: '0.5s' }} />
+          </div>
+
+          {/* Data flow line animation */}
+          <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+            <div
+              className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent"
+              style={{
+                animation: 'dataFlow 2s ease-in-out infinite',
+                transform: 'translateY(-50%)'
+              }}
+            />
           </div>
         </div>
 
@@ -267,13 +338,13 @@ function ComponentVisual() {
       {/* Dual mode indicator */}
       <div className="mt-12 md:mt-16 flex justify-center gap-4 md:gap-8">
         <div className="text-center">
-          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1">
+          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1 hover:bg-[#00F0FF]/20 hover:shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all duration-300">
             <code className="text-[10px] md:text-xs text-[#00F0FF] font-mono">run(data)</code>
           </div>
           <span className="text-[9px] md:text-[10px] text-gray-500">Standalone</span>
         </div>
         <div className="text-center">
-          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1">
+          <div className="px-2 md:px-3 py-1 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 mb-1 hover:bg-[#00F0FF]/20 hover:shadow-[0_0_15px_rgba(0,240,255,0.3)] transition-all duration-300">
             <code className="text-[10px] md:text-xs text-[#00F0FF] font-mono">_transform($i, $o)</code>
           </div>
           <span className="text-[9px] md:text-[10px] text-gray-500">Pipeline</span>
@@ -293,18 +364,30 @@ function PipelineVisual() {
       <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         {/* Component 1 */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+          <div
+            className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
+            style={{ animation: 'componentGlow 3s ease-in-out infinite' }}
+          >
             <span className="text-[#00F0FF] text-sm font-bold">Split</span>
           </div>
           <code className="text-[9px] text-gray-500 font-mono mt-1">.out</code>
         </div>
 
-        {/* Connection arrow */}
-        <div className="flex md:flex-1 items-center justify-center">
+        {/* Connection arrow with flow */}
+        <div className="flex md:flex-1 items-center justify-center relative">
           <div className="flex flex-col md:flex-row items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
-            <div className="w-px h-8 md:w-8 md:h-px bg-[#00F0FF]/30" />
-            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="relative w-px h-8 md:w-16 md:h-px bg-[#00F0FF]/30 overflow-hidden">
+              {/* Flowing particle */}
+              <div
+                className="absolute w-1 h-1 md:w-1 md:h-1 rounded-full bg-[#00F0FF]"
+                style={{
+                  animation: 'dataFlow 2s ease-in-out infinite',
+                  animationDelay: '0s'
+                }}
+              />
+            </div>
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -312,18 +395,30 @@ function PipelineVisual() {
 
         {/* Component 2 */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+          <div
+            className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
+            style={{ animation: 'componentGlow 3s ease-in-out infinite', animationDelay: '0.5s' }}
+          >
             <span className="text-[#00F0FF] text-sm font-bold">Embed</span>
           </div>
           <code className="text-[9px] text-gray-500 font-mono mt-1">.in → .out</code>
         </div>
 
-        {/* Connection arrow */}
+        {/* Connection arrow with flow */}
         <div className="flex md:flex-1 items-center justify-center">
           <div className="flex flex-col md:flex-row items-center gap-1">
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" style={{ animationDelay: '0.3s' }} />
-            <div className="w-px h-8 md:w-8 md:h-px bg-[#00F0FF]/30" />
-            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
+            <div className="relative w-px h-8 md:w-16 md:h-px bg-[#00F0FF]/30 overflow-hidden">
+              {/* Flowing particle */}
+              <div
+                className="absolute w-1 h-1 md:w-1 md:h-1 rounded-full bg-[#00F0FF]"
+                style={{
+                  animation: 'dataFlow 2s ease-in-out infinite',
+                  animationDelay: '0.6s'
+                }}
+              />
+            </div>
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0 animate-pulse" fill="currentColor" viewBox="0 0 20 20" style={{ animationDelay: '0.3s' }}>
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -331,7 +426,10 @@ function PipelineVisual() {
 
         {/* Component 3 */}
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+          <div
+            className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
+            style={{ animation: 'componentGlow 3s ease-in-out infinite', animationDelay: '1s' }}
+          >
             <span className="text-[#00F0FF] text-sm font-bold">Store</span>
           </div>
           <code className="text-[9px] text-gray-500 font-mono mt-1">.in</code>
@@ -358,15 +456,37 @@ function AgentVisual() {
     <div className="w-full max-w-md mx-auto px-2">
       {/* Iteration loop */}
       <div className="relative">
-        {/* Loop container */}
-        <div className="border-2 border-dashed border-[#00F0FF]/30 rounded-2xl p-4 md:p-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
-            <span className="text-[10px] md:text-xs text-gray-500 font-mono">while (iteration &lt; maxIterations)</span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
-              <span className="text-xs text-[#00F0FF]">Iterating...</span>
+        {/* Loop container with animated dashed border */}
+        <div className="relative rounded-2xl p-4 md:p-6">
+          {/* Animated SVG border */}
+          <svg
+            className="absolute inset-0 w-full h-full pointer-events-none"
+            style={{ overflow: 'visible' }}
+          >
+            <rect
+              x="1"
+              y="1"
+              width="calc(100% - 2px)"
+              height="calc(100% - 2px)"
+              rx="16"
+              fill="none"
+              stroke="rgba(0, 240, 255, 0.3)"
+              strokeWidth="2"
+              strokeDasharray="8 8"
+              style={{
+                animation: 'dashRotate 20s linear infinite'
+              }}
+            />
+          </svg>
+
+          <div className="relative z-10">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
+              <span className="text-[10px] md:text-xs text-gray-500 font-mono">while (iteration &lt; maxIterations)</span>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+                <span className="text-xs text-[#00F0FF]">Iterating...</span>
+              </div>
             </div>
-          </div>
 
           {/* Steps */}
           <div className="space-y-3 md:space-y-4">
@@ -383,8 +503,21 @@ function AgentVisual() {
 
             {/* Arrow down */}
             <div className="flex justify-center">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <svg
+                className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                style={{
+                  animation: 'arrowFloat 2s ease-in-out infinite'
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                />
               </svg>
             </div>
 
@@ -401,8 +534,22 @@ function AgentVisual() {
 
             {/* Arrow down */}
             <div className="flex justify-center">
-              <svg className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <svg
+                className="w-5 h-5 md:w-6 md:h-6 text-[#00F0FF]/50"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                style={{
+                  animation: 'arrowFloat 2s ease-in-out infinite',
+                  animationDelay: '0.3s'
+                }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                />
               </svg>
             </div>
 
@@ -420,10 +567,25 @@ function AgentVisual() {
 
           {/* Loop back arrow */}
           <div className="mt-3 md:mt-4 flex items-center justify-center gap-2">
-            <svg className="w-4 h-4 md:w-5 md:h-5 text-[#00F0FF]/50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              className="w-4 h-4 md:w-5 md:h-5 text-[#00F0FF]/50"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              style={{
+                animation: 'loopRotate 4s linear infinite',
+                transformOrigin: 'center center'
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             <span className="text-[10px] md:text-xs text-gray-500">Repeat until complete</span>
+          </div>
           </div>
         </div>
       </div>
