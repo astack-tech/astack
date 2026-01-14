@@ -163,7 +163,7 @@ export default function ParticleCanvas() {
     ctx.clearRect(0, 0, width, height);
 
     // Draw connections (pipeline structure)
-    nodes.forEach((node, i) => {
+    nodes.forEach((node) => {
       node.connections.forEach((targetIdx) => {
         const target = nodes[targetIdx];
 

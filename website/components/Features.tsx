@@ -5,15 +5,13 @@
  *
  * Showcases AStack's core features in an asymmetric bento grid.
  * Features:
- * - Large feature cards with animated SVG illustrations
+ * - Large feature cards
  * - Small feature cards for secondary features
  * - Glass morphism with hover effects
  * - Responsive grid layout
  *
  * Design: Asymmetric bento grid for visual interest
  */
-
-import { useEffect, useRef } from 'react';
 
 export default function Features() {
   return (
@@ -54,11 +52,6 @@ export default function Features() {
           {/* Large Card 1 - Everything is a Component (spans 2 cols) */}
           <div className="lg:col-span-2 lg:row-span-2 group">
             <div className="h-full glass rounded-2xl p-8 hover:bg-white/5 transition-all duration-500 relative overflow-hidden">
-              {/* Animated illustration */}
-              <div className="absolute top-4 right-4 w-32 h-32 opacity-20 group-hover:opacity-40 transition-opacity">
-                <ComponentAnimation />
-              </div>
-
               <div className="relative z-10">
                 <div className="w-12 h-12 rounded-xl bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-6 group-hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] transition-all">
                   <svg className="w-6 h-6 text-[#00F0FF]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,56 +212,3 @@ export default function Features() {
   );
 }
 
-/**
- * Animated component illustration
- */
-function ComponentAnimation() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animationId: number;
-    let angle = 0;
-
-    const draw = () => {
-      ctx.clearRect(0, 0, 128, 128);
-
-      // Draw rotating squares
-      ctx.save();
-      ctx.translate(64, 64);
-      ctx.rotate(angle);
-
-      // Outer square
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(-40, -40, 80, 80);
-
-      // Inner square
-      ctx.rotate(-angle * 2);
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)';
-      ctx.strokeRect(-25, -25, 50, 50);
-
-      // Center dot
-      ctx.fillStyle = 'rgba(0, 240, 255, 0.8)';
-      ctx.beginPath();
-      ctx.arc(0, 0, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-
-      angle += 0.01;
-      animationId = requestAnimationFrame(draw);
-    };
-
-    draw();
-
-    return () => cancelAnimationFrame(animationId);
-  }, []);
-
-  return <canvas ref={canvasRef} width={128} height={128} className="w-full h-full" />;
-}
