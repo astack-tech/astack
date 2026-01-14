@@ -159,7 +159,7 @@ pipeline.connect('input.out', 'agent.in');`,
                 </p>
 
                 {/* Visual diagram */}
-                <div className="min-h-[250px] md:min-h-[300px] flex items-center justify-center bg-black/30 rounded-xl p-4 md:p-6 overflow-x-auto">
+                <div className="min-h-[250px] md:min-h-[300px] flex items-center justify-center bg-black/30 rounded-xl p-4 md:p-6 overflow-x-auto overflow-y-visible">
                   {modes[activeTab].visual}
                 </div>
               </div>
@@ -280,56 +280,64 @@ pipeline.connect('input.out', 'agent.in');`,
  */
 function ComponentVisual() {
   return (
-    <div className="w-full max-w-md mx-auto px-4">
-      {/* Component box with ports */}
-      <div className="relative mx-auto w-full max-w-[224px]">
-        {/* Main component */}
-        <div
-          className="relative w-full h-32 rounded-xl bg-gradient-to-br from-[#00F0FF]/20 to-[#00F0FF]/5 border-2 border-[#00F0FF] flex flex-col items-center justify-center"
-          style={{ animation: 'componentGlow 3s ease-in-out infinite' }}
-        >
-          <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">Component</span>
-          <span className="text-gray-400 text-xs">extends TransformNode</span>
-
-          {/* Input port (left side) */}
-          <div className="absolute top-1/2" style={{ left: 0, transform: 'translate(-50%, -50%)' }}>
-            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" />
-          </div>
-
-          {/* Output port (right side) */}
-          <div className="absolute top-1/2" style={{ right: 0, transform: 'translate(50%, -50%)' }}>
-            <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" style={{ animationDelay: '0.5s' }} />
-          </div>
-
-          {/* Data flow line animation */}
-          <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
-            <div
-              className="absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent"
-              style={{
-                animation: 'dataFlow 2s ease-in-out infinite',
-                transform: 'translateY(-50%)'
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Port labels */}
-        <div className="absolute top-1/2 pr-2 md:pr-3 text-right" style={{ right: '100%', transform: 'translateY(-50%)' }}>
-          <div className="flex items-center gap-1 md:gap-2">
+    <div className="w-full px-2">
+      {/* Component box with ports - using grid layout to reserve space for labels */}
+      <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-3 mx-auto" style={{ maxWidth: '400px' }}>
+        {/* Left port label */}
+        <div className="text-right whitespace-nowrap">
+          <div className="flex items-center gap-1 md:gap-2 justify-end">
             <span className="text-gray-400 text-[10px] md:text-xs font-mono">data</span>
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
           </div>
-          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap">
+          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap block">
             Port.I(&apos;in&apos;)
           </code>
         </div>
 
-        <div className="absolute top-1/2 pl-2 md:pl-3 text-left" style={{ left: '100%', transform: 'translateY(-50%)' }}>
+        {/* Main component */}
+        <div className="relative">
+          <div
+            className="relative w-full h-32 rounded-xl border-2 flex flex-col items-center justify-center text-center"
+            style={{
+              animation: 'componentHighlight 3s ease-in-out infinite',
+              borderColor: 'rgba(0, 240, 255, 0.5)',
+              background: 'rgba(0, 240, 255, 0.2)'
+            }}
+          >
+            <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">Component</span>
+            <span className="text-gray-400 text-xs">extends TransformNode</span>
+
+            {/* Input port (left side) */}
+            <div className="absolute top-1/2" style={{ left: 0, transform: 'translate(-50%, -50%)' }}>
+              <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" />
+            </div>
+
+            {/* Output port (right side) */}
+            <div className="absolute top-1/2" style={{ right: 0, transform: 'translate(50%, -50%)' }}>
+              <div className="w-4 h-4 rounded-full bg-[#00F0FF] border-2 border-black animate-pulse" style={{ animationDelay: '0.5s' }} />
+            </div>
+
+            {/* Data flow visualization - particle moving from left to right */}
+            <div className="absolute inset-0 overflow-hidden rounded-xl pointer-events-none">
+              <div
+                className="absolute top-1/2 w-2 h-2 rounded-full bg-[#00F0FF]"
+                style={{
+                  animation: 'dataFlow 3s ease-in-out infinite',
+                  transform: 'translateY(-50%)',
+                  boxShadow: '0 0 8px rgba(0, 240, 255, 0.8)'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right port label */}
+        <div className="text-left whitespace-nowrap">
           <div className="flex items-center gap-1 md:gap-2">
             <div className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" style={{ animationDelay: '0.5s' }} />
             <span className="text-gray-400 text-[10px] md:text-xs font-mono">result</span>
           </div>
-          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap">
+          <code className="text-[9px] md:text-[10px] text-[#00F0FF] font-mono whitespace-nowrap block">
             Port.O(&apos;out&apos;)
           </code>
         </div>
@@ -366,7 +374,7 @@ function PipelineVisual() {
         <div className="flex flex-col items-center">
           <div
             className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
-            style={{ animation: 'componentGlow 3s ease-in-out infinite' }}
+            style={{ animation: 'componentPulse 6s ease-in-out infinite' }}
           >
             <span className="text-[#00F0FF] text-sm font-bold">Split</span>
           </div>
@@ -382,12 +390,12 @@ function PipelineVisual() {
               <div
                 className="absolute w-1 h-1 md:w-1 md:h-1 rounded-full bg-[#00F0FF]"
                 style={{
-                  animation: 'dataFlow 2s ease-in-out infinite',
-                  animationDelay: '0s'
+                  animation: 'dataFlow 6s ease-in-out infinite',
+                  animationDelay: '1s'
                 }}
               />
             </div>
-            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -397,7 +405,7 @@ function PipelineVisual() {
         <div className="flex flex-col items-center">
           <div
             className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
-            style={{ animation: 'componentGlow 3s ease-in-out infinite', animationDelay: '0.5s' }}
+            style={{ animation: 'componentPulse 6s ease-in-out infinite', animationDelay: '2s' }}
           >
             <span className="text-[#00F0FF] text-sm font-bold">Embed</span>
           </div>
@@ -413,12 +421,12 @@ function PipelineVisual() {
               <div
                 className="absolute w-1 h-1 md:w-1 md:h-1 rounded-full bg-[#00F0FF]"
                 style={{
-                  animation: 'dataFlow 2s ease-in-out infinite',
-                  animationDelay: '0.6s'
+                  animation: 'dataFlow 6s ease-in-out infinite',
+                  animationDelay: '3s'
                 }}
               />
             </div>
-            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0 animate-pulse" fill="currentColor" viewBox="0 0 20 20" style={{ animationDelay: '0.3s' }}>
+            <svg className="w-4 h-4 text-[#00F0FF] rotate-90 md:rotate-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </div>
@@ -428,7 +436,7 @@ function PipelineVisual() {
         <div className="flex flex-col items-center">
           <div
             className="w-20 h-20 rounded-xl bg-[#00F0FF]/20 border-2 border-[#00F0FF]/50 flex items-center justify-center"
-            style={{ animation: 'componentGlow 3s ease-in-out infinite', animationDelay: '1s' }}
+            style={{ animation: 'componentPulse 6s ease-in-out infinite', animationDelay: '4s' }}
           >
             <span className="text-[#00F0FF] text-sm font-bold">Store</span>
           </div>
@@ -440,7 +448,8 @@ function PipelineVisual() {
       <div className="text-center">
         <div className="inline-block px-3 md:px-4 py-2 rounded-lg bg-black/50 border border-[#00F0FF]/20">
           <code className="text-[10px] md:text-xs text-gray-400 font-mono break-all">
-            pipeline.connect(<span className="text-green-400">&apos;split.out&apos;</span>, <span className="text-green-400">&apos;embed.in&apos;</span>)
+            pipeline.connect(<span className="text-green-400">&apos;split.out&apos;</span>, <span className="text-green-400">&apos;embed.in&apos;</span>)<br />
+            pipeline.connect(<span className="text-green-400">&apos;embed.out&apos;</span>, <span className="text-green-400">&apos;store.in&apos;</span>)
           </code>
         </div>
       </div>
