@@ -640,3 +640,27 @@ code {
     transform: translateY(-5px);
   }
 }
+
+/* Dual mode flow animation - alternating paths */
+@keyframes dualModeFlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Shield pulse animation - protective scaling */
+@keyframes shieldPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.85;
+  }
+}
