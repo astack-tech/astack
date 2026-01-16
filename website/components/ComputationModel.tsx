@@ -38,9 +38,9 @@ class MyComponent extends Component {
 
   // 2. Reactive pipeline execution
   _transform($i, $o) {
-    $i(this.inPort, async (data) => {
-      const result = await this.process(data);
-      $o(this.outPort, result);
+    $i('in').receive((input) => {
+      const output = this.run(input);
+      $o('out').send(output);
     });
   }
 }`,
