@@ -22,9 +22,11 @@ export default function ComputationModel() {
       id: 'component',
       label: 'Component',
       title: 'Monadic Component Base',
-      description: "Built on HLang's TransformNode with monadic composition laws",
+      description: "Built on HLang's TransformNode (Component in AStack) with monadic composition laws",
       visual: <ComponentVisual />,
-      code: `// Every component extends TransformNode
+      code: `// Every component extends Component
+import { Component } from '@astack-tech/core';
+
 class MyComponent extends Component {
   // Type-safe input/output ports
   inPort = Port.I('in');
@@ -334,8 +336,8 @@ function ComponentVisual() {
               background: 'rgba(0, 240, 255, 0.2)',
             }}
           >
-            <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">Component</span>
-            <span className="text-gray-400 text-xs">extends TransformNode</span>
+            <span className="text-[#00F0FF] font-bold text-base md:text-lg mb-1">MyComponent</span>
+            <span className="text-gray-400 text-xs">extends Component</span>
 
             {/* Input port (left side) */}
             <div
