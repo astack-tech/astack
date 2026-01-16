@@ -124,7 +124,7 @@ pipeline.connect('input.out', 'agent.in');`,
             >
               HLang
             </a>
-            &apos;s monadic paradigm - the foundation for all agent patterns
+            &apos;s monadic paradigm - the foundation for all computation patterns
           </p>
         </div>
 
