@@ -8,6 +8,7 @@
     "@astack-tech/tools": "0.1.1-beta.0"
   },
   "changesets": [
+    "forty-nights-throw",
     "metal-corners-trade",
     "modern-ducks-drop",
     "open-cougars-reply"
