@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: '%s | AStack',
   },
   description:
-    'AStack is a composable AI agent framework built on HLang\'s monadic paradigm. Create powerful AI agents with type-safe components, reactive data flow, and event-driven execution. Perfect for building autonomous agents, RAG applications, and complex AI workflows in TypeScript.',
+    'AStack is a composable AI agent framework built on HLang\'s monadic FBP paradigm. Create powerful AI agents with type-safe components, Observable streams, and declarative composition. Perfect for building autonomous agents, RAG applications, and complex AI workflows in TypeScript.',
   keywords: [
     // Primary keywords
     'AI agent framework',
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     siteName: 'AStack',
     title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
     description:
-      'Build powerful AI agents with type-safe components, reactive data flow, and monadic composition. The composable framework for autonomous agents and AI workflows.',
+      'Build powerful AI agents with type-safe components, Observable streams, and monadic composition. The composable framework for autonomous agents and AI workflows.',
     images: [
       {
         url: '/logo.png',
@@ -102,7 +102,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
     description:
-      'Build powerful AI agents with type-safe components and reactive data flow.',
+      'Build powerful AI agents with type-safe components and Observable streams.',
     images: ['/logo.png'],
     creator: '@astack_tech',
   },
