@@ -101,7 +101,7 @@ export default function Features() {
                   >
                     HLang
                   </a>
-                  &apos;s TransformNode, providing mathematical composition guarantees. Agents,
+                  &apos;s TransformNode (Component in AStack), providing mathematical composition guarantees. Agents,
                   tools, and pipelines share the same base interface with type-safe ports.
                 </p>
 

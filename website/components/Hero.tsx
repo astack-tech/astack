@@ -80,7 +80,7 @@ const result = await agent.run("Research AI trends");`;
 
         {/* Description */}
         <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed">
-          Build any AI pattern with type-safe components, zero adaptation layers,
+          Build any ai application pattern with type-safe components, zero adaptation layers,
           and mathematical composition guarantees from HLang&apos;s monadic foundation.
         </p>
 
