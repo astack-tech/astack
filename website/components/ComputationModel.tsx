@@ -60,7 +60,7 @@ pipeline.addComponent('splitter', new TextSplitter());
 pipeline.addComponent('embedder', new Embedder());
 pipeline.addComponent('store', new VectorStore());
 
-// Direct port connections - zero adaptation
+// Direct port connections - reactive data flow
 pipeline.connect('splitter.out', 'embedder.in');
 pipeline.connect('embedder.out', 'store.in');
 

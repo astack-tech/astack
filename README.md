@@ -20,14 +20,16 @@ English | [简体中文](./README.zh-CN.md)
 
 ## 📋 Overview
 
-AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. It provides a zero-adaptation layer design that enables seamless integration between various AI models, tools, and custom business logic.
+AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. Built on reactive data flow principles, it enables seamless integration between various AI models, tools, and custom business logic through event-driven execution.
 
 AStack is an independent technical framework with its own architecture and ecosystem, built on top of [Hlang](https://github.com/hlang-tech) - a highly semantic [fourth-generation language (4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language) inspired by Flow-Based Programming paradigms. This foundation on Hlang, which is particularly well-suited for computational modeling and AI-generated code, is what gives AStack its power. The framework emphasizes minimalism and performance, allowing developers to create complex systems with minimal boilerplate code while maintaining complete technical autonomy.
 
 ### Key Features
 
 - **Component-Based Architecture**: Build complex AI systems by composing simple, reusable components
-- **Zero-Adaptation Layer Design**: Components work together without intermediate adaptation layers
+- **Reactive Data Flow**: Built on RxJS Observable with publish-subscribe pattern, enabling decoupled component communication
+- **Event-Driven Execution**: Data-driven automatic triggering based on Flow-Based Programming paradigm
+- **Lock-Free Concurrency**: Multiple data packets flow through the pipeline simultaneously without manual lock management
 - **Pipeline Execution Model**: Support for both independent and pipeline execution modes
 - **Extensible Tool System**: Easily integrate new capabilities through a unified tool interface
 - **Multi-Model Support**: Seamless integration with various LLM providers
@@ -42,9 +44,22 @@ AStack is built on several core philosophical principles that guide its developm
 
 In AStack, everything from a simple tool to a complex agent is represented as a component. This unified approach simplifies development and promotes code reuse. Components can be composed, extended, and reconfigured to suit various use cases.
 
-### Zero-Adaptation Layer Design
+### Data Flow Paradigm for Agent Frameworks
 
-Unlike many frameworks that require adapters or middleware between components, AStack adopts a zero-adaptation layer design. Components can directly interact with each other without intermediate transformation layers, reducing complexity and improving performance.
+AStack embraces a **data flow** architecture rather than a **control flow** approach - a fundamental shift that aligns with how LLMs actually work. Traditional agent frameworks often attempt to "control" the model through complex control flow logic, but this is a conceptual mismatch.
+
+LLMs are stateless generators, not stateful programs. Agent state doesn't align with program state. The agent framework should serve as an **interpreter** for model output, treating the model as a data generator rather than a controllable component.
+
+This data flow paradigm offers several advantages:
+- **Natural Alignment**: Matches the stateless, generative nature of LLMs
+- **Simplified Architecture**: Eliminates complex control flow logic trying to "manage" the model
+- **Better Scalability**: Data flow naturally supports concurrent, event-driven processing
+- **Reduced Complexity**: Avoids the bloat of control-flow frameworks (some have 11k+ line single files)
+
+AStack's reactive data flow is built on Flow-Based Programming principles using RxJS Observables, where components communicate through publish-subscribe patterns. This enables:
+- **Event-Driven Execution**: Components react to data events, not control signals
+- **Lock-Free Concurrency**: Multiple data packets flow simultaneously without explicit locking
+- **Decoupled Communication**: Components don't need to know about each other's implementation
 
 ### Minimalism Over Complexity
 
@@ -66,27 +81,37 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 
 > **Important Note**: AStack is a 100% original framework with its own independent technical implementation, architecture, and design. It is built in TypeScript and only shares API style inspiration with Haystack (which is implemented in Python). AStack is not a fork or derivative of Haystack.
 
-### AStack vs. Haystack: Feature Comparison
+### AStack vs. Haystack: Technical Comparison
 
-> This comparison is based on Haystack v2.0 (as of May 2025). Both frameworks continue to evolve, and specific features may change over time.
+> This comparison is based on Haystack v2.0 (as of January 2026). Both frameworks continue to evolve, and specific features may change over time.
 
 | Feature | AStack | Haystack |
 |---------|--------|----------|
-| **Core Design** | Everything is a component | Pipeline with nodes |
-| **Adaptation Layer** | Zero-adaptation layer design | Component connections often require adapters |
-| **Primary Focus** | General AI application framework | Primarily NLP and RAG applications |
-| **Component Interface** | Unified component interface | Different interfaces based on component types |
-| **Agent Support** | Support Compound Agentic System | Support Compound Agentic System |
+| **Core Paradigm** | Data flow (FBP) - reactive, event-driven | Control flow - imperative, while-loop scheduling |
+| **Execution Model** | RxJS Observable streams with publish-subscribe | Priority queue with dict-based data passing |
+| **Concurrency** | Lock-free concurrent execution (FBP paradigm) | Manual async management with priority levels |
+| **Data Passing** | Reactive streams through port connections | Dict deepcopy between components |
+| **Topology Optimization** | Built once per route, reused for all executions | Topological sort on each run |
+| **Type Safety** | Compile-time TypeScript type checking | Runtime Python type compatibility checking |
+| **Primary Focus** | General AI application framework with data flow paradigm | Primarily NLP and RAG applications |
+| **Agent Philosophy** | LLM as stateless generator (interpreter pattern) | Traditional agent control patterns |
+| **Component Interface** | Unified component interface with port system | Different interfaces based on component types |
+| **Debugging Tools** | Standard TypeScript debugging | Rich debugging (breakpoints, snapshots, tracing) |
 | **Memory Management** | Built-in memory abstractions | Memory implemented through specialized components |
-| **Execution Modes** | Both independent and pipeline execution | Both pipeline and component-level execution |
 | **Tool Integration** | Standardized tool interface | Various integration patterns depending on use case |
-| **Model Integration** | Direct model provider integration | Provider-specific adapters |
 | **Learning Curve** | Minimalist API focused on simplicity | Comprehensive but more complex API |
-| **Customization** | High flexibility with minimal boilerplate | Flexible but requires more implementation code |
 | **Implementation** | **TypeScript** | **Python** |
+| **Ecosystem Maturity** | Growing ecosystem | Mature Python ecosystem with production validation |
 | **Chinese Support** | **Complete Chinese documentation** | **Limited Chinese documentation** |
 
-Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with a mature Python ecosystem, while AStack is designed for TypeScript/JavaScript environments with an emphasis on component reusability and minimalist design principles. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
+**Key Architectural Differences:**
+
+- **Data Flow vs Control Flow**: AStack's reactive data flow paradigm aligns naturally with LLMs as stateless generators, while Haystack uses traditional control flow patterns with while-loop scheduling
+- **Concurrency Model**: AStack achieves lock-free concurrency through FBP's event-driven model; Haystack manages concurrency through priority queues and manual async handling
+- **Performance Optimization**: AStack builds topology once and reuses it; Haystack performs topological sorting on each execution
+- **Type System**: AStack provides compile-time safety through TypeScript; Haystack offers runtime checking with optional validation
+
+Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with mature Python ecosystem and rich debugging tools, while AStack is designed for TypeScript/JavaScript environments with emphasis on reactive data flow, event-driven execution, and the data flow paradigm that naturally fits Agent framework requirements. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
 
 ## 🔍 Architecture
 
@@ -150,7 +175,7 @@ AStack includes several examples in the `examples/` directory to demonstrate its
 
 ### Agent with Tools
 
-This example demonstrates how to create an Agent that can use tools to perform real-world tasks like file operations. It showcases the zero-adaptation layer design principle where components work together without intermediate layers.
+This example demonstrates how to create an Agent that can use tools to perform real-world tasks like file operations. It showcases AStack's reactive data flow where components communicate through event-driven port connections.
 
 ```mermaid
 sequenceDiagram
@@ -161,7 +186,7 @@ sequenceDiagram
     
     User->>Agent: "Read file and write with timestamps"
     Agent->>ModelProvider: Send user request
-    Note over ModelProvider: Multi-round tool execution<br/>without adaptation layers
+    Note over ModelProvider: Multi-round tool execution<br/>via reactive data flow
     ModelProvider->>Agent: Request tool execution (readFile)
     Agent->>Tools: Execute readFile tool
     Tools->>Agent: Return file contents
@@ -318,7 +343,7 @@ AStack maintains complete technical autonomy while offering compatibility with H
 - **Compatible Component Models**: AStack's component approach is structurally compatible with Hlang's flow-based programming model
 - **Independent Development**: AStack can be used independently or in conjunction with Hlang's capabilities
 - **Complementary Strengths**: Combine AStack's fine-grained component control with Hlang's higher-level abstractions
-- **Efficient Execution**: AStack's zero-adaptation layer design enables efficient implementation of workflows defined in either framework
+- **Efficient Execution**: AStack's reactive data flow design enables efficient implementation of workflows defined in either framework
 
 This technical compatibility creates a practical synergy for developers leveraging both frameworks' strengths while maintaining the independence of each system.
 

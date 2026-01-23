@@ -158,7 +158,7 @@ export default function Features() {
             </div>
           </div>
 
-          {/* Small Card - Zero Adaptation Layer */}
+          {/* Small Card - Data Flow Paradigm */}
           <div className="group">
             <div className="h-full glass rounded-2xl p-6 hover:bg-white/5 transition-all duration-300">
               <div className="w-10 h-10 rounded-lg bg-[#00F0FF]/10 border border-[#00F0FF]/30 flex items-center justify-center mb-4 group-hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] transition-all">
@@ -180,10 +180,10 @@ export default function Features() {
                 </svg>
               </div>
               <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-[#00F0FF] transition-colors">
-                Zero Adaptation
+                Data Flow Paradigm
               </h3>
               <p className="text-sm text-gray-400">
-                Components connect directly via ports without serialization or protocol translation
+                Reactive data flow treating LLMs as stateless generators, not control flow components
               </p>
             </div>
           </div>

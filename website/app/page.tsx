@@ -32,7 +32,7 @@ export default function Home() {
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Cross-platform',
     description:
-      'AStack is a composable AI agent framework built on HLang\'s monadic paradigm. Create powerful AI agents with type-safe components, zero adaptation layers, and direct port connections.',
+      'AStack is a composable AI agent framework built on HLang\'s monadic paradigm. Create powerful AI agents with type-safe components, reactive data flow, and event-driven execution.',
     url: 'https://astack.tech',
     downloadUrl: 'https://www.npmjs.com/package/@astack-tech/core',
     softwareVersion: 'v0.2.0-beta.1',
