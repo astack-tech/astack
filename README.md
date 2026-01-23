@@ -20,16 +20,16 @@ English | [简体中文](./README.zh-CN.md)
 
 ## 📋 Overview
 
-AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. Built on reactive data flow principles, it enables seamless integration between various AI models, tools, and custom business logic through event-driven execution.
+AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. Built on Flow-Based Programming (FBP) paradigm with monadic functional composition, it enables seamless integration between various AI models, tools, and custom business logic.
 
 AStack is an independent technical framework with its own architecture and ecosystem, built on top of [Hlang](https://github.com/hlang-tech) - a highly semantic [fourth-generation language (4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language) inspired by Flow-Based Programming paradigms. This foundation on Hlang, which is particularly well-suited for computational modeling and AI-generated code, is what gives AStack its power. The framework emphasizes minimalism and performance, allowing developers to create complex systems with minimal boilerplate code while maintaining complete technical autonomy.
 
 ### Key Features
 
 - **Component-Based Architecture**: Build complex AI systems by composing simple, reusable components
-- **Reactive Data Flow**: Built on RxJS Observable with publish-subscribe pattern, enabling decoupled component communication
-- **Event-Driven Execution**: Data-driven automatic triggering based on Flow-Based Programming paradigm
-- **Lock-Free Concurrency**: Multiple data packets flow through the pipeline simultaneously without manual lock management
+- **Flow-Based Programming (FBP)**: Declarative data flow paradigm with monadic functional composition
+- **Observable Streams**: Built on ReactiveX architecture for powerful stream processing
+- **Lock-Free Concurrency**: Natural concurrent execution through monadic FBP design
 - **Pipeline Execution Model**: Support for both independent and pipeline execution modes
 - **Extensible Tool System**: Easily integrate new capabilities through a unified tool interface
 - **Multi-Model Support**: Seamless integration with various LLM providers
@@ -53,13 +53,13 @@ LLMs are stateless generators, not stateful programs. Agent state doesn't align 
 This data flow paradigm offers several advantages:
 - **Natural Alignment**: Matches the stateless, generative nature of LLMs
 - **Simplified Architecture**: Eliminates complex control flow logic trying to "manage" the model
-- **Better Scalability**: Data flow naturally supports concurrent, event-driven processing
+- **Better Scalability**: Data flow naturally supports concurrent processing through monadic composition
 - **Reduced Complexity**: Avoids the bloat of control-flow frameworks (some have 11k+ line single files)
 
-AStack's reactive data flow is built on Flow-Based Programming principles using RxJS Observables, where components communicate through publish-subscribe patterns. This enables:
-- **Event-Driven Execution**: Components react to data events, not control signals
-- **Lock-Free Concurrency**: Multiple data packets flow simultaneously without explicit locking
-- **Decoupled Communication**: Components don't need to know about each other's implementation
+AStack's architecture is built on Flow-Based Programming (FBP) with monadic functional composition from HLang, using Observable streams from ReactiveX. This enables:
+- **Declarative Composition**: Components compose through data dependencies, not control instructions
+- **Lock-Free Concurrency**: Natural concurrent execution through monadic FBP design
+- **Stream Processing**: Observable/Observer pattern for data flow transformation
 
 ### Minimalism Over Complexity
 
@@ -87,10 +87,10 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 
 | Feature | AStack | Haystack |
 |---------|--------|----------|
-| **Core Paradigm** | Data flow (FBP) - reactive, event-driven | Control flow - imperative, while-loop scheduling |
-| **Execution Model** | RxJS Observable streams with publish-subscribe | Priority queue with dict-based data passing |
-| **Concurrency** | Lock-free concurrent execution (FBP paradigm) | Manual async management with priority levels |
-| **Data Passing** | Reactive streams through port connections | Dict deepcopy between components |
+| **Core Paradigm** | Flow-Based Programming (FBP) with monadic composition | Control flow - imperative, while-loop scheduling |
+| **Execution Model** | Observable streams (ReactiveX architecture) | Priority queue with dict-based data passing |
+| **Concurrency** | Lock-free through monadic FBP design | Manual async management with priority levels |
+| **Data Passing** | Observable/Observer pattern through port connections | Dict deepcopy between components |
 | **Topology Optimization** | Built once per route, reused for all executions | Topological sort on each run |
 | **Type Safety** | Compile-time TypeScript type checking | Runtime Python type compatibility checking |
 | **Primary Focus** | General AI application framework with data flow paradigm | Primarily NLP and RAG applications |
@@ -106,12 +106,12 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 
 **Key Architectural Differences:**
 
-- **Data Flow vs Control Flow**: AStack's reactive data flow paradigm aligns naturally with LLMs as stateless generators, while Haystack uses traditional control flow patterns with while-loop scheduling
-- **Concurrency Model**: AStack achieves lock-free concurrency through FBP's event-driven model; Haystack manages concurrency through priority queues and manual async handling
+- **Data Flow vs Control Flow**: AStack's Flow-Based Programming with monadic composition aligns naturally with LLMs as stateless generators, while Haystack uses traditional control flow patterns with while-loop scheduling
+- **Concurrency Model**: AStack achieves lock-free concurrency through monadic FBP design; Haystack manages concurrency through priority queues and manual async handling
 - **Performance Optimization**: AStack builds topology once and reuses it; Haystack performs topological sorting on each execution
 - **Type System**: AStack provides compile-time safety through TypeScript; Haystack offers runtime checking with optional validation
 
-Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with mature Python ecosystem and rich debugging tools, while AStack is designed for TypeScript/JavaScript environments with emphasis on reactive data flow, event-driven execution, and the data flow paradigm that naturally fits Agent framework requirements. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
+Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with mature Python ecosystem and rich debugging tools, while AStack is designed for TypeScript/JavaScript environments with emphasis on Flow-Based Programming, monadic composition, and the data flow paradigm that naturally fits Agent framework requirements. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
 
 ## 🔍 Architecture
 

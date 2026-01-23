@@ -183,7 +183,7 @@ export default function Features() {
                 Data Flow Paradigm
               </h3>
               <p className="text-sm text-gray-400">
-                Reactive data flow treating LLMs as stateless generators, not control flow components
+                Flow-Based Programming treating LLMs as stateless generators, not control flow components
               </p>
             </div>
           </div>

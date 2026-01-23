@@ -16,7 +16,7 @@ export default function Comparison() {
   const differentiators = [
     {
       title: 'Data Flow Paradigm',
-      astack: 'Reactive event-driven',
+      astack: 'Flow-Based Programming with monadic composition',
       other: 'Control flow loops',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

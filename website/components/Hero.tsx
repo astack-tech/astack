@@ -63,7 +63,7 @@ const result = await agent.run("Research AI trends");`;
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-glow mb-8">
           <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
           <span className="text-sm text-gray-300 font-medium">
-            Built on Monadic Paradigm
+            Built on Monadic FBP Paradigm
           </span>
         </div>
 
@@ -80,8 +80,8 @@ const result = await agent.run("Research AI trends");`;
 
         {/* Description */}
         <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-12 leading-relaxed">
-          Build any ai application pattern with type-safe components, reactive data flow,
-          and mathematical composition guarantees from HLang&apos;s monadic foundation.
+          Build any ai application pattern with type-safe components, Observable streams,
+          and mathematical composition guarantees from HLang&apos;s monadic FBP foundation.
         </p>
 
         {/* Typewriter code display */}
