@@ -297,7 +297,6 @@ const results = await pipeline.run('splitter.in', document, {
 - **Three Execution Modes**: Auto-inference, explicit endpoint, or multi-output collection
 - **Type-Safe Multi-Output**: Full TypeScript type inference for collected outputs
 - **Concurrent Execution**: Resolver queue manages multiple concurrent pipeline runs
-```
 
 ## 🔄 Hlang Compatibility
 
