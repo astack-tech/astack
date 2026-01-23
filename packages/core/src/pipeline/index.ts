@@ -5,69 +5,93 @@ import BaseConsumer from './internal-components/base/Consumer';
 
 import { START_COMPONENT_NAME, END_COMPONENT_NAME } from './constants';
 
-class Pipeline {
-  // components
-  private components: Map<string, Node> = new Map();
-  private connectPairs: Array<Array<string>> = [];
+/**
+ * Options for running a pipeline with multiple outputs
+ */
+interface RunOptions {
+  /**
+   * List of output port identifiers to collect results from.
+   * Format: 'componentName.portName'
+   */
+  includeOutputsFrom: string[];
+}
 
-  // running trigger
-  private runningTrigger: Set<string> = new Set();
+/**
+ * Resolver function type for single output
+ */
+type SingleResolver<T> = (value: T) => void;
+
+/**
+ * Multi-output execution context with accumulator
+ */
+interface MultiOutputContext<T> {
+  resolve: SingleResolver<Record<string, T>>;
+  results: Record<string, T>;
+  count: number;
+}
+
+/**
+ * Union type for resolver queue entries
+ */
+type QueueEntry<T> = SingleResolver<T> | MultiOutputContext<T>;
+
+/**
+ * Pipeline orchestrates the execution of connected components in a reactive flow.
+ *
+ * Architecture:
+ * - Built on HLang's reactive FBP runtime
+ * - Uses virtual START (READABLE) and END (WRITABLE) components
+ * - Only START and END are implicit conventions, everything else is explicit
+ * - Topology built once per route, reused across executions
+ * - One Flow instance per Pipeline, one END component per route
+ */
+class Pipeline {
+  private components: Map<string, Node> = new Map();
+  private connectPairs: Array<[string, string]> = [];
+  private topologyBuilt: Map<string, boolean> = new Map();
+  // Use unknown for runtime flexibility with type safety at call sites
+  private resolverQueues: Map<string, Array<QueueEntry<unknown>>> = new Map();
+  private flow: Flow | null = null;
+  private routeEndNames: Map<string, string> = new Map();
 
   constructor() {}
 
   /**
-   * Get source port from a component
-   * @param name - Source identifier in format 'componentName.portName'
-   * @returns Output port of the specified component
+   * Generate a unique, safe END component name for a route
+   * Uses a counter-based approach for simplicity and debuggability
    */
-  private from(name: string) {
-    // Parse component name and port name from the dot notation
-    const [componentName, portName] = name.split('.');
+  private getOrCreateEndName(routeKey: string): string {
+    if (!this.routeEndNames.has(routeKey)) {
+      const index = this.routeEndNames.size;
+      this.routeEndNames.set(routeKey, `${END_COMPONENT_NAME}_${index}`);
+    }
+    return this.routeEndNames.get(routeKey)!;
+  }
 
-    // Retrieve the component by name
-    const currentNode = this.components.get(componentName);
+  private from(portIdentifier: string) {
+    const [componentName, portName] = portIdentifier.split('.');
+    const component = this.components.get(componentName);
 
-    // Ensure component exists
-    if (!currentNode) {
+    if (!component) {
       throw new Error(`Source component not found: ${componentName}`);
     }
 
-    // Get output port from the component
-    return currentNode.O(portName);
+    return component.O(portName);
   }
 
-  /**
-   * Get destination port from a component
-   * @param name - Destination identifier in format 'componentName.portName'
-   * @returns Input port of the specified component
-   */
-  private to(name: string) {
-    // Parse component name and port name from the dot notation
-    const [componentName, portName] = name.split('.');
+  private to(portIdentifier: string) {
+    const [componentName, portName] = portIdentifier.split('.');
+    const component = this.components.get(componentName);
 
-    // Retrieve the component by name
-    const currentNode = this.components.get(componentName);
-
-    // Ensure component exists
-    if (!currentNode) {
+    if (!component) {
       throw new Error(`Destination component not found: ${componentName}`);
     }
 
-    // Get input port from the component
-    return currentNode.I(portName);
+    return component.I(portName);
   }
 
-  /**
-   * Add a component to the pipeline
-   * @param name - Unique identifier for the component
-   * @param instance - Component instance to add
-   * @returns void
-   */
   addComponent(name: string, instance: Node) {
-    // Skip if component with the same name already exists
-    if (this.components.get(name)) return;
-
-    // Register the component in the pipeline
+    if (this.components.has(name)) return;
     this.components.set(name, instance);
   }
 
@@ -75,112 +99,294 @@ class Pipeline {
     return this.components.get(name);
   }
 
-  /**
-   * Connect two components in the pipeline
-   * @param sourceName - Source identifier in format 'componentName.portName'
-   * @param sinkName - Destination identifier in format 'componentName.portName'
-   * @returns void
-   */
   connect(sourceName: string, sinkName: string) {
-    // Connect output port of source to input port of sink
-    this.from(sourceName).connect(this.to(sinkName));
+    // Check if this connection already exists
+    const exists = this.connectPairs.some(([src, snk]) => src === sourceName && snk === sinkName);
 
-    // Record the connection for later use in determining pipeline endpoints
+    if (exists) {
+      return; // Skip duplicate connection
+    }
+
+    this.from(sourceName).connect(this.to(sinkName));
     this.connectPairs.push([sourceName, sinkName]);
   }
 
   /**
-   * Execute the pipeline
-   * @param triggerName - Entry point for the pipeline in format 'componentName.portName'
-   * @param params - Parameters to pass to the pipeline
-   * @param sink - Callback/sink to process the final result
-   * @returns void
+   * Detect leaf ports (outputs with no downstream connections)
+   * Fixed logic: checks if source port's sink component has any outputs
    */
-  private runWithBaseMode<T>(triggerName: string, params: unknown, sink: (value: T) => void) {
-    let startComponent: BaseProducer, endComponent: BaseConsumer;
+  private detectLeafPorts(): string[] {
+    const allSourcePorts = new Set<string>();
+    const sourcesWithDownstream = new Set<string>();
 
-    if (!(this.getComponent(START_COMPONENT_NAME) && this.getComponent(END_COMPONENT_NAME))) {
-      // Construct two hidden component
-      startComponent = new BaseProducer({});
-      endComponent = new BaseConsumer({});
+    for (const [source, sink] of this.connectPairs) {
+      allSourcePorts.add(source);
 
-      // Add to components
-      this.addComponent(START_COMPONENT_NAME, startComponent);
-      this.addComponent(END_COMPONENT_NAME, endComponent);
-    } else {
-      // Get start & end component
-      startComponent = this.getComponent(START_COMPONENT_NAME) as BaseProducer;
-      endComponent = this.getComponent(END_COMPONENT_NAME) as BaseConsumer;
+      const [sinkComponent] = sink.split('.');
+
+      // Check if sink component has ANY output ports in the topology
+      const sinkHasOutput = this.connectPairs.some(([otherSource]) => {
+        const [otherSourceComponent] = otherSource.split('.');
+        return otherSourceComponent === sinkComponent;
+      });
+
+      if (sinkHasOutput) {
+        sourcesWithDownstream.add(source);
+      }
     }
 
-    // Create a flow instance to manage the execution
-    const pipeline = new Flow({});
+    return Array.from(allSourcePorts).filter(source => !sourcesWithDownstream.has(source));
+  }
 
-    if (!this.runningTrigger.has(triggerName)) {
-      // Validate the trigger name format
+  // Overload signatures
+  run<T>(triggerName: string, params: unknown): Promise<T>;
+  run<T>(triggerName: string, params: unknown, endpoint: string): Promise<T>;
+  run<T>(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, T>>;
+
+  run<T>(
+    triggerName: string,
+    params: unknown,
+    endpointOrOptions?: string | RunOptions
+  ): Promise<T | Record<string, T>> {
+    return new Promise(resolve => {
+      // Validate trigger name
       if (!triggerName || !triggerName.includes('.')) {
         throw new Error(
           `Invalid trigger name: ${triggerName}. Format should be 'componentName.portName'`
         );
       }
 
-      // We need to determine the final sink dynamically
-      let lastComponentName: string;
-
-      // Check if we have explicit connections defined
-      const lastPair = this.connectPairs[this.connectPairs.length - 1];
-
-      if (lastPair) {
-        // If connections exist, use the last sink as the endpoint
-        // This is the standard case for multi-component pipelines
-        lastComponentName = lastPair[1].split('.')[0];
+      // Get or create START component (only once)
+      let startComponent: BaseProducer;
+      if (!this.getComponent(START_COMPONENT_NAME)) {
+        startComponent = new BaseProducer({});
+        this.addComponent(START_COMPONENT_NAME, startComponent);
       } else {
-        // Smart fallback: If no connections were defined (single component case),
-        // infer the output port from the component itself
-        lastComponentName = triggerName.split('.')[0];
+        startComponent = this.getComponent(START_COMPONENT_NAME) as BaseProducer;
       }
 
-      const lastComponent = this.components.get(lastComponentName);
-
-      if (!lastComponent) {
-        throw new Error(`Last component not found: ${lastComponentName}`);
+      // Create Flow instance only once
+      if (!this.flow) {
+        this.flow = new Flow({});
       }
 
-      // Access the standard output port of the component (defined in our Component base class)
-      // @ts-expect-error - Accessing a property that might not exist on all Node types
-      const endSinkName = `${lastComponentName}.${lastComponent?.outPort?.name}`;
+      // Priority 1: Explicit single endpoint
+      if (typeof endpointOrOptions === 'string') {
+        const endpoint = endpointOrOptions;
+        const routeKey = `${triggerName}→${endpoint}`;
 
-      // Connect the internal start component to the user-specified entry point
-      this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
+        // Build topology only once for this route
+        if (!this.topologyBuilt.get(routeKey)) {
+          const endName = this.getOrCreateEndName(routeKey);
 
-      // Connect the endpoint to our internal end component
-      this.connect(endSinkName, `${END_COMPONENT_NAME}.in`);
+          const endComponent = new BaseConsumer({});
+          this.addComponent(endName, endComponent);
 
-      // Set flag
-      this.runningTrigger.add(triggerName);
-    }
+          // Initialize resolver queue for this route
+          this.resolverQueues.set(routeKey, []);
 
-    // Initialize the flow with our start component
-    pipeline.run(startComponent);
+          // Set up ONE-TIME subscription with dynamic resolver queue
+          endComponent.consume((value: T) => {
+            const queue = this.resolverQueues.get(routeKey);
+            if (queue && queue.length > 0) {
+              const currentResolver = queue.shift() as SingleResolver<T>;
+              currentResolver(value);
+            }
+          });
 
-    // Set up the sink to handle the final output
-    endComponent.consume(sink);
+          // Build topology
+          this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
+          this.connect(endpoint, `${endName}.in`);
 
-    // Inject the input parameters to start the pipeline
-    startComponent.produce(params);
-  }
+          this.topologyBuilt.set(routeKey, true);
+        }
 
-  /**
-   * Execute the pipeline with base mode (default)
-   * @param triggerName - Entry point for the pipeline in format 'componentName.portName'
-   * @param params - Parameters to pass to the pipeline
-   * @returns Promise<T>
-   */
-  run<T = unknown>(triggerName: string, params: unknown): Promise<T> {
-    return new Promise(resolve => {
-      this.runWithBaseMode(triggerName, params, (value: T) => {
-        resolve(value);
-      });
+        // Add this execution's resolver to the queue
+        const queue = this.resolverQueues.get(routeKey)!;
+        queue.push(resolve as QueueEntry<unknown>);
+
+        // Execute: Only trigger data flow
+        this.flow.run(startComponent);
+        startComponent.produce(params);
+        return;
+      }
+
+      // Priority 2: Multiple output collection
+      if (endpointOrOptions && 'includeOutputsFrom' in endpointOrOptions) {
+        const targetOutputs = endpointOrOptions.includeOutputsFrom;
+        const routeKey = `${triggerName}→multi:${targetOutputs.sort().join(',')}`;
+
+        // Build topology only once for this multi-output route
+        if (!this.topologyBuilt.get(routeKey)) {
+          // Initialize resolver queue for this route
+          this.resolverQueues.set(routeKey, []);
+
+          targetOutputs.forEach((outputPort, index) => {
+            const consumer = new BaseConsumer({});
+            const consumerName = `${END_COMPONENT_NAME}_multi_${index}`;
+            this.addComponent(consumerName, consumer);
+            this.connect(outputPort, `${consumerName}.in`);
+
+            // Set up ONE-TIME subscription for this consumer
+            consumer.consume((value: T) => {
+              const queue = this.resolverQueues.get(routeKey);
+              if (queue && queue.length > 0) {
+                // Store result in the current execution's result object
+                const currentExecution = queue[0] as MultiOutputContext<T>;
+                if (!currentExecution.results) {
+                  currentExecution.results = {};
+                  currentExecution.count = 0;
+                }
+                currentExecution.results[outputPort] = value;
+                currentExecution.count++;
+
+                // Resolve when all outputs are collected
+                if (currentExecution.count === targetOutputs.length) {
+                  const resolver = queue.shift() as MultiOutputContext<T>;
+                  resolver.resolve(resolver.results);
+                }
+              }
+            });
+          });
+
+          this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
+          this.topologyBuilt.set(routeKey, true);
+        }
+
+        // Add this execution's resolver to the queue with metadata
+        const queue = this.resolverQueues.get(routeKey)!;
+        const context: MultiOutputContext<T> = { resolve, results: {}, count: 0 };
+        queue.push(context as QueueEntry<unknown>);
+
+        // Execute: Only trigger data flow
+        this.flow.run(startComponent);
+        startComponent.produce(params);
+        return;
+      }
+
+      // Priority 3: Auto-inference
+      const leafPorts = this.detectLeafPorts();
+
+      // Case 3.1: Single component with no connections
+      if (leafPorts.length === 0 && this.connectPairs.length === 0) {
+        const [triggerComponentName] = triggerName.split('.');
+        const triggerComponent = this.components.get(triggerComponentName);
+
+        if (!triggerComponent) {
+          throw new Error(`Trigger component not found: ${triggerComponentName}`);
+        }
+
+        // @ts-expect-error - Accessing outPort property that exists on Component classes
+        const outputPortName = triggerComponent?.outPort?.name;
+
+        if (!outputPortName) {
+          throw new Error(
+            `Cannot infer output port for single-component pipeline.\n` +
+              'Please specify endpoint explicitly:\n' +
+              `  pipeline.run('${triggerName}', params, 'componentName.portName')`
+          );
+        }
+
+        const inferredEndpoint = `${triggerComponentName}.${outputPortName}`;
+        const routeKey = `${triggerName}→${inferredEndpoint}`;
+
+        // Build topology only once
+        if (!this.topologyBuilt.get(routeKey)) {
+          const endName = this.getOrCreateEndName(routeKey);
+
+          const endComponent = new BaseConsumer({});
+          this.addComponent(endName, endComponent);
+
+          this.resolverQueues.set(routeKey, []);
+
+          endComponent.consume((value: T) => {
+            const queue = this.resolverQueues.get(routeKey);
+            if (queue && queue.length > 0) {
+              const currentResolver = queue.shift() as SingleResolver<T>;
+              currentResolver(value);
+            }
+          });
+
+          this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
+          this.connect(inferredEndpoint, `${endName}.in`);
+
+          this.topologyBuilt.set(routeKey, true);
+        }
+
+        const queue = this.resolverQueues.get(routeKey)!;
+        queue.push(resolve as QueueEntry<unknown>);
+
+        this.flow.run(startComponent);
+        startComponent.produce(params);
+        return;
+      }
+
+      // Case 3.2: Single leaf port
+      if (leafPorts.length === 1) {
+        const endpoint = leafPorts[0];
+        const routeKey = `${triggerName}→${endpoint}`;
+
+        // Build topology only once
+        if (!this.topologyBuilt.get(routeKey)) {
+          const endName = this.getOrCreateEndName(routeKey);
+
+          const endComponent = new BaseConsumer({});
+          this.addComponent(endName, endComponent);
+
+          this.resolverQueues.set(routeKey, []);
+
+          endComponent.consume((value: T) => {
+            const queue = this.resolverQueues.get(routeKey);
+            if (queue && queue.length > 0) {
+              const currentResolver = queue.shift() as SingleResolver<T>;
+              currentResolver(value);
+            }
+          });
+
+          this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
+          this.connect(endpoint, `${endName}.in`);
+
+          this.topologyBuilt.set(routeKey, true);
+        }
+
+        const queue = this.resolverQueues.get(routeKey)!;
+        queue.push(resolve as QueueEntry<unknown>);
+
+        this.flow.run(startComponent);
+        startComponent.produce(params);
+        return;
+      }
+
+      // Case 3.3: Multiple leaf ports
+      if (leafPorts.length > 1) {
+        throw new Error(
+          `Multiple leaf outputs detected: [${leafPorts.join(', ')}].\n` +
+            'Please choose one of the following:\n' +
+            `  1. Single output:\n` +
+            `     pipeline.run('${triggerName}', params, '${leafPorts[0]}')\n` +
+            `  2. Multiple outputs:\n` +
+            `     pipeline.run('${triggerName}', params, {\n` +
+            `       includeOutputsFrom: [${leafPorts.map(p => `'${p}'`).join(', ')}]\n` +
+            `     })`
+        );
+      }
+
+      // Case 3.4: No leaf ports (circular topology)
+      if (leafPorts.length === 0 && this.connectPairs.length > 0) {
+        throw new Error(
+          'Circular topology detected. Cannot determine endpoint.\n' +
+            'Please specify endpoint explicitly:\n' +
+            `  pipeline.run('${triggerName}', params, 'componentName.portName')\n` +
+            "Example: pipeline.run('gateway.input', data, 'gateway.result')"
+        );
+      }
+
+      // Should never reach here
+      throw new Error(
+        'Cannot determine pipeline endpoint.\n' +
+          'Please specify endpoint explicitly:\n' +
+          `  pipeline.run('${triggerName}', params, 'componentName.portName')`
+      );
     });
   }
 }

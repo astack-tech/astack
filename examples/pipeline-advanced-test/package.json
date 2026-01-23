@@ -1,0 +1,19 @@
+{
+  "name": "pipeline-advanced-test",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Advanced Pipeline test demonstrating all capabilities: arbitrary start/end points, includeOutputsFrom, complex topologies",
+  "type": "module",
+  "scripts": {
+    "start": "tsx index.ts",
+    "test": "tsx index-strict.ts",
+    "ultimate": "tsx index-ultimate.ts"
+  },
+  "dependencies": {
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/components": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

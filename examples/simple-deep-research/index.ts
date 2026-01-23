@@ -68,7 +68,11 @@ async function runSimpleDeepResearch(topic: string, apiKey: string): Promise<voi
   try {
     // 使用网关组件作为单一进入点
     console.log('通过网关触发完整流程 ...');
-    const enhancedReport = await pipeline.run<ResearchReport>('gateway.input', { topic, apiKey });
+    const enhancedReport = await pipeline.run<ResearchReport>(
+      'gateway.input',
+      { topic, apiKey },
+      'gateway.result' // Explicit endpoint for circular topology
+    );
     console.log('流水线处理完成，获取最终报告');
 
     // 保存报告到文件

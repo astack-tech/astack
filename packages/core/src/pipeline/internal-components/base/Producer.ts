@@ -1,12 +1,12 @@
-import { ReadableNode, Port } from '@hlang-org/runtime';
+import { ReadableNode, Port as HlangPort } from '@hlang-org/runtime';
 
 class BaseProducer extends ReadableNode {
-  private out: ReturnType<typeof Port.O>;
+  private out: ReturnType<typeof HlangPort.O>;
 
   constructor(opt: unknown) {
     super(opt);
 
-    this.out = Port.O('out');
+    this.out = HlangPort.O('out');
     this.out.attach(this);
   }
 

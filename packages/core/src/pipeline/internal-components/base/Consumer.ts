@@ -1,12 +1,12 @@
-import { WriteableNode, Port } from '@hlang-org/runtime';
+import { WriteableNode, Port as HlangPort } from '@hlang-org/runtime';
 
 class Consumer extends WriteableNode {
-  private in: ReturnType<typeof Port.I>;
+  private in: ReturnType<typeof HlangPort.I>;
 
   constructor(opt: unknown) {
     super(opt);
 
-    this.in = Port.I('in');
+    this.in = HlangPort.I('in');
     this.in.attach(this);
   }
 

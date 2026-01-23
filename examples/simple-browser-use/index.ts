@@ -95,7 +95,9 @@ async function main() {
     // 运行 Pipeline，通过规划器输入意图
     console.log('运行 Pipeline，通过规划器输入意图...');
     console.log('等待 pipeline.run() 完成...');
-    const result = await pipeline.run('planner.intent', userIntent);
+    // Explicit endpoint: collector.result is the final output
+    // (planner.stream and browser.progress are also leaf ports for streaming/progress tracking)
+    const result = await pipeline.run('planner.intent', userIntent, 'collector.result');
     console.log('★★★ pipeline.run() 执行完成！★★★');
 
     // 显示结果

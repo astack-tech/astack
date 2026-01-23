@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "../..",
+    "outDir": "dist",
+    "baseUrl": "../..",
+    "paths": {
+      "@astack-tech/core": ["packages/core/src"],
+      "@astack-tech/core/*": ["packages/core/src/*"],
+      "@astack-tech/components": ["packages/components/src"],
+      "@astack-tech/components/*": ["packages/components/src/*"]
+    }
+  }
+}
