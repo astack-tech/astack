@@ -261,22 +261,42 @@ const result = await agent.run('Please read the README.md file');
 
 ### Building a Pipeline
 
+AStack's refactored Pipeline provides intelligent execution with three flexible modes:
+
 ```typescript
 import { Pipeline } from '@astack-tech/core';
-import { Agent } from '@astack-tech/components';
+import { TextSplitter, Embedder, VectorStore } from '@astack-tech/components';
 
 // Create pipeline
 const pipeline = new Pipeline();
 
 // Add components
-pipeline.addComponent('agent', agent);
-pipeline.addComponent('resultHandler', new ResultHandler());
+pipeline.addComponent('splitter', new TextSplitter());
+pipeline.addComponent('embedder', new Embedder());
+pipeline.addComponent('store', new VectorStore());
 
-// Connect components
-pipeline.connect('agent.out', 'resultHandler.in');
+// Connect components - direct port connections
+pipeline.connect('splitter.out', 'embedder.in');
+pipeline.connect('embedder.out', 'store.in');
 
-// Run pipeline
-await pipeline.run('agent.in', 'Please analyze this data');
+// Mode 1: Auto-infer endpoint (detects single leaf port)
+const result = await pipeline.run('splitter.in', document);
+
+// Mode 2: Explicit endpoint
+const result = await pipeline.run('splitter.in', document, 'store.out');
+
+// Mode 3: Multi-output collection (type-safe)
+const results = await pipeline.run('splitter.in', document, {
+  includeOutputsFrom: ['embedder.out', 'store.out']
+});
+// Returns: { 'embedder.out': T, 'store.out': T }
+```
+
+**Pipeline Features:**
+- **Smart Topology Optimization**: Each route builds topology once, reuses for subsequent executions
+- **Three Execution Modes**: Auto-inference, explicit endpoint, or multi-output collection
+- **Type-Safe Multi-Output**: Full TypeScript type inference for collected outputs
+- **Concurrent Execution**: Resolver queue manages multiple concurrent pipeline runs
 ```
 
 ## 🔄 Hlang Compatibility
@@ -460,26 +480,26 @@ AStack is organized into several packages, all published on npm:
 
 ### Installation
 
-Install the packages you need:
+Install the beta packages you need:
 
 ```bash
 # Core package (required)
-npm install @astack-tech/core
+npm install @astack-tech/core@beta
 
 # Components package (for Agents, Memory, etc.)
-npm install @astack-tech/components
+npm install @astack-tech/components@beta
 
 # Tools package (for tool implementations)
-npm install @astack-tech/tools
+npm install @astack-tech/tools@beta
 
 # Integrations package (for model providers like OpenAI, Deepseek, etc.)
-npm install @astack-tech/integrations
+npm install @astack-tech/integrations@beta
 ```
 
 Or install all packages at once:
 
 ```bash
-npm install @astack-tech/core @astack-tech/components @astack-tech/tools @astack-tech/integrations
+npm install @astack-tech/core@beta @astack-tech/components@beta @astack-tech/tools@beta @astack-tech/integrations@beta
 ```
 
 

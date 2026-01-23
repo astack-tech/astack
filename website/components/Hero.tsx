@@ -143,10 +143,10 @@ const result = await agent.run("Research AI trends");`;
         }}>
           <span className="text-gray-500 text-sm flex items-center">$</span>
           <code className="text-sm font-mono text-gray-300 flex items-center">
-            npm install @astack-tech/core
+            npm install @astack-tech/core@beta
           </code>
           <div className="flex items-center">
-            <CopyButton text="npm install @astack-tech/core" size="sm" />
+            <CopyButton text="npm install @astack-tech/core@beta" size="sm" />
           </div>
         </div>
 

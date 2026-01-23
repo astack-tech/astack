@@ -63,7 +63,7 @@ export default function BetaNotification() {
   }, []);
 
   // Use default values if loading or error
-  const version = release?.tag_name || 'v0.1.1-beta.0';
+  const version = release?.tag_name || 'v0.2.0-beta.1';
   const releaseUrl =
     release?.html_url ||
     'https://github.com/astack-tech/astack/releases/latest';
@@ -111,7 +111,7 @@ export default function BetaNotification() {
 
             {/* Install command */}
             <code className="hidden sm:inline-block px-2 py-0.5 rounded glass text-xs font-mono text-gray-400">
-              npm install @astack-tech/core
+              npm install @astack-tech/core@beta
             </code>
           </div>
 

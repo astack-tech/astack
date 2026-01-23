@@ -261,22 +261,42 @@ const result = await agent.run('请读取 README.md 文件');
 
 ### 构建管道
 
+AStack 重构后的 Pipeline 提供了智能执行和三种灵活模式：
+
 ```typescript
 import { Pipeline } from '@astack-tech/core';
-import { Agent } from '@astack-tech/components';
+import { TextSplitter, Embedder, VectorStore } from '@astack-tech/components';
 
 // 创建管道
 const pipeline = new Pipeline();
 
 // 添加组件
-pipeline.addComponent('agent', agent);
-pipeline.addComponent('resultHandler', new ResultHandler());
+pipeline.addComponent('splitter', new TextSplitter());
+pipeline.addComponent('embedder', new Embedder());
+pipeline.addComponent('store', new VectorStore());
 
-// 连接组件
-pipeline.connect('agent.out', 'resultHandler.in');
+// 连接组件 - 直接端口连接
+pipeline.connect('splitter.out', 'embedder.in');
+pipeline.connect('embedder.out', 'store.in');
 
-// 运行管道
-await pipeline.run('agent.in', '请分析这些数据');
+// 模式 1: 自动推断端点（检测单个叶子端口）
+const result = await pipeline.run('splitter.in', document);
+
+// 模式 2: 显式指定端点
+const result = await pipeline.run('splitter.in', document, 'store.out');
+
+// 模式 3: 多输出收集（类型安全）
+const results = await pipeline.run('splitter.in', document, {
+  includeOutputsFrom: ['embedder.out', 'store.out']
+});
+// 返回: { 'embedder.out': T, 'store.out': T }
+```
+
+**Pipeline 特性：**
+- **智能拓扑优化**：每个路由只构建一次拓扑，后续执行复用
+- **三种执行模式**：自动推断、显式端点或多输出收集
+- **类型安全的多输出**：完整的 TypeScript 类型推断支持
+- **并发执行**：Resolver 队列管理多个并发管道运行
 ```
 
 ## 🔄 Hlang 兼容性
@@ -464,22 +484,22 @@ AStack 组织为几个包，均已发布到 npm：
 
 ```bash
 # 核心包（必需）
-npm install @astack-tech/core
+npm install @astack-tech/core@beta
 
 # 组件包（用于 Agent、Memory 等）
-npm install @astack-tech/components
+npm install @astack-tech/components@beta
 
 # 工具包（用于工具实现）
-npm install @astack-tech/tools
+npm install @astack-tech/tools@beta
 
 # 集成包（用于 OpenAI、Deepseek 等模型提供者）
-npm install @astack-tech/integrations
+npm install @astack-tech/integrations@beta
 ```
 
 或一次性安装所有包：
 
 ```bash
-npm install @astack-tech/core @astack-tech/components @astack-tech/tools @astack-tech/integrations
+npm install @astack-tech/core@beta @astack-tech/components@beta @astack-tech/tools@beta @astack-tech/integrations@beta
 ```
 
 

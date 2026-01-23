@@ -23,9 +23,9 @@ export default function QuickStart() {
 
   // Install commands for different package managers
   const installCommands = {
-    npm: 'npm install @astack-tech/core @astack-tech/components',
-    yarn: 'yarn add @astack-tech/core @astack-tech/components',
-    pnpm: 'pnpm add @astack-tech/core @astack-tech/components',
+    npm: 'npm install @astack-tech/core@beta @astack-tech/components@beta',
+    yarn: 'yarn add @astack-tech/core@beta @astack-tech/components@beta',
+    pnpm: 'pnpm add @astack-tech/core@beta @astack-tech/components@beta',
   };
 
   // Simple example code - matches real AStack API

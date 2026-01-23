@@ -50,23 +50,31 @@ class MyComponent extends Component {
     {
       id: 'pipeline',
       label: 'Pipeline',
-      title: 'Direct Port Connections',
-      description: 'Components connect via ports without adaptation layers or serialization',
+      title: 'Intelligent Pipeline Execution',
+      description: 'Smart topology optimization with three flexible execution modes and type-safe multi-output support',
       visual: <PipelineVisual />,
-      code: `// Components connect directly via ports
+      code: `// Refactored Pipeline with intelligent execution
 const pipeline = new Pipeline();
 
 pipeline.addComponent('splitter', new TextSplitter());
 pipeline.addComponent('embedder', new Embedder());
 pipeline.addComponent('store', new VectorStore());
 
-// Direct port-to-port connections
-// No adapters, no serialization, no protocol translation
+// Direct port connections - zero adaptation
 pipeline.connect('splitter.out', 'embedder.in');
 pipeline.connect('embedder.out', 'store.in');
 
-// Execute the pipeline
-const result = await pipeline.run('splitter.in', document);`,
+// Mode 1: Auto-infer endpoint (single leaf port)
+const result = await pipeline.run('splitter.in', document);
+
+// Mode 2: Explicit endpoint
+const result = await pipeline.run('splitter.in', document, 'store.out');
+
+// Mode 3: Multi-output collection (type-safe)
+const results = await pipeline.run('splitter.in', document, {
+  includeOutputsFrom: ['embedder.out', 'store.out']
+});
+// results: { 'embedder.out': T, 'store.out': T }`,
     },
     {
       id: 'agent',
