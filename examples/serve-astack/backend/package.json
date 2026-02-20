@@ -19,7 +19,7 @@
     "@fastify/type-provider-typebox": "^4.1.0",
     "@sinclair/typebox": "^0.34.41",
     "dotenv": "^17.2.2",
-    "fastify": "^5.2.0"
+    "fastify": "^5.7.3"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
