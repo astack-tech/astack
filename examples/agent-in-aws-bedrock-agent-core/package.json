@@ -15,9 +15,9 @@
     "@astack-tech/core": "workspace:*",
     "@astack-tech/integrations": "workspace:*",
     "@astack-tech/tools": "workspace:*",
-    "@hono/node-server": "^1.13.7",
+    "@hono/node-server": "^1.19.13",
     "dotenv": "^17.2.2",
-    "hono": "^4.6.14"
+    "hono": "^4.12.12"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
