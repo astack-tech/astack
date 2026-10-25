@@ -80,6 +80,7 @@ async function exportPngs() {
   const sharp = require('sharp');
   const exports = [
     ['assets/logo.svg', 'assets/logo.png', 240],
+    ['website/public/favicon.svg', 'website/public/favicon-32.png', 32],
     ['assets/brand/avatar.svg', 'assets/brand/avatar.png', 512],
     ['assets/brand/readme-banner.svg', 'assets/brand/readme-banner.png', 1280],
     ['assets/brand/logo-construction.svg', 'assets/brand/concept-board.png', 1400],
@@ -89,6 +90,31 @@ async function exportPngs() {
   for (const [source, target, width] of exports) {
     await sharp(path.join(root, source)).resize({ width }).png().toFile(path.join(root, target));
   }
+  // ICO directory entries contain PNG payloads for three browser-tab sizes.
+  const sizes = [16, 32, 48];
+  const images = await Promise.all(
+    sizes.map(size =>
+      sharp(path.join(root, 'website/public/favicon.svg')).resize(size, size).png().toBuffer()
+    )
+  );
+  const header = Buffer.alloc(6 + sizes.length * 16);
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(sizes.length, 4);
+  let offset = header.length;
+  images.forEach((image, i) => {
+    const entry = 6 + i * 16;
+    header[entry] = sizes[i];
+    header[entry + 1] = sizes[i];
+    header.writeUInt16LE(1, entry + 4);
+    header.writeUInt16LE(32, entry + 6);
+    header.writeUInt32LE(image.length, entry + 8);
+    header.writeUInt32LE(offset, entry + 12);
+    offset += image.length;
+  });
+  fs.writeFileSync(
+    path.join(root, 'website/public/favicon.ico'),
+    Buffer.concat([header, ...images])
+  );
   for (const [source, target] of [
     ['assets/logo.png', 'website/public/logo.png'],
     ['assets/brand/avatar.png', 'website/public/brand/avatar.png'],

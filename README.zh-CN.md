@@ -1,22 +1,12 @@
-<div align="center">
+# AStack
 
 <img src="./assets/brand/readme-banner.svg" alt="AStack：一切皆组件。用于构建 AI 应用的 TypeScript 可组合框架。" width="100%">
 
-# AStack
+[官网](https://astack.tech) · [文档](https://deepwiki.com/astack-tech/astack) · [示例](./examples) · [MIT 许可](./LICENSE) · [参与贡献](https://github.com/astack-tech/astack/pulls)
 
-**一个用于构建 AI 应用的可组合框架**
+[English](./README.md) · 简体中文
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/astack-tech/astack)
-
-**公开测试版**
-
-AStack 正在开发中。测试版提供组件、管道、Agent、工具与模型集成。
-
-[English](./README.md) | 简体中文
-
-</div>
+> **公开测试版。** AStack 正在开发中。测试版提供组件、管道、Agent、工具与模型集成。
 
 ## 概述
 
