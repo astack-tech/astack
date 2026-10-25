@@ -1,61 +1,52 @@
-# AStack Official Website
+# AStack website
 
-The official website for [AStack](https://github.com/astack-tech/astack) - The Production-Ready Open Source Framework For AI Applications.
+The website for [AStack](https://astack.tech), a TypeScript framework for AI applications. Next.js 15, React 19, and Tailwind CSS 4 serve the landing page and the Markdown blog.
 
-**Live Website:** [https://astack.tech](https://astack.tech)
+## Run locally
 
-This website showcases AStack's features, examples, and documentation with a modern, technology-oriented aesthetic featuring a deep blue and green color palette inspired by the AStack logo, mesh gradient backgrounds, glowing text effects, and smooth animations.
+The website has its own lockfile. Install its dependencies from this directory:
 
-## Features
-
-- Modern dark glassmorphism design with gradient effects
-- Responsive layout that works on all device sizes
-- Interactive code examples with syntax highlighting and copy functionality
-- Framework comparison and use case demonstrations
-- Built with Next.js and Tailwind CSS
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```sh
+cd website
+pnpm install --ignore-workspace
+pnpm dev --port 43187 --hostname 127.0.0.1
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [the local preview](http://127.0.0.1:43187).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deployment
-
-The AStack website is deployed at [https://astack.tech](https://astack.tech).
-
-### How to Deploy
-
-1. Build the website:
-```bash
+```sh
+pnpm lint
+pnpm check-types
 pnpm build
 ```
 
-2. The built assets will be in the `.next` directory, ready for deployment to your preferred hosting platform.
+`pnpm start --port 43187` serves a production build. Next.js writes production output to `.next/` and development output to `.next-dev/`. The two servers can run without sharing a cache.
 
-## About AStack
+## Structure
 
-AStack is 100% original with independent technical implementation and architectural design. It takes inspiration from Haystack's API design style but is not based on Haystack code or implementation. AStack has its own independent technical architecture and design philosophy ("everything is a component") with zero adaptation layer design principles.
+- `app/`: Routes, metadata, API routes, and global styles.
+- `components/`: Navigation, landing sections, and reusable controls.
+- `components/magicui/`: Magic UI components and their upstream license.
+- `lib/examples.ts`: Displayed code examples checked against package exports.
+- `content/blog/`: Blog articles. Keep article URLs stable.
+- `public/brand/`: Banner, social preview, and logo construction assets.
+
+## Content and interaction
+
+The landing page includes features, component and pipeline examples, a quick start, an architecture comparison, and use cases. The computation model has Component, Pipeline, Agent, and Streaming tabs. All tabs support keyboard navigation. The package selector updates the install command and its copy value together.
+
+The data flow preview is a local illustration. It does not send prompts to a model. GitHub release and star data use internal API routes. These routes work without a token. An optional `GITHUB_TOKEN` can increase the rate limit. If that token expires, the routes retry the public request without it. Keep the token in `.env.local`; never commit it.
+
+The quick-start example requires `DEEPSEEK_API_KEY` on the server. It must not be exposed as a browser environment variable. The example uses `@astack-tech/integrations/model-provider`.
+
+## Design system
+
+The site uses black and silver surfaces with light and dark themes. Geist and Geist Mono load from local files through `next/font/local`. Builds do not need Google Fonts. CSS Grid controls the main layouts. Code panels scroll within their own boundaries. The mobile menu supports keyboard input, and the page has a skip link.
+
+Magic UI's `AnimatedBeam`, `BorderBeam`, `MagicCard`, and `AnimatedThemeToggler` come from the specified local checkout. Their MIT notice is retained. Animation explains the port connections and stops after one pass. Reduced-motion preferences disable that animation.
+
+See the [brand specification](../docs/brand/README.md), [content map](../docs/brand/content-map.md), and [validation record](../docs/brand/validation.md).
+
+## Framework context
+
+AStack has its own implementation and architecture. Its API style takes inspiration from Haystack. It uses the HLang runtime for monadic Flow-Based Programming and Observable-based data flow.

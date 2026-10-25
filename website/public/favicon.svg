@@ -1,14 +1,1 @@
-<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00F0FF" />
-      <stop offset="100%" stop-color="#FFFFFF" />
-    </linearGradient>
-  </defs>
-  <!-- 六边形外框 -->
-  <path d="M24 8L39.6 17V35L24 44L8.4 35V17L24 8Z" fill="none" stroke="url(#logoGradient)" stroke-width="2" />
-  <!-- 内层六边形 -->
-  <path d="M24 14L35.2 20.5V33.5L24 40L12.8 33.5V20.5L24 14Z" fill="url(#logoGradient)" fill-opacity="0.2" />
-  <!-- 中心菱形 -->
-  <path d="M24 20L30 24V32L24 36L18 32V24L24 20Z" fill="url(#logoGradient)" fill-opacity="0.5" />
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-labelledby="title"><title id="title">AStack favicon</title><defs><linearGradient id="metal" x1="0" y1="0" x2=".85" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#fff"/><stop offset=".28" stop-color="#d4d4d8"/><stop offset=".52" stop-color="#8a8a94"/><stop offset=".7" stop-color="#e4e4e7"/><stop offset="1" stop-color="#71717a"/></linearGradient></defs><rect width="128" height="128" rx="24" fill="#09090b"/><g transform="translate(8 16) scale(.875)" fill="url(#metal)"><path d="M48 16H62L30 96H16Z"/><path d="M66 16H80L112 96H98Z"/><path d="M46 68H82L88 82H40Z"/></g></svg>

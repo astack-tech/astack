@@ -1,18 +1,18 @@
 ---
 title: "Implementing RLM: Context Offloading and Dynamic Discovery for Long-Context Reasoning"
 date: "2026-01-09"
-excerpt: "How we implemented the Recursive Language Model (RLM) from arXiv:2512.24601 in AStack's core package, using context offloading and dynamic discovery to process 100MB+ contexts without OOM errors."
+excerpt: "How AStack implements recursive language models with filesystem context, recursive calls, and a bounded file cache. Includes the recorded tests and their limits."
 author: "AStack Team"
 tags: ["Release", "Tutorial", "RLM", "Long Context"]
 ---
 
 # Implementing RLM: Context Offloading and Dynamic Discovery for Long-Context Reasoning
 
-Today, we're excited to share our production-ready implementation of the **Recursive Language Model (RLM)** architecture from the recent paper ["Recursive Language Model: A Recursive Approach to Long Context Reasoning"](https://arxiv.org/abs/2512.24601). This implementation is now available in AStack's core package (`@astack-tech/components`) as the RLM Agent Pattern.
+AStack implements the **Recursive Language Model (RLM)** architecture described in the paper ["Recursive Language Model: A Recursive Approach to Long Context Reasoning"](https://arxiv.org/abs/2512.24601). The implementation is available in `@astack-tech/components` as RLMAgent.
 
 ## The Problem: Context Window Limitations
 
-Modern LLMs face a fundamental challenge: even with extended context windows (128K, 200K, or even 1M tokens), they struggle with:
+Models with extended context windows (128K, 200K, or 1M tokens) can still face these limits:
 
 1. **Lost-in-the-middle problem**: Information buried in long contexts gets overlooked
 2. **Quadratic complexity**: Attention mechanisms scale poorly with context length
@@ -21,18 +21,18 @@ Modern LLMs face a fundamental challenge: even with extended context windows (12
 
 ## The RLM Solution: Context Outside the REPL
 
-RLM takes a fundamentally different approach based on a key insight: **instead of feeding the entire context into the LLM's neural network, place it in an external environment that the LLM can only access through code**.
+RLM stores context in an external environment. The model generates code that reads and searches the context.
 
 ### The Core Concept
 
-The essence of RLM is simple but powerful:
+The model uses these steps:
 
 1. **Context lives outside the REPL**: The long prompt P becomes an environmental variable, not direct model input
 2. **LLM cannot "see" the context**: The model has no direct access to P through its attention mechanism
 3. **Code is the interface**: The LLM must generate code to programmatically query and decompose P
 4. **Recursive capability**: The LLM can invoke itself recursively on sub-tasks through `llm_query()`
 
-This architectural choice fundamentally changes how the model processes information. Instead of trying to attend to millions of tokens at once, it systematically explores the context through code execution.
+The model runs code to select the context it needs. Each request contains the selected information and execution results.
 
 ### How It Works
 
@@ -56,11 +56,11 @@ const code = await rootLLM.generate(`
 const result = await executeInREPL(code, context);
 ```
 
-The key insight: **code is not just orchestration—it's the only way the LLM can perceive the context**. This is fundamentally different from traditional prompting where the model "sees" everything at once.
+The model accesses external context through code and receives the results as input.
 
-## Our Implementation: Production-Ready RLM in AStack Core
+## RLM implementation in AStack
 
-AStack's RLM implementation is located in the core package (`packages/components/src/agents/rlm`), not as an example but as a production-grade component. We've solved numerous engineering challenges that the paper left unaddressed.
+The RLM components are in `packages/components/src/agents/rlm`. They provide recursive calls, context access, streaming, and execution metadata.
 
 ### 1. RLMAgent - The High-Level Interface
 
@@ -82,7 +82,7 @@ const result = await agent.run({
 
 ### 2. RLMCore - The Execution Engine
 
-The core implements the RLM algorithm with several critical features:
+RLMCore provides these functions:
 
 **True Recursion Support:**
 ```typescript
@@ -101,7 +101,7 @@ if (maxDepth > 1) {
 
 **VM-Based Sandboxing:**
 - Fresh VM context per execution prevents variable accumulation
-- Controlled API surface for security
+- Controlled API surface; the Node.js VM is not a security boundary for untrusted code
 - Automatic garbage collection
 
 **Streaming Support:**
@@ -111,13 +111,13 @@ for await (const chunk of agent.runStream({ context, query })) {
 }
 ```
 
-### 3. FileSystemContext - AStack's Key Innovation
+### 3. FileSystemContext: context access
 
-This is where AStack goes beyond the paper. The paper treats "context" abstractly, but we realized: **context should be a filesystem abstraction**. This enables:
+AStack exposes context through a filesystem interface. The interface supports the following behavior:
 
 1. **Unified interface**: Whether it's actual files, in-memory data, or future extensions (databases, APIs), the LLM interacts through the same file-like API
 2. **True recursion**: Nested RLM calls can share the same context without redundant reads
-3. **Memory safety**: LRU cache with configurable limits prevents OOM
+3. **Memory safety**: LRU cache with configurable limits bounds cached file contents
 
 **AStack's Solution: Filesystem Abstraction with LRU Cache**
 
@@ -138,11 +138,11 @@ class FileSystemContext {
 }
 ```
 
-This abstraction is crucial: it means RLM isn't limited to "code" as the interface. In theory, any programmatic interface could work—code just happens to be the most expressive. The essence is: **context outside, programmatic access inside**.
+The interface separates stored context from model input. The current implementation uses code to read that data. Other programmatic interfaces are possible.
 
-## Real-World Performance
+## Recorded performance results
 
-We validated our implementation using the OOLONG-Pairs benchmark from the paper. Our results demonstrate production-grade reliability.
+The original article reported OOLONG-Pairs-style tests. The table and measurements below preserve those records. This redesign did not rerun the tests. Different models, synthetic datasets, and hardware limit the comparison.
 
 ### Benchmark Results
 
@@ -154,68 +154,68 @@ We validated our implementation using the OOLONG-Pairs benchmark from the paper.
 
 **AStack Implementation Results:**
 
-In our testing with **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** on synthetic OOLONG-Pairs datasets (100/200/500 entries), we achieved 100% accuracy across all sizes. However, this result should be interpreted with appropriate context:
+The original tests used **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** on synthetic OOLONG-Pairs datasets. The reported accuracy was 100% for 100, 200, and 500 entries. These conditions apply:
 
-- **Model specification**: DeepSeek-V3 (deepseek-chat) in non-reasoning mode demonstrates exceptional code generation abilities, which is crucial for RLM's code-based reasoning approach
+- **Model specification**: DeepSeek-V3 (deepseek-chat) in non-reasoning mode generated the code used in these tests
 - **Synthetic data**: Our test datasets were synthetically generated, which may not fully represent the complexity of real-world scenarios
 - **Implementation quality**: Our engineering improvements (filesystem abstraction, memory management, true recursion) contribute to reliability
 
-The paper's results used GPT-4o and showed degradation at scale (78% → 65%). The difference highlights that **both the RLM pattern and implementation quality matter**—the pattern provides the architecture, but production-grade engineering ensures consistent performance.
+The original article attributed the 78% → 65% results to GPT-4o tests in the paper. Different models and datasets prevent a direct comparison.
 
 **Key Findings:**
-- Direct LLM approaches fail catastrophically at scale (45% → 18%)
-- RLM architecture fundamentally solves the long-context problem
-- Our implementation handles **massive contexts** without OOM errors
+- The recorded direct-LLM results decreased from 45% to 18% as the dataset grew.
+- RLM lets the model select external context through code.
+- The recorded run kept cached file contents within its configured limit.
 - Model choice significantly impacts RLM effectiveness (code generation capability is critical)
-- Non-reasoning mode models can achieve excellent results with RLM's structured approach
+- The recorded tests used non-reasoning mode
 
 ### Memory Usage
 
 Real execution on AStack project **including node_modules** (8,466 TypeScript files):
 
 ```
-📊 Context Statistics:
+Context Statistics:
    Files: 8,466
    Total Characters: 46,800,812
    Size: 44.63 MB
    File Types: ts
 
-🎯 RLM Configuration:
+RLM Configuration:
    Context Mode: FileSystem (on-demand lazy loading)
 
-🛡️  Memory Safety:
+Memory Safety:
    LRU Cache Size: 10 MB (auto-eviction enabled)
    Max Single File: 10 MB
    File Access: Unlimited (on-demand loading with LRU eviction)
-   100% OOM Protection Guaranteed!
+   File cache limit: 10 MB. Total process memory is not bounded.
 
-💡 Note: Can process all 44.63MB - files loaded on-demand, old entries auto-evicted.
+Note: Can process all 44.63MB - files loaded on-demand, old entries auto-evicted.
 
-⏱️  Execution Time:
+Execution Time:
    Total Time: 53.81s
    Code Generation: 53.80s
    REPL Execution: 0.01s
    Sub-LLM Calls: 0
 ```
 
-**Why include node_modules?** This is a real-world scenario. When analyzing a project, you often need to:
+The test included `node_modules` to cover these analysis tasks:
 - Understand how dependencies are used and integrated
 - Trace function calls into third-party libraries
 - Identify version-specific behaviors or bugs
 - Analyze the full dependency tree for security audits
 - Debug issues that span your code and dependencies
 
-**The key insight:** Even with a **44.63MB context (8,466 files including all dependencies)**, the LRU cache only holds 10MB maximum. The model successfully analyzed the entire project by:
+The recorded context contained **44.63MB across 8,466 files, including dependencies**. The LRU file cache had a 10MB limit. The run used these operations:
 - Loading files on-demand through `readFile()` calls
 - Using `searchFiles()` and `getFileInfo()` to explore without loading content
 - Automatically evicting old entries when cache is full
 - Completing the analysis in under 1 minute
 
-This demonstrates RLM's true power: **handling contexts orders of magnitude larger than model context windows**, with guaranteed memory safety.
+The run selected files from a context larger than its file cache. The cache limit applies to cached file contents. It does not bound total process memory or guarantee that all workloads avoid OOM errors.
 
 ## Code Example: Project Analysis
 
-Here's a complete example analyzing a project for security issues:
+The following example analyzes project files for security issues:
 
 ```typescript
 import { RLMAgent, FileSystemContext } from '@astack-tech/components';
@@ -388,9 +388,9 @@ try {
 - Completed in **53.81 seconds** with **0 sub-LLM calls** (single-pass analysis)
 - **Memory usage stayed within 10MB cache** despite 44.63MB total context
 
-This demonstrates RLM's core strength: **intelligent, selective access to massive contexts** through programmatic exploration, not brute-force loading.
+The generated code used search and metadata calls to select files before it read their contents.
 
-## Key Innovations in Our Implementation
+## Implementation choices
 
 ### Comparison with Official Implementation
 
@@ -455,9 +455,9 @@ While still sequential, our architecture separates queue management from VM exec
 
 #### 3. Filesystem Abstraction for Context
 
-**Our Innovation Beyond the Paper:**
+**Filesystem context in AStack:**
 
-The paper treats context abstractly. We realized context should be a filesystem abstraction:
+AStack uses a filesystem interface for context:
 
 ```typescript
 class FileSystemContext {
@@ -477,7 +477,7 @@ class FileSystemContext {
 ```
 
 This abstraction:
-- Prevents OOM errors through LRU caching
+- Limits cached file memory through LRU caching
 - Enables future extensions (databases, APIs, remote storage)
 - Provides a unified interface regardless of context source
 
@@ -499,18 +499,18 @@ When using nested RLM (depth > 1), all levels share the same `FileSystemContext`
 - Shared LRU cache benefits all nested calls
 - Consistent view of context throughout the recursion tree
 
-### Production-Ready Features
+### Execution controls
 
-Beyond the core RLM algorithm, we've added features essential for production use:
+The implementation includes these execution controls:
 
-#### 1. Memory Safety Guarantees
+#### 1. File cache limits
 
-**100% OOM Protection:**
+**Cache and read controls:**
 - LRU cache with automatic eviction
 - Configurable size limits (per-file, total, cache)
 - Lazy loading with on-demand file access
 
-#### 2. Comprehensive Monitoring
+#### 2. Execution metadata
 
 ```typescript
 interface RLMExecutionMetadata {
@@ -540,46 +540,46 @@ interface RLMExecutionMetadata {
 
 ## Understanding the RLM Pattern
 
-The RLM pattern is theoretically applicable to any task. The key is understanding when the "context outside REPL" architecture provides value:
+Use external context when the task has these requirements:
 
 - **Long contexts**: When the context exceeds what fits comfortably in a single LLM call
 - **Systematic exploration**: When the task benefits from programmatic decomposition
 - **Memory constraints**: When loading everything into memory would cause OOM
 - **Recursive reasoning**: When sub-problems can be solved independently and combined
 
-The pattern isn't limited by task type—it's a fundamental architectural choice about how LLMs interact with information.
+Use this pattern when programmatic access helps the model retrieve the required context.
 
 ## Future Directions
 
-We're actively working on two key areas:
+The original roadmap identified two areas:
 
 1. **Agent-Level RLM Abstraction**: Extending RLM from Root LLM → Sub-LLM to Root Agent → Sub-Agent architecture. This will enable exploration of RLM's performance on ultra-long contexts and long-running tasks, where agents can maintain state and execute complex multi-step workflows.
 
 2. **Production Integration**: Integrating AStack's RLM implementation into real consumer-facing products. This will validate RLM's practical value in production environments and gather real-world usage data to guide further improvements.
 
-## Conclusion
+## Implementation reference
 
-The RLM architecture represents a fundamental shift in how we approach long-context reasoning. The core insight—**placing context outside the REPL and providing programmatic access**—is elegant and powerful.
+RLM stores context outside model input and exposes it through programmatic access.
 
-AStack's implementation builds on the paper's foundation while addressing production challenges:
+AStack includes the following implementation choices:
 
-**Beyond the Paper:**
+**Context and recursion:**
 - **True recursion**: Implemented multi-level RLM nesting (paper lists this as "future work")
 - **Filesystem abstraction**: Context as a unified interface, enabling extensions beyond in-memory data
 - **Shared context**: Nested RLM instances share the same context cache, eliminating redundant reads
-- **Memory safety**: LRU caching and lazy loading prevent OOM errors on 100MB+ contexts
+- **Memory safety**: LRU caching and lazy loading control reads for contexts configured above 100MB
 
-**Production Features:**
+**Execution features:**
 - Streaming support for real-time feedback
-- Comprehensive execution metadata and monitoring
-- Robust error handling and recovery
+- Execution metadata and monitoring
+- Error handling and recovery
 - TypeScript implementation with full type safety
 
-Our testing with **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** on synthetic OOLONG-Pairs benchmarks achieved 100% accuracy, though this should be interpreted considering model capability and data characteristics. Notably, this demonstrates that non-reasoning mode models can achieve excellent results when paired with RLM's structured, code-based approach. The key insight: **both the RLM pattern and implementation quality matter**.
+The reported synthetic tests used **DeepSeek-V3 (deepseek-chat, non-reasoning mode)** and recorded 100% accuracy. These results apply to the described datasets and setup. They do not establish general accuracy or production reliability.
 
-The RLM pattern isn't limited to code generation or specific tasks. It's a general architectural principle: when context is too large to fit in attention, place it in the environment and let the model explore programmatically. Code happens to be the most expressive interface, but the essence is **context outside, programmatic access inside**.
+Use external context when the required information does not fit in a model request. Let the model select the information through code. Other programmatic access methods can use the same separation.
 
-This implementation is available now in AStack's core package (`@astack-tech/components`), ready for production use.
+Install `@astack-tech/components` to use RLMAgent. Review the configuration and execution limits before deployment.
 
 ---
 
@@ -592,9 +592,9 @@ This implementation is available now in AStack's core package (`@astack-tech/com
 
 ## Join the Discussion
 
-Have questions or feedback? We'd love to hear from you:
+Report a bug or describe your use case:
 
 - **GitHub Issues**: [Report bugs or request features](https://github.com/astack-tech/astack/issues)
 - **Discussions**: [Share your use cases](https://github.com/astack-tech/astack/discussions)
 
-*Built with precision by the AStack team*
+*AStack Team*

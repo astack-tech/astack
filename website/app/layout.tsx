@@ -6,20 +6,25 @@
  */
 
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 // Configure Geist Sans font for body text
-const geistSans = Geist({
+const geistSans = localFont({
+  src: './fonts/Geist-Latin.woff2',
   variable: '--font-geist-sans',
-  subsets: ['latin'],
+  weight: '100 900',
+  display: 'swap',
 });
 
 // Configure Geist Mono font for code blocks
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: './fonts/GeistMono-Latin.woff2',
   variable: '--font-geist-mono',
-  subsets: ['latin'],
+  weight: '100 900',
+  display: 'swap',
 });
 
 // SEO metadata configuration
@@ -30,7 +35,7 @@ export const metadata: Metadata = {
     template: '%s | AStack',
   },
   description:
-    'AStack is a composable AI agent framework built on HLang\'s monadic FBP paradigm. Create powerful AI agents with type-safe components, Observable streams, and declarative composition. Perfect for building autonomous agents, RAG applications, and complex AI workflows in TypeScript.',
+    'AStack is a TypeScript framework for AI agents, RAG applications, and workflows. It connects components through typed ports, Observable streams, and HLang monadic composition.',
   keywords: [
     // Primary keywords
     'AI agent framework',
@@ -78,7 +83,7 @@ export const metadata: Metadata = {
       { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/logo.svg', type: 'image/svg+xml', sizes: '48x48' },
     ],
-    apple: [{ url: '/logo.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
   openGraph: {
     type: 'website',
@@ -88,22 +93,21 @@ export const metadata: Metadata = {
     siteName: 'AStack',
     title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
     description:
-      'Build powerful AI agents with type-safe components, Observable streams, and monadic composition. The composable framework for autonomous agents and AI workflows.',
+      'Build AI agents and workflows in TypeScript. Connect components through ports, Observable streams, and monadic composition.',
     images: [
       {
-        url: '/logo.png',
-        width: 240,
-        height: 240,
-        alt: 'AStack Logo',
+        url: '/brand/social-card.png',
+        width: 1200,
+        height: 630,
+        alt: 'AStack: Everything is a component.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
-    description:
-      'Build powerful AI agents with type-safe components and Observable streams.',
-    images: ['/logo.png'],
+    description: 'Build AI agents in TypeScript with components, ports, and Observable streams.',
+    images: ['/brand/social-card.png'],
     creator: '@astack_tech',
   },
   alternates: {
@@ -116,7 +120,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#000000',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
+    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+  ],
 };
 
 /**
@@ -134,7 +141,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
         suppressHydrationWarning
       >
         {/* Google Analytics */}
@@ -151,7 +158,10 @@ export default function RootLayout({
           `}
         </Script>
 
-        {children}
+        <a className="skip-link" href="#main-content">
+          Skip to content
+        </a>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
