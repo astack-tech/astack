@@ -16,3 +16,6 @@
 - Restore theme-aware syntax colors and remove the article's duplicate title.
 - Correct mobile graph labels, RLM card decoration, and narrow-screen blog layout.
 - Add a branded not-found page and keyboard-scrollable article code and tables.
+
+- Give README headers a left-aligned document hierarchy and replace external badge images with links.
+- Use one metadata icon declaration with versioned SVG, PNG, and multi-resolution ICO resources.

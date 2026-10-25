@@ -80,10 +80,14 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/logo.svg', type: 'image/svg+xml', sizes: '48x48' },
+      { url: '/favicon.ico?v=silver-20261025', sizes: '16x16 32x32 48x48' },
+      { url: '/favicon-32.png?v=silver-20261025', type: 'image/png', sizes: '32x32' },
+      { url: '/favicon.svg?v=silver-20261025', type: 'image/svg+xml', sizes: 'any' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: '/favicon.ico?v=silver-20261025',
+    apple: [
+      { url: '/apple-touch-icon.png?v=silver-20261025', sizes: '180x180', type: 'image/png' },
+    ],
   },
   openGraph: {
     type: 'website',
@@ -137,9 +141,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
         suppressHydrationWarning

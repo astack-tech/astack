@@ -1,22 +1,12 @@
-<div align="center">
+# AStack
 
 <img src="./assets/brand/readme-banner.svg" alt="AStack: Everything is a component. A composable TypeScript framework for AI applications." width="100%">
 
-# AStack
+[Website](https://astack.tech) · [Documentation](https://deepwiki.com/astack-tech/astack) · [Examples](./examples) · [MIT license](./LICENSE) · [Contribute](https://github.com/astack-tech/astack/pulls)
 
-**A composable framework for building AI applications**
+English · [简体中文](./README.zh-CN.md)
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/astack-tech/astack)
-
-**Public beta**
-
-AStack is under active development. The beta includes components, pipelines, agents, tools, and model integration.
-
-English | [简体中文](./README.zh-CN.md)
-
-</div>
+> **Public beta.** AStack is under active development. The beta includes components, pipelines, agents, tools, and model integration.
 
 ## Overview
 
