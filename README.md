@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./assets/logo.svg" alt="AStack Logo" width="256" height="256">
+<img src="./assets/brand/readme-banner.svg" alt="AStack: Everything is a component. A composable TypeScript framework for AI applications." width="100%">
 
 # AStack
 
@@ -10,99 +10,101 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/astack-tech/astack/pulls)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/astack-tech/astack)
 
-🎉 **Beta Version Released** 🎉
+**Public beta**
 
-*AStack is under active development but already provides significant value for building AI applications*
+AStack is under active development. The beta includes components, pipelines, agents, tools, and model integration.
 
 English | [简体中文](./README.zh-CN.md)
 
 </div>
 
-## 📋 Overview
+## Overview
 
-AStack is a composable framework designed to simplify the development of AI applications through a "everything is a component" philosophy. Built on Flow-Based Programming (FBP) paradigm with monadic functional composition, it enables seamless integration between various AI models, tools, and custom business logic.
+AStack is a TypeScript framework for AI applications. Its design follows one rule: everything is a component. Flow-Based Programming (FBP) and monadic composition connect models, tools, and business logic through ports.
 
-AStack is an independent technical framework with its own architecture and ecosystem, built on top of [Hlang](https://github.com/hlang-tech) - a highly semantic [fourth-generation language (4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language) inspired by Flow-Based Programming paradigms. This foundation on Hlang, which is particularly well-suited for computational modeling and AI-generated code, is what gives AStack its power. The framework emphasizes minimalism and performance, allowing developers to create complex systems with minimal boilerplate code while maintaining complete technical autonomy.
+AStack has its own architecture and packages. It uses the [HLang](https://github.com/hlang-tech) runtime for component composition and reactive execution. HLang is a [fourth-generation language (4GL)](https://en.wikipedia.org/wiki/Fourth-generation_programming_language) that uses Flow-Based Programming. Its semantic model supports computational modeling and code generation. AStack uses this model to connect components with little setup code.
 
 ### Key Features
 
 - **Component-Based Architecture**: Build complex AI systems by composing simple, reusable components
 - **Flow-Based Programming (FBP)**: Declarative data flow paradigm with monadic functional composition
-- **Observable Streams**: Built on ReactiveX architecture for powerful stream processing
+- **Observable Streams**: Built on ReactiveX architecture for stream processing
 - **Lock-Free Concurrency**: Natural concurrent execution through monadic FBP design
 - **Pipeline Execution Model**: Support for both independent and pipeline execution modes
-- **Extensible Tool System**: Easily integrate new capabilities through a unified tool interface
-- **Multi-Model Support**: Seamless integration with various LLM providers
+- **Extensible Tool System**: Integrate new capabilities through a unified tool interface
+- **Multi-Model Support**: Integration with various LLM providers
 - **Declarative Workflow**: Define complex AI workflows with minimal code
 - **Minimalist API Design**: Focus on simplicity and expressiveness
 
-## 👁 Design Philosophy
+## Design Philosophy
 
-AStack is built on several core philosophical principles that guide its development:
+The following principles guide AStack development.
 
 ### Everything is a Component
 
-In AStack, everything from a simple tool to a complex agent is represented as a component. This unified approach simplifies development and promotes code reuse. Components can be composed, extended, and reconfigured to suit various use cases.
+Tools, model providers, and agents use the component model. Each component has input and output ports. You can reuse, extend, and connect components in different applications.
 
 ### Data Flow Paradigm for Agent Frameworks
 
-AStack embraces a **data flow** architecture rather than a **control flow** approach - a fundamental shift that aligns with how LLMs actually work. Traditional agent frameworks often attempt to "control" the model through complex control flow logic, but this is a conceptual mismatch.
+AStack uses a data flow architecture. Components declare their data dependencies through port connections. The runtime sends data through those connections. Agent code interprets model output and sends tool results back to the model.
 
-LLMs are stateless generators, not stateful programs. Agent state doesn't align with program state. The agent framework should serve as an **interpreter** for model output, treating the model as a data generator rather than a controllable component.
+A model generates output from the context supplied to each request. The agent stores conversation history and tool results outside the model. This separates model generation from application state.
 
-This data flow paradigm offers several advantages:
+This data flow model supports:
+
 - **Natural Alignment**: Matches the stateless, generative nature of LLMs
 - **Simplified Architecture**: Eliminates complex control flow logic trying to "manage" the model
 - **Better Scalability**: Data flow naturally supports concurrent processing through monadic composition
-- **Reduced Complexity**: Avoids the bloat of control-flow frameworks (some have 11k+ line single files)
+- **Reduced Complexity**: Port connections keep routing separate from component behavior. Earlier project notes compared this with control-flow files above 11,000 lines; that is not a current benchmark.
 
 AStack's architecture is built on Flow-Based Programming (FBP) with monadic functional composition from HLang, using Observable streams from ReactiveX. This enables:
+
 - **Declarative Composition**: Components compose through data dependencies, not control instructions
 - **Lock-Free Concurrency**: Natural concurrent execution through monadic FBP design
 - **Stream Processing**: Observable/Observer pattern for data flow transformation
 
 ### Minimalism Over Complexity
 
-AStack prioritizes simple, intuitive APIs over complex abstractions. This minimalist approach leads to more maintainable code and a gentler learning curve.
+AStack uses a small API surface. Use `run()` for a standalone component and `_transform()` for reactive execution. The same component can serve both modes.
 
-## 🎯 Use Cases
+## Use Cases
 
-AStack is particularly well-suited for:
+Use AStack to build:
 
 - **AI Agents**: Build autonomous agents that can reason, plan, and execute tasks using tools
-- **Content Generation**: Create pipelines for researching, analyzing, and generating high-quality content
+- **Content Generation**: Create pipelines for researching, analyzing, and generating content
 - **Data Processing**: Construct workflows for extracting, transforming, and analyzing data
 - **Multi-modal Applications**: Develop applications that combine text, images, and other modalities
 - **Research Platforms**: Build experimental platforms for AI research and development
 
-## 👏 Inspiration & Comparison
+## Inspiration & Comparison
 
-AStack draws inspiration from several outstanding projects in the AI ecosystem, particularly [Haystack](https://github.com/deepset-ai/haystack) by deepset-ai. We express our gratitude to these projects for their pioneering work and contributions to the open-source community.
+AStack takes API design inspiration from [Haystack](https://github.com/deepset-ai/haystack) by deepset-ai. We thank the Haystack contributors for their open-source work.
 
-> **Important Note**: AStack is a 100% original framework with its own independent technical implementation, architecture, and design. It is built in TypeScript and only shares API style inspiration with Haystack (which is implemented in Python). AStack is not a fork or derivative of Haystack.
+> AStack has its own TypeScript implementation and architecture. Haystack uses Python. The connection is API design inspiration; AStack does not use Haystack code.
 
 ### AStack vs. Haystack: Technical Comparison
 
-> This comparison is based on Haystack v2.0 (as of January 2026). Both frameworks continue to evolve, and specific features may change over time.
+> Historical comparison from the project documentation, recorded in January 2026 for Haystack v2.0. The rows describe those original claims. They are not current benchmarks. Check each framework’s source before you choose an implementation.
 
-| Feature | AStack | Haystack |
-|---------|--------|----------|
-| **Core Paradigm** | Flow-Based Programming (FBP) with monadic composition | Control flow - imperative, while-loop scheduling |
-| **Execution Model** | Observable streams (ReactiveX architecture) | Priority queue with dict-based data passing |
-| **Concurrency** | Lock-free through monadic FBP design | Manual async management with priority levels |
-| **Data Passing** | Observable/Observer pattern through port connections | Dict deepcopy between components |
-| **Topology Optimization** | Built once per route, reused for all executions | Topological sort on each run |
-| **Type Safety** | Compile-time TypeScript type checking | Runtime Python type compatibility checking |
-| **Primary Focus** | General AI application framework with data flow paradigm | Primarily NLP and RAG applications |
-| **Agent Philosophy** | LLM as stateless generator (interpreter pattern) | Traditional agent control patterns |
-| **Component Interface** | Unified component interface with port system | Different interfaces based on component types |
-| **Debugging Tools** | Standard TypeScript debugging | Rich debugging (breakpoints, snapshots, tracing) |
-| **Memory Management** | Built-in memory abstractions | Memory implemented through specialized components |
-| **Tool Integration** | Standardized tool interface | Various integration patterns depending on use case |
-| **Learning Curve** | Minimalist API focused on simplicity | Comprehensive but more complex API |
-| **Implementation** | **TypeScript** | **Python** |
-| **Ecosystem Maturity** | Growing ecosystem | Mature Python ecosystem with production validation |
-| **Chinese Support** | **Complete Chinese documentation** | **Limited Chinese documentation** |
+| Feature                   | AStack                                                   | Haystack                                           |
+| ------------------------- | -------------------------------------------------------- | -------------------------------------------------- |
+| **Core Paradigm**         | Flow-Based Programming (FBP) with monadic composition    | Control flow - imperative, while-loop scheduling   |
+| **Execution Model**       | Observable streams (ReactiveX architecture)              | Priority queue with dict-based data passing        |
+| **Concurrency**           | Lock-free through monadic FBP design                     | Manual async management with priority levels       |
+| **Data Passing**          | Observable/Observer pattern through port connections     | Dict deepcopy between components                   |
+| **Topology Optimization** | Built once per route, reused for all executions          | Topological sort on each run                       |
+| **Type Safety**           | Compile-time TypeScript type checking                    | Runtime Python type compatibility checking         |
+| **Primary Focus**         | General AI application framework with data flow paradigm | Primarily NLP and RAG applications                 |
+| **Agent Philosophy**      | LLM as stateless generator (interpreter pattern)         | Traditional agent control patterns                 |
+| **Component Interface**   | Unified component interface with port system             | Different interfaces based on component types      |
+| **Debugging Tools**       | Standard TypeScript debugging                            | Debugging tools (breakpoints, snapshots, tracing)  |
+| **Memory Management**     | Built-in memory abstractions                             | Memory implemented through specialized components  |
+| **Tool Integration**      | Standardized tool interface                              | Various integration patterns depending on use case |
+| **Learning Curve**        | Minimalist API focused on simplicity                     | Comprehensive but more complex API                 |
+| **Implementation**        | **TypeScript**                                           | **Python**                                         |
+| **Ecosystem Maturity**    | Growing ecosystem                                        | Mature Python ecosystem with production validation |
+| **Chinese Support**       | **Complete Chinese documentation**                       | **Limited Chinese documentation**                  |
 
 **Key Architectural Differences:**
 
@@ -111,9 +113,9 @@ AStack draws inspiration from several outstanding projects in the AI ecosystem, 
 - **Performance Optimization**: AStack builds topology once and reuses it; Haystack performs topological sorting on each execution
 - **Type System**: AStack provides compile-time safety through TypeScript; Haystack offers runtime checking with optional validation
 
-Each framework has its strengths and is optimized for different use cases. Haystack excels in RAG applications and document processing with mature Python ecosystem and rich debugging tools, while AStack is designed for TypeScript/JavaScript environments with emphasis on Flow-Based Programming, monadic composition, and the data flow paradigm that naturally fits Agent framework requirements. AStack also offers full Chinese language documentation, making it particularly accessible to Chinese-speaking developers.
+Haystack provides a Python ecosystem for RAG and document processing, with debugging tools. AStack targets TypeScript and JavaScript applications with monadic FBP composition. AStack also includes Chinese documentation. Compare the language, components, and debugging support that your application needs.
 
-## 🔍 Architecture
+## Architecture
 
 ```mermaid
 flowchart TB
@@ -124,7 +126,7 @@ flowchart TB
         Tools["Tools"]
         Integrations["Integrations"]
         ModelProviders["Model Providers"]
-        
+
         Core-->|provides|Components
         Core-->|provides|Pipeline
         Components-->|use|Tools
@@ -146,7 +148,7 @@ flowchart TB
     style ExampleApps fill:#fff8e1,stroke:#ff8f00,stroke-width:1px
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -169,13 +171,13 @@ pnpm run build
 
 ### Examples Directory
 
-AStack includes several examples in the `examples/` directory to demonstrate its capabilities. Each example contains its own README with specific instructions on how to run it with your own API keys and configuration.
+The `examples/` directory contains sample applications. Read each example’s README for its API keys, configuration, and run commands.
 
-## 📚 Examples
+## Examples
 
 ### Agent with Tools
 
-This example demonstrates how to create an Agent that can use tools to perform real-world tasks like file operations. It showcases AStack's reactive data flow where components communicate through event-driven port connections.
+The agent uses tools to read and write files. Components send data through event-driven port connections.
 
 ```mermaid
 sequenceDiagram
@@ -183,7 +185,7 @@ sequenceDiagram
     participant Agent
     participant ModelProvider as "Model Provider"
     participant Tools
-    
+
     User->>Agent: "Read file and write with timestamps"
     Agent->>ModelProvider: Send user request
     Note over ModelProvider: Multi-round tool execution<br/>via reactive data flow
@@ -199,11 +201,11 @@ sequenceDiagram
     Agent->>User: Return final answer
 ```
 
-This example highlights AStack's ability to handle multi-round tool execution, where the agent can process multiple tool calls within a single conversation, maintaining context throughout the interaction.
+The agent can call tools more than once in a conversation. It adds each tool result to the context before it requests the next model response.
 
 ### Research Pipeline
 
-This example demonstrates a sophisticated research pipeline that automatically searches for information, analyzes content, and generates comprehensive research reports using AI. It showcases AStack's ability to coordinate complex workflows across multiple components.
+The research pipeline searches the web, analyzes page content, and generates a report. Each component handles one part of the workflow.
 
 ```mermaid
 flowchart TB
@@ -215,27 +217,27 @@ flowchart TB
     ReportEnhancer["Report Enhancer"]
     LLM["LLM Model Provider"]
     Output(("Final Report"))
-    
+
     %% Gateway connections
     Gateway -->|topicOut| ContentAnalyzer
     Gateway -->|searchQueryOut| WebDriver
     ContentAnalyzer -->|ready| Gateway
     ReportEnhancer -->|enhancedReport| Gateway
-    
+
     %% WebDriver connections
     WebDriver -->|searchResults| DataRelay
     DataRelay -->|dataOut| ContentAnalyzer
     ContentAnalyzer -->|relevantUrls| WebDriver
     WebDriver -->|pageContent| ContentAnalyzer
-    
+
     %% Content processing
     ContentAnalyzer -->|report| ReportEnhancer
     ReportEnhancer -->|promptMessages| LLM
     LLM -->|message| ReportEnhancer
-    
+
     %% Output
     Gateway -->|"Research Report<br/>(HTML + JSON)"| Output
-    
+
     %% Styling with standard colors
     style Gateway fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
     style WebDriver fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
@@ -246,38 +248,39 @@ flowchart TB
     style Output fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-The pipeline intelligently coordinates web searches, content extraction, and AI-powered analysis to produce in-depth research reports on any topic, complete with proper citations and structured sections.
+The pipeline connects web search, content extraction, and model analysis. The report includes sections and source citations.
 
-## 💻 Code Examples
+## Code Examples
 
 ### Creating a Simple Agent with Tools
 
 ```typescript
 import { Agent } from '@astack-tech/components';
+import { readFile } from 'node:fs/promises';
 import { createTool } from '@astack-tech/tools';
 import { Deepseek } from '@astack-tech/integrations/model-provider';
 
 // Define tools
-const readFileTool = createTool(
-  'readFile',
-  'Read file contents',
-  async ({ filePath }) => {
-    // Implementation details
-    return fileContents;
-  }
-);
+const readFileTool = createTool('readFile', 'Read file contents', async ({ filePath }) => {
+  if (typeof filePath !== 'string') throw new Error('filePath must be a string');
+  return readFile(filePath, 'utf8');
+});
 
 // Create model provider
 const model = new Deepseek({
-  apiKey: process.env.DEEPSEEK_API_KEY,
-  model: 'deepseek-chat'
+  apiKey:
+    process.env.DEEPSEEK_API_KEY ||
+    (() => {
+      throw new Error('Set DEEPSEEK_API_KEY');
+    })(),
+  model: 'deepseek-chat',
 });
 
 // Create Agent
 const agent = new Agent({
   model,
   tools: [readFileTool],
-  systemPrompt: 'You are a helpful assistant that can read files.'
+  systemPrompt: 'You are a helpful assistant that can read files.',
 });
 
 // Run the agent
@@ -286,11 +289,13 @@ const result = await agent.run('Please read the README.md file');
 
 ### Building a Pipeline
 
-AStack's refactored Pipeline provides intelligent execution with three flexible modes:
+Pipeline provides three execution modes:
 
 ```typescript
 import { Pipeline } from '@astack-tech/core';
-import { TextSplitter, Embedder, VectorStore } from '@astack-tech/components';
+// TextSplitter is provided by @astack-tech/components.
+// Embedder and VectorStore below are application-defined components.
+import { TextSplitter } from '@astack-tech/components';
 
 // Create pipeline
 const pipeline = new Pipeline();
@@ -312,24 +317,25 @@ const result = await pipeline.run('splitter.in', document, 'store.out');
 
 // Mode 3: Multi-output collection (type-safe)
 const results = await pipeline.run('splitter.in', document, {
-  includeOutputsFrom: ['embedder.out', 'store.out']
+  includeOutputsFrom: ['embedder.out', 'store.out'],
 });
 // Returns: { 'embedder.out': T, 'store.out': T }
 ```
 
 **Pipeline Features:**
-- **Smart Topology Optimization**: Each route builds topology once, reuses for subsequent executions
+
+- **Topology reuse**: Each route builds topology once, reuses for subsequent executions
 - **Three Execution Modes**: Auto-inference, explicit endpoint, or multi-output collection
 - **Type-Safe Multi-Output**: Full TypeScript type inference for collected outputs
 - **Concurrent Execution**: Resolver queue manages multiple concurrent pipeline runs
 
-## 🔄 Hlang Compatibility
+## Hlang Compatibility
 
-While AStack is a technically independent framework, it offers seamless compatibility with [Hlang](https://github.com/hlang-tech) - a framework inspired by Flow-Based Programming (FBP) paradigm with features particularly well-suited for AI application development. This technical compatibility offers unique advantages:
+AStack uses [HLang](https://github.com/hlang-tech) for its Flow-Based Programming runtime. AStack provides its own AI components and API. The following sections explain the shared component model and integration points.
 
 ### Hlang's Distinctive Features
 
-[Hlang](https://github.com/hlang-tech) offers several distinctive concepts that are valuable for modern software development, especially for AI applications:
+[HLang](https://github.com/hlang-tech) provides these concepts:
 
 - **Declarative Programming Approach**: Express complex behaviors in a fraction of the code required by traditional methods
 - **Human-Centric Design**: Intuitive syntax that reduces the learning curve for developers
@@ -345,15 +351,15 @@ AStack maintains complete technical autonomy while offering compatibility with H
 - **Complementary Strengths**: Combine AStack's fine-grained component control with Hlang's higher-level abstractions
 - **Efficient Execution**: AStack's reactive data flow design enables efficient implementation of workflows defined in either framework
 
-This technical compatibility creates a practical synergy for developers leveraging both frameworks' strengths while maintaining the independence of each system.
+You can connect AStack components through the HLang runtime. The AI packages remain part of AStack.
 
-## 🧩 Powerful Computation Model
+## Computation model
 
-AStack implements a sophisticated computation model based on monadic functional programming paradigms inspired by Hlang. This model provides powerful abstractions that enable complex workflows, reactivity, and compositional architecture while maintaining simplicity and flexibility.
+AStack uses HLang’s monadic composition model. Components transform data, pipelines connect them, and streams carry events. The following examples show the four computation patterns.
 
 ### Four Core Computation Patterns
 
-AStack's computation model is built around four powerful patterns that can be combined to create sophisticated AI applications:
+Combine these four patterns to build an AI application:
 
 ```mermaid
 graph TD
@@ -361,7 +367,7 @@ graph TD
         A["Operator Composition"] --> B["Workflow Orchestration"];
         B --> C["Reactive Data Flow"];
         C --> D["Agent-to-Agent Events"];
-        
+
         style A fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
         style B fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
         style C fill:#f5fcff,stroke:#56a0ac,stroke-width:2px
@@ -369,12 +375,12 @@ graph TD
     end
 ```
 
-| Computation Pattern | Description | Diagram |
-|---------------------|-------------|--------|
-| **Operator Composition** | Each component is a composable transformation operator with pure functional interfaces. Components maintain clear input/output contracts and can be chained together seamlessly. | <img src="docs/images/operator-composition.svg" width="400" alt="Operator Composition Diagram"> |
-| **Workflow Orchestration** | Components can be orchestrated into complex workflows with branching, joining, and conditional execution paths, enabling dynamic routing and parallel processing. | <img src="docs/images/workflow-orchestration.svg" width="400" alt="Workflow Orchestration Diagram"> |
-| **Reactive Data Flow** | Implements an event-driven asynchronous data processing model where components respond to data events rather than polling, supporting backpressure handling. | <img src="docs/images/reactive-dataflow.svg" width="400" alt="Reactive Data Flow Diagram"> |
-| **Agent-to-Agent Events** | Support for complex interactions and message passing between agents, maintaining context continuity across multiple exchanges, enabling multi-agent coordination. | <img src="docs/images/agent-events.svg" width="400" alt="Agent-to-Agent Events Diagram"> |
+| Computation Pattern        | Description                                                                                                                                                                               | Diagram                                                                                             |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Operator Composition**   | Each component is a composable transformation operator with pure functional interfaces. Components maintain clear input/output contracts and can be chained together through their ports. | <img src="docs/images/operator-composition.svg" width="400" alt="Operator Composition Diagram">     |
+| **Workflow Orchestration** | Components can be orchestrated into complex workflows with branching, joining, and conditional execution paths, enabling dynamic routing and parallel processing.                         | <img src="docs/images/workflow-orchestration.svg" width="400" alt="Workflow Orchestration Diagram"> |
+| **Reactive Data Flow**     | Implements an event-driven asynchronous data processing model where components respond to data events rather than polling, supporting backpressure handling.                              | <img src="docs/images/reactive-dataflow.svg" width="400" alt="Reactive Data Flow Diagram">          |
+| **Agent-to-Agent Events**  | Support for complex interactions and message passing between agents, maintaining context continuity across multiple exchanges, enabling multi-agent coordination.                         | <img src="docs/images/agent-events.svg" width="400" alt="Agent-to-Agent Events Diagram">            |
 
 #### 1. Operator Composition
 
@@ -389,12 +395,12 @@ const sentimentAnalyzer = new SentimentAnalyzer();
 pipeline.connect('textProcessor.out', 'sentimentAnalyzer.in');
 ```
 
-| Feature | Description |
-|---------|-------------|
-| **Functional Purity** | Components are designed as pure transformations with clear inputs and outputs |
-| **Composition Pattern** | Components can be linked together with their outputs feeding into inputs of other components |
-| **Type Safety** | The port system ensures type compatibility between connected components |
-| **Transparent Data Flow** | Data flow between components is explicit and traceable |
+| Feature                   | Description                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------- |
+| **Functional Purity**     | Components are designed as pure transformations with clear inputs and outputs                |
+| **Composition Pattern**   | Components can be linked together with their outputs feeding into inputs of other components |
+| **Type Safety**           | The port system ensures type compatibility between connected components                      |
+| **Transparent Data Flow** | Data flow between components is explicit and traceable                                       |
 
 #### 2. Workflow Orchestration
 
@@ -407,7 +413,7 @@ graph LR
     B -->|"Negative Score"| D["Corrector"]
     C --> E["Output Formatter"]
     D --> E
-    
+
     style A fill:#f5f5f5,stroke:#333,stroke-width:1px
     style B fill:#f9f7ff,stroke:#8a56ac,stroke-width:2px
     style C fill:#f6f8ff,stroke:#5670ac,stroke-width:2px
@@ -415,12 +421,12 @@ graph LR
     style E fill:#f5fff7,stroke:#56ac7d,stroke-width:2px
 ```
 
-| Feature | Description |
-|---------|-------------|
-| **Dynamic Routing** | Data can be conditionally routed between components based on content or metadata |
-| **Parallel Processing** | Multiple pathways can execute simultaneously for efficient processing |
-| **Pipeline Construction** | Complex workflows can be built incrementally and modified at runtime |
-| **Error Handling** | Built-in mechanisms for handling and recovering from errors within the workflow |
+| Feature                   | Description                                                                      |
+| ------------------------- | -------------------------------------------------------------------------------- |
+| **Dynamic Routing**       | Data can be conditionally routed between components based on content or metadata |
+| **Parallel Processing**   | Multiple pathways can execute simultaneously for efficient processing            |
+| **Pipeline Construction** | Complex workflows can be built incrementally and modified at runtime             |
+| **Error Handling**        | Built-in mechanisms for handling and recovering from errors within the workflow  |
 
 #### 3. Reactive Data Flow
 
@@ -447,59 +453,59 @@ class ReactiveProcessor extends Component {
 }
 ```
 
-| Feature | Description |
-|---------|-------------|
-| **Event-Driven** | Components respond to data events rather than being actively polled |
-| **Asynchronous Processing** | Non-blocking operations allow for efficient resource utilization |
-| **Backpressure Handling** | Flow control mechanisms prevent overwhelming downstream components |
-| **Hot vs Cold Streams** | Support for both persistent (hot) and on-demand (cold) data streams |
+| Feature                     | Description                                                         |
+| --------------------------- | ------------------------------------------------------------------- |
+| **Event-Driven**            | Components respond to data events rather than being actively polled |
+| **Asynchronous Processing** | Non-blocking operations allow for efficient resource use            |
+| **Backpressure Handling**   | Flow control mechanisms prevent overwhelming downstream components  |
+| **Hot vs Cold Streams**     | Support for both persistent (hot) and on-demand (cold) data streams |
 
 #### 4. Agent-to-Agent Event Communication
 
-AStack extends beyond simple data pipelines to enable sophisticated agent-to-agent communication patterns.
+Agents can exchange events through connected component ports.
 
 ```mermaid
 sequenceDiagram
     participant A as Agent A
     participant T as Tool Invoker
     participant B as Agent B
-    
+
     A->>T: Request tool execution
     T->>B: Forward specialized request
     B->>B: Process request
     B->>T: Return result
     T->>A: Deliver processed result
-    
+
     Note over A,B: Bidirectional communication with context preservation
 ```
 
-| Feature | Description |
-|---------|-------------|
-| **Context Preservation** | Communication maintains context across multiple exchanges |
+| Feature                      | Description                                                             |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| **Context Preservation**     | Communication maintains context across multiple exchanges               |
 | **Multi-Agent Coordination** | Agents can collaborate on complex tasks through structured interactions |
-| **Tool Integration** | Seamless integration of external tools and services into agent communication |
-| **State Management** | Optional stateful interactions for maintaining conversation history |
+| **Tool Integration**         | Integration of external tools and services into agent communication     |
+| **State Management**         | Optional stateful interactions for maintaining conversation history     |
 
 ### Monadic Design Pattern
 
-Underlying all these patterns is a monadic design approach derived from functional programming:
+The patterns use these concepts from functional programming:
 
 - **Encapsulated State**: Each component maintains its own isolated state
 - **Chainable Operations**: Operations can be chained together in a fluent interface
 - **Composable Transformations**: Complex transformations are built from simple, composable units
 - **Error Propagation**: Errors are propagated through the chain in a controlled manner
 
-This monadic approach allows AStack to maintain both the flexibility of functional programming and the practical benefits of component-based development.
+Each component keeps its input, output, and state contracts. The runtime composes the transformations.
 
-## 📦 Packages
+## Packages
 
 AStack is organized into several packages, all published on npm:
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [@astack-tech/core](https://www.npmjs.com/package/@astack-tech/core) | [![npm](https://img.shields.io/npm/v/@astack-tech/core.svg)](https://www.npmjs.com/package/@astack-tech/core) | Core functionality and pipeline execution engine |
-| [@astack-tech/components](https://www.npmjs.com/package/@astack-tech/components) | [![npm](https://img.shields.io/npm/v/@astack-tech/components.svg)](https://www.npmjs.com/package/@astack-tech/components) | Reusable AI components like Agents and Memories |
-| [@astack-tech/tools](https://www.npmjs.com/package/@astack-tech/tools) | [![npm](https://img.shields.io/npm/v/@astack-tech/tools.svg)](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions and implementations |
+| Package                                                                              | Version                                                                                                                       | Description                                             |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| [@astack-tech/core](https://www.npmjs.com/package/@astack-tech/core)                 | [![npm](https://img.shields.io/npm/v/@astack-tech/core.svg)](https://www.npmjs.com/package/@astack-tech/core)                 | Core functionality and pipeline execution engine        |
+| [@astack-tech/components](https://www.npmjs.com/package/@astack-tech/components)     | [![npm](https://img.shields.io/npm/v/@astack-tech/components.svg)](https://www.npmjs.com/package/@astack-tech/components)     | Reusable AI components like Agents and Memories         |
+| [@astack-tech/tools](https://www.npmjs.com/package/@astack-tech/tools)               | [![npm](https://img.shields.io/npm/v/@astack-tech/tools.svg)](https://www.npmjs.com/package/@astack-tech/tools)               | Tool definitions and implementations                    |
 | [@astack-tech/integrations](https://www.npmjs.com/package/@astack-tech/integrations) | [![npm](https://img.shields.io/npm/v/@astack-tech/integrations.svg)](https://www.npmjs.com/package/@astack-tech/integrations) | Integrations with external services and model providers |
 
 ### Installation
@@ -526,14 +532,13 @@ Or install all packages at once:
 npm install @astack-tech/core@beta @astack-tech/components@beta @astack-tech/tools@beta @astack-tech/integrations@beta
 ```
 
+## Documentation
 
-## 📖 Documentation
+[Read the documentation on DeepWiki](https://deepwiki.com/astack-tech/astack).
 
-[Documentation coming soon]
+Use the [examples](./examples) and [source code](./packages) to check the implementation. The website is at [astack.tech](https://astack.tech).
 
-For now, please refer to the examples and source code for understanding how to use AStack.
-
-## 🛠️ Development
+## Development
 
 ### Project Structure
 
@@ -550,20 +555,21 @@ astack/
 
 ### Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](./.github/CONTRIBUTING.md) for detailed guidelines.
+Read [CONTRIBUTING.md](./.github/CONTRIBUTING.md) before you submit a change.
 
 Key points:
+
 - We use a `dev` branch for active development and new features
 - The `master` branch is reserved for stable releases
 - All pull requests should target the `dev` branch
 
-Please feel free to submit a Pull Request following our guidelines.
+Open a pull request against `dev`. Include the checks that you ran.
 
-## 📃 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - Thanks to all contributors who have helped shape AStack
 - Inspired by modern AI application architectures and component-based design principles
@@ -572,6 +578,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**AStack** - Building the future of AI applications, one component at a time.
+[Website](https://astack.tech) · [Documentation](https://deepwiki.com/astack-tech/astack) · [Examples](./examples) · [Brand assets](./docs/brand/README.md)
 
 </div>
