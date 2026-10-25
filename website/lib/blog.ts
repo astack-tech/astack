@@ -34,8 +34,8 @@ export function getAllPostSlugs(): string[] {
   }
   const fileNames = fs.readdirSync(postsDirectory);
   return fileNames
-    .filter((fileName) => fileName.endsWith('.md'))
-    .map((fileName) => fileName.replace(/\.md$/, ''));
+    .filter(fileName => fileName.endsWith('.md'))
+    .map(fileName => fileName.replace(/\.md$/, ''));
 }
 
 /**
@@ -44,7 +44,7 @@ export function getAllPostSlugs(): string[] {
 export function getAllPosts(): BlogPost[] {
   const slugs = getAllPostSlugs();
   const posts = slugs
-    .map((slug) => getPostBySlug(slug))
+    .map(slug => getPostBySlug(slug))
     .filter((post): post is BlogPost => post !== null)
     .sort((a, b) => (a.date > b.date ? -1 : 1));
   return posts;
@@ -67,7 +67,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     // Remove code blocks first (they read faster)
     const contentWithoutCode = content.replace(/```[\s\S]*?```/g, '');
     // Count words (English) and characters (for code/Chinese)
-    const words = contentWithoutCode.split(/\s+/).filter((word) => word.length > 0);
+    const words = contentWithoutCode.split(/\s+/).filter(word => word.length > 0);
     const wordCount = words.length;
     // Average reading speed: 200 words per minute for English
     const minutes = Math.max(1, Math.ceil(wordCount / 200));
@@ -100,7 +100,14 @@ export async function markdownToHtml(markdown: string): Promise<string> {
     .use(rehypeHighlight)
     .use(rehypeStringify)
     .process(markdown);
-  return result.toString();
+  return result
+    .toString()
+    .replace(/<pre>/g, '<pre tabindex="0" aria-label="Code example">')
+    .replace(
+      /<table>/g,
+      '<div class="article-table" tabindex="0" role="region" aria-label="Data table"><table>'
+    )
+    .replace(/<\/table>/g, '</table></div>');
 }
 
 /**
@@ -108,7 +115,7 @@ export async function markdownToHtml(markdown: string): Promise<string> {
  */
 export function getPostsByTag(tag: string): BlogPost[] {
   const allPosts = getAllPosts();
-  return allPosts.filter((post) => post.tags.includes(tag));
+  return allPosts.filter(post => post.tags.includes(tag));
 }
 
 /**
@@ -117,8 +124,8 @@ export function getPostsByTag(tag: string): BlogPost[] {
 export function getAllTags(): string[] {
   const allPosts = getAllPosts();
   const tags = new Set<string>();
-  allPosts.forEach((post) => {
-    post.tags.forEach((tag) => tags.add(tag));
+  allPosts.forEach(post => {
+    post.tags.forEach(tag => tags.add(tag));
   });
   return Array.from(tags).sort();
 }

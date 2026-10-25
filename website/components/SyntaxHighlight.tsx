@@ -20,7 +20,17 @@ interface SyntaxHighlightProps {
 }
 
 // Token types for syntax highlighting
-type TokenType = 'keyword' | 'string' | 'comment' | 'type' | 'property' | 'method' | 'number' | 'operator' | 'punctuation' | 'plain';
+type TokenType =
+  | 'keyword'
+  | 'string'
+  | 'comment'
+  | 'type'
+  | 'property'
+  | 'method'
+  | 'number'
+  | 'operator'
+  | 'punctuation'
+  | 'plain';
 
 interface Token {
   type: TokenType;
@@ -29,10 +39,34 @@ interface Token {
 
 // Keywords to highlight
 const KEYWORDS = new Set([
-  'import', 'from', 'export', 'default', 'const', 'let', 'var',
-  'function', 'async', 'await', 'return', 'if', 'else', 'for',
-  'while', 'class', 'extends', 'new', 'this', 'typeof', 'instanceof',
-  'true', 'false', 'null', 'undefined', 'try', 'catch', 'throw',
+  'import',
+  'from',
+  'export',
+  'default',
+  'const',
+  'let',
+  'var',
+  'function',
+  'async',
+  'await',
+  'return',
+  'if',
+  'else',
+  'for',
+  'while',
+  'class',
+  'extends',
+  'new',
+  'this',
+  'typeof',
+  'instanceof',
+  'true',
+  'false',
+  'null',
+  'undefined',
+  'try',
+  'catch',
+  'throw',
 ]);
 
 // Type-like words (PascalCase)
@@ -197,20 +231,6 @@ function tokenize(code: string): Token[] {
   return tokens;
 }
 
-// Color mapping for token types
-const TOKEN_COLORS: Record<TokenType, string> = {
-  keyword: 'text-purple-400',
-  string: 'text-green-400',
-  comment: 'text-gray-500',
-  type: 'text-yellow-300',
-  property: 'text-blue-300',
-  method: 'text-blue-400',
-  number: 'text-orange-400',
-  operator: 'text-gray-400',
-  punctuation: 'text-gray-400',
-  plain: 'text-gray-300',
-};
-
 export default function SyntaxHighlight({ code, className = '' }: SyntaxHighlightProps) {
   const tokens = useMemo(() => tokenize(code), [code]);
 
@@ -218,7 +238,7 @@ export default function SyntaxHighlight({ code, className = '' }: SyntaxHighligh
     <pre className={`font-mono text-sm leading-relaxed overflow-x-auto ${className}`}>
       <code>
         {tokens.map((token, index) => (
-          <span key={index} className={TOKEN_COLORS[token.type]}>
+          <span key={index} className={`syntax-${token.type}`}>
             {token.value}
           </span>
         ))}

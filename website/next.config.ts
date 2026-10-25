@@ -1,8 +1,10 @@
-import type { NextConfig } from "next";
-import path from "node:path";
+import type { NextConfig } from 'next';
+import path from 'node:path';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  devIndicators: false,
+  // Dev and production builds must not write to the same cache.
+  distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   turbopack: {
     root: path.join(__dirname, '.'),
   },
