@@ -1,0 +1,48 @@
+name: End-to-end
+
+# Runs the examples that call the DeepSeek API with a real key. It needs the
+# DEEPSEEK_API_KEY repository secret, so it runs weekly and on demand instead of on
+# every pull request; forks and pull requests from forks never see the secret.
+
+on:
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      examples:
+        description: 'Examples to run, space separated (empty runs all)'
+        required: false
+        default: ''
+
+concurrency:
+  group: e2e
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  llm-examples:
+    name: LLM examples
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: Check the secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "::error::Add the DEEPSEEK_API_KEY repository secret to run the end-to-end examples."
+            exit 1
+          fi
+      - run: node scripts/e2e-llm.mjs ${{ inputs.examples }}
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}

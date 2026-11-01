@@ -30,7 +30,8 @@
     "update:api": "turbo run update:api",
     "check:docs": "typedoc && git diff --exit-code -- website/content/api && test -z \"$(git ls-files --others --exclude-standard -- website/content/api)\"",
     "release:dry-run": "pnpm build && node scripts/publish-packages.mjs --dry-run",
-    "test:scripts": "node --test scripts/__tests__/*.test.mjs"
+    "test:scripts": "node --test scripts/__tests__/*.test.mjs",
+    "test:e2e": "node scripts/e2e-llm.mjs"
   },
   "keywords": [
     "ai-framework",
