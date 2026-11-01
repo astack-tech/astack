@@ -2,6 +2,7 @@ import { Component } from '@astack-tech/core';
 import type { Port } from '@astack-tech/core';
 import type { Tool, ToolCall, ToolCallResult, ToolSet } from '@astack-tech/tools';
 
+import { isArrayOf, isOptional, isRecord, isString } from '../utils/guards';
 import { createLogger } from '../utils/logger';
 import type { Logger } from '../utils/logger';
 
@@ -58,6 +59,36 @@ export interface ToolInvokerOutput {
 
 const DEFAULT_TIMEOUT_MS = 30_000;
 
+const MESSAGE_ROLES: readonly MessageRole[] = ['system', 'user', 'assistant', 'tool'];
+
+function isMessageRole(value: unknown): value is MessageRole {
+  return MESSAGE_ROLES.some(role => role === value);
+}
+
+function isToolCall(value: unknown): value is ToolCall {
+  return (
+    isRecord(value) &&
+    isOptional(value['id'], isString) &&
+    isString(value['tool_name']) &&
+    isRecord(value['arguments'])
+  );
+}
+
+function isMessage(value: unknown): value is Message {
+  return (
+    isRecord(value) &&
+    isMessageRole(value['role']) &&
+    isOptional(value['content'], isString) &&
+    isOptional(value['tool_calls'], (calls): calls is ToolCall[] => isArrayOf(calls, isToolCall)) &&
+    isOptional(value['tool_call_id'], isString) &&
+    isOptional(value['meta'], isRecord)
+  );
+}
+
+function isToolInvokerInput(value: unknown): value is ToolInvokerInput {
+  return isRecord(value) && isArrayOf(value['messages'], isMessage);
+}
+
 /**
  * Runs the tool calls found in a list of messages and returns one `tool` message per call.
  *
@@ -107,11 +138,16 @@ export class ToolInvoker extends Component {
 
   /**
    * Reads `ToolInvokerInput` from the `in` port and sends `ToolInvokerOutput` to `out`.
-   * Invalid input produces an empty `tool_messages` array.
+   * Input that is not a `ToolInvokerInput` fails the pipeline run with a `TypeError`.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((input: ToolInvokerInput) => {
-      this.run(input).then(
+    $i('in').receive(input => {
+      if (!isToolInvokerInput(input)) {
+        throw new TypeError(
+          'ToolInvoker: expected a ToolInvokerInput ({ messages: Message[] }) on the in port.'
+        );
+      }
+      return this.run(input).then(
         output => {
           $o('out').send(output);
         },

@@ -48,7 +48,7 @@ pipeline.addComponent('trim', new Trim());
 pipeline.addComponent('upper', new Uppercase());
 pipeline.connect('trim.out', 'upper.in');
 
-const result = await pipeline.run<string>('trim.in', '  hello  '); // 'HELLO'
+const result = await pipeline.run('trim.in', '  hello  '); // 'HELLO'
 ```
 
 Every component has an `in` and an `out` port by default. `run()` sends the input to the trigger port (`trim.in`) and resolves with the value that reaches the endpoint. Here the endpoint is inferred: `upper` is the only component with no downstream connection.

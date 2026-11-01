@@ -196,6 +196,41 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isOptionalString(value: unknown): value is string | undefined {
+  return value === undefined || typeof value === 'string';
+}
+
+function isCount(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function isTokenUsage(value: unknown): value is TokenUsage {
+  return (
+    isRecord(value) &&
+    isCount(value['completion_tokens']) &&
+    isCount(value['prompt_tokens']) &&
+    isCount(value['total_tokens']) &&
+    (value['prompt_cache_hit_tokens'] === undefined || isCount(value['prompt_cache_hit_tokens'])) &&
+    (value['prompt_cache_miss_tokens'] === undefined || isCount(value['prompt_cache_miss_tokens']))
+  );
+}
+
+/** Whether `value` is a `Message`, checked field by field. The role is checked when the message is sent. */
+function isMessage(value: unknown): value is Message {
+  return (
+    isRecord(value) &&
+    typeof value['role'] === 'string' &&
+    isOptionalString(value['content']) &&
+    (value['tool_calls'] === undefined || Array.isArray(value['tool_calls'])) &&
+    isOptionalString(value['tool_call_id']) &&
+    (value['usage'] === undefined || isTokenUsage(value['usage']))
+  );
+}
+
+function isMessageList(value: unknown): value is Message[] {
+  return Array.isArray(value) && value.every(item => isMessage(item));
+}
+
 /**
  * Converts a `{ name, description, parameters }` object to the OpenAI tool format.
  * Objects already in the OpenAI format are returned unchanged.
@@ -420,11 +455,15 @@ class OpenAICompatible extends Component {
 
   /**
    * Connects the `prompt` and `messages` input ports to the model.
-   * API errors produce a fallback value so the pipeline keeps flowing.
+   * API errors produce a fallback value so the pipeline keeps flowing. Input of the wrong
+   * type fails the pipeline run with a `TypeError` before the API is called.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('prompt').receive((prompt: string) => {
-      this.generateCompletion(prompt).then(
+    $i('prompt').receive(prompt => {
+      if (typeof prompt !== 'string') {
+        throw new TypeError(`${this.name}: the prompt port expects a string.`);
+      }
+      return this.generateCompletion(prompt).then(
         completion => {
           $o('completion').send(completion);
         },
@@ -435,8 +474,11 @@ class OpenAICompatible extends Component {
       );
     });
 
-    $i('messages').receive((messages: Message[]) => {
-      this.chatCompletion(messages).then(
+    $i('messages').receive(messages => {
+      if (!isMessageList(messages)) {
+        throw new TypeError(`${this.name}: the messages port expects an array of messages.`);
+      }
+      return this.chatCompletion(messages).then(
         message => {
           $o('message').send(message);
         },

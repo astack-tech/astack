@@ -4,7 +4,7 @@ description: Component 类、它的端口，以及两种执行模式。
 order: 3
 examples: [component, text-splitter]
 api: [core/classes/Component, core/type-aliases/Port, components/classes/TextSplitter, components/classes/ToolInvoker]
-source: 6aa681ff34a2e2a95900594d1ba3e0923f2575f0ae13a80cb1d568f713ea2f2b
+source: 67491a08ca44542ecf777f1bdbf43369189a591ac8ce2ed2759419b0c2ea7fdf
 ---
 
 组件是继承自 `@astack-tech/core` 中 `Component` 的类。
@@ -40,7 +40,10 @@ class Classifier extends Component {
 import type { Port } from '@astack-tech/core';
 
 override _transform($i: Port, $o: Port): void {
-  $i('in').receive((text: string) => {
+  $i('in').receive(text => {
+    if (typeof text !== 'string') {
+      throw new TypeError('Expected a string.');
+    }
     $o(text.endsWith('?') ? 'question' : 'statement').send(text);
   });
 }
@@ -48,19 +51,26 @@ override _transform($i: Port, $o: Port): void {
 
 `$i(name).receive(callback)` 订阅一个输入端口，`$o(name).send(value)` 向一个输出端口发送数据。对每个输入，组件可以发送零个、一个或多个值。
 
+端口在运行时才连接，所以回调收到的值是 `unknown`，使用前先检查类型。回调抛出错误时，发送这个值的那次管道运行会被拒绝，端口仍会继续投递后面的值。
+
 ## 异步处理
 
-`receive` 的回调不会被等待（await）。先启动异步任务，在任务完成时再发送结果：
+先启动异步任务，在任务完成时发送结果，并把 Promise 返回出去。端口不会等它完成才投递下一个值，但 Promise 被拒绝时，这次运行会像抛出错误一样被拒绝：
 
 ```typescript
 override _transform($i: Port, $o: Port): void {
-  $i('in').receive((prompt: string) => {
-    void model.generateCompletion(prompt).then(answer => {
+  $i('in').receive(prompt => {
+    if (typeof prompt !== 'string') {
+      throw new TypeError('Expected a string.');
+    }
+    return model.generateCompletion(prompt).then(answer => {
       $o('out').send(answer);
     });
   });
 }
 ```
+
+内置组件也用同样的方式检查输入：类型不对的值会让这次运行以 `TypeError` 被拒绝，不会调用任何模型或工具。
 
 ## 内置组件
 

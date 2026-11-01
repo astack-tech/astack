@@ -20,4 +20,4 @@ console.log(reply.content);
 // In a pipeline: the model reads `prompt` and writes `completion`.
 const pipeline = new Pipeline();
 pipeline.addComponent('llm', model);
-console.log(await pipeline.run<string>('llm.prompt', 'What is a port?', 'llm.completion'));
+console.log(await pipeline.run('llm.prompt', 'What is a port?', 'llm.completion'));

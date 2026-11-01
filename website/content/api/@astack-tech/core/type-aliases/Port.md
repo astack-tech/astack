@@ -4,7 +4,7 @@
 type Port = (portName) => object;
 ```
 
-Defined in: [packages/core/src/component/index.ts:22](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L22)
+Defined in: [packages/core/src/component/index.ts:21](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L21)
 
 Port accessor passed to `Component._transform()` as `$i` and `$o`. Call it with a port
 name to read from an input port (`receive`) or write to an output port (`send`).
@@ -19,21 +19,20 @@ name to read from an input port (`receive`) or write to an output port (`send`).
 
 | Name | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| `$` | `Subject`\<`unknown`\> | Access raw RxJS Subject | [packages/core/src/component/index.ts:38](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L38) |
-| `receive()` | \<`T`\>(`callback`) => `Subscription` | Receive data from port | [packages/core/src/component/index.ts:29](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L29) |
-| `send()` | (`data`) => `void` | Send data to port | [packages/core/src/component/index.ts:34](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L34) |
+| `$` | `Observable`\<`unknown`\> | The port's messages as a read-only RxJS stream. | [packages/core/src/component/index.ts:39](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L39) |
+| `receive()` | (`callback`) => `Subscription` | Subscribes `callback` to every message the port delivers. Ports are wired at run time, so a message is `unknown` until the callback narrows it. A callback that throws sends the error on the component's error port and the port keeps delivering. A callback that returns a promise works on the message until the promise settles. | [packages/core/src/component/index.ts:30](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L30) |
+| `send()` | (`data`) => `void` | Sends `data` on the port. | [packages/core/src/component/index.ts:35](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L35) |
 
 ## Example
 
 ```typescript
-// Get input port and receive data
-$i('in').receive((data: { text: string }) => {
-  console.log(data.text);
+// Receive from an input port. Messages are `unknown`: narrow them first.
+$i('in').receive(data => {
+  if (typeof data === 'string') {
+    $o('out').send(data.toUpperCase());
+  }
 });
 
-// Get output port and send data
-$o('out').send({ result: 'processed' });
-
-// Access raw RxJS Subject
-const subject = $i('in').$;
+// Read the port's stream with RxJS
+const stream = $i('in').$;
 ```

@@ -41,7 +41,8 @@ class ParityRouter extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((value: number) => {
+    $i('in').receive(data => {
+      const value = requireNumber(data);
       $o(value % 2 === 0 ? 'even' : 'odd').send(value);
     });
   }
@@ -63,12 +64,12 @@ class Join extends Component {
         $o('out').send(a + b);
       }
     };
-    $i('a').receive((value: number) => {
-      a = value;
+    $i('a').receive(data => {
+      a = requireNumber(data);
       emit();
     });
-    $i('b').receive((value: number) => {
-      b = value;
+    $i('b').receive(data => {
+      b = requireNumber(data);
       emit();
     });
   }
@@ -86,6 +87,31 @@ function within<T>(promise: Promise<T>, ms = 1000): Promise<T> {
   ]);
 }
 
+/** Fails on every input. */
+class Failing extends Component {
+  constructor() {
+    super({});
+  }
+
+  override run(): number {
+    throw new Error('cannot process');
+  }
+}
+
+/** Fails asynchronously on every input. */
+class FailingLater extends Component {
+  constructor() {
+    super({});
+  }
+
+  override _transform($i: Port): void {
+    $i('in').receive(async () => {
+      await Promise.resolve();
+      throw new Error('failed later');
+    });
+  }
+}
+
 /** Emits the same input on two ports. */
 class Fork extends Component {
   constructor() {
@@ -95,7 +121,8 @@ class Fork extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((value: number) => {
+    $i('in').receive(data => {
+      const value = requireNumber(data);
       $o('left').send(value * 10);
       $o('right').send(value * 100);
     });
@@ -117,7 +144,7 @@ describe('Pipeline', () => {
     const pipeline = new Pipeline();
     pipeline.addComponent('double', new Doubler());
 
-    await expect(pipeline.run<number>('double.in', 4)).resolves.toBe(8);
+    await expect(pipeline.run('double.in', 4)).resolves.toBe(8);
   });
 
   it('infers the leaf port of a linear chain', async () => {
@@ -126,7 +153,7 @@ describe('Pipeline', () => {
     pipeline.addComponent('addOne', new AddOne());
     pipeline.connect('double.out', 'addOne.in');
 
-    await expect(pipeline.run<number>('double.in', 5)).resolves.toBe(11);
+    await expect(pipeline.run('double.in', 5)).resolves.toBe(11);
   });
 
   it('resolves concurrent runs in submission order', async () => {
@@ -135,7 +162,7 @@ describe('Pipeline', () => {
     pipeline.addComponent('addOne', new AddOne());
     pipeline.connect('double.out', 'addOne.in');
 
-    const results = await Promise.all([1, 2, 3].map(n => pipeline.run<number>('double.in', n)));
+    const results = await Promise.all([1, 2, 3].map(n => pipeline.run('double.in', n)));
     expect(results).toEqual([3, 5, 7]);
   });
 
@@ -147,8 +174,8 @@ describe('Pipeline', () => {
     pipeline.connect('router.even', 'double.in');
     pipeline.connect('router.odd', 'addOne.in');
 
-    await expect(pipeline.run<number>('router.in', 4, 'double.out')).resolves.toBe(8);
-    await expect(pipeline.run<number>('router.in', 3, 'addOne.out')).resolves.toBe(4);
+    await expect(pipeline.run('router.in', 4, 'double.out')).resolves.toBe(8);
+    await expect(pipeline.run('router.in', 3, 'addOne.out')).resolves.toBe(4);
   });
 
   it('rejects inference when several leaf ports exist', async () => {
@@ -167,7 +194,7 @@ describe('Pipeline', () => {
     pipeline.addComponent('fork', new Fork());
     const outputs = ['fork.right', 'fork.left'];
 
-    const result = await pipeline.run<number>('fork.in', 2, { includeOutputsFrom: outputs });
+    const result = await pipeline.run('fork.in', 2, { includeOutputsFrom: outputs });
 
     expect(result).toEqual({ 'fork.left': 20, 'fork.right': 200 });
     expect(outputs).toEqual(['fork.right', 'fork.left']);
@@ -179,10 +206,10 @@ describe('Pipeline', () => {
     pipeline.addComponent('double', new Doubler());
     pipeline.connect('fork.left', 'double.in');
 
-    const first = await pipeline.run<number>('fork.in', 1, {
+    const first = await pipeline.run('fork.in', 1, {
       includeOutputsFrom: ['fork.left', 'fork.right'],
     });
-    const second = await pipeline.run<number>('fork.in', 1, {
+    const second = await pipeline.run('fork.in', 1, {
       includeOutputsFrom: ['double.out', 'fork.right'],
     });
 
@@ -220,8 +247,8 @@ describe('Pipeline', () => {
     pipeline.addComponent('addOne', new AddOne());
     pipeline.connect('double.out', 'addOne.in');
 
-    await expect(pipeline.run<number>('double.in', 1, 'double.out')).resolves.toBe(2);
-    await expect(pipeline.run<number>('double.in', 1)).resolves.toBe(3);
+    await expect(pipeline.run('double.in', 1, 'double.out')).resolves.toBe(2);
+    await expect(pipeline.run('double.in', 1)).resolves.toBe(3);
   });
 
   it('rejects inference on a circular topology', async () => {
@@ -268,7 +295,7 @@ describe('Pipeline', () => {
     pipeline.connect('fork.left', 'join.a');
     pipeline.connect('fork.right', 'join.b');
 
-    await expect(within(pipeline.run<number>('fork.in', 1, 'join.out'))).resolves.toBe(110);
+    await expect(within(pipeline.run('fork.in', 1, 'join.out'))).resolves.toBe(110);
   });
 
   it('delivers one output into two inputs of the same component', async () => {
@@ -278,6 +305,70 @@ describe('Pipeline', () => {
     pipeline.connect('double.out', 'join.a');
     pipeline.connect('double.out', 'join.b');
 
-    await expect(within(pipeline.run<number>('double.in', 2, 'join.out'))).resolves.toBe(8);
+    await expect(within(pipeline.run('double.in', 2, 'join.out'))).resolves.toBe(8);
+  });
+
+  it('rejects the run when a component throws', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('failing', new Failing());
+
+    await expect(within(pipeline.run('failing.in', 1))).rejects.toThrow('cannot process');
+  });
+
+  it('rejects the run when a component fails asynchronously', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('failing', new FailingLater());
+
+    await expect(within(pipeline.run('failing.in', 1, 'failing.out'))).rejects.toThrow(
+      'failed later'
+    );
+  });
+
+  it('rejects only the run whose input failed', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('double', new Doubler());
+    pipeline.addComponent('addOne', new AddOne());
+    pipeline.connect('double.out', 'addOne.in');
+
+    const results = await Promise.allSettled([
+      within(pipeline.run('double.in', 1)),
+      within(pipeline.run('double.in', 'not a number')),
+      within(pipeline.run('double.in', 2)),
+    ]);
+
+    expect(results.map(result => result.status)).toEqual(['fulfilled', 'rejected', 'fulfilled']);
+    expect(results[0]).toEqual({ status: 'fulfilled', value: 3 });
+    expect(results[2]).toEqual({ status: 'fulfilled', value: 5 });
+  });
+
+  it('keeps running after a failed run', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('double', new Doubler());
+
+    await expect(within(pipeline.run('double.in', 'x'))).rejects.toThrow(TypeError);
+    await expect(within(pipeline.run('double.in', 4))).resolves.toBe(8);
+  });
+
+  it('sends each run only to its own trigger', async () => {
+    const seen: unknown[] = [];
+    class Recorder extends Component {
+      constructor() {
+        super({});
+      }
+
+      override run(data: unknown): unknown {
+        seen.push(data);
+        return data;
+      }
+    }
+    const pipeline = new Pipeline();
+    pipeline.addComponent('first', new Recorder());
+    pipeline.addComponent('second', new Recorder());
+
+    await expect(pipeline.run('first.in', 1)).resolves.toBe(1);
+    await expect(pipeline.run('second.in', 2)).resolves.toBe(2);
+    await expect(pipeline.run('first.in', 3)).resolves.toBe(3);
+
+    expect(seen).toEqual([1, 2, 3]);
   });
 });

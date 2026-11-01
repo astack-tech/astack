@@ -201,6 +201,15 @@ describe('StreamingAgent.runStream', () => {
 });
 
 describe('StreamingAgent in a pipeline', () => {
+  it('rejects a run whose input is not a string or an AgentInput', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('agent', new StreamingAgent({ model: new ScriptedStreamingModel([]) }));
+
+    await expect(pipeline.run('agent.in', { messages: 'hello' })).rejects.toThrow(
+      'StreamingAgent: expected a string or an AgentInput'
+    );
+  });
+
   it('sends every chunk to out', async () => {
     const pipeline = new Pipeline();
     pipeline.addComponent(
@@ -208,7 +217,7 @@ describe('StreamingAgent in a pipeline', () => {
       new StreamingAgent({ model: new ScriptedStreamingModel([[{ content: 'hi' }]]) })
     );
 
-    const first = await pipeline.run<StreamingChunk>('agent.in', 'hello');
+    const first = await pipeline.run('agent.in', 'hello');
 
     expect(first).toEqual({ type: 'iteration_start', iteration: 1 });
   });

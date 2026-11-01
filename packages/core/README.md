@@ -46,7 +46,7 @@ pipeline.addComponent('trim', new Trim());
 pipeline.addComponent('upper', new Uppercase());
 pipeline.connect('trim.out', 'upper.in');
 
-await pipeline.run<string>('trim.in', '  hello  '); // 'HELLO'
+await pipeline.run('trim.in', '  hello  '); // 'HELLO'
 ```
 
 ## API
@@ -72,14 +72,14 @@ Base class for every component. Each component has an `in` and an `out` port.
 | `run(trigger, input, endpoint)`               | Run and resolve with the value on `endpoint`.                |
 | `run(trigger, input, { includeOutputsFrom })` | Resolve with an object keyed by each listed port.            |
 
-The topology of each route is built once and reused. Concurrent runs of a route resolve in order.
+The topology of each route is built once and reused. Concurrent runs of a route resolve in order. The result is `unknown`, because ports are connected at run time; check it before you use it. A component that throws rejects the run.
 
 ### Types
 
-| Type         | Description                                                                                                  |
-| ------------ | ------------------------------------------------------------------------------------------------------------ |
-| `Port`       | The `$i` / `$o` accessor passed to `_transform`: `receive(callback)`, `send(value)`, `$` (the RxJS subject). |
-| `RunOptions` | `{ includeOutputsFrom: string[] }`                                                                           |
+| Type         | Description                                                                                                                                 |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Port`       | The `$i` / `$o` accessor passed to `_transform`: `receive(callback)` (with `unknown` values), `send(value)`, `$` (a read-only RxJS stream). |
+| `RunOptions` | `{ includeOutputsFrom: string[] }`                                                                                                          |
 
 Subpath imports: `@astack-tech/core/component`, `@astack-tech/core/pipeline`.
 

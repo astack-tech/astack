@@ -4,7 +4,7 @@ description: 通过具名输出端口，把数据发送到不同的分支。
 order: 5
 examples: [routing]
 api: [core/type-aliases/Port, core/classes/Pipeline]
-source: 406dff88817f1ed23063c1a7e7e4abde8de8574d364d87cc3357f2679cec33f7
+source: 97086bcf65448d04dddcd21c6965a75d6a9bd9dbe0338b13cee72df27a870802
 ---
 
 组件通过选择向哪个输出端口发送来路由数据，不需要单独的路由器类型。
@@ -18,7 +18,10 @@ class Classifier extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((text: string) => {
+    $i('in').receive(text => {
+      if (typeof text !== 'string') {
+        throw new TypeError('Classifier expects a string.');
+      }
       $o(text.trim().endsWith('?') ? 'question' : 'statement').send(text);
     });
   }

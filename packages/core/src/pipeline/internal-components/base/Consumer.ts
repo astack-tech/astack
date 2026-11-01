@@ -3,10 +3,10 @@ import { Port as HlangPort, WriteableNode } from '@hlang-org/runtime';
 /**
  * Virtual END component. It forwards every value on its `in` port to a sink callback.
  */
-class BaseConsumer extends WriteableNode {
+class BaseConsumer extends WriteableNode<object> {
   private readonly inPort: HlangPort;
 
-  constructor(opts: unknown) {
+  constructor(opts: object) {
     super(opts);
 
     this.inPort = HlangPort.I('in');

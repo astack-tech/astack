@@ -18,6 +18,18 @@ export interface RunOptions {
 
 type SingleResolver = (value: unknown) => void;
 
+/** A run that has sent its input and waits for its result. */
+interface PendingRun {
+  readonly reject: (error: Error) => void;
+  /** Removes the run from its route queue, so a later value resolves the next run. */
+  cancel: () => void;
+}
+
+/** Returns `error` as an `Error`, wrapping any other thrown value. */
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error));
+}
+
 interface MultiOutputContext {
   resolve: (value: Record<string, unknown>) => void;
   results: Record<string, unknown>;
@@ -27,6 +39,14 @@ interface MultiOutputContext {
 interface ParsedPortIdentifier {
   componentName: string;
   portName: string;
+}
+
+/** Removes the first occurrence of `item` from `items`, if any. */
+function removeItem<T>(items: T[], item: T): void {
+  const index = items.indexOf(item);
+  if (index !== -1) {
+    items.splice(index, 1);
+  }
 }
 
 /**
@@ -51,7 +71,7 @@ function parsePortIdentifier(portIdentifier: string): ParsedPortIdentifier {
 /**
  * Reads the default output port name from a component, if it declares one.
  */
-function getDefaultOutputPortName(component: Node): string | undefined {
+function getDefaultOutputPortName(component: Node<object>): string | undefined {
   const candidate = 'outPort' in component ? component.outPort : undefined;
   if (typeof candidate === 'object' && candidate !== null && 'name' in candidate) {
     const { name } = candidate;
@@ -65,35 +85,47 @@ function getDefaultOutputPortName(component: Node): string | undefined {
  *
  * Architecture:
  * - Built on the HLang reactive flow-based programming runtime.
- * - Uses virtual START (readable) and END (writable) components.
+ * - Uses virtual START (readable) and END (writable) components: one START per trigger
+ *   port, so a run reaches only the port it names.
  * - Only START and END are implicit conventions; every other connection is explicit.
  * - The topology is built once per route and reused across executions.
  * - One Flow instance per Pipeline, one END component per route.
+ * - A failure on a component's error port rejects a run: the run whose input is being
+ *   delivered when the component fails synchronously, otherwise the oldest run still waiting.
  */
 class Pipeline {
-  private readonly components = new Map<string, Node>();
+  private readonly components = new Map<string, Node<object>>();
   private readonly connectPairs: [string, string][] = [];
   private readonly singleRouteQueues = new Map<string, SingleResolver[]>();
   private readonly multiRouteQueues = new Map<string, MultiOutputContext[]>();
   private readonly routeEndNames = new Map<string, string>();
-  private readonly virtualComponents = new Set<string>([START_COMPONENT_NAME]);
+  private readonly virtualComponents = new Set<string>();
+  private readonly startComponents = new Map<string, BaseProducer>();
   private multiConsumerCount = 0;
   private flow: Flow | null = null;
+  private readonly pendingRuns: PendingRun[] = [];
+  private deliveringRun: PendingRun | undefined;
 
   /**
    * Registers a component under a unique name. A second call with the same name is ignored.
+   *
+   * The pipeline listens on the component's error port: an error a component throws, or
+   * sends with `throw()`, rejects the run it belongs to.
    */
-  addComponent(name: string, instance: Node): void {
+  addComponent(name: string, instance: Node<object>): void {
     if (this.components.has(name)) {
       return;
     }
     this.components.set(name, instance);
+    instance.E()?.receive(error => {
+      this.failRun(toError(error));
+    });
   }
 
   /**
    * Returns the component registered under `name`, if any.
    */
-  getComponent(name: string): Node | undefined {
+  getComponent(name: string): Node<object> | undefined {
     return this.components.get(name);
   }
 
@@ -116,13 +148,19 @@ class Pipeline {
   /**
    * Sends `params` to `triggerName` and resolves with the value emitted by `endpoint`.
    *
-   * When `endpoint` is omitted, the pipeline infers it from the topology.
+   * When `endpoint` is omitted, the pipeline infers it from the topology. Ports are wired
+   * at run time, so the result is `unknown`: narrow it before you use it.
+   *
+   * @throws Error (as a rejection) when a component on the route fails.
    */
-  run<T>(triggerName: string, params: unknown, endpoint?: string): Promise<T>;
+  run(triggerName: string, params: unknown, endpoint?: string): Promise<unknown>;
   /**
-   * Sends `params` to `triggerName` and resolves once every listed output has emitted.
+   * Sends `params` to `triggerName` and resolves once every listed output has emitted,
+   * with each output's value under its port identifier.
+   *
+   * @throws Error (as a rejection) when a component on the route fails.
    */
-  run<T>(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, T>>;
+  run(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, unknown>>;
   run(
     triggerName: string,
     params: unknown,
@@ -131,23 +169,68 @@ class Pipeline {
     return new Promise<unknown>((resolve, reject) => {
       try {
         parsePortIdentifier(triggerName);
-        const startComponent = this.ensureStartComponent();
         const flow = this.ensureFlow();
+        const pending: PendingRun = { reject, cancel: () => undefined };
+        const settle = (value: unknown): void => {
+          this.forgetRun(pending);
+          resolve(value);
+        };
 
         if (typeof endpointOrOptions === 'string') {
-          this.enqueueSingleRoute(triggerName, endpointOrOptions, resolve);
+          pending.cancel = this.enqueueSingleRoute(triggerName, endpointOrOptions, settle);
         } else if (endpointOrOptions !== undefined) {
-          this.enqueueMultiRoute(triggerName, endpointOrOptions.includeOutputsFrom, resolve);
+          pending.cancel = this.enqueueMultiRoute(
+            triggerName,
+            endpointOrOptions.includeOutputsFrom,
+            settle
+          );
         } else {
-          this.enqueueSingleRoute(triggerName, this.inferEndpoint(triggerName), resolve);
+          pending.cancel = this.enqueueSingleRoute(
+            triggerName,
+            this.inferEndpoint(triggerName),
+            settle
+          );
         }
 
+        let startComponent: BaseProducer;
+        try {
+          startComponent = this.startComponentFor(triggerName);
+        } catch (error) {
+          pending.cancel();
+          throw error;
+        }
+
+        this.pendingRuns.push(pending);
         flow.run(startComponent);
-        startComponent.produce(params);
+        this.deliveringRun = pending;
+        try {
+          startComponent.produce(params);
+        } finally {
+          this.deliveringRun = undefined;
+        }
       } catch (error) {
-        reject(error instanceof Error ? error : new Error(String(error)));
+        reject(toError(error));
       }
     });
+  }
+
+  /**
+   * Rejects the run a component failure belongs to. While an input is being delivered,
+   * that is its run; afterwards, it is the oldest run still waiting. A failure after its
+   * run has already resolved has nothing left to reject.
+   */
+  private failRun(error: Error): void {
+    const run = this.deliveringRun ?? this.pendingRuns[0];
+    if (run === undefined || !this.pendingRuns.includes(run)) {
+      return;
+    }
+    this.forgetRun(run);
+    run.cancel();
+    run.reject(error);
+  }
+
+  private forgetRun(run: PendingRun): void {
+    removeItem(this.pendingRuns, run);
   }
 
   private outputPort(portIdentifier: string): HlangPort {
@@ -168,17 +251,25 @@ class Pipeline {
     return component.I(portName);
   }
 
-  private ensureStartComponent(): BaseProducer {
-    const existing = this.components.get(START_COMPONENT_NAME);
-    if (existing instanceof BaseProducer) {
+  /**
+   * Returns the START component that feeds `triggerName`, creating it on first use. Each
+   * trigger has its own, so a run reaches only the port it names.
+   */
+  private startComponentFor(triggerName: string): BaseProducer {
+    const existing = this.startComponents.get(triggerName);
+    if (existing !== undefined) {
       return existing;
     }
+    this.inputPort(triggerName);
+    const startName = `${START_COMPONENT_NAME}_${String(this.startComponents.size)}`;
     const startComponent = new BaseProducer({});
-    this.addComponent(START_COMPONENT_NAME, startComponent);
+    this.addVirtualComponent(startName, startComponent);
+    this.connect(`${startName}.out`, triggerName);
+    this.startComponents.set(triggerName, startComponent);
     return startComponent;
   }
 
-  private addVirtualComponent(name: string, instance: Node): void {
+  private addVirtualComponent(name: string, instance: Node<object>): void {
     this.virtualComponents.add(name);
     this.addComponent(name, instance);
   }
@@ -203,7 +294,11 @@ class Pipeline {
   /**
    * Builds the single-endpoint route once, then queues the resolver for this execution.
    */
-  private enqueueSingleRoute(triggerName: string, endpoint: string, resolve: SingleResolver): void {
+  private enqueueSingleRoute(
+    triggerName: string,
+    endpoint: string,
+    resolve: SingleResolver
+  ): () => void {
     const routeKey = `${triggerName}->${endpoint}`;
     let queue = this.singleRouteQueues.get(routeKey);
 
@@ -217,13 +312,16 @@ class Pipeline {
         routeQueue.shift()?.(value);
       });
 
-      this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
       this.connect(endpoint, `${endName}.in`);
       this.singleRouteQueues.set(routeKey, routeQueue);
       queue = routeQueue;
     }
 
-    queue.push(resolve);
+    const routeQueue = queue;
+    routeQueue.push(resolve);
+    return () => {
+      removeItem(routeQueue, resolve);
+    };
   }
 
   /**
@@ -233,7 +331,7 @@ class Pipeline {
     triggerName: string,
     outputs: readonly string[],
     resolve: (value: Record<string, unknown>) => void
-  ): void {
+  ): () => void {
     if (outputs.length === 0) {
       throw new Error('includeOutputsFrom must list at least one output port.');
     }
@@ -269,12 +367,16 @@ class Pipeline {
         });
       }
 
-      this.connect(`${START_COMPONENT_NAME}.out`, triggerName);
       this.multiRouteQueues.set(routeKey, routeQueue);
       queue = routeQueue;
     }
 
-    queue.push({ resolve, results: {}, count: 0 });
+    const routeQueue = queue;
+    const context: MultiOutputContext = { resolve, results: {}, count: 0 };
+    routeQueue.push(context);
+    return () => {
+      removeItem(routeQueue, context);
+    };
   }
 
   /**

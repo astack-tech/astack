@@ -4,7 +4,7 @@ description: AStack 是什么、它背后的计算模型，以及它与 PocketFl
 order: 1
 examples: [component, pipeline]
 api: [core/classes/Component, core/classes/Pipeline]
-source: b267f2837ab8f6e1b8df15abc0c51adc77ce7e55afed579ad0f6a6674287773c
+source: faf5ee2e0a3777a57881e957d10b888a8a535bf5fd13a79ef0512d2894193820
 ---
 
 AStack 是一个用于构建 AI 应用的 TypeScript 框架。它只有一条原则：**一切皆组件**。模型、工具、智能体以及你自己的逻辑都是组件。管道（pipeline）把它们的端口连接成一张图，数据沿着连接流动。
@@ -16,7 +16,7 @@ AStack 只有三个概念，所有功能都由它们构成。
 | 概念 | 是什么 | API |
 | --- | --- | --- |
 | 组件（Component） | 一个带有具名输入端口和输出端口的工作单元。 | `class X extends Component` |
-| 端口（Port） | 一条有类型的通道。输出端口连接到输入端口。 | `$i('in').receive()`、`$o('out').send()` |
+| 端口（Port） | 一条数据通道。输出端口连接到输入端口。 | `$i('in').receive()`、`$o('out').send()` |
 | 管道（Pipeline） | 由组件构成的图。它把数据从触发端口送到终点。 | `addComponent`、`connect`、`run` |
 
 组件从不直接调用另一个组件。它从输入端口读取数据，向输出端口写入数据；数据流向哪里由管道决定。这样每个组件都小而易测，你也可以重新连接一张图而不用改动其中的组件。
