@@ -3,6 +3,7 @@ title: Streaming
 description: Stream agent progress to a terminal, a pipeline or an HTTP client.
 order: 9
 examples: [streaming-agent, http-server]
+api: [components/classes/StreamingAgent, components/interfaces/StreamingChunk]
 ---
 
 `StreamingAgent` runs the same loop as [`Agent`](/docs/agents) and reports each step as an event.

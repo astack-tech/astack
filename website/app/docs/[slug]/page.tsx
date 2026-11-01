@@ -1,13 +1,16 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import Breadcrumb from '@/components/Breadcrumb';
 import DocsNav from '@/components/DocsNav';
 import ExampleCard from '@/components/ExampleCard';
+import InlineCode from '@/components/InlineCode';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import PagerLinks from '@/components/PagerLinks';
 import RichContent from '@/components/RichContent';
+import { apiHref, getApiPage } from '@/lib/api-docs';
 import { getExamplesForDoc } from '@/lib/cookbook';
 import { getAllDocs, getDoc } from '@/lib/docs';
 import { renderMarkdown, slugify } from '@/lib/markdown';
@@ -36,6 +39,10 @@ export async function generateMetadata({ params }: DocPageProps): Promise<Metada
       title: `${doc.title} · AStack docs`,
       description: doc.description,
     },
+    twitter: {
+      title: `${doc.title} · AStack docs`,
+      description: doc.description,
+    },
   };
 }
 
@@ -54,6 +61,13 @@ export default async function DocPageRoute({ params }: DocPageProps) {
     return { text: text.replace(/`/g, ''), id: slugify(text.replace(/`/g, '')) };
   });
   const examples = getExamplesForDoc(doc.slug, doc.examples);
+  const apiPages = doc.api.map(entry => {
+    const page = getApiPage(entry.split('/'));
+    if (!page) {
+      throw new Error(`docs/${doc.slug}.md: api entry '${entry}' does not exist`);
+    }
+    return page;
+  });
   const previous = docs[index - 1];
   const next = docs[index + 1];
 
@@ -85,6 +99,27 @@ export default async function DocPageRoute({ params }: DocPageProps) {
                 ))}
               </div>
             </section>
+          )}
+          {apiPages.length > 0 && (
+            <nav className="api-members docs-api-links" aria-labelledby="docs-api-title">
+              <section>
+                <h2 id="docs-api-title">API reference</h2>
+                <ul>
+                  {apiPages.map(page => (
+                    <li key={page.segments.join('/')}>
+                      <Link href={apiHref(page.segments)}>
+                        <span className="mono">{page.title}</span>
+                        {page.summary && (
+                        <span>
+                          <InlineCode text={page.summary} />
+                        </span>
+                      )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </nav>
           )}
           <PagerLinks
             label="Documentation pages"

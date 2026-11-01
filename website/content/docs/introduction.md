@@ -3,6 +3,7 @@ title: Introduction
 description: What AStack is, the computation model behind it, and how it compares with PocketFlow and Haystack.
 order: 1
 examples: [component, pipeline]
+api: [core/classes/Component, core/classes/Pipeline]
 ---
 
 AStack is a TypeScript framework for AI applications. It has one rule: **everything is a component**. Models, tools, agents and your own logic are components. A pipeline connects their ports into a graph, and data flows along the connections.

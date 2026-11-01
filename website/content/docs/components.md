@@ -3,6 +3,7 @@ title: Components
 description: The Component class, its ports, and its two execution modes.
 order: 3
 examples: [component, text-splitter]
+api: [core/classes/Component, core/type-aliases/Port, components/classes/TextSplitter, components/classes/ToolInvoker]
 ---
 
 A component is a class that extends `Component` from `@astack-tech/core`.

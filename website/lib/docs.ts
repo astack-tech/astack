@@ -17,6 +17,8 @@ export interface DocPage {
   order: number;
   /** Example names linked from this page. */
   examples: string[];
+  /** API reference paths linked from this page, for example `core/classes/Pipeline`. */
+  api: string[];
   content: string;
 }
 
@@ -30,7 +32,7 @@ function asString(value: unknown, field: string, slug: string): string {
 function readDoc(slug: string): DocPage {
   const raw = fs.readFileSync(path.join(docsDirectory, `${slug}.md`), 'utf8');
   const { data, content } = matter(raw) as { data: Record<string, unknown>; content: string };
-  const { order, examples } = data;
+  const { order, examples, api } = data;
   if (typeof order !== 'number') {
     throw new Error(`docs/${slug}.md: 'order' must be a number`);
   }
@@ -43,6 +45,7 @@ function readDoc(slug: string): DocPage {
     description: asString(data['description'], 'description', slug),
     order,
     examples: exampleNames,
+    api: Array.isArray(api) ? api.filter((entry): entry is string => typeof entry === 'string') : [],
     content,
   };
 }

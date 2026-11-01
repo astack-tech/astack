@@ -3,6 +3,7 @@ title: Model providers
 description: Call DeepSeek, and write a provider for any other model.
 order: 7
 examples: [chat]
+api: [integrations/namespaces/ModelProvider/classes/Deepseek, integrations/namespaces/ModelProvider/interfaces/DeepseekConfig, components/interfaces/ModelProvider]
 ---
 
 A model provider is a component that talks to a model API. Agents accept any object that satisfies the `ModelProvider` interface from `@astack-tech/components`:
