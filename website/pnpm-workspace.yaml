@@ -6,20 +6,14 @@ packages:
 # Patched releases of vulnerable transitive dependencies, kept within the same major
 # version that the parent package expects. Remove an entry once the parent ships the fix.
 overrides:
-  brace-expansion@<1.1.21: ^1.1.21
   js-yaml@>=3.0.0 <3.15.2: ^3.15.2
-  minimatch@<3.1.4: ^3.1.4
+  # GHSA-g3hv-75wg-m249 is fixed only in minimatch 11.0.1. Releases 10.x share the 11.x
+  # interface and move to it directly. The ESLint plugins below call minimatch 3, whose
+  # export is the match function; ../tools/minimatch-compat provides that interface on
+  # top of minimatch 11.
   minimatch@>=10.0.0 <11.0.1: ^11.0.1
+  eslint-plugin-import>minimatch: file:../tools/minimatch-compat
+  eslint-plugin-jsx-a11y>minimatch: file:../tools/minimatch-compat
+  eslint-plugin-react>minimatch: file:../tools/minimatch-compat
   picomatch@<2.3.2: ^2.3.2
-  postcss-selector-parser@<6.1.5: ^6.1.5
   source-map-js@<1.2.2: ^1.2.2
-
-auditConfig:
-  ignoreGhsas:
-    # GHSA-g3hv-75wg-m249 (minimatch globparts amplification) is reported for every
-    # version below 11.0.1, but the vulnerable firstPhasePreProcess() code and the
-    # optimizationLevel option only exist in minimatch 10. eslint-plugin-import (via
-    # eslint-config-next) uses minimatch 3, which has neither, and 3.x cannot be
-    # replaced by 11 because the export shape changed. minimatch 10 is overridden to 11
-    # above. Remove this entry when eslint-plugin-import moves off minimatch 3.
-    - GHSA-g3hv-75wg-m249
