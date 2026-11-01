@@ -116,7 +116,10 @@ write(
   svg(
     1280,
     480,
-    board(1280, 480, { lines: tagline, sub: 'The composable TypeScript framework for AI applications.' }),
+    board(1280, 480, {
+      lines: tagline,
+      sub: 'The composable TypeScript framework for AI applications.',
+    }),
     'AStack — Everything is a component. The composable TypeScript framework for AI applications.'
   )
 );
@@ -125,7 +128,10 @@ write(
   svg(
     1200,
     630,
-    board(1200, 630, { lines: tagline, sub: 'The composable TypeScript framework for AI applications.' }),
+    board(1200, 630, {
+      lines: tagline,
+      sub: 'The composable TypeScript framework for AI applications.',
+    }),
     'AStack — Everything is a component. The composable TypeScript framework for AI applications.'
   )
 );
@@ -134,7 +140,10 @@ write(
   svg(
     1280,
     640,
-    board(1280, 640, { lines: tagline, sub: 'A composable framework for building AI applications.' }),
+    board(1280, 640, {
+      lines: tagline,
+      sub: 'A composable framework for building AI applications.',
+    }),
     'AStack — Everything is a component. A composable framework for building AI applications.'
   )
 );
