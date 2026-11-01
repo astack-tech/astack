@@ -26,6 +26,7 @@ export type Port = (portName: string) => {
    * @param callback Data receive callback function
    * @returns RxJS Subscription object
    */
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters -- lets callers annotate the payload type of a port.
   receive: <T = unknown>(callback: (data: T) => void) => Subscription;
   /**
    * Send data to port
@@ -38,15 +39,21 @@ export type Port = (portName: string) => {
   $: Subject<unknown>;
 };
 
+/**
+ * Base class for every AStack component.
+ *
+ * A component has a default `in` and `out` port. Call `run()` to use it on its own,
+ * or add it to a `Pipeline`, which calls `_transform()` for reactive execution.
+ */
 class Component extends TransformNode {
-  static Port: typeof HlangPort;
-  protected readonly inPort: ReturnType<typeof HlangPort.I>;
-  protected readonly outPort: ReturnType<typeof HlangPort.O>;
+  static Port: typeof HlangPort = HlangPort;
+  protected readonly inPort: HlangPort;
+  protected readonly outPort: HlangPort;
 
   constructor(opts: unknown) {
     super(opts);
 
-    // default in & out
+    // Default ports.
     this.inPort = Component.Port.I('in');
     this.outPort = Component.Port.O('out');
 
@@ -54,6 +61,9 @@ class Component extends TransformNode {
     this.outPort.attach(this);
   }
 
+  /**
+   * Processes one input outside a pipeline. The default implementation returns the input.
+   */
   run(data: unknown): unknown {
     return data;
   }
@@ -95,14 +105,12 @@ class Component extends TransformNode {
    * }
    * ```
    */
-  _transform($i: Port, $o: Port): void {
+  override _transform($i: Port, $o: Port): void {
     $i('in').receive((input: unknown) => {
       const output = this.run(input);
       $o('out').send(output);
     });
   }
 }
-
-Component.Port = HlangPort;
 
 export default Component;
