@@ -8,7 +8,7 @@ The website has its own lockfile. Install its dependencies from this directory:
 
 ```sh
 cd website
-pnpm install --ignore-workspace
+pnpm install
 pnpm dev --port 43187 --hostname 127.0.0.1
 ```
 
