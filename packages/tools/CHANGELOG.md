@@ -1,5 +1,12 @@
 # @astack-tech/tools
 
+## 0.2.0-beta.4
+
+### Patch Changes
+
+- Updated dependencies [fa0689e]
+  - @astack-tech/core@0.2.0-beta.5
+
 ## 0.2.0-beta.3
 
 ### Patch Changes
