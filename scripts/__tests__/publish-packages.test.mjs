@@ -5,6 +5,7 @@ import { test } from 'node:test';
 import {
   changesetsOutputLine,
   distTag,
+  isStagedConflict,
   publishOrder,
   releaseNotes,
   releaseTag,
@@ -96,4 +97,12 @@ test('reports each published package to changesets/action as one NDJSON git-tag 
     tag: '@astack-tech/core@0.2.0-beta.4',
     packageName: '@astack-tech/core',
   });
+});
+
+test('recognizes npm rejecting a version that is already staged for approval', () => {
+  const stderr =
+    'npm error code E409\nnpm error 409 Conflict - PUT https://registry.npmjs.org/@astack-tech%2fcomponents - Cannot publish over previously staged version "0.2.0-beta.9".\n';
+  assert.equal(isStagedConflict(stderr, '0.2.0-beta.9'), true);
+  assert.equal(isStagedConflict(stderr, '0.2.0-beta.10'), false);
+  assert.equal(isStagedConflict('npm error code E403\n', '0.2.0-beta.9'), false);
 });

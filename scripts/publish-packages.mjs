@@ -12,13 +12,17 @@
  *   gets the newest beta until the first stable release.
  * - Each published version gets the git tag `<name>@<version>` and a GitHub release
  *   whose notes are that version's CHANGELOG.md section.
+ * - With npm staged publishing, an upload can wait for a maintainer to approve it on
+ *   npmjs.com. The run that uploads it gets a successful publish and tags and releases
+ *   it. Until the approval `npm view` does not show it, so a later run would upload it
+ *   again; npm rejects that with E409, and the script skips the version with a notice.
  * - When changesets/action runs the script, it sets CHANGESETS_OUTPUT to a file path.
  *   The script writes one line per published package there (see
  *   `changesetsOutputLine`), so the action reports what was published.
  *
  * Usage: node scripts/publish-packages.mjs [--dry-run]
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import {
   appendFileSync,
   existsSync,
@@ -35,6 +39,7 @@ import { fileURLToPath } from 'node:url';
 import {
   changesetsOutputLine,
   distTag,
+  isStagedConflict,
   publishOrder,
   releaseNotes,
   releaseTag,
@@ -64,6 +69,30 @@ function run(command, args, options = {}) {
     stdio: ['ignore', 'pipe', 'inherit'],
     ...options,
   });
+}
+
+/**
+ * Runs `npm publish`, passing its error output through.
+ * @param {string[]} args - Arguments after `npm`.
+ * @param {string} cwd - Package directory.
+ * @param {string} version - Version being published.
+ * @returns {'published' | 'staged'} `staged` when the version already waits for approval.
+ */
+function npmPublish(args, cwd, version) {
+  console.log(`$ npm ${args.join(' ')}`);
+  const result = spawnSync('npm', args, {
+    cwd,
+    encoding: 'utf8',
+    stdio: ['ignore', 'inherit', 'pipe'],
+  });
+  process.stderr.write(result.stderr);
+  if (result.status === 0) {
+    return 'published';
+  }
+  if (isStagedConflict(result.stderr, version)) {
+    return 'staged';
+  }
+  throw new Error(`npm publish failed with exit code ${String(result.status)}`);
 }
 
 /**
@@ -106,6 +135,8 @@ if (pending.length === 0) {
 
 const outDir = mkdtempSync(path.join(tmpdir(), 'astack-pack-'));
 const published = [];
+/** @type {string[]} */
+const staged = [];
 try {
   for (const { dir, manifest } of pending) {
     const { name, version } = manifest;
@@ -120,7 +151,10 @@ try {
     if (dryRun) {
       publishArgs.push('--dry-run');
     }
-    run('npm', publishArgs, { cwd: dir });
+    if (npmPublish(publishArgs, dir, version) === 'staged') {
+      staged.push(`${name}@${version}`);
+      continue;
+    }
     if (!dryRun && latestFollows && tag !== 'latest') {
       run('npm', ['dist-tag', 'add', `${name}@${version}`, 'latest']);
     }
@@ -131,6 +165,12 @@ try {
   }
 } finally {
   rmSync(outDir, { recursive: true, force: true });
+}
+
+if (staged.length > 0) {
+  console.log(
+    `::notice::${staged.join(', ')} already waits for approval on npmjs.com (staged publishing). An earlier run uploaded, tagged and released it; approve it there to make it public.`
+  );
 }
 
 if (dryRun) {

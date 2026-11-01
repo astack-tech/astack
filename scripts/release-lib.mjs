@@ -33,6 +33,18 @@ export function changesetsOutputLine(name, version) {
 }
 
 /**
+ * Whether `npm publish` failed because this version is already staged. With npm staged
+ * publishing, an upload waits for a maintainer to approve it on npmjs.com; until then
+ * `npm view` does not show it, and uploading it again fails with E409.
+ * @param {string} stderr - Error output of `npm publish`.
+ * @param {string} version - The version that was published.
+ * @returns {boolean}
+ */
+export function isStagedConflict(stderr, version) {
+  return stderr.includes(`Cannot publish over previously staged version "${version}"`);
+}
+
+/**
  * The body of the `## <version>` section of a changesets CHANGELOG.md.
  * @param {string} changelog - The file contents.
  * @param {string} version - The version to extract.
