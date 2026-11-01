@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 import { ArrowRightIcon, MagnifyingGlassIcon } from '@phosphor-icons/react';
 
 import type { SearchEntry } from '@/lib/search';
-import { KIND_HUE, search, tokenize } from '@/lib/search-query';
+import { KIND_HUE, parseSearchIndex, search, tokenize } from '@/lib/search-query';
 import { useMounted } from '@/lib/use-mounted';
 
 let indexPromise: Promise<SearchEntry[]> | undefined;
 
 function loadIndex(): Promise<SearchEntry[]> {
   indexPromise ??= fetch('/search-index.json')
-    .then(response => (response.ok ? (response.json() as Promise<SearchEntry[]>) : []))
+    .then(async response => (response.ok ? parseSearchIndex(await response.json()) : []))
     .catch(() => {
       indexPromise = undefined;
       return [];
@@ -90,9 +90,9 @@ export default function Search() {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
+      const { target } = event;
       const typing =
-        target !== null &&
+        target instanceof HTMLElement &&
         (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
       if ((event.key === 'k' && (event.metaKey || event.ctrlKey)) || (event.key === '/' && !typing)) {
         event.preventDefault();
@@ -210,7 +210,9 @@ export default function Search() {
                             <span>
                               <Highlight text={entry.title} tokens={tokens} />
                             </span>
-                            {entry.parent && <span className="search-parent">{entry.parent}</span>}
+                            {entry.parent !== undefined && (
+                              <span className="search-parent">{entry.parent}</span>
+                            )}
                           </span>
                           {entry.text && (
                             <span className="search-snippet">

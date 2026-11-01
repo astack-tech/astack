@@ -14,10 +14,10 @@ interface CreateCall {
   tools?: unknown[];
 }
 
-const mocks = vi.hoisted(() => ({
-  create: vi.fn(),
-  constructorArgs: [] as unknown[],
-}));
+const mocks = vi.hoisted(() => {
+  const constructorArgs: unknown[] = [];
+  return { create: vi.fn<(request: CreateCall) => unknown>(), constructorArgs };
+});
 
 vi.mock('openai', () => {
   class OpenAI {
@@ -34,7 +34,7 @@ function lastRequest(): CreateCall {
   if (!call) {
     throw new Error('create() was not called');
   }
-  return call[0] as CreateCall;
+  return call[0];
 }
 
 function completion(message: Record<string, unknown>, usage?: Record<string, number>): unknown {

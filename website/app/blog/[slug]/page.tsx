@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post?.content) {
+  if (post?.content === undefined || post.content === '') {
     notFound();
   }
   const contentHtml = await markdownToHtml(post.content.trimStart().replace(/^# .+\r?\n/, ''));

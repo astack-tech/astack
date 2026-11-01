@@ -4,10 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import Deepseek from '../../deepseek';
 import OpenAICompatible from '../index';
 
-const mocks = vi.hoisted(() => ({
-  create: vi.fn(),
-  constructorArgs: [] as unknown[],
-}));
+const mocks = vi.hoisted(() => {
+  const constructorArgs: unknown[] = [];
+  return { create: vi.fn<(request: Record<string, unknown>) => unknown>(), constructorArgs };
+});
 
 vi.mock('openai', () => {
   class OpenAI {
@@ -24,7 +24,7 @@ function lastRequest(): Record<string, unknown> {
   if (!call) {
     throw new Error('create() was not called');
   }
-  return call[0] as Record<string, unknown>;
+  return call[0];
 }
 
 beforeEach(() => {
@@ -89,6 +89,54 @@ describe('OpenAICompatible', () => {
     await expect(model.generateCompletion('x')).rejects.toThrow(
       'The model API returned no choices.'
     );
+  });
+
+  it('rejects a message with an unsupported role before calling the API', async () => {
+    const model = new OpenAICompatible({ apiKey: 'key', model: 'm', name: 'Qwen' });
+
+    await expect(model.chatCompletion([{ role: 'function', content: 'x' }])).rejects.toThrow(
+      "Qwen: unsupported message role 'function'. Use system, user, assistant or tool."
+    );
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a tool message without tool_call_id before calling the API', async () => {
+    const model = new OpenAICompatible({ apiKey: 'key', model: 'm', name: 'Qwen' });
+
+    await expect(model.chatCompletion([{ role: 'tool', content: 'result' }])).rejects.toThrow(
+      'Qwen: a tool message needs the tool_call_id of the call it answers.'
+    );
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it('sends omitted content as empty text, except on assistant messages', async () => {
+    const model = new OpenAICompatible({ apiKey: 'key', model: 'm' });
+    mocks.create.mockResolvedValue({ choices: [{ message: { content: 'ok' } }] });
+
+    await model.chatCompletion([{ role: 'user' }, { role: 'assistant' }]);
+
+    expect(lastRequest()['messages']).toEqual([
+      { role: 'user', content: '' },
+      { role: 'assistant' },
+    ]);
+  });
+
+  it('keeps every field of a tool given in the OpenAI format', async () => {
+    const model = new OpenAICompatible({ apiKey: 'key', model: 'm' });
+    mocks.create.mockResolvedValue({ choices: [{ message: { content: 'ok' } }] });
+    const tool = {
+      type: 'function',
+      function: {
+        name: 'lookup',
+        description: 'Looks a word up',
+        parameters: { type: 'object' },
+        strict: true,
+      },
+    };
+
+    await model.chatCompletion([{ role: 'user', content: 'x' }], { temporaryTools: [tool] });
+
+    expect(lastRequest()['tools']).toEqual([tool]);
   });
 
   it('is the base of the DeepSeek provider', () => {

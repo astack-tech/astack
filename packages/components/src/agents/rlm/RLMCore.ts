@@ -492,15 +492,17 @@ WRONG - using return:
         llmQueryQueue.push({ prompt, resolve, reject });
       });
 
-    let queryProcessingActive: Promise<void> | null = null;
+    // Held in an object: the background processor reassigns it, and a property read is not
+    // narrowed away by the assignment below the way a local variable would be.
+    const queryProcessing: { active: Promise<void> | null } = { active: null };
 
     // Process llm_query queue in background - CRITICAL: for await in EXTERNAL context!
     const startQueryProcessing = (): void => {
-      if (queryProcessingActive !== null) {
+      if (queryProcessing.active !== null) {
         return;
       }
 
-      queryProcessingActive = (async (): Promise<void> => {
+      queryProcessing.active = (async (): Promise<void> => {
         let request = llmQueryQueue.shift();
         while (request !== undefined) {
           const { prompt, resolve, reject } = request;
@@ -561,7 +563,7 @@ WRONG - using return:
           }
           request = llmQueryQueue.shift();
         }
-        queryProcessingActive = null;
+        queryProcessing.active = null;
       })();
     };
 
@@ -675,10 +677,8 @@ WRONG - using return:
     }
 
     // Wait for any ongoing query processing to complete
-    // `queryProcessingActive` is reassigned inside the async processor.
-    const activeProcessing = queryProcessingActive as Promise<void> | null;
-    if (activeProcessing !== null) {
-      await activeProcessing;
+    if (queryProcessing.active !== null) {
+      await queryProcessing.active;
     }
 
     // Flush remaining chunks

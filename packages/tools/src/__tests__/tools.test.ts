@@ -24,8 +24,10 @@ class Square extends Component {
   }
 
   override run(data: unknown): number {
-    const value = data as number;
-    return value * value;
+    if (typeof data !== 'number') {
+      throw new TypeError(`Expected a number, received ${typeof data}`);
+    }
+    return data * data;
   }
 }
 
@@ -164,9 +166,11 @@ describe('MCPTool', () => {
     });
 
     const error = await tool.invoke({}).catch((caught: unknown) => caught);
-    expect(error).toBeInstanceOf(Error);
-    expect((error as Error).message).toBe('MCP call failed: unreachable');
-    expect((error as Error).cause).toBe(cause);
+    if (!(error instanceof Error)) {
+      throw new TypeError('Expected the call to reject with an Error');
+    }
+    expect(error.message).toBe('MCP call failed: unreachable');
+    expect(error.cause).toBe(cause);
   });
 
   it('wraps non-Error rejections', async () => {

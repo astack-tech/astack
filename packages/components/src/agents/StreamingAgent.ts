@@ -60,6 +60,10 @@ interface ToolCallBuffer {
   lastKey: string | null;
 }
 
+function isNonEmpty(value: string | undefined): value is string {
+  return value !== undefined && value !== '';
+}
+
 /**
  * Merges streamed tool-call deltas into complete calls.
  *
@@ -69,7 +73,7 @@ interface ToolCallBuffer {
  */
 export function mergeToolCallDeltas(buffer: ToolCallBuffer, deltas: Partial<ToolCall>[]): void {
   deltas.forEach((delta, index) => {
-    const rawId = delta.id !== undefined && delta.id.length > 0 ? delta.id : null;
+    const rawId = isNonEmpty(delta.id) ? delta.id : null;
     let key: string;
 
     if (rawId !== null) {
@@ -92,13 +96,15 @@ export function mergeToolCallDeltas(buffer: ToolCallBuffer, deltas: Partial<Tool
       type: delta.type ?? 'function',
       function: { name: '', arguments: '' },
     };
-    if (delta.function?.name) {
-      existing.function.name = delta.function.name;
+    const name = delta.function?.name;
+    if (isNonEmpty(name)) {
+      existing.function.name = name;
     }
-    if (delta.function?.arguments) {
-      existing.function.arguments += delta.function.arguments;
+    const argumentsDelta = delta.function?.arguments;
+    if (isNonEmpty(argumentsDelta)) {
+      existing.function.arguments += argumentsDelta;
     }
-    if (delta.type) {
+    if (isNonEmpty(delta.type)) {
       existing.type = delta.type;
     }
     buffer.calls.set(key, existing);
@@ -212,7 +218,7 @@ export class StreamingAgent extends Component {
     let usage: TokenUsage | undefined;
 
     for await (const chunk of model.streamChatCompletion(history, options)) {
-      if (chunk.content) {
+      if (isNonEmpty(chunk.content)) {
         reply.content += chunk.content;
         yield { type: 'assistant_message', content: reply.content, toolCalls: reply.tool_calls };
       }

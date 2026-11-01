@@ -169,7 +169,7 @@ describe('RLMCore.executeStream', () => {
 
     expect(call).toMatchObject({ depth: 1, promptLength: 4, resultLength: 4 });
     expect(call && existsSync(call.logFile)).toBe(true);
-    const log = JSON.parse(readFileSync(call?.logFile ?? '', 'utf-8')) as Record<string, unknown>;
+    const log: unknown = JSON.parse(readFileSync(call?.logFile ?? '', 'utf-8'));
     expect(log).toMatchObject({ prompt: 'ping', result: 'pong' });
   });
 

@@ -1,6 +1,6 @@
 # Class: StreamingAgent
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:131](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L131)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:137](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L137)
 
 Agent that reports its progress as a stream of `StreamingChunk` events.
 
@@ -22,7 +22,7 @@ Ports: `in` receives a string or an `AgentInput`; `out` sends every `StreamingCh
 new StreamingAgent(config): StreamingAgent;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:134](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L134)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:140](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L140)
 
 #### Parameters
 
@@ -63,7 +63,7 @@ Defined in: [packages/components/src/agents/StreamingAgent.ts:134](https://githu
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:173](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L173)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:179](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L179)
 
 Streams every event of a run to `out`. A failed run ends with one `error` event.
 
@@ -181,7 +181,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 reset(): void;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:190](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L190)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:196](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L196)
 
 Clears the memory and stores the system prompt again.
 
@@ -197,7 +197,7 @@ Clears the memory and stores the system prompt again.
 run(input): Promise<AgentOutput>;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:160](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L160)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:166](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L166)
 
 Runs the agent to completion and returns the final output.
 
@@ -223,7 +223,7 @@ Runs the agent to completion and returns the final output.
 runStream(input): AsyncGenerator<StreamingChunk, AgentOutput>;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:144](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L144)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:150](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L150)
 
 Runs the agent and yields progress events. The generator returns the final output.
 On failure it yields one `error` event and rethrows.

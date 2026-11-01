@@ -19,7 +19,7 @@ export default function Breadcrumb({
       <ol className="breadcrumbs">
         {items.map((item, i) => (
           <li key={`${item.label}-${String(i)}`}>
-            {item.href && i !== items.length - 1 ? (
+            {item.href !== undefined && i !== items.length - 1 ? (
               <Link href={item.href}>{item.label}</Link>
             ) : (
               <span aria-current={i === items.length - 1 ? 'page' : undefined}>{item.label}</span>

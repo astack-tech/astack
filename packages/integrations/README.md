@@ -49,6 +49,8 @@ Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
 | `streamChatCompletion(messages, options)`                       | Async generator of text, tool-call and usage chunks            |
 | `generateCompletion(prompt)`                                    | Text, or the JSON assistant message when the model calls tools |
 
+Messages are checked before the request: the role must be `system`, `user`, `assistant` or `tool`, and a `tool` message needs `tool_call_id`. Otherwise the call fails without reaching the API.
+
 | Pipeline input port | Output port  |
 | ------------------- | ------------ |
 | `prompt`            | `completion` |

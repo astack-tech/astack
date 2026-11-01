@@ -1,8 +1,8 @@
 import strings from '@/content/i18n.json';
 
 /** Languages of the documentation. English is the source; others are translations. */
-export const LOCALES = ['en', 'zh'] as const;
-export type Locale = (typeof LOCALES)[number];
+export type Locale = 'en' | 'zh';
+export const LOCALES: readonly Locale[] = ['en', 'zh'];
 
 /** The `lang` attribute and the `hreflang` code of each locale. */
 export const LANGUAGE_TAG: Record<Locale, string> = { en: 'en', zh: 'zh-CN' };

@@ -18,6 +18,45 @@ export const SUGGESTED = [
   '/docs/api',
 ];
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isSearchKind(value: unknown): value is SearchKind {
+  return KINDS.some(kind => kind === value);
+}
+
+/** Reads one entry of the search index, or returns `undefined` when it is malformed. */
+function toSearchEntry(value: unknown): SearchEntry | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+  const { kind, title, parent, url, text } = value;
+  if (
+    !isSearchKind(kind) ||
+    typeof title !== 'string' ||
+    typeof url !== 'string' ||
+    typeof text !== 'string'
+  ) {
+    return undefined;
+  }
+  return typeof parent === 'string' ? { kind, title, parent, url, text } : { kind, title, url, text };
+}
+
+/**
+ * Validates the downloaded `/search-index.json`. Malformed entries are dropped, and
+ * anything other than an array yields an empty index.
+ */
+export function parseSearchIndex(value: unknown): SearchEntry[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.flatMap(item => {
+    const entry = toSearchEntry(item);
+    return entry === undefined ? [] : [entry];
+  });
+}
+
 /** Splits a query into lowercase words. */
 export function tokenize(query: string): string[] {
   return query.toLowerCase().split(/\s+/).filter(Boolean);

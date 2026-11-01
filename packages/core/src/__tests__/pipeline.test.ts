@@ -4,13 +4,21 @@ import Component from '../component';
 import type { Port } from '../component';
 import Pipeline from '../pipeline';
 
+/** Narrows a port value to a number, failing the test on anything else. */
+function requireNumber(value: unknown): number {
+  if (typeof value !== 'number') {
+    throw new TypeError(`Expected a number, received ${typeof value}`);
+  }
+  return value;
+}
+
 class Doubler extends Component {
   constructor() {
     super({});
   }
 
   override run(data: unknown): number {
-    return (data as number) * 2;
+    return requireNumber(data) * 2;
   }
 }
 
@@ -20,7 +28,7 @@ class AddOne extends Component {
   }
 
   override run(data: unknown): number {
-    return (data as number) + 1;
+    return requireNumber(data) + 1;
   }
 }
 

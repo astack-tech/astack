@@ -112,7 +112,7 @@ describe('Agent.run', () => {
     const failing = createTool('fail', 'Always fails', () => {
       throw new Error('boom');
     });
-    const notCallable = { name: 'inert', description: 'No method' } as Tool;
+    const notCallable: Tool = { name: 'inert', description: 'No method' };
     const model = new ScriptedModel([
       toolCallReply([
         { id: '1', name: 'missing', args: '{}' },
@@ -138,7 +138,7 @@ describe('Agent.run', () => {
 
   it('supports tools that expose execute()', async () => {
     const execute = vi.fn((args: Record<string, unknown>) => ({ echoed: args }));
-    const tool = { name: 'echo', description: 'Echo', execute } as Tool;
+    const tool: Tool = { name: 'echo', description: 'Echo', execute };
     const model = new ScriptedModel([
       toolCallReply([{ id: '1', name: 'echo', args: '{"x":1}' }]),
       { role: 'assistant', content: 'ok' },
@@ -203,7 +203,14 @@ describe('Agent.run', () => {
   });
 
   it('does not write to the console unless verbose is set', async () => {
-    const spies = (['log', 'debug', 'info', 'warn', 'error'] as const).map(method =>
+    const methods: readonly ('log' | 'debug' | 'info' | 'warn' | 'error')[] = [
+      'log',
+      'debug',
+      'info',
+      'warn',
+      'error',
+    ];
+    const spies = methods.map(method =>
       vi.spyOn(console, method).mockImplementation(() => undefined)
     );
     const model = new ScriptedModel([
