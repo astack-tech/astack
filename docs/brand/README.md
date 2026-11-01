@@ -93,7 +93,7 @@ The generator defines the three paths once and reuses them for every SVG. The ba
 PNG exports:
 
 - The logo, favicon and avatar PNGs come from the generator through `sharp`. Install it next to the script (`npm install --no-save sharp`); without it the generator writes the SVGs and skips these PNGs.
-- `sharp` (librsvg) cannot load the embedded font, so the four board images are exported from a browser: open each SVG at its native size (1280 × 480, 1200 × 630, 1280 × 640, 1400 × 850) and save a screenshot as the PNG next to it. Copy `readme-banner.png` to `website/public/brand/`.
+- `sharp` (librsvg) cannot load the embedded font, so the four board images are exported from a browser: open each SVG at its native size (1280 × 480, 1200 × 630, 1280 × 640, 1400 × 850) and save a screenshot as the PNG next to it. Copy `readme-banner.png`, `github-social-preview.svg`, `github-social-preview.png` and `concept-board.png` to `website/public/brand/`, where the brand page offers them for download.
 
 The check compares the geometry in the production symbol, monochrome variants, avatar, banners, and construction diagrams.
 
