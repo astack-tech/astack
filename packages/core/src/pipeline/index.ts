@@ -52,7 +52,7 @@ function parsePortIdentifier(portIdentifier: string): ParsedPortIdentifier {
  * Reads the default output port name from a component, if it declares one.
  */
 function getDefaultOutputPortName(component: Node): string | undefined {
-  const candidate = (component as Partial<Record<'outPort', unknown>>).outPort;
+  const candidate = 'outPort' in component ? component.outPort : undefined;
   if (typeof candidate === 'object' && candidate !== null && 'name' in candidate) {
     const { name } = candidate;
     return typeof name === 'string' && name.length > 0 ? name : undefined;
@@ -123,31 +123,23 @@ class Pipeline {
    * Sends `params` to `triggerName` and resolves once every listed output has emitted.
    */
   run<T>(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, T>>;
-  run<T>(
+  run(
     triggerName: string,
     params: unknown,
     endpointOrOptions?: string | RunOptions
-  ): Promise<T | Record<string, T>> {
-    return new Promise((resolve, reject) => {
+  ): Promise<unknown> {
+    return new Promise<unknown>((resolve, reject) => {
       try {
         parsePortIdentifier(triggerName);
         const startComponent = this.ensureStartComponent();
         const flow = this.ensureFlow();
 
         if (typeof endpointOrOptions === 'string') {
-          this.enqueueSingleRoute(triggerName, endpointOrOptions, resolve as SingleResolver);
+          this.enqueueSingleRoute(triggerName, endpointOrOptions, resolve);
         } else if (endpointOrOptions !== undefined) {
-          this.enqueueMultiRoute(
-            triggerName,
-            endpointOrOptions.includeOutputsFrom,
-            resolve as (value: Record<string, unknown>) => void
-          );
+          this.enqueueMultiRoute(triggerName, endpointOrOptions.includeOutputsFrom, resolve);
         } else {
-          this.enqueueSingleRoute(
-            triggerName,
-            this.inferEndpoint(triggerName),
-            resolve as SingleResolver
-          );
+          this.enqueueSingleRoute(triggerName, this.inferEndpoint(triggerName), resolve);
         }
 
         flow.run(startComponent);
