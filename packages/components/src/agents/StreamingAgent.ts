@@ -3,6 +3,7 @@ import type { Port } from '@astack-tech/core';
 
 import { resetMemory, resolveAgentSettings } from './Agent';
 import type { AgentSettings } from './Agent';
+import { isAgentRunInput } from './guards';
 import {
   addUsage,
   buildInitialMessages,
@@ -175,10 +176,17 @@ export class StreamingAgent extends Component {
 
   /**
    * Streams every event of a run to `out`. A failed run ends with one `error` event.
+   * Input that is neither a string nor an `AgentInput` fails the pipeline run with a
+   * `TypeError`.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((input: string | AgentInput) => {
-      void (async () => {
+    $i('in').receive(input => {
+      if (!isAgentRunInput(input)) {
+        throw new TypeError(
+          'StreamingAgent: expected a string or an AgentInput ({ messages: Message[] }) on the in port.'
+        );
+      }
+      return (async () => {
         try {
           for await (const chunk of this.runStream(input)) {
             $o('out').send(chunk);

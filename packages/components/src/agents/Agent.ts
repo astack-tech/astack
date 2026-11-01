@@ -3,6 +3,7 @@ import type { Port } from '@astack-tech/core';
 
 import { createLogger } from '../utils/logger';
 import type { Logger } from '../utils/logger';
+import { isAgentRunInput } from './guards';
 import { DefaultMemory } from './memory';
 import {
   DEFAULT_MAX_ITERATIONS,
@@ -93,11 +94,18 @@ export class Agent extends Component {
   }
 
   /**
-   * Runs the agent for every value on `in`. Errors produce an `AgentOutput` with `error` set.
+   * Runs the agent for every value on `in`. A failed run produces an `AgentOutput` with
+   * `error` set. Input that is neither a string nor an `AgentInput` fails the pipeline run
+   * with a `TypeError`.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((input: string | AgentInput) => {
-      this.run(input).then(
+    $i('in').receive(input => {
+      if (!isAgentRunInput(input)) {
+        throw new TypeError(
+          'Agent: expected a string or an AgentInput ({ messages: Message[] }) on the in port.'
+        );
+      }
+      return this.run(input).then(
         output => {
           $o('out').send(output);
         },

@@ -4,9 +4,19 @@ import type { Port } from '@astack-tech/core';
 import { createLogger } from '../../utils/logger';
 import type { Logger } from '../../utils/logger';
 
-import type { FileSystemContext } from './FileSystemContext';
+import { isNumber, isOptional, isRecord, isString } from '../../utils/guards';
+import { FileSystemContext } from './FileSystemContext';
 import { RLMCore } from './RLMCore';
 import type { LLMProvider, RLMChunk, RLMInput, RLMResult } from './RLMCore';
+
+function isRLMInput(value: unknown): value is RLMInput {
+  return (
+    isRecord(value) &&
+    value['context'] instanceof FileSystemContext &&
+    isString(value['query']) &&
+    isOptional(value['maxDepth'], isNumber)
+  );
+}
 
 /**
  * System prompt builder function type
@@ -125,11 +135,17 @@ export class RLMAgent extends Component {
 
   /**
    * Pipeline mode: receives `RLMInput` on `in` and sends the resolved `RLMResult` on `out`.
-   * A failed run sends a result with an empty answer and an `error` message.
+   * A failed run sends a result with an empty answer and an `error` message. Input that is
+   * not an `RLMInput` fails the pipeline run with a `TypeError`.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((input: RLMInput) => {
-      this.run(input).then(
+    $i('in').receive(input => {
+      if (!isRLMInput(input)) {
+        throw new TypeError(
+          'RLMAgent: expected an RLMInput ({ context: FileSystemContext, query: string }) on the in port.'
+        );
+      }
+      return this.run(input).then(
         result => {
           $o('out').send(result);
         },
