@@ -13,6 +13,8 @@ Instructions for AI coding agents and human contributors working in this reposit
 4. **English only in the repository.** Code, comments, string literals, commit messages, docs and examples are English. The `astack/english-only` lint rule rejects CJK text in source files. The only exception is `README.zh-CN.md`, the Chinese translation of `README.md`; keep the two in sync. Conversations with the maintainer may use their language.
 5. **No secrets.** Never commit API keys, tokens or `.env` files. Read configuration from `process.env['NAME']` and fail with a clear message when it is missing.
 6. **Small, focused changes.** One concern per commit. Do not mix refactors with behavior changes.
+7. **Security comes first.** Security fixes and dependency upgrades have the highest priority. Never reject, pin back or ignore an upgrade because the new version looks or behaves differently; adapt the code to the new version's API and configuration instead. Audit both installs: `pnpm audit` at the root and in `website/`. A known vulnerability blocks a release.
+8. **Brand copy needs the maintainer's approval.** Repository and organization descriptions, taglines, slogans, package `description` fields, website hero and section copy, and other brand messaging were designed by the maintainer. Do not change them without explicit approval in the current task. Propose the new wording and wait for confirmation.
 
 ## 2. Repository map
 
