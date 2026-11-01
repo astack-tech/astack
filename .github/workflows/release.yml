@@ -4,6 +4,8 @@ name: Release
 # pull request (when changesets are pending), or, after that pull request is merged,
 # publishes the new versions with npm Trusted Publishing (OIDC, with provenance).
 # npm must list this repository and this file as the trusted publisher of each package.
+# The pull request is opened by the astack-release-bot GitHub App (RELEASE_APP_ID
+# variable, RELEASE_APP_PRIVATE_KEY secret), so its CI checks run.
 
 on:
   push:
@@ -36,6 +38,17 @@ jobs:
       - run: npm install --global npm@^11.21.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+      # Pull requests opened with GITHUB_TOKEN do not start other workflows, so the
+      # "Version packages" pull request would never get its required CI checks. The
+      # astack-release-bot GitHub App opens it instead, with a token that expires in
+      # an hour and may only write contents and pull requests of this repository.
+      - id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
       # changesets/action v2 is the release line for Changesets v3 (the version this repo
       # uses, with its .changeset/pre/ folder). Tags and GitHub releases come from
       # scripts/publish-packages.mjs, so the action creates neither.
@@ -47,7 +60,7 @@ jobs:
           commit-message: 'chore(release): version packages'
           create-github-releases: false
           push-git-tags: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Until the first stable release, `npm install` without a tag gets the newest beta.
