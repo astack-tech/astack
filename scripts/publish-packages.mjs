@@ -21,7 +21,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { distTag, releaseNotes, releaseTag } from './release-lib.mjs';
+import { distTag, publishOrder, releaseNotes, releaseTag } from './release-lib.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dryRun = process.argv.includes('--dry-run');
@@ -70,7 +70,12 @@ const packages = readdirSync(path.join(root, 'packages'))
   .map(dir => ({ dir, manifest: JSON.parse(readFileSync(path.join(dir, 'package.json'), 'utf8')) }))
   .filter(({ manifest }) => manifest.private !== true);
 
-const pending = packages.filter(({ manifest }) => !isPublished(manifest.name, manifest.version));
+// Dependencies first, so every version is installable the moment it is public.
+const pending = publishOrder(
+  packages.filter(({ manifest }) => !isPublished(manifest.name, manifest.version)),
+  ({ manifest }) => manifest.name,
+  ({ manifest }) => Object.keys({ ...manifest.dependencies, ...manifest.peerDependencies })
+);
 if (pending.length === 0) {
   console.log('Every package version is already on npm. Nothing to publish.');
   process.exit(0);

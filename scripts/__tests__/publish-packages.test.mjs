@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { distTag, releaseNotes, releaseTag } from '../release-lib.mjs';
+import { distTag, publishOrder, releaseNotes, releaseTag } from '../release-lib.mjs';
 
 test('pre mode publishes under the pre tag; otherwise latest', () => {
   assert.equal(distTag({ mode: 'pre', tag: 'beta' }), 'beta');
@@ -43,4 +43,41 @@ test('release notes are the changelog section of that version', () => {
 test('a version without a changelog section gets a plain note', () => {
   assert.equal(releaseNotes(CHANGELOG, '9.9.9'), 'See the changelog for details.');
   assert.equal(releaseNotes('', '1.0.0'), 'See the changelog for details.');
+});
+
+test('packages publish after the packages they depend on', () => {
+  const packages = [
+    { name: '@astack-tech/components', deps: ['@astack-tech/core', '@astack-tech/tools'] },
+    { name: '@astack-tech/core', deps: [] },
+    { name: '@astack-tech/integrations', deps: ['@astack-tech/core'] },
+    { name: '@astack-tech/tools', deps: ['@astack-tech/core'] },
+  ];
+  const order = publishOrder(
+    packages,
+    item => item.name,
+    item => item.deps
+  ).map(item => item.name);
+  assert.equal(order.length, packages.length);
+  for (const item of packages) {
+    for (const dep of item.deps) {
+      assert.ok(order.indexOf(dep) < order.indexOf(item.name), `${dep} before ${item.name}`);
+    }
+  }
+  assert.equal(order[0], '@astack-tech/core');
+});
+
+test('a dependency cycle is an error, not a silent order', () => {
+  const cycle = [
+    { name: 'a', deps: ['b'] },
+    { name: 'b', deps: ['a'] },
+  ];
+  assert.throws(
+    () =>
+      publishOrder(
+        cycle,
+        item => item.name,
+        item => item.deps
+      ),
+    /cycle/
+  );
 });

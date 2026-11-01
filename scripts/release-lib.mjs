@@ -37,3 +37,44 @@ export function releaseNotes(changelog, version) {
   const body = (end === -1 ? rest : rest.slice(0, end)).join('\n').trim();
   return body || 'See the changelog for details.';
 }
+
+/**
+ * Orders packages so each one comes after the packages it depends on, which keeps
+ * every published version installable the moment it appears. It is a depth-first
+ * walk in input order; dependencies outside the list are ignored.
+ * @template T
+ * @param {T[]} items - The packages to order.
+ * @param {(item: T) => string} nameOf - The package name.
+ * @param {(item: T) => string[]} depsOf - The names it depends on.
+ * @returns {T[]}
+ * @throws {Error} When the dependencies form a cycle.
+ */
+export function publishOrder(items, nameOf, depsOf) {
+  const byName = new Map(items.map(item => [nameOf(item), item]));
+  /** @type {T[]} */
+  const ordered = [];
+  const done = new Set();
+  const visiting = new Set();
+  /** @param {T} item */
+  const visit = item => {
+    const name = nameOf(item);
+    if (done.has(name)) {
+      return;
+    }
+    if (visiting.has(name)) {
+      throw new Error(`Package dependency cycle at ${name}`);
+    }
+    visiting.add(name);
+    for (const dep of depsOf(item)) {
+      const target = byName.get(dep);
+      if (target !== undefined) {
+        visit(target);
+      }
+    }
+    visiting.delete(name);
+    done.add(name);
+    ordered.push(item);
+  };
+  items.forEach(visit);
+  return ordered;
+}
