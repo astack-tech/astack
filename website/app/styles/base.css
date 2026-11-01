@@ -14,7 +14,9 @@ body {
   flex-direction: column;
   background: var(--ground);
   color: var(--ink);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family:
+    var(--font-geist-sans), ui-sans-serif, system-ui, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   font-size: var(--text-body);
   line-height: 1.6;
   font-kerning: normal;
@@ -383,4 +385,12 @@ pre.code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Chinese text: the negative tracking of the Latin display sizes crowds Han characters. */
+:lang(zh) :is(h1, h2, h3, .docs-head > p) {
+  letter-spacing: 0;
+}
+:lang(zh) .article-content {
+  line-height: 1.8;
 }

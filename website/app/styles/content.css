@@ -39,6 +39,21 @@
   letter-spacing: -0.012em;
   color: var(--ink-2);
 }
+.docs-head-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+.docs-language {
+  min-height: 32px;
+  padding: 0 12px;
+  transition: background-color 150ms ease;
+}
+.docs-language:hover {
+  background: var(--tile-3);
+}
 .docs-kind {
   display: flex;
   flex-wrap: wrap;

@@ -6,9 +6,16 @@ interface BreadcrumbItem {
 }
 
 /** Where the page sits in the site. The last item is the current page. */
-export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
+export default function Breadcrumb({
+  items,
+  label = 'Breadcrumb',
+}: {
+  items: BreadcrumbItem[];
+  /** Accessible name of the navigation landmark. */
+  label?: string;
+}) {
   return (
-    <nav aria-label="Breadcrumb">
+    <nav aria-label={label}>
       <ol className="breadcrumbs">
         {items.map((item, i) => (
           <li key={`${item.label}-${String(i)}`}>

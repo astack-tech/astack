@@ -2,6 +2,8 @@ import { apiHref, getAllApiPages } from './api-docs';
 import { getAllPosts } from './blog';
 import { getAllExamples } from './cookbook';
 import { getAllDocs } from './docs';
+import { LOCALES, docsPath } from './i18n';
+import type { Locale } from './i18n';
 import { slugify } from './markdown';
 
 /** What a search result points at. The order is the order of result groups. */
@@ -38,9 +40,9 @@ function shorten(text: string): string {
 }
 
 /** Splits a docs page at its `##` headings: one entry for the page, one per section. */
-function docEntries(): SearchEntry[] {
-  return getAllDocs().flatMap(doc => {
-    const url = `/docs/${doc.slug}`;
+function docEntries(locale: Locale): SearchEntry[] {
+  return getAllDocs(locale).flatMap(doc => {
+    const url = docsPath(locale, doc.slug);
     const [intro = '', ...sections] = doc.content.split(/^## /m);
     const page: SearchEntry = {
       kind: 'Docs',
@@ -68,7 +70,7 @@ function docEntries(): SearchEntry[] {
 /** Builds the search index for the whole site. */
 export function buildSearchIndex(): SearchEntry[] {
   return [
-    ...docEntries(),
+    ...LOCALES.flatMap(docEntries),
     ...getAllApiPages().map(page => ({
       kind: 'API' as const,
       title: page.kind === 'Package' ? `@astack-tech/${page.pkg}` : page.title,
