@@ -39,6 +39,45 @@ class ParityRouter extends Component {
   }
 }
 
+/** Waits for one value on `a` and one on `b`, then sends their sum. */
+class Join extends Component {
+  constructor() {
+    super({});
+    Component.Port.I('a').attach(this);
+    Component.Port.I('b').attach(this);
+  }
+
+  override _transform($i: Port, $o: Port): void {
+    let a: number | undefined;
+    let b: number | undefined;
+    const emit = () => {
+      if (a !== undefined && b !== undefined) {
+        $o('out').send(a + b);
+      }
+    };
+    $i('a').receive((value: number) => {
+      a = value;
+      emit();
+    });
+    $i('b').receive((value: number) => {
+      b = value;
+      emit();
+    });
+  }
+}
+
+/** Fails a run that never resolves, instead of hanging the suite. */
+function within<T>(promise: Promise<T>, ms = 1000): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`no value within ${String(ms)} ms`));
+      }, ms);
+    }),
+  ]);
+}
+
 /** Emits the same input on two ports. */
 class Fork extends Component {
   constructor() {
@@ -212,5 +251,25 @@ describe('Pipeline', () => {
     pipeline.connect('double.out', 'addOne.in');
 
     expect(pipeline.getComponent('double')).toBe(first);
+  });
+
+  it('delivers two outputs of one component into two inputs of another', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('fork', new Fork());
+    pipeline.addComponent('join', new Join());
+    pipeline.connect('fork.left', 'join.a');
+    pipeline.connect('fork.right', 'join.b');
+
+    await expect(within(pipeline.run<number>('fork.in', 1, 'join.out'))).resolves.toBe(110);
+  });
+
+  it('delivers one output into two inputs of the same component', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('double', new Doubler());
+    pipeline.addComponent('join', new Join());
+    pipeline.connect('double.out', 'join.a');
+    pipeline.connect('double.out', 'join.b');
+
+    await expect(within(pipeline.run<number>('double.in', 2, 'join.out'))).resolves.toBe(8);
   });
 });
