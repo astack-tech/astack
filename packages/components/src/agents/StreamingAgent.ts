@@ -24,6 +24,7 @@ import type {
  * Event emitted by `StreamingAgent.runStream()`.
  */
 export interface StreamingChunk {
+  /** Event kind. Each kind sets the fields documented below. */
   type:
     | 'iteration_start'
     | 'model_thinking'

@@ -58,6 +58,7 @@ Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
 
 ## Learn more
 
+- [API reference](https://astack.tech/docs/api/integrations): every export, generated from the source
 - [Model providers](https://astack.tech/docs/model-providers), including how to write your own
 - Example: [chat](https://astack.tech/examples/chat)
 

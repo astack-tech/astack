@@ -13,8 +13,8 @@ const noop = (): void => undefined;
 /**
  * Creates a logger that prefixes every line with `[scope]`.
  *
- * @param scope Short component name, for example `Agent`.
- * @param enabled When false, every method is a no-op.
+ * @param scope - Short component name, for example `Agent`.
+ * @param enabled - When false, every method is a no-op.
  */
 export function createLogger(scope: string, enabled: boolean): Logger {
   if (!enabled) {

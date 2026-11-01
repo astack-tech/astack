@@ -3,6 +3,7 @@ title: Pipelines
 description: Connect components, run a graph, and choose which output to read.
 order: 4
 examples: [pipeline, workflow]
+api: [core/classes/Pipeline, core/interfaces/RunOptions]
 ---
 
 A `Pipeline` holds named components and the connections between their ports.

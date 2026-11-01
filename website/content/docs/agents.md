@@ -3,6 +3,7 @@ title: Agents
 description: Let a model call tools in a loop until it can answer.
 order: 8
 examples: [agent]
+api: [components/classes/Agent, components/interfaces/AgentConfig, components/interfaces/AgentOutput, tools/interfaces/Tool]
 ---
 
 `Agent` from `@astack-tech/components` runs this loop:

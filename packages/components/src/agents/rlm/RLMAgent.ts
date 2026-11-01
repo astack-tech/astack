@@ -29,7 +29,7 @@ export interface RLMAgentConfig {
    * - depth=2: Root RLM → Sub RLM → Base LLM (complex multi-layer analysis)
    * - depth=3+: Multiple nested RLM layers (experimental)
    *
-   * When maxDepth > 1, nested RLM instances are automatically created.
+   * When `maxDepth` is greater than 1, nested RLM instances are created automatically.
    */
   maxDepth?: number | undefined;
   /**

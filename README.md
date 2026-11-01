@@ -120,13 +120,14 @@ Each package README lists its full API.
 
 ## Documentation
 
-| Page                                                                                                                                            | Topic                                          |
-| ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [Introduction](https://astack.tech/docs/introduction)                                                                                           | The computation model and the comparison above |
-| [Getting started](https://astack.tech/docs/getting-started)                                                                                     | Install, first component, first pipeline       |
-| [Components](https://astack.tech/docs/components), [Pipelines](https://astack.tech/docs/pipelines), [Routing](https://astack.tech/docs/routing) | The core model                                 |
-| [Tools](https://astack.tech/docs/tools), [Model providers](https://astack.tech/docs/model-providers)                                            | Building blocks for agents                     |
-| [Agents](https://astack.tech/docs/agents), [Streaming](https://astack.tech/docs/streaming), [RLM](https://astack.tech/docs/rlm)                 | Agent patterns                                 |
+| Page                                                                                                                                            | Topic                                                                           |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| [Introduction](https://astack.tech/docs/introduction)                                                                                           | The computation model and the comparison above                                  |
+| [Getting started](https://astack.tech/docs/getting-started)                                                                                     | Install, first component, first pipeline                                        |
+| [Components](https://astack.tech/docs/components), [Pipelines](https://astack.tech/docs/pipelines), [Routing](https://astack.tech/docs/routing) | The core model                                                                  |
+| [Tools](https://astack.tech/docs/tools), [Model providers](https://astack.tech/docs/model-providers)                                            | Building blocks for agents                                                      |
+| [Agents](https://astack.tech/docs/agents), [Streaming](https://astack.tech/docs/streaming), [RLM](https://astack.tech/docs/rlm)                 | Agent patterns                                                                  |
+| [API reference](https://astack.tech/docs/api)                                                                                                   | Every export of every package, generated from the source and its TSDoc comments |
 
 ## Development
 

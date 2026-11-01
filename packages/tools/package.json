@@ -56,7 +56,9 @@
     "check-types": "tsc -p tsconfig.json",
     "test": "vitest run --coverage",
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
-    "check:package": "publint --strict && attw --pack . --profile node16"
+    "check:package": "publint --strict && attw --pack . --profile node16",
+    "check:api": "tsc -p tsconfig.json --noEmit false --emitDeclarationOnly --declarationMap false --outDir temp/dts && api-extractor run",
+    "update:api": "tsc -p tsconfig.json --noEmit false --emitDeclarationOnly --declarationMap false --outDir temp/dts && api-extractor run --local"
   },
   "dependencies": {
     "@astack-tech/core": "workspace:*"

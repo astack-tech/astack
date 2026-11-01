@@ -69,6 +69,7 @@ Tool failures never throw: they are reported to the model, which decides what to
 
 ## Learn more
 
+- [API reference](https://astack.tech/docs/api/components): every export, generated from the source
 - [Agents](https://astack.tech/docs/agents), [Streaming](https://astack.tech/docs/streaming), [RLM](https://astack.tech/docs/rlm), [Components](https://astack.tech/docs/components)
 - Examples: [agent](https://astack.tech/examples/agent), [streaming-agent](https://astack.tech/examples/streaming-agent), [rlm-agent](https://astack.tech/examples/rlm-agent), [text-splitter](https://astack.tech/examples/text-splitter), [tools](https://astack.tech/examples/tools)
 

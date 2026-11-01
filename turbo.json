@@ -25,6 +25,22 @@
     "check:package": {
       "dependsOn": ["build"],
       "outputs": []
+    },
+    "check:api": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "etc/**",
+        "api-extractor.json",
+        "tsconfig.json",
+        "$TURBO_ROOT$/api-extractor.base.json",
+        "$TURBO_ROOT$/tsconfig.base.json"
+      ],
+      "outputs": []
+    },
+    "update:api": {
+      "dependsOn": ["^build"],
+      "cache": false
     }
   }
 }

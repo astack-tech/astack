@@ -120,13 +120,14 @@ pnpm --filter @astack-examples/pipeline start
 
 ## 文档
 
-| 页面                                                                                                                              | 主题                         |
-| --------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
-| [简介](https://astack.tech/docs/introduction)                                                                                     | 计算模型与上面的对比         |
-| [快速开始](https://astack.tech/docs/getting-started)                                                                              | 安装、第一个组件、第一条管道 |
-| [组件](https://astack.tech/docs/components)、[管道](https://astack.tech/docs/pipelines)、[路由](https://astack.tech/docs/routing) | 核心模型                     |
-| [工具](https://astack.tech/docs/tools)、[模型提供方](https://astack.tech/docs/model-providers)                                    | Agent 的构建模块             |
-| [Agent](https://astack.tech/docs/agents)、[流式输出](https://astack.tech/docs/streaming)、[RLM](https://astack.tech/docs/rlm)     | Agent 模式                   |
+| 页面                                                                                                                              | 主题                                            |
+| --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [简介](https://astack.tech/docs/introduction)                                                                                     | 计算模型与上面的对比                            |
+| [快速开始](https://astack.tech/docs/getting-started)                                                                              | 安装、第一个组件、第一条管道                    |
+| [组件](https://astack.tech/docs/components)、[管道](https://astack.tech/docs/pipelines)、[路由](https://astack.tech/docs/routing) | 核心模型                                        |
+| [工具](https://astack.tech/docs/tools)、[模型提供方](https://astack.tech/docs/model-providers)                                    | Agent 的构建模块                                |
+| [Agent](https://astack.tech/docs/agents)、[流式输出](https://astack.tech/docs/streaming)、[RLM](https://astack.tech/docs/rlm)     | Agent 模式                                      |
+| [API 参考](https://astack.tech/docs/api)                                                                                          | 每个包的全部导出，由源码及其 TSDoc 注释自动生成 |
 
 文档网站目前为英文。
 

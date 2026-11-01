@@ -15,6 +15,7 @@ export { FileSystemContext } from './FileSystemContext';
 export type {
   FileInfo,
   ContextStats,
+  MemoryLimits,
   MemoryUsage,
   FileSystemContextOptions,
 } from './FileSystemContext';
