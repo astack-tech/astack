@@ -1,9 +1,9 @@
 ---
 title: Model providers
-description: Call DeepSeek, and write a provider for any other model.
+description: Call DeepSeek or any OpenAI-compatible API, and write a provider for any other model.
 order: 7
 examples: [chat]
-api: [integrations/namespaces/ModelProvider/classes/Deepseek, integrations/namespaces/ModelProvider/interfaces/DeepseekConfig, components/interfaces/ModelProvider]
+api: [integrations/namespaces/ModelProvider/classes/Deepseek, integrations/namespaces/ModelProvider/interfaces/DeepseekConfig, integrations/namespaces/ModelProvider/classes/OpenAICompatible, integrations/namespaces/ModelProvider/interfaces/OpenAICompatibleConfig, components/interfaces/ModelProvider]
 ---
 
 A model provider is a component that talks to a model API. Agents accept any object that satisfies the `ModelProvider` interface from `@astack-tech/components`:
@@ -62,6 +62,37 @@ You can also import it from the subpath: `import { Deepseek } from '@astack-tech
 
 If the API call fails inside a pipeline, the provider sends `'API call failed'` (on `completion`) or an assistant message with that text (on `message`), so the pipeline does not hang. Set `verbose: true` to log the error.
 
+## OpenAI-compatible APIs
+
+`OpenAICompatible` calls any API that speaks the OpenAI chat completions protocol: OpenAI itself and the compatible endpoints of providers such as DeepSeek, Qwen, Moonshot, Ollama and vLLM. `Deepseek` is this provider with DeepSeek's endpoint and model as defaults, so the methods, ports and options above are the same.
+
+```typescript
+import { ModelProvider } from '@astack-tech/integrations';
+
+// OpenAI
+const openai = new ModelProvider.OpenAICompatible({
+  apiKey: process.env['OPENAI_API_KEY'] ?? '',
+  model: 'gpt-4o-mini',
+});
+
+// A local model served by Ollama
+const local = new ModelProvider.OpenAICompatible({
+  apiKey: 'ollama',
+  baseURL: 'http://localhost:11434/v1',
+  model: 'llama3.1',
+  name: 'Ollama',
+});
+```
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `apiKey` | — | API key of the provider |
+| `model` | — | Model name (required) |
+| `baseURL` | `https://api.openai.com/v1` | API base URL |
+| `name` | `The model API` | Provider name in errors and logs |
+
+The other options (`temperature`, `maxTokens`, `topP`, `systemPrompt`, `rawTools`, `tools`, `verbose`) work as for `Deepseek`. Tool calling and streaming depend on what the provider's endpoint supports.
+
 ## Writing a provider
 
-Implement `chatCompletion` and, if the API streams, `streamChatCompletion`. Extend `Component` when you also want to use the provider as a pipeline step. The `Deepseek` source in `packages/integrations` is a complete reference.
+If the API speaks the OpenAI protocol, use `OpenAICompatible`. Otherwise implement `chatCompletion` and, if the API streams, `streamChatCompletion`. Extend `Component` when you also want to use the provider as a pipeline step. The `OpenAICompatible` source in `packages/integrations` is a complete reference.

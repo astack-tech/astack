@@ -55,6 +55,6 @@ The main difference from PocketFlow is where state lives. In PocketFlow, nodes s
 | `@astack-tech/core` | `Component`, `Pipeline`, `Port` |
 | `@astack-tech/components` | `Agent`, `StreamingAgent`, `RLMAgent`, `TextSplitter`, `ToolInvoker` |
 | `@astack-tech/tools` | `createTool`, tool sets, component tools, MCP tools |
-| `@astack-tech/integrations` | Model providers. `Deepseek` is the first one. |
+| `@astack-tech/integrations` | Model providers: `Deepseek`, and `OpenAICompatible` for any OpenAI-compatible API. |
 
 AStack is in public beta. APIs can change between beta releases. Each release is described in the package changelogs.

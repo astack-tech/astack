@@ -12,3 +12,17 @@ export {
   type TokenUsage as DeepseekTokenUsage,
   type ToolCall as DeepseekToolCall,
 } from './deepseek';
+export {
+  default as OpenAICompatible,
+  type AssistantMessage,
+  type ChatCompletionOptions,
+  type Message,
+  type MessageRole,
+  type OpenAICompatibleConfig,
+  type RawTool,
+  type ResponseToolCall,
+  type StreamChunk,
+  type StreamToolCall,
+  type TokenUsage,
+  type ToolCall,
+} from './openai-compatible';

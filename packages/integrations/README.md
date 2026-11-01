@@ -25,7 +25,7 @@ const text = await model.run('What is flow-based programming?');
 const reply = await model.chatCompletion([{ role: 'user', content: 'Hello' }]);
 ```
 
-`Deepseek` is also available from the subpath: `import { Deepseek } from '@astack-tech/integrations/model-provider'`.
+`Deepseek` and `OpenAICompatible` are also available from the subpath: `import { Deepseek, OpenAICompatible } from '@astack-tech/integrations/model-provider'`.
 
 ## Deepseek
 
@@ -55,6 +55,26 @@ Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
 | `messages`          | `message`    |
 
 `Deepseek` satisfies the `ModelProvider` interface of `@astack-tech/components`, so it can drive `Agent` and `StreamingAgent` directly.
+
+## OpenAICompatible
+
+Calls any API that speaks the OpenAI chat completions protocol: OpenAI and the compatible endpoints of DeepSeek, Qwen, Moonshot, Ollama, vLLM and others. `Deepseek` is this provider with DeepSeek's defaults, so methods, ports and the other options are the same.
+
+```typescript
+import { ModelProvider } from '@astack-tech/integrations';
+
+const model = new ModelProvider.OpenAICompatible({
+  apiKey: process.env['OPENAI_API_KEY'] ?? '',
+  model: 'gpt-4o-mini',
+});
+```
+
+| Option    | Default                     | Description                      |
+| --------- | --------------------------- | -------------------------------- |
+| `apiKey`  | —                           | API key of the provider          |
+| `model`   | —                           | Model name (required)            |
+| `baseURL` | `https://api.openai.com/v1` | API base URL                     |
+| `name`    | `The model API`             | Provider name in errors and logs |
 
 ## Learn more
 

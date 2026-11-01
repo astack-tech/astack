@@ -114,7 +114,7 @@ pnpm --filter @astack-examples/pipeline start
 | [`@astack-tech/core`](./packages/core)                 | `Component`, `Pipeline`, `Port`                                      |
 | [`@astack-tech/components`](./packages/components)     | `Agent`, `StreamingAgent`, `RLMAgent`, `TextSplitter`, `ToolInvoker` |
 | [`@astack-tech/tools`](./packages/tools)               | `createTool`, tool sets, component tools, MCP tools                  |
-| [`@astack-tech/integrations`](./packages/integrations) | Model providers (`Deepseek`)                                         |
+| [`@astack-tech/integrations`](./packages/integrations) | Model providers (`Deepseek`, `OpenAICompatible`)                     |
 
 Each package README lists its full API.
 
