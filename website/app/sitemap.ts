@@ -3,7 +3,8 @@ import type { MetadataRoute } from 'next';
 import { apiHref, getAllApiPages } from '@/lib/api-docs';
 import { getAllPosts } from '@/lib/blog';
 import { getAllExamples } from '@/lib/cookbook';
-import { getAllDocs } from '@/lib/docs';
+import { getAllDocs, getDoc } from '@/lib/docs';
+import { LANGUAGE_TAG, LOCALES, docsPath } from '@/lib/i18n';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://astack.tech';
@@ -18,12 +19,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const docEntries: MetadataRoute.Sitemap = getAllDocs().map(doc => ({
-    url: `${baseUrl}/docs/${doc.slug}`,
-    lastModified: currentDate,
-    changeFrequency: 'monthly',
-    priority: 0.9,
-  }));
+  const docEntries: MetadataRoute.Sitemap = LOCALES.flatMap(locale =>
+    getAllDocs(locale).map(doc => ({
+      url: `${baseUrl}${docsPath(locale, doc.slug)}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: locale === 'en' ? 0.9 : 0.8,
+      alternates: {
+        languages: Object.fromEntries(
+          LOCALES.filter(other => getDoc(doc.slug, other) !== undefined).map(other => [
+            LANGUAGE_TAG[other],
+            `${baseUrl}${docsPath(other, doc.slug)}`,
+          ])
+        ),
+      },
+    }))
+  );
   const apiEntries: MetadataRoute.Sitemap = [[], ...getAllApiPages().map(page => page.segments)].map(
     segments => ({
       url: `${baseUrl}${apiHref(segments)}`,

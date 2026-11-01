@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 
 interface TocProps {
   headings: { id: string; text: string }[];
+  title?: string;
 }
 
 /** "On this page": marks the section being read as the page scrolls. */
-export default function Toc({ headings }: TocProps) {
+export default function Toc({ headings, title = 'On this page' }: TocProps) {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Toc({ headings }: TocProps) {
 
   return (
     <aside className="toc" aria-labelledby="toc-title">
-      <h2 id="toc-title">On this page</h2>
+      <h2 id="toc-title">{title}</h2>
       <ol>
         {headings.map(heading => (
           <li key={heading.id}>

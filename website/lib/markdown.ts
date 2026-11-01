@@ -31,13 +31,13 @@ const COPY_ICON =
   '<path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/>' +
   '</svg>';
 
-/** Converts heading text to a URL fragment. */
+/** Converts heading text to a URL fragment. Letters and digits of every script are kept. */
 export function slugify(text: string): string {
   return text
     .toLowerCase()
     .replace(/<[^>]+>/g, '')
     .replace(/&[a-z]+;/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
     .trim()
     .replace(/\s+/g, '-');
 }
