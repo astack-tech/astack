@@ -8,8 +8,9 @@ import { isRecord } from '@/lib/json';
 interface Release {
   tag_name: string;
   html_url: string;
-  published_at?: string;
 }
+
+/** The beta notice. Its link points at the latest GitHub release once the release API answers. */
 export default function BetaNotification() {
   const [release, setRelease] = useState<Release | null>(null);
   useEffect(() => {
@@ -41,16 +42,12 @@ export default function BetaNotification() {
     };
   }, []);
   return (
-    <div className="announcement">
-      <div className="shell announcement-inner">
-        <span>
-          <span className="release-label">{release ? release.tag_name : 'Public beta'}</span> AStack
-          is under active development. Build with us.
-        </span>
-        <a href={release?.html_url ?? 'https://github.com/astack-tech/astack/releases'}>
-          Release notes <ArrowUpRightIcon size={13} />
-        </a>
-      </div>
-    </div>
+    <p className="beta">
+      <span className="chip block hue-mint">Public beta</span>
+      <span>AStack is under active development. Build with us.</span>
+      <a href={release?.html_url ?? 'https://github.com/astack-tech/astack/releases'}>
+        Release notes <ArrowUpRightIcon size={12} />
+      </a>
+    </p>
   );
 }

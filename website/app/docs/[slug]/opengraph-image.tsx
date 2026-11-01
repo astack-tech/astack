@@ -13,7 +13,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const doc = getDoc(slug);
   return renderOgCard({
-    eyebrow: 'DOCS',
+    eyebrow: 'Docs',
     title: doc?.title ?? 'Documentation',
     description: doc?.description ?? '',
   });

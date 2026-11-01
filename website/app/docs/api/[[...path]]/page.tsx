@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import Breadcrumb from '@/components/Breadcrumb';
-import DocsNav from '@/components/DocsNav';
+import DocsNav, { PACKAGE_HUE } from '@/components/DocsNav';
 import Footer from '@/components/Footer';
 import InlineCode, { plainText } from '@/components/InlineCode';
 import Navbar from '@/components/Navbar';
@@ -63,7 +63,7 @@ function Overview() {
   );
   return (
     <>
-      <header className="docs-heading">
+      <header className="docs-head">
         <Breadcrumb
           items={[
             { label: 'Home', href: '/' },
@@ -74,10 +74,12 @@ function Overview() {
         <h1>API reference</h1>
         <p>{OVERVIEW_DESCRIPTION}</p>
       </header>
-      <div className="api-package-grid">
+      <div className="board api-packages">
         {packages.map(page => (
-          <Link key={page.pkg} href={apiHref([page.pkg])} className="api-package-card">
-            <span className="mono">@astack-tech/{page.pkg}</span>
+          <Link key={page.pkg} href={apiHref([page.pkg])} className="tile api-package">
+            <span className={`api-package-name block hue-${PACKAGE_HUE[page.pkg]}`}>
+              @astack-tech/{page.pkg}
+            </span>
             <span>
               <InlineCode text={page.summary} />
             </span>
@@ -96,11 +98,12 @@ export default async function ApiReferencePage({ params }: ApiPageProps) {
     return (
       <>
         <Navbar />
-        <main id="main-content" className="docs-page shell">
+        <main id="main-content" className="docs frame">
           <DocsNav docs={docs} current="api:" />
-          <article className="docs-article">
+          <article className="docs-main">
             <Overview />
           </article>
+          <div aria-hidden="true" />
         </main>
         <Footer />
       </>
@@ -129,27 +132,30 @@ export default async function ApiReferencePage({ params }: ApiPageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="docs-page shell">
+      <main id="main-content" className="docs frame">
         <DocsNav docs={docs} current={`api:${page.pkg}`} />
-        <article className="docs-article">
-          <header className="docs-heading">
+        <article className="docs-main">
+          <header className="docs-head">
             <Breadcrumb items={crumbs} />
-            <p className="eyebrow">{isPackage ? 'PACKAGE' : page.kind.toUpperCase()}</p>
-            <h1 className={isPackage ? 'mono-heading' : undefined}>
-              {isPackage ? `@astack-tech/${page.pkg}` : page.title}
-            </h1>
+            <p className="docs-kind">
+              <span className={`chip block hue-${PACKAGE_HUE[page.pkg]}`}>
+                {isPackage ? 'Package' : page.kind}
+              </span>
+              {!isPackage && <span>@astack-tech/{page.pkg}</span>}
+            </p>
+            <h1 className="api-title">{isPackage ? `@astack-tech/${page.pkg}` : page.title}</h1>
           </header>
-          <RichContent className="prose article-content docs-content api-content" html={html} />
+          <RichContent className="article-content api-content" html={html} />
           {groups.length > 0 && (
-            <nav className="api-members" aria-label={`@astack-tech/${page.pkg} members`}>
+            <nav className="api-groups" aria-label={`@astack-tech/${page.pkg} members`}>
               {groups.map(group => (
-                <section key={group.label}>
+                <section key={group.label} className="docs-related">
                   <h2>{group.label}</h2>
-                  <ul>
+                  <ul className="api-list">
                     {group.pages.map(member => (
                       <li key={member.segments.join('/')}>
-                        <Link href={apiHref(member.segments)}>
-                          <span className="mono">{member.title}</span>
+                        <Link className="tile api-item" href={apiHref(member.segments)}>
+                          <code>{member.title}</code>
                           {member.summary && (
                             <span>
                               <InlineCode text={member.summary} />
@@ -164,6 +170,7 @@ export default async function ApiReferencePage({ params }: ApiPageProps) {
             </nav>
           )}
         </article>
+        <div aria-hidden="true" />
       </main>
       <Footer />
     </>

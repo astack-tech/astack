@@ -1,0 +1,1210 @@
+/* Homepage. One board per section; every section opens with .section-head. */
+
+/* ------------------------------------------------------------------ Hero */
+
+.hero {
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: clamp(640px, calc(100svh - var(--header-h) - var(--margin)), 940px);
+}
+.hero-name {
+  grid-column: 1 / 8;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 48px;
+  overflow: hidden;
+}
+.hero-meta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 54%;
+}
+.hero-meta > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.hero-meta > a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.beta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: var(--text-small);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.beta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--ink) 30%, transparent);
+  text-underline-offset: 4px;
+}
+.heap {
+  position: absolute;
+  top: var(--pad);
+  right: var(--pad);
+}
+/* The well: a grid of square cells. Pieces meet at a 2px seam and never overlap. */
+.well {
+  --cell: 40px;
+  display: block;
+  width: calc(8 * var(--cell));
+  height: calc(6 * var(--cell));
+  overflow: visible;
+}
+@media (max-width: 1280px) {
+  .well {
+    --cell: 32px;
+  }
+}
+.well-piece {
+  fill: color-mix(in oklab, var(--hue) 30%, var(--tile));
+  stroke: var(--tile);
+  stroke-width: 2px;
+  stroke-linejoin: miter;
+  animation: well-drop 720ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(240ms + var(--order) * 110ms);
+}
+:root.dark .well-piece {
+  fill: color-mix(in oklab, var(--hue) 30%, var(--tile));
+}
+@keyframes well-drop {
+  from {
+    transform: translateY(calc(var(--fall) * -40px));
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .well-piece {
+    animation: none;
+  }
+}
+.hero-name h1 {
+  position: relative;
+  z-index: 1;
+  font-size: var(--text-display);
+  line-height: 0.93;
+  letter-spacing: -0.055em;
+}
+.hero-statement {
+  grid-column: 1 / 5;
+  grid-row: 2;
+  display: flex;
+  align-items: flex-end;
+  min-height: 248px;
+}
+.hero-statement p {
+  font-size: var(--text-lead);
+  line-height: 1.42;
+  letter-spacing: -0.012em;
+  max-width: 34ch;
+}
+.hero-action {
+  grid-column: 5 / 8;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  background: var(--ink);
+  color: var(--invert);
+}
+.hero-start {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 44px;
+  font-size: clamp(26px, 2.3vw, 36px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.hero-start svg {
+  flex: none;
+  transition: transform 180ms var(--ease);
+}
+.hero-start:hover svg {
+  transform: translateX(6px);
+}
+.hero-action-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.hero-install {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding-left: 14px;
+  background: color-mix(in oklab, var(--invert) 12%, var(--ink));
+}
+.hero-install code {
+  overflow-x: auto;
+  font-size: 13px;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+.hero-install .copy-button,
+.hero-action .link {
+  color: var(--invert);
+}
+.hero-install .copy-button:hover {
+  background: color-mix(in oklab, var(--invert) 14%, transparent);
+  color: var(--invert);
+}
+.hero-live {
+  grid-column: 8 / 13;
+  grid-row: 1 / 3;
+  display: flex;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------ Live stack */
+
+.live {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: 100%;
+  padding: 12px;
+}
+.live-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.live-views,
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--tile-2);
+}
+.live-views button,
+.segmented button {
+  min-height: 34px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: var(--text-small);
+  font-weight: 500;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.live-views button:hover,
+.segmented button:hover {
+  color: var(--ink);
+}
+.live-views button[aria-pressed='true'],
+.segmented button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--invert);
+}
+.live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.live-dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  background: var(--hue-mint);
+  transition: background-color 200ms ease;
+}
+.live-dot.is-busy {
+  background: var(--hue-amber);
+}
+.live-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.live-input,
+.live-result {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  min-height: 56px;
+  background: var(--tile-2);
+}
+.live-input > span,
+.live-result > span {
+  padding-left: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.live-input input {
+  min-width: 0;
+  height: 56px;
+  padding: 0 14px 0 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: 500 16px/1 var(--font-geist-mono), monospace;
+  white-space: pre;
+}
+.live-input:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.live-result {
+  background: var(--ink);
+}
+.live-result > span {
+  color: color-mix(in oklab, var(--invert) 64%, var(--ink));
+}
+.live-result output {
+  padding-right: 14px;
+  color: var(--invert);
+  font: 500 16px/1.35 var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * The well: five rows. Filled rows are translucent component panes that overlap
+ * their neighbour by 8px, so each port connection shows as a band of mixed color.
+ */
+.stack {
+  display: grid;
+  grid-template-rows: repeat(5, minmax(56px, 1fr));
+  gap: 2px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stack-block,
+.stack-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 4px 0 16px;
+}
+.stack-block {
+  background: color-mix(in oklab, var(--hue) var(--block), var(--tile));
+  transition: background-color 320ms ease;
+}
+.stack-block.is-lit {
+  background: color-mix(in oklab, var(--hue) calc(var(--block-strong) + 6%), var(--tile));
+}
+.stack-slot {
+  display: flex;
+  background: color-mix(in oklab, var(--ink) 3.5%, transparent);
+  font-size: 13px;
+  color: var(--muted);
+}
+.block-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font: 500 15px/1.2 var(--font-geist-mono), monospace;
+}
+.block-name small {
+  font: 400 13px/1.2 var(--font-geist-sans), sans-serif;
+  color: var(--ink-2);
+}
+.block-value {
+  overflow: hidden;
+  font: 500 15px/1.3 var(--font-geist-mono), monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.block-remove {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+}
+.block-remove:hover {
+  background: color-mix(in oklab, var(--ink) 10%, transparent);
+  color: var(--ink);
+}
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.shelf-block {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  background: color-mix(in oklab, var(--hue) var(--block), var(--tile-2));
+  transition:
+    transform 150ms var(--ease),
+    background-color 150ms ease;
+}
+.shelf-block:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile-2));
+}
+.shelf-block:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.live-code {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  max-height: 700px;
+  overflow: auto;
+  background: var(--tile-2);
+}
+.live-code pre {
+  margin: 0;
+  padding: 18px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.live-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+}
+
+/* ----------------------------------------------------------- Foundations */
+
+.foundations {
+  margin-top: var(--gap);
+}
+.foundations .tile {
+  grid-column: span 2;
+  display: flex;
+  align-items: flex-end;
+  min-height: 120px;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+.foundations .tile:first-child {
+  grid-column: span 4;
+  font-size: var(--text-lead);
+  letter-spacing: -0.025em;
+}
+
+/* -------------------------------------------------------------- Features */
+
+.tile-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-width: 0;
+}
+.f-model {
+  grid-column: 1 / 9;
+}
+.f-flow {
+  grid-column: 9 / 13;
+}
+.f-modes,
+.f-ports,
+.f-models {
+  grid-column: span 4;
+}
+.f-modular {
+  grid-column: 1 / 9;
+}
+.feature-link,
+.compare-link,
+.all-examples {
+  grid-column: 9 / 13;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--ink);
+  color: var(--invert);
+  font-size: clamp(22px, 2vw, 32px);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.feature-link svg,
+.compare-link svg,
+.all-examples svg {
+  flex: none;
+  transition: transform 180ms var(--ease);
+}
+.feature-link:hover svg,
+.compare-link:hover svg,
+.all-examples:hover svg {
+  transform: translateX(6px);
+}
+.feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 54ch;
+}
+.feature-text code {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.feature-text h3,
+.principle h3,
+.step h3 {
+  font-size: var(--text-lead);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+.feature-text p,
+.principle p {
+  color: var(--ink-2);
+}
+.feature-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(20px, 1.9vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.feature-figure.ports {
+  flex-direction: row;
+  flex-wrap: wrap;
+  font-size: inherit;
+  letter-spacing: 0;
+}
+.feature-figure.ports .chip {
+  min-height: 40px;
+  padding: 0 14px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 15px;
+}
+.pane {
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+.contract {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  align-items: end;
+  gap: 2px;
+  min-height: 200px;
+}
+.contract .pane {
+  display: flex;
+  align-items: flex-end;
+  min-height: 132px;
+  padding: 14px 16px;
+  font-size: clamp(16px, 1.5vw, 22px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.contract .pane:nth-child(2) {
+  min-height: 196px;
+}
+.packages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.packages .pane {
+  padding: 18px 22px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: clamp(16px, 2vw, 30px);
+  letter-spacing: -0.03em;
+}
+/*
+ * Marble diagram. Time runs left to right along both lanes; the values sit on the
+ * time axis in order. One cycle emits the six values 0.8s apart: the input value
+ * lights up and the mapped value drops out of the component below it.
+ */
+.marbles {
+  --cycle: 7.2s;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 14px;
+  min-height: 220px;
+}
+.lane {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+.lane-label {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
+.lane-track {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  justify-items: center;
+  height: 32px;
+  align-items: center;
+  background: linear-gradient(var(--tile-3), var(--tile-3)) center / 100% 2px no-repeat;
+}
+.marble {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font: 500 14px/1 var(--font-geist-mono), monospace;
+  color: var(--ink);
+  background: var(--tile-3);
+  animation: marble-emit var(--cycle) var(--ease) infinite both;
+  animation-delay: calc(var(--i) * 0.8s);
+}
+.marble-out {
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+  animation-name: marble-drop;
+}
+@keyframes marble-emit {
+  0% {
+    background: color-mix(in oklab, var(--hue-blue) 45%, var(--tile));
+  }
+  10%,
+  100% {
+    background: var(--tile-3);
+  }
+}
+@keyframes marble-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-18px);
+  }
+  6%,
+  72% {
+    opacity: 1;
+    transform: none;
+  }
+  80%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+.operator {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-left: 40px;
+  padding: 14px 16px;
+  background: color-mix(in oklab, var(--hue) var(--block), var(--tile));
+}
+.operator code {
+  font-size: 15px;
+  font-weight: 500;
+}
+.operator span {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marble {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------ Computation model */
+
+/*
+ * Left column (1-4): the four tabs, then the description. Right (5-12): the code.
+ * The principles below split at columns 5 and 9, the same lines as above.
+ */
+.model {
+  grid-template-rows: auto 1fr auto;
+}
+.model-tabs {
+  grid-column: 1 / 5;
+  grid-row: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap);
+}
+.model-tab {
+  display: flex;
+  align-items: flex-end;
+  min-height: 80px;
+  padding: var(--pad);
+  border: 0;
+  background: var(--tile);
+  font-size: var(--text-lead);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  text-align: left;
+  transition: background-color 180ms ease;
+}
+.model-tab:hover {
+  background: color-mix(in oklab, var(--hue) var(--block), var(--tile));
+}
+.model-tab[aria-selected='true'] {
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+.model-panel {
+  display: contents;
+}
+.model-text {
+  grid-column: 1 / 5;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.model-text h3 {
+  margin-bottom: 10px;
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+.model-text p {
+  color: var(--ink-2);
+}
+.model-nodes {
+  display: flex;
+  gap: 2px;
+}
+.model-nodes .pane {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 72px;
+  padding: 10px 12px;
+  font-size: var(--text-small);
+  font-weight: 500;
+  line-height: 1.2;
+}
+.model-events {
+  min-height: 160px;
+}
+.event {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: var(--text-small);
+  font-weight: 500;
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+.model-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.model-details li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  background: var(--tile-2);
+  font-size: 15px;
+}
+.model-links,
+.step-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin-top: auto;
+}
+.model-code {
+  grid-column: 5 / 13;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.model-code pre {
+  flex: 1;
+  max-height: 640px;
+}
+.principle {
+  grid-row: 3;
+}
+.principle {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 168px;
+  justify-content: flex-end;
+}
+
+/* ------------------------------------------------------------ Quick start */
+
+.section-note {
+  margin-top: 12px;
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+.steps .step {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.step-install {
+  grid-column: 1 / 9;
+}
+.step-run {
+  grid-column: 9 / 13;
+}
+.step-code {
+  grid-column: 1 / -1;
+}
+.step .code {
+  background: var(--tile-2);
+}
+.step .code-bar {
+  background: var(--tile-3);
+}
+.step-install pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.step-run p code {
+  padding: 2px 6px;
+  font-size: 0.9em;
+  background: var(--tile-2);
+}
+.step-code pre {
+  max-height: 520px;
+}
+
+/* ------------------------------------------------------------- Comparison */
+
+.compare-table {
+  grid-column: 1 / -1;
+  padding: 0;
+  overflow-x: auto;
+}
+.compare-table table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.compare-table th,
+.compare-table td {
+  padding: 18px var(--pad);
+  text-align: left;
+  vertical-align: top;
+}
+.compare-table thead th {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.compare-table tbody tr:nth-child(odd) {
+  background: color-mix(in oklab, var(--ink) 3%, transparent);
+}
+.compare-table tbody th {
+  width: 16%;
+  font-weight: 500;
+  color: var(--muted);
+}
+.compare-table .is-astack {
+  width: 28%;
+  background: color-mix(in oklab, var(--hue-blue) var(--block), transparent);
+  color: var(--ink);
+}
+.compare-table td {
+  color: var(--ink-2);
+}
+.compare-note {
+  grid-column: 1 / 9;
+  font-size: var(--text-lead);
+  line-height: 1.45;
+  letter-spacing: -0.012em;
+}
+
+/* ---------------------------------------------------------------- Examples */
+
+.example-grid {
+  grid-auto-rows: minmax(260px, auto);
+}
+.example-card {
+  grid-column: span 4;
+}
+.example-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+}
+.example-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 32px;
+}
+.example-order {
+  display: grid;
+  place-items: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 10px;
+  font-size: 17px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+.example-title {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.example-description {
+  color: var(--ink-2);
+}
+.example-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: var(--text-small);
+  font-weight: 500;
+}
+.example-open svg {
+  transition: transform 160ms var(--ease);
+}
+.example-link:hover .example-open svg {
+  transform: translateX(4px);
+}
+.all-examples {
+  grid-column: span 4;
+}
+.journal {
+  grid-column: span 8;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--pad);
+}
+.journal-mark {
+  display: grid;
+  place-items: center;
+  width: 104px;
+  height: 104px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+.journal-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--ink-2);
+}
+.journal-kicker {
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+.journal-title {
+  font-size: var(--text-lead);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.journal svg {
+  transition: transform 180ms var(--ease);
+}
+.journal:hover svg {
+  transform: translate(3px, -3px);
+}
+
+/* ------------------------------------------------------------- Responsive */
+
+@media (max-width: 1100px) {
+  .hero {
+    grid-template-rows: none;
+    min-height: 0;
+  }
+  .hero-name {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 440px;
+  }
+  .hero-statement {
+    grid-column: 1 / 8;
+    grid-row: auto;
+  }
+  .hero-action {
+    grid-column: 8 / 13;
+    grid-row: auto;
+  }
+  .hero-live {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    min-height: 640px;
+  }
+  .foundations .tile {
+    grid-column: span 3;
+  }
+  .foundations .tile:first-child {
+    grid-column: 1 / -1;
+    min-height: 88px;
+  }
+  .f-model,
+  .f-flow,
+  .f-modular {
+    grid-column: 1 / -1;
+  }
+  .f-modes,
+  .f-ports {
+    grid-column: span 6;
+  }
+  .f-models,
+  .feature-link {
+    grid-column: span 6;
+  }
+  .model {
+    grid-template-rows: none;
+  }
+  .model-tabs {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .model-text,
+  .model-code,
+  .principle {
+    grid-row: auto;
+  }
+  .model-text,
+  .model-code {
+    grid-column: 1 / -1;
+  }
+  .step-install,
+  .step-run {
+    grid-column: 1 / -1;
+  }
+  .compare-note {
+    grid-column: 1 / -1;
+  }
+  .compare-link {
+    grid-column: 1 / -1;
+    min-height: 120px;
+  }
+  .example-card {
+    grid-column: span 6;
+  }
+  .all-examples,
+  .journal {
+    grid-column: 1 / -1;
+  }
+  .all-examples {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 700px) {
+  .hero-name {
+    min-height: 0;
+    gap: 32px;
+  }
+  .hero-meta {
+    max-width: none;
+  }
+  .heap {
+    position: static;
+  }
+  .well {
+    --cell: min(32px, calc((100vw - 2 * var(--margin) - 2 * var(--pad)) / 8));
+  }
+  .hero-name .heap {
+    align-self: flex-start;
+  }
+  .hero-statement,
+  .hero-action {
+    grid-column: 1 / -1;
+  }
+  .hero-statement {
+    min-height: 0;
+  }
+  .hero-live {
+    min-height: 0;
+  }
+  .live-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .stack {
+    grid-template-rows: repeat(5, minmax(64px, auto));
+  }
+  .stack-block {
+    grid-template-columns: minmax(0, 1fr) 40px;
+    grid-template-rows: auto auto;
+    row-gap: 2px;
+    padding-block: 10px;
+  }
+  .block-value {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .block-remove {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+  .shelf {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .foundations .tile {
+    grid-column: span 6;
+    min-height: 88px;
+    font-size: 16px;
+  }
+  .f-modes,
+  .f-ports,
+  .f-models,
+  .feature-link {
+    grid-column: 1 / -1;
+  }
+  .feature-link {
+    min-height: 120px;
+  }
+  .contract {
+    min-height: 160px;
+  }
+  .contract .pane {
+    min-height: 104px;
+    padding: 10px;
+  }
+  .contract .pane:nth-child(2) {
+    min-height: 152px;
+  }
+  .model-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .model-tab {
+    min-height: 72px;
+  }
+  .principle {
+    grid-column: 1 / -1;
+    min-height: 0;
+  }
+  .example-card,
+  .all-examples {
+    grid-column: 1 / -1;
+  }
+  .example-grid {
+    grid-auto-rows: auto;
+  }
+  .all-examples {
+    min-height: 120px;
+  }
+  .journal {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .journal-mark {
+    grid-column: 1 / -1;
+    width: 72px;
+    height: 72px;
+    font-size: 20px;
+  }
+}
+
+/* Phones: the comparison table becomes one block per aspect. */
+@media (max-width: 700px) {
+  .compare-table {
+    overflow: visible;
+    background: transparent;
+  }
+  .compare-table table,
+  .compare-table tbody,
+  .compare-table tr,
+  .compare-table th,
+  .compare-table td {
+    display: block;
+    width: auto;
+    min-width: 0;
+  }
+  .compare-table thead {
+    display: none;
+  }
+  .compare-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .compare-table tbody tr,
+  .compare-table tbody tr:nth-child(odd) {
+    background: var(--tile);
+  }
+  .compare-table tbody th {
+    width: auto;
+    padding: 16px 16px 8px;
+    font-size: var(--text-lead);
+    color: var(--ink);
+  }
+  .compare-table td,
+  .compare-table .is-astack {
+    width: auto;
+    padding: 8px 16px;
+  }
+  .compare-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .compare-table td:last-child {
+    padding-bottom: 16px;
+  }
+}

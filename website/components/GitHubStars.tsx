@@ -5,6 +5,7 @@ import { StarIcon } from '@phosphor-icons/react';
 
 import { isRecord } from '@/lib/json';
 
+/** The star count, shown inside the GitHub link once the API answers. */
 export default function GitHubStars() {
   const [stars, setStars] = useState<number | null>(null);
   useEffect(() => {
@@ -28,13 +29,9 @@ export default function GitHubStars() {
     };
   }, []);
   return stars === null ? null : (
-    <a
-      className="github-stars"
-      href="https://github.com/astack-tech/astack/stargazers"
-      aria-label={`${String(stars)} stars on GitHub`}
-    >
-      <StarIcon size={12} />
+    <span className="github-stars" aria-label={`${String(stars)} stars`}>
+      <StarIcon size={12} aria-hidden="true" />
       {stars.toLocaleString('en-US')}
-    </a>
+    </span>
   );
 }

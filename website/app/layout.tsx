@@ -97,8 +97,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fafafa' },
-    { media: '(prefers-color-scheme: dark)', color: '#09090b' },
+    { media: '(prefers-color-scheme: light)', color: '#f6f6f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#08080a' },
   ],
 };
 
@@ -112,7 +112,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html
+      lang="en"
+      className="scroll-smooth"
+      // Next.js 16 keeps smooth scrolling during route changes unless this is set, which
+      // lands new pages and #anchors in the wrong place.
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
         suppressHydrationWarning
@@ -131,6 +138,10 @@ export default function RootLayout({
           `}
         </Script>
 
+        <noscript>
+          {/* Entrance animations start hidden; without script, show everything. */}
+          <style>{'[data-blur-fade]{opacity:1!important;filter:none!important;transform:none!important}'}</style>
+        </noscript>
         <a className="skip-link" href="#main-content">
           Skip to content
         </a>

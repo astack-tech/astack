@@ -6,34 +6,40 @@ import type { ExampleSummary } from '@/lib/cookbook';
 
 import { MagicCard } from './magicui/magic-card';
 
-interface ExampleCardProps {
-  example: ExampleSummary;
-}
+/** Each tier keeps one block color across the site. */
+export const TIER_HUE: Record<ExampleSummary['tier'], string> = {
+  basics: 'blue',
+  llm: 'amber',
+  advanced: 'rose',
+};
 
-/** Card that links to one example page. */
-export default function ExampleCard({ example }: ExampleCardProps) {
+/** A tile that links to one example page. */
+export default function ExampleCard({ example }: { example: ExampleSummary }) {
   return (
     <MagicCard
-      className="cookbook-card-frame"
-      gradientFrom="var(--silver-edge)"
-      gradientTo="var(--line)"
-      gradientColor="var(--silver-glow)"
-      gradientOpacity={0.3}
+      className="tile tile-card example-card"
+      gradientSize={260}
+      gradientFrom="var(--spot-edge)"
+      gradientTo="transparent"
+      gradientColor="var(--spot)"
+      gradientOpacity={1}
     >
-      <Link className="cookbook-card" href={`/examples/${example.name}`}>
-        <span className="cookbook-card-top">
-          <span className="cookbook-order mono">{formatOrder(example.order)}</span>
+      <Link href={`/examples/${example.name}`} className="example-link">
+        <span className="example-top">
+          <span className={`example-order block hue-${TIER_HUE[example.tier]}`}>
+            {formatOrder(example.order)}
+          </span>
           {example.requiresApiKey ? (
-            <span className="cookbook-badge" title="Needs DEEPSEEK_API_KEY">
-              <KeyIcon size={12} weight="bold" /> API key
+            <span className="chip" title="Needs DEEPSEEK_API_KEY">
+              <KeyIcon size={12} weight="bold" aria-hidden="true" /> API key
             </span>
           ) : (
-            <span className="cookbook-badge cookbook-badge-quiet">Offline</span>
+            <span className="chip">Offline</span>
           )}
         </span>
-        <span className="cookbook-card-title">{example.title}</span>
-        <span className="cookbook-card-description">{example.description}</span>
-        <span className="cookbook-card-link">
+        <span className="example-title">{example.title}</span>
+        <span className="example-description">{example.description}</span>
+        <span className="example-open">
           Open example <ArrowRightIcon size={14} />
         </span>
       </Link>

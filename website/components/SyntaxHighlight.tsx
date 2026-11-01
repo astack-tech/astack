@@ -19,7 +19,7 @@ export default function SyntaxHighlight({ code, className = '' }: SyntaxHighligh
   const html = useMemo(() => hljs.highlight(code, { language: 'typescript' }).value, [code]);
 
   return (
-    <pre className={`font-mono text-sm leading-relaxed overflow-x-auto ${className}`}>
+    <pre className={className || undefined} tabIndex={0}>
       <code className="hljs language-typescript" dangerouslySetInnerHTML={{ __html: html }} />
     </pre>
   );

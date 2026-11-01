@@ -2,90 +2,134 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ArrowRightIcon, ListIcon, XIcon, GithubLogoIcon } from '@phosphor-icons/react';
-import { Brand } from './Brand';
-import { ThemeToggle } from './ThemeProvider';
-import GitHubStars from './GitHubStars';
+import { usePathname } from 'next/navigation';
+import { ArrowRightIcon, GithubLogoIcon, ListIcon, XIcon } from '@phosphor-icons/react';
 
-const links: [label: string, href: string][] = [
+import { Brand } from './Brand';
+import GitHubStars from './GitHubStars';
+import Search from './Search';
+import { ThemeToggle } from './ThemeProvider';
+
+const LINKS: [label: string, href: string][] = [
   ['Docs', '/docs'],
   ['Examples', '/examples'],
+  ['API', '/docs/api'],
   ['Architecture', '/#computation-model'],
   ['Blog', '/blog'],
 ];
 
+/** Marks the link of the current section. `/docs/api` belongs to API, not to Docs. */
+function isCurrent(pathname: string, href: string): boolean {
+  if (href.includes('#')) {
+    return false;
+  }
+  if (href === '/docs') {
+    return pathname.startsWith('/docs') && !pathname.startsWith('/docs/api');
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function Navbar() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [openedOn, setOpenedOn] = useState(pathname);
+
+  // Close the menu on navigation (including back and forward), on Escape, and when the
+  // screen grows past the menu.
+  if (openedOn !== pathname) {
+    setOpenedOn(pathname);
+    setOpen(false);
+  }
   useEffect(() => {
-    const close = (event: KeyboardEvent) => {
+    if (!open) {
+      return;
+    }
+    const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setOpen(false);
       }
     };
-    window.addEventListener('keydown', close);
-    return () => {
-      window.removeEventListener('keydown', close);
+    const wide = window.matchMedia('(min-width: 1001px)');
+    const onWide = () => {
+      if (wide.matches) {
+        setOpen(false);
+      }
     };
-  }, []);
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    wide.addEventListener('change', onWide);
+    return () => {
+      document.body.style.overflow = overflow;
+      window.removeEventListener('keydown', onKey);
+      wide.removeEventListener('change', onWide);
+    };
+  }, [open]);
+
+  const close = () => {
+    setOpen(false);
+  };
+
   return (
     <header className="site-header">
-      <nav className="site-nav shell" aria-label="Main navigation">
+      <nav className="site-nav frame" aria-label="Main navigation">
         <Brand />
-        <div className="desktop-links">
-          {links.map(([label, href]) => (
-            <Link key={label} href={href}>
+        <div className="nav-links">
+          {LINKS.map(([label, href]) => (
+            <Link
+              key={label}
+              href={href}
+              aria-current={isCurrent(pathname, href) ? 'page' : undefined}
+            >
               {label}
             </Link>
           ))}
         </div>
         <div className="nav-actions">
-          <a
-            className="github-link"
-            href="https://github.com/astack-tech/astack"
-            aria-label="AStack on GitHub"
-          >
-            <GithubLogoIcon size={19} /> <span>GitHub</span>
+          <Search />
+          <a className="nav-github" href="https://github.com/astack-tech/astack">
+            <GithubLogoIcon size={16} aria-hidden="true" />
+            GitHub
+            <GitHubStars />
           </a>
-          <GitHubStars />
           <ThemeToggle />
-          <Link className="nav-docs" href="/docs/getting-started">
+          <Link className="button nav-start" href="/docs/getting-started">
             Get started <ArrowRightIcon size={14} />
           </Link>
           <button
-            className="mobile-menu"
+            className="menu-button"
             type="button"
             aria-expanded={open}
-            aria-controls="mobile-navigation"
-            aria-label={open ? 'Close navigation' : 'Open navigation'}
+            aria-controls="mobile-menu"
+            aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => {
               setOpen(!open);
             }}
           >
-            {open ? <XIcon size={22} /> : <ListIcon size={22} />}
+            {open ? <XIcon size={20} /> : <ListIcon size={20} />}
           </button>
         </div>
       </nav>
       {open && (
-        <nav id="mobile-navigation" className="mobile-links shell" aria-label="Mobile navigation">
-          {links.map(([label, href]) => (
-            <Link
-              key={label}
-              href={href}
-              onClick={() => {
-                setOpen(false);
-              }}
-            >
-              {label}
+        <nav id="mobile-menu" className="mobile-menu" aria-label="Menu">
+          <div className="board">
+            {LINKS.map(([label, href]) => (
+              <Link
+                key={label}
+                href={href}
+                aria-current={isCurrent(pathname, href) ? 'page' : undefined}
+                onClick={close}
+              >
+                {label}
+              </Link>
+            ))}
+            <a className="mobile-github" href="https://github.com/astack-tech/astack">
+              GitHub <GithubLogoIcon size={20} aria-hidden="true" />
+            </a>
+            <Link className="mobile-start" href="/docs/getting-started" onClick={close}>
+              Get started <ArrowRightIcon size={20} />
             </Link>
-          ))}
-          <Link
-            href="/docs/getting-started"
-            onClick={() => {
-              setOpen(false);
-            }}
-          >
-            Get started <ArrowRightIcon size={14} />
-          </Link>
+          </div>
         </nav>
       )}
     </header>

@@ -1,0 +1,384 @@
+/* Base: document, type, links, buttons, focus, code and the shared layout primitives. */
+
+html {
+  background: var(--ground);
+  scroll-behavior: smooth;
+  /* The one anchor offset: the sticky header plus air. Do not add scroll-margin anywhere. */
+  scroll-padding-top: calc(var(--header-h) + 24px);
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: var(--text-body);
+  line-height: 1.6;
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+main {
+  flex: 1;
+}
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 500;
+  text-wrap: balance;
+}
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+img,
+svg {
+  display: block;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--font-geist-mono), ui-monospace, Menlo, monospace;
+}
+::selection {
+  background: var(--ink);
+  color: var(--invert);
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px 16px;
+  background: var(--ink);
+  color: var(--invert);
+  transform: translateY(-160%);
+}
+.skip-link:focus {
+  transform: none;
+}
+
+/* ------------------------------------------------------------- Layout */
+
+/* The frame: equal outer margins at every width, capped on very wide screens. */
+.frame {
+  width: 100%;
+  max-width: calc(var(--max) + var(--margin) * 2);
+  margin-inline: auto;
+  padding-inline: var(--margin);
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tile {
+  position: relative;
+  min-width: 0;
+  padding: var(--pad);
+  background: var(--tile);
+  color: var(--ink);
+}
+/*
+ * A tile wrapped by Magic UI's MagicCard. The card's own fill layer and border ring
+ * take the tile color, so at rest it is a flat field; the pointer light still works.
+ */
+.tile-card {
+  --color-background: var(--tile);
+  --color-border: transparent;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.tile-card > .bg-background {
+  inset: 0;
+  background: var(--tile);
+}
+.tile-card > :last-child {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  padding: var(--pad);
+}
+.block {
+  background: color-mix(in oklab, var(--hue) var(--block), var(--tile));
+}
+
+/*
+ * Section heading. The title takes columns 1-8; the sentence takes columns 9-12, so
+ * its left edge lands on the same line as the third column of cards below and its
+ * right edge on the board's edge. Their last lines share one baseline.
+ * Intros longer than about three lines use .is-stacked: the sentence goes under the
+ * title, on columns 1-8, where it reads as a paragraph instead of a narrow column.
+ */
+.section {
+  margin-top: var(--section);
+}
+.section-head {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 20px var(--gap);
+  align-items: last baseline;
+  margin-bottom: clamp(28px, 3.2vw, 52px);
+}
+.section-head h2,
+.page-title {
+  grid-column: 1 / 9;
+  font-size: var(--text-title);
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+.section-head > p,
+.section-head > div {
+  grid-column: 9 / 13;
+  font-size: var(--text-lead);
+  line-height: 1.45;
+  letter-spacing: -0.012em;
+  color: var(--ink-2);
+}
+.section-head.is-stacked {
+  align-items: start;
+}
+.section-head.is-stacked h2,
+.section-head.is-stacked .page-title {
+  grid-column: 1 / -1;
+}
+.section-head.is-stacked > p,
+.section-head.is-stacked > div {
+  grid-column: 1 / 9;
+}
+.section-head a:not(.button, .link),
+.prose-link {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--ink) 30%, transparent);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  transition: text-decoration-color 150ms ease;
+}
+.section-head a:not(.button, .link):hover,
+.prose-link:hover {
+  text-decoration-color: var(--ink);
+}
+@media (max-width: 1100px) {
+  .section-head h2,
+  .page-title,
+  .section-head > p,
+  .section-head > div,
+  .section-head.is-stacked > p,
+  .section-head.is-stacked > div {
+    grid-column: 1 / -1;
+  }
+  .section-head {
+    align-items: start;
+    row-gap: 16px;
+  }
+  .section-head > p,
+  .section-head > div {
+    max-width: 62ch;
+  }
+}
+
+/* ------------------------------------------------------------ Controls */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 20px;
+  border: 0;
+  background: var(--ink);
+  color: var(--invert);
+  font-size: var(--text-body);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  transition:
+    transform 160ms var(--ease),
+    background-color 160ms ease;
+}
+.button:hover {
+  transform: translateY(-2px);
+}
+.button:active {
+  transform: translateY(0);
+}
+.button-quiet {
+  background: var(--tile-2);
+  color: var(--ink);
+}
+.button svg,
+.link svg {
+  flex: none;
+  transition: transform 160ms var(--ease);
+}
+.button:hover svg,
+.link:hover svg {
+  transform: translateX(3px);
+}
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--tile-2);
+  white-space: nowrap;
+}
+.chip.block {
+  background: color-mix(in oklab, var(--hue) var(--block-strong), var(--tile));
+}
+
+/* ---------------------------------------------------------------- Code */
+
+.code {
+  position: relative;
+  min-width: 0;
+  background: var(--code-bg);
+}
+.code pre,
+pre.code {
+  margin: 0;
+  padding: 20px 22px;
+  overflow-x: auto;
+  font-size: var(--text-code);
+  line-height: 1.7;
+  color: var(--ink);
+  tab-size: 2;
+  scrollbar-width: thin;
+}
+.code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 8px 0 22px;
+  background: var(--tile-2);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.code-bar > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.copy-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+.copy-button:hover {
+  background: color-mix(in oklab, var(--ink) 8%, transparent);
+  color: var(--ink);
+}
+.copy-button svg {
+  width: 16px;
+  height: 16px;
+}
+.hljs {
+  color: var(--ink);
+  background: transparent;
+}
+.hljs-keyword,
+.hljs-literal,
+.hljs-meta {
+  color: var(--syntax-keyword);
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-template-string {
+  color: var(--syntax-string);
+}
+.hljs-title.class_,
+.hljs-type,
+.hljs-built_in {
+  color: var(--syntax-type);
+}
+.hljs-title.function_,
+.hljs-attr,
+.hljs-property {
+  color: var(--syntax-method);
+}
+.hljs-number {
+  color: var(--syntax-number);
+}
+.hljs-comment {
+  color: var(--syntax-comment);
+  font-style: normal;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

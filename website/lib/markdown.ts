@@ -12,6 +12,20 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import { unified } from 'unified';
 
+/** Labels for the language of a fenced code block. */
+const LANGUAGE_NAMES: Partial<Record<string, string>> = {
+  ts: 'TypeScript',
+  typescript: 'TypeScript',
+  js: 'JavaScript',
+  javascript: 'JavaScript',
+  json: 'JSON',
+  bash: 'Shell',
+  sh: 'Shell',
+  shell: 'Shell',
+  text: 'Text',
+  python: 'Python',
+};
+
 const COPY_ICON =
   '<svg aria-hidden="true" width="15" height="15" viewBox="0 0 256 256" fill="currentColor">' +
   '<path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"/>' +
@@ -83,12 +97,23 @@ export async function renderMarkdown(
     }
   );
 
-  // Every remaining code block gets a frame with a copy button.
-  html = html.replace(
-    /<pre>/g,
-    '<div class="code-frame"><button type="button" class="copy-button code-copy" aria-label="Copy code" title="Copy code">' +
-      `${COPY_ICON}</button><pre tabindex="0" aria-label="Code example">`
-  );
+  // Every remaining code block gets a frame: a bar with its language and a copy button.
+  html = html.replace(/<pre><code class="([^"]*)">/g, (_match, classes: string) => {
+    const language = LANGUAGE_NAMES[/language-(\w+)/.exec(classes)?.[1] ?? ''] ?? 'Code';
+    return (
+      '<div class="code-frame"><div class="code-bar"><span>' +
+      language +
+      '</span><button type="button" class="copy-button code-copy" aria-label="Copy code" title="Copy code">' +
+      `${COPY_ICON}</button></div><pre tabindex="0" aria-label="${language} example"><code class="${classes}">`
+    );
+  });
+  html = html.replace(/<pre><code>/g, () => {
+    return (
+      '<div class="code-frame"><div class="code-bar"><span>Text</span>' +
+      '<button type="button" class="copy-button code-copy" aria-label="Copy code" title="Copy code">' +
+      `${COPY_ICON}</button></div><pre tabindex="0" aria-label="Code example"><code>`
+    );
+  });
   html = html.replace(/<\/pre>(?!<\/figure>)/g, '</pre></div>');
 
   html = html

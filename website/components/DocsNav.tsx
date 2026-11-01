@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { CaretDownIcon } from '@phosphor-icons/react/dist/ssr';
 
 import { API_PACKAGES, apiHref } from '@/lib/api-docs';
+import type { ApiPackage } from '@/lib/api-docs';
 import type { DocPage } from '@/lib/docs';
 
 interface DocsNavProps {
@@ -10,11 +11,32 @@ interface DocsNavProps {
   current: string;
 }
 
-function ApiLinks({ current }: { current: string }) {
+/** Each package keeps one block color across the site. */
+export const PACKAGE_HUE: Record<ApiPackage, string> = {
+  core: 'silver',
+  components: 'blue',
+  tools: 'amber',
+  integrations: 'mint',
+};
+
+function Links({ docs, current }: DocsNavProps) {
   return (
     <>
-      <p className="eyebrow docs-nav-group">API REFERENCE</p>
-      <ol className="docs-nav-list docs-nav-api">
+      <h2 className="docs-nav-title">Documentation</h2>
+      <ul className="docs-nav-list">
+        {docs.map(doc => (
+          <li key={doc.slug}>
+            <Link
+              href={`/docs/${doc.slug}`}
+              aria-current={doc.slug === current ? 'page' : undefined}
+            >
+              {doc.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <h2 className="docs-nav-title">API reference</h2>
+      <ul className="docs-nav-list">
         <li>
           <Link href={apiHref([])} aria-current={current === 'api:' ? 'page' : undefined}>
             Overview
@@ -26,35 +48,22 @@ function ApiLinks({ current }: { current: string }) {
               href={apiHref([pkg])}
               aria-current={current === `api:${pkg}` ? 'page' : undefined}
             >
+              <span className={`swatch block hue-${PACKAGE_HUE[pkg]}`} aria-hidden="true" />
               @astack-tech/{pkg}
             </Link>
           </li>
         ))}
-      </ol>
+      </ul>
+      <Link className="docs-nav-more" href="/examples">
+        All examples
+      </Link>
     </>
   );
 }
 
-function DocsLinks({ docs, current }: DocsNavProps) {
-  return (
-    <ol className="docs-nav-list">
-      {docs.map((doc, index) => (
-        <li key={doc.slug}>
-          <Link href={`/docs/${doc.slug}`} aria-current={doc.slug === current ? 'page' : undefined}>
-            <span className="mono" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
-            </span>
-            {doc.title}
-          </Link>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
 /**
- * Documentation navigation. Desktop shows a sticky list; small screens show a
- * collapsible menu that works without JavaScript.
+ * Documentation navigation: a sticky column on wide screens, a menu that opens in
+ * place on small screens (it works without JavaScript).
  */
 export default function DocsNav({ docs, current }: DocsNavProps) {
   const currentTitle =
@@ -62,30 +71,21 @@ export default function DocsNav({ docs, current }: DocsNavProps) {
     (current.startsWith('api:') ? 'API reference' : 'Documentation');
   return (
     <>
-      <details className="docs-nav-mobile">
+      <details className="docs-menu">
         <summary>
           <span>
-            <span className="eyebrow">DOCS</span>
+            <span className="docs-menu-label">Docs</span>
             {currentTitle}
           </span>
           <CaretDownIcon size={16} aria-hidden="true" />
         </summary>
         <nav aria-label="Documentation">
-          <DocsLinks docs={docs} current={current} />
-          <ApiLinks current={current} />
-          <Link className="docs-nav-examples" href="/examples">
-            All examples
-          </Link>
+          <Links docs={docs} current={current} />
         </nav>
       </details>
-      <aside className="docs-nav-desktop">
+      <aside className="docs-nav">
         <nav aria-label="Documentation">
-          <p className="eyebrow">DOCUMENTATION</p>
-          <DocsLinks docs={docs} current={current} />
-          <ApiLinks current={current} />
-          <Link className="docs-nav-examples" href="/examples">
-            All examples
-          </Link>
+          <Links docs={docs} current={current} />
         </nav>
       </aside>
     </>

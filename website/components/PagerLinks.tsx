@@ -12,29 +12,29 @@ interface PagerLinksProps {
   label: string;
 }
 
-/** Previous and next links at the end of a docs or example page. */
+/** Previous and next tiles at the end of a docs or example page. */
 export default function PagerLinks({ previous, next, label }: PagerLinksProps) {
   return (
-    <nav className="pager-links" aria-label={label}>
+    <nav className="pager" aria-label={label}>
       {previous ? (
-        <Link href={previous.href} className="pager-link">
-          <span>
-            <ArrowLeftIcon size={14} /> Previous
+        <Link href={previous.href} className="tile pager-link">
+          <span className="pager-dir">
+            <ArrowLeftIcon size={14} aria-hidden="true" /> Previous
           </span>
-          <b>{previous.title}</b>
+          <span className="pager-title">{previous.title}</span>
         </Link>
       ) : (
-        <span />
+        <span aria-hidden="true" />
       )}
       {next ? (
-        <Link href={next.href} className="pager-link pager-next">
-          <span>
-            Next <ArrowRightIcon size={14} />
+        <Link href={next.href} className="tile pager-link pager-next">
+          <span className="pager-dir">
+            Next <ArrowRightIcon size={14} aria-hidden="true" />
           </span>
-          <b>{next.title}</b>
+          <span className="pager-title">{next.title}</span>
         </Link>
       ) : (
-        <span />
+        <span aria-hidden="true" />
       )}
     </nav>
   );
