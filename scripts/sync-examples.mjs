@@ -109,4 +109,17 @@ const index = entries.map(({ name, title, order, tier, doc, requiresApiKey, desc
 }));
 writeFileSync(path.join(outputDir, 'index.json'), `${JSON.stringify(index, null, 2)}\n`);
 
+// The website shows the current release, read from the core package so it never goes stale.
+/** @type {{ version?: unknown }} */
+const coreManifest = JSON.parse(
+  readFileSync(path.join(root, 'packages', 'core', 'package.json'), 'utf8')
+);
+if (typeof coreManifest.version !== 'string') {
+  fail('packages/core/package.json has no version');
+}
+writeFileSync(
+  path.join(root, 'website', 'content', 'release.json'),
+  `${JSON.stringify({ coreVersion: coreManifest.version }, null, 2)}\n`
+);
+
 console.log(`sync-examples: wrote ${String(entries.length)} examples to website/content/examples`);
