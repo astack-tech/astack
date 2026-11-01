@@ -73,16 +73,14 @@ export default function ComputationModel() {
     return null;
   }
   function selectByKey(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
-    let next = index;
-    if (event.key === 'ArrowRight') {
-      next = (index + 1) % modes.length;
-    } else if (event.key === 'ArrowLeft') {
-      next = (index - 1 + modes.length) % modes.length;
-    } else if (event.key === 'Home') {
-      next = 0;
-    } else if (event.key === 'End') {
-      next = modes.length - 1;
-    } else {
+    const targets: Partial<Record<string, number>> = {
+      ArrowRight: (index + 1) % modes.length,
+      ArrowLeft: (index - 1 + modes.length) % modes.length,
+      Home: 0,
+      End: modes.length - 1,
+    };
+    const next = targets[event.key];
+    if (next === undefined) {
       return;
     }
     event.preventDefault();

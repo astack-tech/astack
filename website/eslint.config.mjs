@@ -2,12 +2,11 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
 import tseslint from 'typescript-eslint';
 
 const baseDirectory = dirname(fileURLToPath(import.meta.url));
-const compat = new FlatCompat({ baseDirectory });
 
 /**
  * Matches CJK ideographs, CJK punctuation, kana, Hangul and full-width forms.
@@ -55,7 +54,7 @@ export default tseslint.config(
   },
   { linterOptions: { reportUnusedDisableDirectives: 'error' } },
   js.configs.recommended,
-  ...compat.extends('next/core-web-vitals'),
+  ...nextCoreWebVitals,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
   {
