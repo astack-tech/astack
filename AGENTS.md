@@ -27,6 +27,7 @@ Instructions for AI coding agents and human contributors working in this reposit
 | `examples/*`                 | One-file, one-concept examples (`@astack-examples/*`, private).                                                |
 | `website/`                   | Next.js site for astack.tech. Docs live in `website/content/docs`. Not part of the pnpm workspace.             |
 | `scripts/`                   | Repository scripts, for example `sync-examples.mjs`.                                                           |
+| `tools/*`                    | Private helper packages. `minimatch-compat` gives older dependents the minimatch 3/10 interface on 11.x.       |
 | `assets/brand`, `docs/brand` | Brand assets and their validation records.                                                                     |
 | `.changeset/`                | Pending release notes. The repo is in `beta` pre-release mode.                                                 |
 
