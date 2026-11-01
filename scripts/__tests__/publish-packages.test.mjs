@@ -2,7 +2,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-import { distTag, publishOrder, releaseNotes, releaseTag } from '../release-lib.mjs';
+import {
+  changesetsOutputLine,
+  distTag,
+  publishOrder,
+  releaseNotes,
+  releaseTag,
+} from '../release-lib.mjs';
 
 test('pre mode publishes under the pre tag; otherwise latest', () => {
   assert.equal(distTag({ mode: 'pre', tag: 'beta' }), 'beta');
@@ -80,4 +86,14 @@ test('a dependency cycle is an error, not a silent order', () => {
       ),
     /cycle/
   );
+});
+
+test('reports each published package to changesets/action as one NDJSON git-tag event', () => {
+  const line = changesetsOutputLine('@astack-tech/core', '0.2.0-beta.4');
+  assert.ok(line.endsWith('\n'));
+  assert.deepEqual(JSON.parse(line), {
+    type: 'git-tag',
+    tag: '@astack-tech/core@0.2.0-beta.4',
+    packageName: '@astack-tech/core',
+  });
 });

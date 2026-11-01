@@ -12,20 +12,43 @@
  *   gets the newest beta until the first stable release.
  * - Each published version gets the git tag `<name>@<version>` and a GitHub release
  *   whose notes are that version's CHANGELOG.md section.
+ * - When changesets/action runs the script, it sets CHANGESETS_OUTPUT to a file path.
+ *   The script writes one line per published package there (see
+ *   `changesetsOutputLine`), so the action reports what was published.
  *
  * Usage: node scripts/publish-packages.mjs [--dry-run]
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { distTag, publishOrder, releaseNotes, releaseTag } from './release-lib.mjs';
+import {
+  changesetsOutputLine,
+  distTag,
+  publishOrder,
+  releaseNotes,
+  releaseTag,
+} from './release-lib.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dryRun = process.argv.includes('--dry-run');
 const latestFollows = process.env['LATEST_FOLLOWS_PRERELEASE'] === 'true';
+const changesetsOutput = process.env['CHANGESETS_OUTPUT'];
+
+// The action reads this file even when nothing is published, so it always exists.
+if (changesetsOutput !== undefined && changesetsOutput !== '' && !dryRun) {
+  writeFileSync(changesetsOutput, '');
+}
 
 /**
  * Runs a command and returns its output; the command's errors propagate.
@@ -102,6 +125,9 @@ try {
       run('npm', ['dist-tag', 'add', `${name}@${version}`, 'latest']);
     }
     published.push({ dir, name, version });
+    if (changesetsOutput !== undefined && changesetsOutput !== '' && !dryRun) {
+      appendFileSync(changesetsOutput, changesetsOutputLine(name, version));
+    }
   }
 } finally {
   rmSync(outDir, { recursive: true, force: true });
