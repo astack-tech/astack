@@ -18,8 +18,12 @@ function loadMermaid(): Promise<MermaidApi> {
   return mermaidPromise;
 }
 
+/**
+ * Reads a CSS custom property. next/font defines the font variables on `<body>`, so
+ * read from there; theme colors are inherited by it as well.
+ */
 function cssVar(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.body).getPropertyValue(name).trim();
 }
 
 let diagramCount = 0;
@@ -31,6 +35,21 @@ function isDarkTheme(): boolean {
   return document.documentElement.classList.contains('dark');
 }
 
+/** Below this width, left-to-right flowcharts are drawn top-down so labels stay readable. */
+const NARROW_QUERY = '(max-width: 559px)';
+
+function isNarrow(): boolean {
+  return window.matchMedia(NARROW_QUERY).matches;
+}
+
+/**
+ * Returns the diagram source to render. On narrow screens a horizontal flowchart is
+ * turned vertical, which fits the viewport without shrinking the text.
+ */
+function sourceForViewport(source: string): string {
+  return isNarrow() ? source.replace(/^(\s*(?:flowchart|graph))\s+(?:LR|RL)\b/u, '$1 TD') : source;
+}
+
 const DIAGRAM_PADDING = 12;
 const MIN_DIAGRAM_WIDTH = 420;
 
@@ -38,7 +57,7 @@ const MIN_DIAGRAM_WIDTH = 420;
  * Sets the viewBox to the drawn content. Mermaid's own viewBox can be smaller than the
  * content when edge labels extend past the nodes, which clips the diagram.
  */
-function fitToContent(svg: SVGSVGElement | null): void {
+function fitToContent(svg: SVGSVGElement | null, narrow: boolean): void {
   if (svg === null) {
     return;
   }
@@ -53,8 +72,9 @@ function fitToContent(svg: SVGSVGElement | null): void {
     `${String(box.x - DIAGRAM_PADDING)} ${String(box.y - DIAGRAM_PADDING)} ${String(width)} ${String(height)}`
   );
   svg.style.maxWidth = `${String(width)}px`;
-  // Wide diagrams scroll on small screens instead of shrinking below a readable size.
-  svg.style.minWidth = `${String(Math.min(width, MIN_DIAGRAM_WIDTH))}px`;
+  // On wide screens a diagram never shrinks below a readable width. Narrow screens get a
+  // top-down layout instead, which can scale to the container without losing legibility.
+  svg.style.minWidth = narrow ? '' : `${String(Math.min(width, MIN_DIAGRAM_WIDTH))}px`;
   svg.removeAttribute('height');
 }
 
@@ -64,8 +84,9 @@ function scheduleDiagrams(container: HTMLElement): void {
 
 async function renderDiagrams(container: HTMLElement): Promise<void> {
   const theme = isDarkTheme() ? 'dark' : 'light';
+  const variant = `${theme}:${isNarrow() ? 'narrow' : 'wide'}`;
   const figures = [...container.querySelectorAll<HTMLElement>('figure.mermaid-figure')].filter(
-    figure => figure.dataset['renderedTheme'] !== theme
+    figure => figure.dataset['renderedVariant'] !== variant
   );
   if (figures.length === 0) {
     return;
@@ -76,9 +97,20 @@ async function renderDiagrams(container: HTMLElement): Promise<void> {
     startOnLoad: false,
     securityLevel: 'strict',
     theme: 'base',
+    // Mermaid 12 defaults to the ELK layout and the neo look. The site design uses the
+    // dagre layout and the classic look, so both are set explicitly.
+    layout: 'dagre',
+    look: 'classic',
     fontFamily: cssVar('--font-geist-sans') || 'sans-serif',
     htmlLabels: false,
-    flowchart: { curve: 'basis', padding: 14 },
+    flowchart: {
+      curve: 'basis',
+      padding: 14,
+      // Mermaid 12 widens short labels to 120px and wraps long ones at 120px. Size each
+      // node to its label instead, and wrap only labels longer than 200px.
+      minNodeWidth: 0,
+      wrappingWidth: 200,
+    },
     themeVariables: {
       fontSize: '14px',
       background: cssVar('--color-bg-primary'),
@@ -102,7 +134,10 @@ async function renderDiagrams(container: HTMLElement): Promise<void> {
     }
     diagramCount += 1;
     try {
-      const { svg } = await mermaid.render(`astack-diagram-${String(diagramCount)}`, source);
+      const { svg } = await mermaid.render(
+        `astack-diagram-${String(diagramCount)}`,
+        sourceForViewport(source)
+      );
       let canvas = figure.querySelector<HTMLDivElement>('.mermaid-canvas');
       if (canvas === null) {
         canvas = document.createElement('div');
@@ -112,8 +147,8 @@ async function renderDiagrams(container: HTMLElement): Promise<void> {
         figure.prepend(canvas);
       }
       canvas.innerHTML = svg;
-      fitToContent(canvas.querySelector('svg'));
-      figure.dataset['renderedTheme'] = theme;
+      fitToContent(canvas.querySelector('svg'), variant.endsWith(':narrow'));
+      figure.dataset['renderedVariant'] = variant;
       figure.classList.add('is-rendered');
     } catch {
       // Leave the source visible when a diagram cannot be rendered.
@@ -168,9 +203,16 @@ export default function RichContent({ html, className }: RichContentProps) {
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
+    const narrowQuery = window.matchMedia(NARROW_QUERY);
+    const onViewportChange = (): void => {
+      scheduleDiagrams(container);
+    };
+    narrowQuery.addEventListener('change', onViewportChange);
+
     return () => {
       container.removeEventListener('click', onClick);
       observer.disconnect();
+      narrowQuery.removeEventListener('change', onViewportChange);
     };
   }, [html]);
 

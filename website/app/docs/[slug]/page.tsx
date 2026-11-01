@@ -35,7 +35,6 @@ export async function generateMetadata({ params }: DocPageProps): Promise<Metada
     openGraph: {
       title: `${doc.title} · AStack docs`,
       description: doc.description,
-      images: [{ url: '/brand/social-card.png', width: 1200, height: 630 }],
     },
   };
 }

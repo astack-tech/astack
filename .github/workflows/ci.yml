@@ -29,6 +29,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit
       - run: pnpm verify
 
   website:
@@ -46,6 +47,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: website/pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit
       - run: pnpm lint
       - run: pnpm check-types
       - run: pnpm build
