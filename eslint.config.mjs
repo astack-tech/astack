@@ -40,10 +40,63 @@ const englishOnlyRule = {
   },
 };
 
+/**
+ * Matches the start of a JSDoc `@type` block comment. Followed by a parenthesized
+ * expression, such a comment is a type cast: the JavaScript form of `value as Foo`.
+ */
+const JSDOC_TYPE_PATTERN = /^\*\s*@type\s*\{/u;
+
+/** @type {import('eslint').Rule.RuleModule} */
+const noJsdocCastRule = {
+  meta: {
+    type: 'problem',
+    docs: { description: 'Disallow JSDoc type casts, the JavaScript form of `as`.' },
+    schema: [],
+    messages: {
+      jsdocCast:
+        'Do not cast with a JSDoc @type comment. Narrow the value with a type guard instead.',
+    },
+  },
+  create(context) {
+    const { sourceCode } = context;
+    return {
+      Program() {
+        for (const comment of sourceCode.getAllComments()) {
+          if (comment.type !== 'Block' || !JSDOC_TYPE_PATTERN.test(comment.value)) {
+            continue;
+          }
+          const next = sourceCode.getTokenAfter(comment, { includeComments: false });
+          if (next?.value === '(') {
+            context.report({ loc: comment.loc ?? next.loc, messageId: 'jsdocCast' });
+          }
+        }
+      },
+    };
+  },
+};
+
+/**
+ * Bans every type assertion, `as const` included: types come from annotations, inference
+ * and type guards, never from a claim the compiler cannot check.
+ * @type {import('eslint').Linter.RuleEntry}
+ */
+const NO_TYPE_ASSERTIONS = [
+  'error',
+  {
+    selector: 'TSAsExpression',
+    message:
+      'Type assertions are not allowed, `as const` included. Annotate the type, use a const type parameter, or narrow with a type guard.',
+  },
+  {
+    selector: 'TSTypeAssertion',
+    message: 'Type assertions are not allowed. Annotate the type or narrow with a type guard.',
+  },
+];
+
 /** @type {import('eslint').ESLint.Plugin} */
 const astackPlugin = {
   meta: { name: 'astack' },
-  rules: { 'english-only': englishOnlyRule },
+  rules: { 'english-only': englishOnlyRule, 'no-jsdoc-cast': noJsdocCastRule },
 };
 
 export default tseslint.config(
@@ -82,6 +135,11 @@ export default tseslint.config(
     plugins: { astack: astackPlugin },
     rules: {
       'astack/english-only': 'error',
+      'astack/no-jsdoc-cast': 'error',
+      'no-restricted-syntax': NO_TYPE_ASSERTIONS,
+      '@typescript-eslint/consistent-type-assertions': ['error', { assertionStyle: 'never' }],
+      '@typescript-eslint/no-unsafe-type-assertion': 'error',
+      '@typescript-eslint/strict-boolean-expressions': 'error',
       curly: ['error', 'all'],
       eqeqeq: ['error', 'always'],
       'no-console': 'error',
