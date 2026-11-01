@@ -5,14 +5,14 @@
 ```ts
 
 import type { Node } from '@hlang-org/runtime';
+import type { Observable } from 'rxjs';
 import { Port as Port_2 } from '@hlang-org/runtime';
-import type { Subject } from 'rxjs';
 import type { Subscription } from 'rxjs';
 import { TransformNode } from '@hlang-org/runtime';
 
 // @public
-export class Component extends TransformNode {
-    constructor(opts: unknown);
+export class Component extends TransformNode<object> {
+    constructor(opts: object);
     protected readonly inPort: Port_2;
     protected readonly outPort: Port_2;
     static Port: typeof Port_2;
@@ -22,18 +22,18 @@ export class Component extends TransformNode {
 
 // @public
 export class Pipeline {
-    addComponent(name: string, instance: Node): void;
+    addComponent(name: string, instance: Node<object>): void;
     connect(sourceName: string, sinkName: string): void;
-    getComponent(name: string): Node | undefined;
-    run<T>(triggerName: string, params: unknown, endpoint?: string): Promise<T>;
-    run<T>(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, T>>;
+    getComponent(name: string): Node<object> | undefined;
+    run(triggerName: string, params: unknown, endpoint?: string): Promise<unknown>;
+    run(triggerName: string, params: unknown, options: RunOptions): Promise<Record<string, unknown>>;
 }
 
 // @public
 export type Port = (portName: string) => {
-    receive: <T = unknown>(callback: (data: T) => void) => Subscription;
+    receive: (callback: (data: unknown) => unknown) => Subscription;
     send: (data: unknown) => void;
-    $: Subject<unknown>;
+    $: Observable<unknown>;
 };
 
 // @public

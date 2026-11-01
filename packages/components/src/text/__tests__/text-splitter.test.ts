@@ -116,7 +116,7 @@ describe('TextSplitter', () => {
     const pipeline = new Pipeline();
     pipeline.addComponent('splitter', new TextSplitter({ chunkSize: 22, overlap: 0 }));
 
-    const chunks = await pipeline.run<string[]>('splitter.text', paragraphs(3, 10), 'splitter.out');
+    const chunks = await pipeline.run('splitter.text', paragraphs(3, 10), 'splitter.out');
     expect(chunks).toEqual(['aaaaaaaaaa\n\nbbbbbbbbbb', 'cccccccccc']);
   });
 });

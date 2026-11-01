@@ -83,6 +83,89 @@ describe('OpenAICompatible', () => {
     expect(error).toHaveBeenCalledWith('[Qwen] API call failed:', expect.any(Error));
   });
 
+  it('rejects pipeline input of the wrong type before calling the API', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('llm', new OpenAICompatible({ apiKey: 'key', model: 'm', name: 'Qwen' }));
+
+    await expect(pipeline.run('llm.prompt', 42, 'llm.completion')).rejects.toThrow(
+      'Qwen: the prompt port expects a string.'
+    );
+    await expect(pipeline.run('llm.messages', [{ content: 'q' }], 'llm.message')).rejects.toThrow(
+      'Qwen: the messages port expects an array of messages.'
+    );
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it('takes an agent history on the messages port', async () => {
+    mocks.create.mockResolvedValue({ choices: [{ message: { content: 'ok' } }] });
+    const pipeline = new Pipeline();
+    pipeline.addComponent('llm', new OpenAICompatible({ apiKey: 'key', model: 'm' }));
+
+    await expect(
+      pipeline.run(
+        'llm.messages',
+        [
+          { role: 'user', content: 'q' },
+          {
+            role: 'assistant',
+            tool_calls: [],
+            usage: {
+              completion_tokens: 1,
+              prompt_tokens: 1,
+              total_tokens: 2,
+              prompt_cache_hit_tokens: 0,
+              prompt_cache_miss_tokens: 1,
+            },
+          },
+          { role: 'tool', content: '7', tool_call_id: 'c1' },
+        ],
+        'llm.message'
+      )
+    ).resolves.toEqual({ role: 'assistant', content: 'ok' });
+  });
+
+  it.each([
+    ['a message list that is not an array', { role: 'user', content: 'q' }],
+    ['content that is not a string', [{ role: 'user', content: 1 }]],
+    ['tool calls that are not an array', [{ role: 'assistant', tool_calls: {} }]],
+    ['a tool_call_id that is not a string', [{ role: 'tool', content: '7', tool_call_id: 1 }]],
+    ['usage without totals', [{ role: 'assistant', usage: { prompt_tokens: 1 } }]],
+    [
+      'a cache count that is not a number',
+      [
+        {
+          role: 'assistant',
+          usage: {
+            completion_tokens: 1,
+            prompt_tokens: 1,
+            total_tokens: 2,
+            prompt_cache_hit_tokens: '0',
+          },
+        },
+      ],
+    ],
+    [
+      'a cache miss count that is not a number',
+      [
+        {
+          role: 'assistant',
+          usage: {
+            completion_tokens: 1,
+            prompt_tokens: 1,
+            total_tokens: 2,
+            prompt_cache_miss_tokens: null,
+          },
+        },
+      ],
+    ],
+  ])('rejects %s on the messages port', async (_, messages) => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('llm', new OpenAICompatible({ apiKey: 'key', model: 'm' }));
+
+    await expect(pipeline.run('llm.messages', messages, 'llm.message')).rejects.toThrow(TypeError);
+    expect(mocks.create).not.toHaveBeenCalled();
+  });
+
   it('uses a neutral name when none is given', async () => {
     const model = new OpenAICompatible({ apiKey: 'key', model: 'm' });
     mocks.create.mockResolvedValue({ choices: [] });

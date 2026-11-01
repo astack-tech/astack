@@ -39,7 +39,10 @@ Override `_transform` when you need more than one input or output, or when the o
 import type { Port } from '@astack-tech/core';
 
 override _transform($i: Port, $o: Port): void {
-  $i('in').receive((text: string) => {
+  $i('in').receive(text => {
+    if (typeof text !== 'string') {
+      throw new TypeError('Expected a string.');
+    }
     $o(text.endsWith('?') ? 'question' : 'statement').send(text);
   });
 }
@@ -47,19 +50,26 @@ override _transform($i: Port, $o: Port): void {
 
 `$i(name).receive(callback)` subscribes to an input port. `$o(name).send(value)` emits on an output port. A component can send zero, one or many values for each input.
 
+Ports are connected at run time, so a callback receives `unknown`. Check the value before you use it. A callback that throws rejects the pipeline run that sent the value, and the port keeps delivering later values.
+
 ## Asynchronous work
 
-`receive` callbacks are not awaited. Start the async work and send when it completes:
+Start the async work, send when it completes, and return the promise. The port does not wait for it before it delivers the next value, but a rejected promise rejects the run, like a throw:
 
 ```typescript
 override _transform($i: Port, $o: Port): void {
-  $i('in').receive((prompt: string) => {
-    void model.generateCompletion(prompt).then(answer => {
+  $i('in').receive(prompt => {
+    if (typeof prompt !== 'string') {
+      throw new TypeError('Expected a string.');
+    }
+    return model.generateCompletion(prompt).then(answer => {
       $o('out').send(answer);
     });
   });
 }
 ```
+
+The built-in components check their input the same way: a value of the wrong type rejects the run with a `TypeError` before any model or tool is called.
 
 ## Built-in components
 

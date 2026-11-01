@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { FileSystemContext } from '../FileSystemContext';
 import { RLMAgent } from '../RLMAgent';
-import type { LLMProvider, RLMChunk, RLMResult } from '../RLMCore';
+import type { LLMProvider, RLMChunk } from '../RLMCore';
 
 const fixed = (text: string): LLMProvider => ({ generate: () => Promise.resolve(text) });
 
@@ -62,7 +62,7 @@ describe('RLMAgent', () => {
     pipeline.addComponent('recorder', recorder);
     pipeline.connect('rlm.out', 'recorder.in');
 
-    const result = await pipeline.run<RLMResult>(
+    const result = await pipeline.run(
       'rlm.in',
       { context: new FileSystemContext('x'), query: 'q' },
       'recorder.out'
@@ -72,6 +72,18 @@ describe('RLMAgent', () => {
     expect(result).toEqual({ answer: 'ok', code: 'FINAL("ok");', depth: 0 });
   });
 
+  it('rejects a pipeline run whose input is not an RLMInput', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent(
+      'rlm',
+      new RLMAgent({ rootLLM: fixed('FINAL("ok");'), subLLM: fixed('unused') })
+    );
+
+    await expect(pipeline.run('rlm.in', { context: 'x', query: 'q' }, 'rlm.out')).rejects.toThrow(
+      'RLMAgent: expected an RLMInput'
+    );
+  });
+
   it('sends an error result when the run fails inside a pipeline', async () => {
     const pipeline = new Pipeline();
     pipeline.addComponent(
@@ -79,7 +91,7 @@ describe('RLMAgent', () => {
       new RLMAgent({ rootLLM: fixed('const x = 1;'), subLLM: fixed('unused') })
     );
 
-    const result = await pipeline.run<RLMResult>(
+    const result = await pipeline.run(
       'rlm.in',
       { context: new FileSystemContext('x'), query: 'q' },
       'rlm.out'

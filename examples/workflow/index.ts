@@ -21,8 +21,12 @@ class Step extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((input: string) => {
-      void model.generateCompletion(this.instruction(input)).then(output => {
+    $i('in').receive(input => {
+      if (typeof input !== 'string') {
+        throw new TypeError('Step expects a string.');
+      }
+      // Return the promise: if the model call fails, the pipeline run rejects with its error.
+      return model.generateCompletion(this.instruction(input)).then(output => {
         $o('out').send(output);
       });
     });
@@ -41,4 +45,4 @@ pipeline.connect('outline.out', 'draft.in');
 pipeline.connect('draft.out', 'edit.in');
 
 // outline -> draft -> edit. The endpoint `edit.out` is inferred.
-console.log(await pipeline.run<string>('outline.in', 'why data flow suits LLM apps'));
+console.log(await pipeline.run('outline.in', 'why data flow suits LLM apps'));

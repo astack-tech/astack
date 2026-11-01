@@ -4,7 +4,7 @@
 type SystemPromptBuilder = (context, query) => string;
 ```
 
-Defined in: [packages/components/src/agents/rlm/RLMAgent.ts:14](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/rlm/RLMAgent.ts#L14)
+Defined in: [packages/components/src/agents/rlm/RLMAgent.ts:24](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/rlm/RLMAgent.ts#L24)
 
 System prompt builder function type
 

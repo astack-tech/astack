@@ -59,7 +59,10 @@ async function runStack(specs: readonly BlockSpec[], input: string): Promise<Run
   names.slice(1).forEach((name, index) => {
     pipeline.connect(`${names[index] ?? ''}.out`, `${name}.in`);
   });
-  const output = await pipeline.run<string>(`${names[0] ?? ''}.in`, input);
+  const output = await pipeline.run(`${names[0] ?? ''}.in`, input);
+  if (typeof output !== 'string') {
+    throw new TypeError('The stack returned a value that is not text.');
+  }
   return { values, output };
 }
 

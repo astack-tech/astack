@@ -93,7 +93,7 @@ class TextSplitter extends Component {
    * Reads text from the `text` port and sends chunks to the `out` port.
    */
   override _transform($i: Port, $o: Port): void {
-    $i('text').receive((input: unknown) => {
+    $i('text').receive(input => {
       $o('out').send(this.run(input));
     });
   }

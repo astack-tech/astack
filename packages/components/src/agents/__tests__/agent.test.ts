@@ -3,7 +3,7 @@ import { createTool } from '@astack-tech/tools';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import Agent, { DefaultMemory } from '../index';
-import type { AgentOutput, Tool } from '../index';
+import type { Tool } from '../index';
 import { ScriptedModel, toolCallReply } from './fakes';
 
 const add = createTool('add', 'Adds two numbers', args => Number(args['a']) + Number(args['b']), {
@@ -252,6 +252,18 @@ describe('Agent memory', () => {
 });
 
 describe('Agent in a pipeline', () => {
+  it('rejects a run whose input is not a string or an AgentInput', async () => {
+    const pipeline = new Pipeline();
+    pipeline.addComponent('agent', new Agent({ model: new ScriptedModel([]) }));
+
+    await expect(pipeline.run('agent.in', 42)).rejects.toThrow(
+      'Agent: expected a string or an AgentInput'
+    );
+    await expect(pipeline.run('agent.in', { messages: [{ role: 'user' }] })).rejects.toThrow(
+      TypeError
+    );
+  });
+
   it('sends the output on the out port', async () => {
     const pipeline = new Pipeline();
     pipeline.addComponent(
@@ -259,16 +271,16 @@ describe('Agent in a pipeline', () => {
       new Agent({ model: new ScriptedModel([{ role: 'assistant', content: 'piped' }]) })
     );
 
-    const output = await pipeline.run<AgentOutput>('agent.in', 'hello');
+    const output = await pipeline.run('agent.in', 'hello');
 
-    expect(output.message).toBe('piped');
+    expect(output).toMatchObject({ message: 'piped' });
   });
 
   it('sends an error output when the run fails', async () => {
     const pipeline = new Pipeline();
     pipeline.addComponent('agent', new Agent({ model: new ScriptedModel([]) }));
 
-    const output = await pipeline.run<AgentOutput>('agent.in', {
+    const output = await pipeline.run('agent.in', {
       messages: [{ role: 'user', content: 'x' }],
     });
 

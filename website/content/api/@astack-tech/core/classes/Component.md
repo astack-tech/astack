@@ -1,6 +1,6 @@
 # Class: Component
 
-Defined in: [packages/core/src/component/index.ts:47](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L47)
+Defined in: [packages/core/src/component/index.ts:48](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L48)
 
 Base class for every AStack component.
 
@@ -9,7 +9,7 @@ or add it to a `Pipeline`, which calls `_transform()` for reactive execution.
 
 ## Extends
 
-- `TransformNode`
+- `TransformNode`\<`object`\>
 
 ## Constructors
 
@@ -19,13 +19,13 @@ or add it to a `Pipeline`, which calls `_transform()` for reactive execution.
 new Component(opts): Component;
 ```
 
-Defined in: [packages/core/src/component/index.ts:55](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L55)
+Defined in: [packages/core/src/component/index.ts:59](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L59)
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `opts` | `unknown` |
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `opts` | `object` | The component's options, stored as `this.opts`. |
 
 #### Returns
 
@@ -33,24 +33,22 @@ Defined in: [packages/core/src/component/index.ts:55](https://github.com/astack-
 
 #### Overrides
 
-`TransformNode.constructor`
+`TransformNode<object>.constructor`
 
 ## Properties
 
 | Property | Modifier | Type | Default value | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | `undefined` | - | `TransformNode.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:63 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.I` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:65 |
-| <a id="property-id"></a> `id` | `public` | `string` | `undefined` | - | `TransformNode.id` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:57 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | `undefined` | - | `TransformNode.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:64 |
-| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | `undefined` | The default `in` input port. | - | [packages/core/src/component/index.ts:51](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L51) |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | `undefined` | - | `TransformNode.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:62 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.O` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:66 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | `undefined` | - | `TransformNode.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:58 |
-| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | `undefined` | The default `out` output port. A pipeline uses it to infer the endpoint. | - | [packages/core/src/component/index.ts:53](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L53) |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | `undefined` | - | `TransformNode.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:61 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | `undefined` | - | `TransformNode.type` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:56 |
-| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | `HlangPort` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | - | [packages/core/src/component/index.ts:49](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L49) |
+| <a id="property-closeswithinputs"></a> `closesWithInputs` | `readonly` | `boolean` | `undefined` | Whether the node closes its outputs once all its inputs have ended (RFC 0001), so the end of a stream travels on. A node that keeps producing after its inputs end (a timer) overrides it with `false` and closes its outputs itself. | `TransformNode.closesWithInputs` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:204 |
+| <a id="property-i"></a> `I` | `readonly` | `PortAccessor` | `undefined` | Resolves an input port. Bound to the node, so it can be passed around as `$i`. | `TransformNode.I` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:167 |
+| <a id="property-id"></a> `id` | `readonly` | `string` | `undefined` | - | `TransformNode.id` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:163 |
+| <a id="property-identity"></a> `identity` | `readonly` | `symbol` | `undefined` | - | `TransformNode.identity` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:164 |
+| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | `undefined` | The default `in` input port. | - | [packages/core/src/component/index.ts:52](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L52) |
+| <a id="property-o"></a> `O` | `readonly` | `PortAccessor` | `undefined` | Resolves an output port. Bound to the node, so it can be passed around as `$o`. | `TransformNode.O` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:169 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | `undefined` | - | `TransformNode.opts` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:165 |
+| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | `undefined` | The default `out` output port. A pipeline uses it to infer the endpoint. | - | [packages/core/src/component/index.ts:54](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L54) |
+| <a id="property-type"></a> `type` | `readonly` | *typeof* `TRANSFORM` | `undefined` | - | `TransformNode.type` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:197 |
+| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | `HlangPort` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | - | [packages/core/src/component/index.ts:50](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L50) |
 
 ## Methods
 
@@ -60,7 +58,7 @@ Defined in: [packages/core/src/component/index.ts:55](https://github.com/astack-
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/core/src/component/index.ts:110](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L110)
+Defined in: [packages/core/src/component/index.ts:115](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L115)
 
 Run component in pipeline
 
@@ -84,9 +82,11 @@ Basic component with single input and output
 import type { Port } from '@astack-tech/core';
 
 _transform($i: Port, $o: Port) {
-  $i('in').receive((data: { text: string }) => {
-    const result = { processed: data.text.toUpperCase() };
-    $o('out').send(result);
+  $i('in').receive(data => {
+    if (typeof data !== 'string') {
+      throw new TypeError('Expected a string');
+    }
+    $o('out').send({ processed: data.toUpperCase() });
   });
 }
 ```
@@ -96,12 +96,11 @@ Multi-port component with conditional routing
 import type { Port } from '@astack-tech/core';
 
 _transform($i: Port, $o: Port) {
-  $i('in').receive((data: { value: number }) => {
-    if (data.value % 2 === 0) {
-      $o('even').send({ result: data.value * 2 });
-    } else {
-      $o('odd').send({ result: data.value * 3 });
+  $i('in').receive(data => {
+    if (typeof data !== 'number') {
+      throw new TypeError('Expected a number');
     }
+    $o(data % 2 === 0 ? 'even' : 'odd').send(data);
   });
 }
 ```
@@ -112,61 +111,15 @@ _transform($i: Port, $o: Port) {
 
 ***
 
-### attach()
-
-```ts
-attach(flow): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:70
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `flow` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`TransformNode.attach`
-
-***
-
-### attachPort()
-
-```ts
-attachPort(port): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:71
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `port` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`TransformNode.attachPort`
-
-***
-
 ### E()
 
 ```ts
 E(): Port;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:69
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:208
+
+The error output (`@node/error`); Readable and Transform nodes have one.
 
 #### Returns
 
@@ -178,38 +131,13 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 
 ***
 
-### executeOnce()
-
-```ts
-executeOnce(type, ...args): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:68
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `type` | `any` |
-| ...`args` | `any`[] |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`TransformNode.executeOnce`
-
-***
-
 ### run()
 
 ```ts
 run(data): unknown;
 ```
 
-Defined in: [packages/core/src/component/index.ts:69](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L69)
+Defined in: [packages/core/src/component/index.ts:73](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L73)
 
 Processes one input outside a pipeline. The default implementation returns the input.
 
@@ -231,13 +159,15 @@ Processes one input outside a pipeline. The default implementation returns the i
 throw(error): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:87
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:207
+
+Sends `error` on the error output.
 
 #### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `error` | `any` |
+| `error` | `unknown` |
 
 #### Returns
 

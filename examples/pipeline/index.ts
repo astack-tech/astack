@@ -40,13 +40,13 @@ pipeline.connect('trim.out', 'upper.in');
 pipeline.connect('upper.out', 'exclaim.in');
 
 // The endpoint is inferred: `exclaim` is the only component with no downstream connection.
-console.log(await pipeline.run<string>('trim.in', '  hello  '));
+console.log(await pipeline.run('trim.in', '  hello  '));
 // HELLO!
 
 // Pass an endpoint to read an intermediate result.
-console.log(await pipeline.run<string>('trim.in', '  hello  ', 'upper.out'));
+console.log(await pipeline.run('trim.in', '  hello  ', 'upper.out'));
 // HELLO
 
 // The topology is built once. Concurrent runs resolve in order.
-console.log(await Promise.all(['a', 'b', 'c'].map(text => pipeline.run<string>('trim.in', text))));
+console.log(await Promise.all(['a', 'b', 'c'].map(text => pipeline.run('trim.in', text))));
 // [ 'A!', 'B!', 'C!' ]

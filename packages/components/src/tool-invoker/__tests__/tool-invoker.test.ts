@@ -3,7 +3,7 @@ import { createTool, createToolSet } from '@astack-tech/tools';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import ToolInvoker from '../index';
-import type { Message, ToolInvokerOutput } from '../index';
+import type { Message } from '../index';
 
 const add = createTool('add', 'Adds a and b', args => Number(args['a']) + Number(args['b']));
 const echo = createTool('echo', 'Returns its arguments', args => args);
@@ -210,21 +210,26 @@ describe('ToolInvoker', () => {
     const pipeline = new Pipeline();
     pipeline.addComponent('invoker', new ToolInvoker({ tools: [add] }));
 
-    const output = await pipeline.run<ToolInvokerOutput>(
+    const output = await pipeline.run(
       'invoker.in',
       { messages: [callMessage({ id: 'c1', tool_name: 'add', arguments: { a: 3, b: 4 } })] },
       'invoker.out'
     );
 
-    expect(output.tool_messages).toEqual([{ role: 'tool', content: '7', tool_call_id: 'c1' }]);
+    expect(output).toEqual({ tool_messages: [{ role: 'tool', content: '7', tool_call_id: 'c1' }] });
   });
 
-  it('sends an empty result for invalid pipeline input', async () => {
+  it('rejects a pipeline run whose input is not a ToolInvokerInput', async () => {
     const pipeline = new Pipeline();
     pipeline.addComponent('invoker', new ToolInvoker({ tools: [add] }));
 
-    const output = await pipeline.run<ToolInvokerOutput>('invoker.in', {}, 'invoker.out');
-
-    expect(output).toEqual({ tool_messages: [] });
+    await expect(pipeline.run('invoker.in', {}, 'invoker.out')).rejects.toThrow(TypeError);
+    await expect(
+      pipeline.run(
+        'invoker.in',
+        { messages: [{ role: 'assistant', tool_calls: [{ tool_name: 'add' }] }] },
+        'invoker.out'
+      )
+    ).rejects.toThrow('ToolInvoker: expected a ToolInvokerInput');
   });
 });
