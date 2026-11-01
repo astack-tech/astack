@@ -13,9 +13,31 @@ concurrency:
 permissions:
   contents: read
 
+# A pull request runs only the jobs its changes need (scripts/ci-changes-lib.mjs says
+# which). Pushes to master and dev run every job. Branch protection requires only the
+# "Required checks" job, which passes when every other job passed or was skipped.
 jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      verify: ${{ steps.classify.outputs.verify }}
+      website: ${{ steps.classify.outputs.website }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The merge commit and its first parent, the base branch.
+          fetch-depth: 2
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - id: classify
+        run: node scripts/ci-changes.mjs
+
   verify:
     name: Verify (Node ${{ matrix.node }})
+    needs: changes
+    if: needs.changes.outputs.verify == 'true'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -34,6 +56,8 @@ jobs:
 
   website:
     name: Website
+    needs: changes
+    if: needs.changes.outputs.website == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -52,3 +76,21 @@ jobs:
       - run: pnpm check-types
       - run: pnpm test
       - run: pnpm build
+
+  required:
+    name: Required checks
+    needs: [changes, verify, website]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail unless every job passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "Job results: $RESULTS"
+          for result in $RESULTS; do
+            if [ "$result" != success ] && [ "$result" != skipped ]; then
+              echo "::error::A required job ended with '$result'."
+              exit 1
+            fi
+          done

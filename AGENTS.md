@@ -107,6 +107,7 @@ Examples are a learning path, in the style of a cookbook. Docs and examples are 
 ## 9. Git workflow
 
 - Branches: `master` is production (the website deploys from it); `dev` is integration. Branch from `dev`: `feat/...`, `fix/...`, `docs/...`, `chore/...`.
+- CI runs only the jobs a pull request needs: `Website` when `website/` changes, `Verify` when anything else changes or a file that `pnpm verify` regenerates (`scripts/ci-changes-lib.mjs`). Pushes to `master` and `dev` run every job. Branch protection requires the `Required checks` job. Vercel builds only when `website/` changes. Still run the local gates for every part you touched.
 - PRs go into `dev`; `dev` is merged into `master` for releases. Keep local and remote `master` and `dev` identical after merges, and delete merged branches.
 - Conventional Commits: `feat(core): ...`, `fix(components): ...`, `docs: ...`, `chore(repo): ...`. One package per commit when possible.
 - Never push, merge, publish or deploy unless the maintainer asks for it in the current task.
