@@ -50,3 +50,4 @@ See the [brand specification](../docs/brand/README.md), [content map](../docs/br
 ## Framework context
 
 AStack has its own implementation and architecture. Its API style takes inspiration from Haystack. It uses the HLang runtime for monadic Flow-Based Programming and Observable-based data flow.
+
