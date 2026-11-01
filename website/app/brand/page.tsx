@@ -18,8 +18,12 @@ const ASSETS = [
   ['Organization avatar', 'PNG · 512 × 512', '/brand/avatar.png'],
   ['Repository banner', 'SVG · 1280 × 480', '/brand/readme-banner.svg'],
   ['Repository banner', 'PNG · 1280 × 480', '/brand/readme-banner.png'],
-  ['Social preview', 'PNG · 1200 × 630', '/brand/social-card.png'],
+  ['Website social card', 'SVG · 1200 × 630', '/brand/social-card.svg'],
+  ['Website social card', 'PNG · 1200 × 630', '/brand/social-card.png'],
+  ['GitHub social preview', 'SVG · 1280 × 640', '/brand/github-social-preview.svg'],
+  ['GitHub social preview', 'PNG · 1280 × 640', '/brand/github-social-preview.png'],
   ['Construction drawing', 'SVG · 1400 × 850', '/brand/logo-construction.svg'],
+  ['Construction drawing', 'PNG · 1400 × 850', '/brand/concept-board.png'],
 ];
 
 const MEASURES: [label: string, value: string][] = [
