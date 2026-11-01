@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowUpRightIcon } from '@phosphor-icons/react';
 
+import { isRecord } from '@/lib/json';
+
 interface Release {
   tag_name: string;
   html_url: string;
@@ -14,19 +16,29 @@ export default function BetaNotification() {
     const controller = new AbortController();
     fetch('/api/github-release', { signal: controller.signal })
       .then(async response => {
-        if (!response.ok) return;
-        const data = await response.json();
+        if (!response.ok) {
+          return;
+        }
+        const data: unknown = await response.json();
+        if (!isRecord(data)) {
+          return;
+        }
+        const tagName = data['tag_name'];
+        const htmlUrl = data['html_url'];
         if (
-          typeof data.tag_name === 'string' &&
-          typeof data.html_url === 'string' &&
-          data.html_url.startsWith('https://github.com/astack-tech/astack/releases/')
-        )
-          setRelease(data);
+          typeof tagName === 'string' &&
+          typeof htmlUrl === 'string' &&
+          htmlUrl.startsWith('https://github.com/astack-tech/astack/releases/')
+        ) {
+          setRelease({ tag_name: tagName, html_url: htmlUrl });
+        }
       })
       .catch(() => {
         /* The static beta announcement remains useful offline. */
       });
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+    };
   }, []);
   return (
     <div className="announcement">

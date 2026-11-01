@@ -5,18 +5,21 @@ import { getAllPostSlugs, getPostBySlug, markdownToHtml } from '@/lib/blog';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
+import RichContent from '@/components/RichContent';
 import type { Metadata } from 'next';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
 }
-export async function generateStaticParams() {
+export function generateStaticParams(): { slug: string }[] {
   return getAllPostSlugs().map(slug => ({ slug }));
 }
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post) return { title: 'Article not found' };
+  if (!post) {
+    return { title: 'Article not found' };
+  }
   return {
     title: post.title,
     description: post.excerpt,
@@ -35,7 +38,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = getPostBySlug(slug);
-  if (!post?.content) notFound();
+  if (!post?.content) {
+    notFound();
+  }
   const contentHtml = await markdownToHtml(post.content.trimStart().replace(/^# .+\r?\n/, ''));
   return (
     <>
@@ -69,10 +74,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <span>{post.readingTime}</span>
           </div>
         </header>
-        <article
-          className="prose article-content"
-          dangerouslySetInnerHTML={{ __html: contentHtml }}
-        />
+        <article>
+          <RichContent className="prose article-content" html={contentHtml} />
+        </article>
         <Link href="/blog" className="text-link article-back">
           <ArrowLeftIcon size={16} />
           Back to all articles

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { ArrowRightIcon, CheckIcon } from '@phosphor-icons/react';
 import SyntaxHighlight from './SyntaxHighlight';
 import CopyButton from './CopyButton';
@@ -10,66 +11,83 @@ const modes = [
   {
     id: 'component',
     label: 'Component',
-    title: 'Monadic component base',
+    title: 'A component is a unit of work',
     description:
-      'Built on HLang’s TransformNode with monadic composition laws. Clear input/output contracts keep individual transformations reusable.',
+      'Extend Component and override run(). The same class works on its own and inside a pipeline, where the runtime feeds its input port.',
     code: componentCode,
+    example: 'component',
+    doc: 'components',
     nodes: ['Input port', 'Component', 'Output port'],
-    details: ['Operator composition', 'Standalone: run(data)', 'Reactive: _transform($i, $o)'],
+    details: ['Standalone: run(data)', 'Reactive: _transform($i, $o)', 'Extra named ports'],
   },
   {
     id: 'pipeline',
     label: 'Pipeline',
-    title: 'Pipeline execution',
+    title: 'A pipeline is the graph',
     description:
-      'Each route builds its topology once and reuses it. Select an inferred endpoint, an explicit endpoint, or multiple outputs.',
+      'Register components, connect output ports to input ports, and run. The route is built once and reused. The endpoint is inferred when the graph has one terminal component.',
     code: pipelineCode,
-    nodes: ['Split', 'Embed', 'Store'],
+    example: 'pipeline',
+    doc: 'pipelines',
+    nodes: ['trim', 'upper', 'exclaim'],
     details: [
-      'Workflow orchestration',
-      'Auto-infer or choose an endpoint',
-      'Collect multiple component outputs',
+      'Inferred or explicit endpoint',
+      'Collect several outputs at once',
+      'Concurrent runs resolve in order',
     ],
   },
   {
     id: 'agent',
     label: 'Agent',
-    title: 'Agent as component',
+    title: 'An agent is a component',
     description:
-      'Agents are components that use LLMs, composable with any other component type. Tool results return to context until the task completes or reaches maxIterations.',
+      'Agent asks the model, runs the tools it requests, and repeats until the model answers or maxIterations is reached. It has ports like any other component.',
     code: agentCode,
-    nodes: ['LLM decides', 'Execute tool', 'Update context'],
+    example: 'agent',
+    doc: 'agents',
+    nodes: ['Model decides', 'Run tools', 'Add results'],
     details: [
-      'Agent-to-agent events',
-      'Multi-round tool execution',
-      'Memory and conversation history',
+      'Tools from createTool()',
+      'Tool errors go back to the model',
+      'Usage summed per run',
     ],
   },
   {
     id: 'streaming',
     label: 'Streaming',
-    title: 'Stream agent events',
+    title: 'Stream every step',
     description:
-      'Observable streams underpin reactive data flow. StreamingAgent exposes iteration, model, tool, completion, and error events through an async generator.',
+      'StreamingAgent runs the same loop and yields events: text deltas, tool starts, tool results and a final completion with usage.',
     code: streamingCode,
-    nodes: ['Iteration', 'Tool result', 'Completion'],
-    details: ['Reactive data flow', 'Typed streaming chunks', 'Incremental assistant messages'],
+    example: 'streaming-agent',
+    doc: 'streaming',
+    nodes: ['Text deltas', 'Tool events', 'Completed'],
+    details: ['Async generator API', 'Same events in a pipeline', 'Server-Sent Events over HTTP'],
   },
 ];
 
 export default function ComputationModel() {
   const [active, setActive] = useState(0);
-  const mode = modes[active];
+  const mode = modes[active] ?? modes[0];
+  if (mode === undefined) {
+    return null;
+  }
   function selectByKey(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
     let next = index;
-    if (event.key === 'ArrowRight') next = (index + 1) % modes.length;
-    else if (event.key === 'ArrowLeft') next = (index - 1 + modes.length) % modes.length;
-    else if (event.key === 'Home') next = 0;
-    else if (event.key === 'End') next = modes.length - 1;
-    else return;
+    if (event.key === 'ArrowRight') {
+      next = (index + 1) % modes.length;
+    } else if (event.key === 'ArrowLeft') {
+      next = (index - 1 + modes.length) % modes.length;
+    } else if (event.key === 'Home') {
+      next = 0;
+    } else if (event.key === 'End') {
+      next = modes.length - 1;
+    } else {
+      return;
+    }
     event.preventDefault();
     setActive(next);
-    document.getElementById(`model-tab-${next}`)?.focus();
+    document.getElementById(`model-tab-${String(next)}`)?.focus();
   }
   return (
     <section id="computation-model" className="architecture-section section">
@@ -78,8 +96,8 @@ export default function ComputationModel() {
           <p className="eyebrow">THE COMPUTATION MODEL</p>
           <h2>One model. Four ways to build.</h2>
           <p>
-            The computation model uses HLang&apos;s monadic composition rules. Use the same
-            components for workflows, reactive streams, and agent communication.
+            Components, ports and pipelines. Workflows, branching, agents and streaming are built
+            from these three ideas, not from separate subsystems.
           </p>
         </div>
         <div className="architecture-workbench">
@@ -89,12 +107,16 @@ export default function ComputationModel() {
                 key={m.id}
                 type="button"
                 role="tab"
-                id={`model-tab-${i}`}
+                id={`model-tab-${String(i)}`}
                 aria-selected={active === i}
                 aria-controls="model-panel"
                 tabIndex={active === i ? 0 : -1}
-                onClick={() => setActive(i)}
-                onKeyDown={e => selectByKey(e, i)}
+                onClick={() => {
+                  setActive(i);
+                }}
+                onKeyDown={e => {
+                  selectByKey(e, i);
+                }}
               >
                 {m.label}
               </button>
@@ -105,7 +127,7 @@ export default function ComputationModel() {
             id="model-panel"
             role="tabpanel"
             tabIndex={0}
-            aria-labelledby={`model-tab-${active}`}
+            aria-labelledby={`model-tab-${String(active)}`}
           >
             <div className="workbench-description">
               <h3>{mode.title}</h3>
@@ -126,16 +148,18 @@ export default function ComputationModel() {
                   </li>
                 ))}
               </ul>
-              <a
-                className="text-link"
-                href={`https://deepwiki.com/astack-tech/astack/${mode.id === 'agent' || mode.id === 'streaming' ? '3-agent-system' : '2-core-architecture'}`}
-              >
-                Read the technical guide <ArrowRightIcon size={14} />
-              </a>
+              <div className="workbench-links">
+                <Link className="text-link" href={`/docs/${mode.doc}`}>
+                  Read the docs <ArrowRightIcon size={14} />
+                </Link>
+                <Link className="text-link" href={`/examples/${mode.example}`}>
+                  Open the example <ArrowRightIcon size={14} />
+                </Link>
+              </div>
             </div>
             <div className="code-panel">
               <div className="panel-toolbar">
-                <span>{mode.id}.ts</span>
+                <span>examples/{mode.example}/index.ts</span>
                 <CopyButton text={mode.code} size="sm" />
               </div>
               <SyntaxHighlight code={mode.code} />
@@ -144,19 +168,16 @@ export default function ComputationModel() {
         </div>
         <div className="principles">
           <div>
-            <h3>Monadic laws</h3>
-            <p>HLang defines the monadic composition laws that AStack components use.</p>
+            <h3>Explicit connections</h3>
+            <p>Every path data can take is a connect() call you can read.</p>
           </div>
           <div>
-            <h3>Direct connections</h3>
-            <p>Port-to-port data flow without intermediate adaptation layers.</p>
+            <h3>Built once</h3>
+            <p>Each route&apos;s topology is built on its first run and reused afterwards.</p>
           </div>
           <div>
             <h3>Reactive streams</h3>
-            <p>
-              Observable-based processing with backpressure and flow-control patterns for real-time
-              applications.
-            </p>
+            <p>Each connection is an RxJS stream. Components react as values arrive.</p>
           </div>
         </div>
       </div>

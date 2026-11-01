@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { MagicCard } from './magicui/magic-card';
 import {
-  ArrowUpRightIcon,
+  ArrowRightIcon,
   CubeIcon,
   ArrowsSplitIcon,
   ArrowsLeftRightIcon,
@@ -12,9 +13,9 @@ import {
 const features = [
   {
     icon: CubeIcon,
-    title: 'Monadic component system',
+    title: 'One component model',
     description:
-      'The Component class extends HLang’s TransformNode and uses its monadic composition laws. Agents and tools use the same component interface. Pipelines connect them.',
+      'Component extends HLang’s TransformNode. Models, agents and your own logic share one interface: input ports, output ports and run(). Pipelines connect them.',
     code: 'class Agent extends Component',
     wide: true,
   },
@@ -22,7 +23,7 @@ const features = [
     icon: ArrowsSplitIcon,
     title: 'Data flow paradigm',
     description:
-      'Flow-Based Programming treats LLMs as stateless generators. Define the data dependencies between components. The runtime sends data through their ports.',
+      'Components never call each other. You declare the connections, and the runtime sends each value along them. Model calls stay stateless; the agent keeps the history.',
     code: 'input → transform → output',
   },
   {
@@ -34,9 +35,9 @@ const features = [
   },
   {
     icon: PlugsConnectedIcon,
-    title: 'Type-safe port system',
+    title: 'Named ports',
     description:
-      'Port.I() and Port.O() define input and output ports. TypeScript describes the data contracts. The HLang runtime connects the ports.',
+      'Port.I() and Port.O() declare named ports. A component chooses which output port to send on, which is how branching works.',
     code: "Port.I('in') → Port.O('out')",
   },
   {
@@ -48,9 +49,9 @@ const features = [
   },
   {
     icon: BracketsCurlyIcon,
-    title: 'Easy integration',
+    title: 'Pluggable models',
     description:
-      'Use OpenAI-compatible model interfaces. Connect your model provider and business logic through the component contract.',
+      'Agents accept any object with chatCompletion(). The DeepSeek provider ships today; add others by implementing the same contract.',
     code: 'model.chatCompletion(messages)',
   },
 ];
@@ -62,8 +63,8 @@ export default function Features() {
         <p className="eyebrow">COMPONENTS, PORTS, AND PIPELINES</p>
         <h2>Everything is a component.</h2>
         <p>
-          Connect them through ports. AStack uses{' '}
-          <a href="https://github.com/hlang-tech/hlang">HLang</a>&apos;s monadic composition model.
+          Connect them through ports. The graph runs on the{' '}
+          <a href="https://github.com/hlang-tech/hlang">HLang</a> flow runtime.
         </p>
       </div>
       <div className="feature-grid">
@@ -94,12 +95,9 @@ export default function Features() {
           </MagicCard>
         ))}
       </div>
-      <a
-        className="section-link"
-        href="https://deepwiki.com/astack-tech/astack/2-core-architecture"
-      >
-        Explore the architecture <ArrowUpRightIcon size={15} />
-      </a>
+      <Link className="section-link" href="/docs/components">
+        Read about components <ArrowRightIcon size={15} />
+      </Link>
     </section>
   );
 }

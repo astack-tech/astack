@@ -1,8 +1,8 @@
 'use client';
 
 import { ThemeProvider as Provider, useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
 import { AnimatedThemeToggler } from './magicui/animated-theme-toggler';
+import { useMounted } from '@/lib/use-mounted';
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -14,8 +14,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
   return (
     <AnimatedThemeToggler
       className="theme-toggle"

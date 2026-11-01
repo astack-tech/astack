@@ -5,12 +5,8 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import remarkRehype from 'remark-rehype';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeStringify from 'rehype-stringify';
+
+import { renderMarkdown } from './markdown';
 
 const postsDirectory = path.join(process.cwd(), 'content/blog');
 
@@ -54,60 +50,50 @@ export function getAllPosts(): BlogPost[] {
  * Get a single blog post by slug
  */
 export function getPostBySlug(slug: string): BlogPost | null {
-  try {
-    const fullPath = path.join(postsDirectory, `${slug}.md`);
-    if (!fs.existsSync(fullPath)) {
-      return null;
-    }
-
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
-    const { data, content } = matter(fileContents);
-
-    // Calculate reading time
-    // Remove code blocks first (they read faster)
-    const contentWithoutCode = content.replace(/```[\s\S]*?```/g, '');
-    // Count words (English) and characters (for code/Chinese)
-    const words = contentWithoutCode.split(/\s+/).filter(word => word.length > 0);
-    const wordCount = words.length;
-    // Average reading speed: 200 words per minute for English
-    const minutes = Math.max(1, Math.ceil(wordCount / 200));
-    const readingTime = minutes === 1 ? '1 min read' : `${minutes} mins read`;
-
-    return {
-      slug,
-      title: data.title || 'Untitled',
-      date: data.date || new Date().toISOString(),
-      excerpt: data.excerpt || '',
-      author: data.author || 'AStack Team',
-      tags: data.tags || [],
-      content,
-      readingTime,
-    };
-  } catch (error) {
-    console.error(`Error reading post ${slug}:`, error);
+  const fullPath = path.join(postsDirectory, `${slug}.md`);
+  if (!fs.existsSync(fullPath)) {
     return null;
   }
+
+  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const { data, content } = matter(fileContents);
+
+  // Calculate reading time
+  // Remove code blocks first (they read faster)
+  const contentWithoutCode = content.replace(/```[\s\S]*?```/g, '');
+  // Count words (English) and characters (for code/Chinese)
+  const words = contentWithoutCode.split(/\s+/).filter(word => word.length > 0);
+  const wordCount = words.length;
+  // Average reading speed: 200 words per minute for English
+  const minutes = Math.max(1, Math.ceil(wordCount / 200));
+  const readingTime = minutes === 1 ? '1 min read' : `${String(minutes)} mins read`;
+
+  const meta = data as Record<string, unknown>;
+  const text = (key: string, fallback: string): string => {
+    const value = meta[key];
+    return typeof value === 'string' && value.length > 0 ? value : fallback;
+  };
+  const tags = Array.isArray(meta['tags'])
+    ? meta['tags'].filter((tag): tag is string => typeof tag === 'string')
+    : [];
+
+  return {
+    slug,
+    title: text('title', 'Untitled'),
+    date: text('date', new Date().toISOString()),
+    excerpt: text('excerpt', ''),
+    author: text('author', 'AStack Team'),
+    tags,
+    content,
+    readingTime,
+  };
 }
 
 /**
- * Convert markdown content to HTML
+ * Converts markdown content to HTML.
  */
-export async function markdownToHtml(markdown: string): Promise<string> {
-  const result = await unified()
-    .use(remarkParse)
-    .use(remarkGfm)
-    .use(remarkRehype)
-    .use(rehypeHighlight)
-    .use(rehypeStringify)
-    .process(markdown);
-  return result
-    .toString()
-    .replace(/<pre>/g, '<pre tabindex="0" aria-label="Code example">')
-    .replace(
-      /<table>/g,
-      '<div class="article-table" tabindex="0" role="region" aria-label="Data table"><table>'
-    )
-    .replace(/<\/table>/g, '</table></div>');
+export function markdownToHtml(markdown: string): Promise<string> {
+  return renderMarkdown(markdown);
 }
 
 /**
