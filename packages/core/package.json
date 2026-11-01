@@ -1,6 +1,6 @@
 {
   "name": "@astack-tech/core",
-  "version": "0.2.0-beta.3",
+  "version": "0.2.0-beta.4",
   "description": "Component and Pipeline runtime for AStack: typed ports, reactive data flow and endpoint inference.",
   "keywords": [
     "astack",
