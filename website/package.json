@@ -4,7 +4,7 @@
   "private": true,
   "description": "The website for AStack, a composable TypeScript framework for AI applications",
   "homepage": "https://astack.tech",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a",
   "engines": {
     "node": ">=18 <25",
     "pnpm": ">=8"
@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@eslint/js": "^9.28.0",
+    "@eslint/js": "^9.39.5",
     "@tailwindcss/postcss": "^4",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^20",
