@@ -18,8 +18,8 @@ importers:
   .:
     dependencies:
       '@astack-tech/core':
-        specifier: 0.2.0-beta.3
-        version: 0.2.0-beta.3
+        specifier: 0.2.0-beta.4
+        version: 0.2.0-beta.4
       '@phosphor-icons/react':
         specifier: ^2.1.10
         version: 2.1.10(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -124,8 +124,8 @@ packages:
   '@antfu/install-pkg@2.1.0':
     resolution: {integrity: sha512-sdg9NxU3zR4Mnawfbc/x6GB5Wf17WYud5qOuEuxXjaKpYpMkISSJEjItGebXJ2bQ4DIcly4NYH23mtkGJjvKUw==}
 
-  '@astack-tech/core@0.2.0-beta.3':
-    resolution: {integrity: sha512-sFUhMWFxZGp4Z0oe5FBCJMJiXl+S4jxSxd9hUCKDSw/qbMJloQcDDILjBTN0si9PpcrcZcjWNVHb80Q3vyL0Kg==}
+  '@astack-tech/core@0.2.0-beta.4':
+    resolution: {integrity: sha512-OxXMWBYXEApgcWo6NfDWjvMFevsuqj4Xx7/19YE76ADlg5qdYGCSKKcEuuuA83KAOlV6IMag028SkevBGC+5ag==}
     engines: {node: '>=20.0.0'}
 
   '@babel/code-frame@7.29.7':
@@ -277,8 +277,8 @@ packages:
     resolution: {integrity: sha512-IkO+/KEUvwbVpiURZg+P7zF74z5Jxe0UgJxVni+RtoHQ6IZieXaO02kmadomap/q+l6bc/jdPGGqTjhuZnuz1Q==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24}
 
-  '@hlang-org/runtime@1.0.7':
-    resolution: {integrity: sha512-xfLvOq7VPyXCEIKKHJbIID+AfNo2OQ0K2UEHlZtdRKVs4M8+RGbkIbcKW7h0xTxlgHX/0QDh6eIRqbMssWtn9w==}
+  '@hlang-org/runtime@1.1.1':
+    resolution: {integrity: sha512-2hGFtW5mXcFMkSwHSBPAaiqsnEV1tdF9etAQh/auQCpChHEEOfz1wecnILSNILJf+i9E81BbFOHhu+vTyf6cuA==}
     engines: {node: '>=18'}
 
   '@humanfs/core@0.19.2':
@@ -3173,9 +3173,9 @@ snapshots:
       package-manager-detector: 1.9.0
       tinyexec: 1.3.1
 
-  '@astack-tech/core@0.2.0-beta.3':
+  '@astack-tech/core@0.2.0-beta.4':
     dependencies:
-      '@hlang-org/runtime': 1.0.7
+      '@hlang-org/runtime': 1.1.1
       rxjs: 7.8.2
 
   '@babel/code-frame@7.29.7':
@@ -3364,7 +3364,7 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@hlang-org/runtime@1.0.7':
+  '@hlang-org/runtime@1.1.1':
     dependencies:
       rxjs: 6.6.7
       uuid: 11.1.1
