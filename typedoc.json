@@ -1,0 +1,78 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPointStrategy": "packages",
+  "entryPoints": [
+    "packages/core",
+    "packages/components",
+    "packages/tools",
+    "packages/integrations"
+  ],
+  "packageOptions": {
+    "entryPoints": ["src/index.ts"],
+    "tsconfig": "tsconfig.json",
+    "readme": "none",
+    "validation": {
+      "notExported": true,
+      "invalidLink": true,
+      "rewrittenLink": true,
+      "notDocumented": true,
+      "unusedMergeModuleWith": true
+    },
+    "requiredToBeDocumented": [
+      "Enum",
+      "EnumMember",
+      "Variable",
+      "Function",
+      "Class",
+      "Interface",
+      "Property",
+      "Method",
+      "Accessor",
+      "TypeAlias"
+    ],
+    "excludePrivate": true,
+    "excludeInternal": true,
+    "gitRevision": "master",
+    "sourceLinkTemplate": "https://github.com/astack-tech/astack/blob/{gitRevision}/{path}#L{line}"
+  },
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "website/content/api",
+  "cleanOutputDir": true,
+  "readme": "none",
+  "name": "AStack API",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "excludeExternals": true,
+  "sort": ["kind", "alphabetical"],
+  "gitRevision": "master",
+  "sourceLinkTemplate": "https://github.com/astack-tech/astack/blob/{gitRevision}/{path}#L{line}",
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "rewrittenLink": true,
+    "notDocumented": true,
+    "unusedMergeModuleWith": true
+  },
+  "requiredToBeDocumented": [
+    "Enum",
+    "EnumMember",
+    "Variable",
+    "Function",
+    "Class",
+    "Interface",
+    "Property",
+    "Method",
+    "Accessor",
+    "TypeAlias"
+  ],
+  "treatWarningsAsErrors": true,
+  "hidePageHeader": true,
+  "hideBreadcrumbs": true,
+  "parametersFormat": "table",
+  "interfacePropertiesFormat": "table",
+  "classPropertiesFormat": "table",
+  "typeDeclarationFormat": "table",
+  "useCodeBlocks": true,
+  "expandObjects": false
+}

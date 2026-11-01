@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 
+import { apiHref, getAllApiPages } from '@/lib/api-docs';
 import { getAllPosts } from '@/lib/blog';
 import { getAllExamples } from '@/lib/cookbook';
 import { getAllDocs } from '@/lib/docs';
@@ -23,6 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     changeFrequency: 'monthly',
     priority: 0.9,
   }));
+  const apiEntries: MetadataRoute.Sitemap = [[], ...getAllApiPages().map(page => page.segments)].map(
+    segments => ({
+      url: `${baseUrl}${apiHref(segments)}`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    })
+  );
   const exampleEntries: MetadataRoute.Sitemap = getAllExamples().map(example => ({
     url: `${baseUrl}/examples/${example.name}`,
     lastModified: currentDate,
@@ -86,6 +95,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     ...docEntries,
+    ...apiEntries,
     ...exampleEntries,
     ...blogEntries,
   ];

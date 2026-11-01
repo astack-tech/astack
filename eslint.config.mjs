@@ -1,6 +1,7 @@
 // @ts-check
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
+import tsdoc from 'eslint-plugin-tsdoc';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -50,6 +51,7 @@ export default tseslint.config(
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/temp/**',
       '**/coverage/**',
       '**/.next/**',
       '**/.next-dev/**',
@@ -108,8 +110,11 @@ export default tseslint.config(
   {
     files: ['packages/*/src/**/*.ts'],
     ignores: ['**/*.test.ts', '**/__tests__/**'],
+    plugins: { tsdoc },
     rules: {
       '@typescript-eslint/explicit-module-boundary-types': 'error',
+      // Doc comments in packages follow TSDoc; TypeDoc and API Extractor read them.
+      'tsdoc/syntax': 'error',
     },
   },
   {

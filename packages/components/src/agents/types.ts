@@ -2,10 +2,15 @@
  * Token usage reported by a model provider.
  */
 export interface TokenUsage {
+  /** Tokens in the generated reply. */
   completion_tokens: number;
+  /** Tokens in the request, including the conversation history. */
   prompt_tokens: number;
+  /** Prompt tokens served from the provider's cache, when the provider reports it. */
   prompt_cache_hit_tokens?: number | undefined;
+  /** Prompt tokens not served from the cache, when the provider reports it. */
   prompt_cache_miss_tokens?: number | undefined;
+  /** Sum of prompt and completion tokens. */
   total_tokens: number;
 }
 
@@ -14,13 +19,20 @@ export interface TokenUsage {
  * `tool_name` and parsed `arguments` fields.
  */
 export interface ToolCall {
+  /** Identifier that a `tool` message uses to answer this call. */
   id: string;
+  /** Call type. Model providers send `function`. */
   type: string;
+  /** Function name and raw JSON arguments, as sent by the model. */
   function: {
+    /** Name of the tool to call. */
     name: string;
+    /** Arguments as a JSON string. */
     arguments: string;
   };
+  /** Tool name in the internal format, when the provider adds it. */
   tool_name?: string | undefined;
+  /** Parsed arguments, or the raw JSON text while streaming, when the provider adds them. */
   arguments?: Record<string, unknown> | string | undefined;
 }
 
@@ -64,9 +76,13 @@ export interface Tool {
  * Conversation memory used by an agent.
  */
 export interface Memory {
+  /** Stores a message at the end of the history. */
   addMessage(message: Message): void;
+  /** Returns a copy of every stored message, oldest first. */
   getMessages(): Message[];
+  /** Returns the history prepared for a model request, optionally limited to `maxTokens`. */
   getFormattedMemory(maxTokens?: number): Message[] | string;
+  /** Removes every stored message. */
   clear(): void;
 }
 
@@ -83,10 +99,12 @@ export interface ModelProviderOptions {
  * `Deepseek` from `@astack-tech/integrations` implements it.
  */
 export interface ModelProvider {
+  /** Sends the conversation and resolves with the assistant reply, including any tool calls and token usage. */
   chatCompletion(
     messages: Message[],
     options?: ModelProviderOptions
   ): Promise<MessageWithToolCalls>;
+  /** Optional. Streams the reply as partial messages: text deltas, tool-call deltas and usage. Without it, `StreamingAgent` falls back to `chatCompletion`. */
   streamChatCompletion?(
     messages: Message[],
     options?: ModelProviderOptions
@@ -97,6 +115,7 @@ export interface ModelProvider {
  * Structured agent input.
  */
 export interface AgentInput {
+  /** Conversation to send. A string input to `run()` becomes one `user` message. */
   messages: Message[];
   /** Attached as `metadata` to every message that has none. */
   context?: Record<string, unknown> | undefined;
@@ -106,8 +125,11 @@ export interface AgentInput {
  * One executed tool call.
  */
 export interface ToolCallRecord {
+  /** Name of the tool that ran. */
   tool: string;
+  /** Parsed arguments passed to the tool. */
   args: Record<string, unknown>;
+  /** Value returned by the tool, or `{ error }` when it threw. */
   result: unknown;
 }
 

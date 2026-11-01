@@ -3,6 +3,7 @@ title: RLM
 description: Answer questions over contexts that do not fit in one prompt.
 order: 10
 examples: [rlm-agent]
+api: [components/classes/RLMAgent, components/classes/FileSystemContext, components/interfaces/LLMProvider, components/interfaces/RLMResult]
 ---
 
 `RLMAgent` implements the Recursive Language Model pattern. Instead of putting a large context into the prompt, a root model writes JavaScript that explores the context. The code reads files on demand and asks a sub-model focused questions.

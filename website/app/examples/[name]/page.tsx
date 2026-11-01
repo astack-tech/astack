@@ -34,6 +34,14 @@ export async function generateMetadata({ params }: ExamplePageProps): Promise<Me
     title: `${example.title} · Examples`,
     description: example.description,
     alternates: { canonical: `https://astack.tech/examples/${name}` },
+    openGraph: {
+      title: `${example.title} · AStack examples`,
+      description: example.description,
+    },
+    twitter: {
+      title: `${example.title} · AStack examples`,
+      description: example.description,
+    },
   };
 }
 

@@ -36,17 +36,19 @@ Dependency direction: `core` ← `tools` ← `components`; `core` ← `integrati
 
 Run from the repository root with Node.js 20+ and pnpm 10.
 
-| Command                             | What it does                                                                            |
-| ----------------------------------- | --------------------------------------------------------------------------------------- |
-| `pnpm install`                      | Install the workspace (packages and examples).                                          |
-| `pnpm build`                        | Build every package with tsup (ESM, CJS, declarations).                                 |
-| `pnpm lint`                         | ESLint (typescript-eslint `strictTypeChecked` + `stylisticTypeChecked`), zero warnings. |
-| `pnpm check-types`                  | `tsc` with the flags in `tsconfig.base.json` for every package and example.             |
-| `pnpm test`                         | Vitest with coverage thresholds for packages; runs the offline examples as smoke tests. |
-| `pnpm format` / `pnpm format:check` | Prettier.                                                                               |
-| `pnpm turbo run check:package`      | `publint --strict` and `attw --profile node16` for every package.                       |
-| `pnpm check:examples`               | Regenerate website example data and fail if it drifted.                                 |
-| `pnpm verify`                       | Everything above. MUST pass before a PR.                                                |
+| Command                              | What it does                                                                            |
+| ------------------------------------ | --------------------------------------------------------------------------------------- |
+| `pnpm install`                       | Install the workspace (packages and examples).                                          |
+| `pnpm build`                         | Build every package with tsup (ESM, CJS, declarations).                                 |
+| `pnpm lint`                          | ESLint (typescript-eslint `strictTypeChecked` + `stylisticTypeChecked`), zero warnings. |
+| `pnpm check-types`                   | `tsc` with the flags in `tsconfig.base.json` for every package and example.             |
+| `pnpm test`                          | Vitest with coverage thresholds for packages; runs the offline examples as smoke tests. |
+| `pnpm format` / `pnpm format:check`  | Prettier.                                                                               |
+| `pnpm turbo run check:package`       | `publint --strict` and `attw --profile node16` for every package.                       |
+| `pnpm check:examples`                | Regenerate website example data and fail if it drifted.                                 |
+| `pnpm check:api` / `pnpm update:api` | Check or update the API Extractor report of every package.                              |
+| `pnpm docs:api` / `pnpm check:docs`  | Generate the TypeDoc API reference, or fail if it drifted.                              |
+| `pnpm verify`                        | Everything above. MUST pass before a PR.                                                |
 
 Package-scoped: `pnpm --filter @astack-tech/core test`, `pnpm --filter @astack-examples/pipeline start`.
 
@@ -79,7 +81,16 @@ Website (separate install): `cd website && pnpm install` (the folder has its own
 - Every user-facing change needs a changeset: `pnpm changeset`. Describe what changed for users, not how.
 - Releases: `pnpm version-packages`, then `pnpm release` from `master`. Do not publish by hand.
 
-## 7. Examples and docs
+## 7. API documentation
+
+The API reference is generated from the code. Never write signatures by hand.
+
+- Every exported symbol and every member of an exported class or interface has a TSDoc comment (`/** ... */`). `tsdoc/syntax` lints the comment syntax; TypeDoc's `notDocumented` validation fails the build when a comment is missing.
+- Write `@param name - description` (with the hyphen), `@returns`, `@throws` and `@example` where they help. Each package's `src/index.ts` starts with an `@packageDocumentation` comment.
+- `pnpm docs:api` regenerates `website/content/api` with TypeDoc; `pnpm check:docs` fails when it drifts. The website renders it under `/docs/api`. Docs pages list related API pages in their `api:` front matter, and the build fails on an entry that no longer exists.
+- API Extractor keeps a public API report per package in `packages/<name>/etc/<name>.api.md`. `pnpm check:api` fails when the public API changes. When the change is intended, run `pnpm update:api`, commit the updated report, and describe the change in a changeset. Reviewers read the report diff to approve API changes.
+
+## 8. Examples and docs
 
 Examples are a learning path, in the style of a cookbook. Docs and examples are cross-linked.
 
@@ -90,22 +101,23 @@ Examples are a learning path, in the style of a cookbook. Docs and examples are 
 - The website renders example code from `examples/` through `pnpm sync:examples`. Never hand-edit `website/content/examples`.
 - When an API changes, update in the same PR: tests, package README, docs page, examples, website code samples, root READMEs (English and Chinese).
 
-## 8. Git workflow
+## 9. Git workflow
 
 - Branches: `master` is production (the website deploys from it); `dev` is integration. Branch from `dev`: `feat/...`, `fix/...`, `docs/...`, `chore/...`.
 - PRs go into `dev`; `dev` is merged into `master` for releases. Keep local and remote `master` and `dev` identical after merges, and delete merged branches.
 - Conventional Commits: `feat(core): ...`, `fix(components): ...`, `docs: ...`, `chore(repo): ...`. One package per commit when possible.
 - Never push, merge, publish or deploy unless the maintainer asks for it in the current task.
 
-## 9. Security notes
+## 10. Security notes
 
 - `RLMAgent` runs model-written code in a Node.js `vm` context. It is not a security boundary; document this wherever RLM is shown.
 - Report vulnerabilities as described in `SECURITY.md`.
 
-## 10. Definition of done
+## 11. Definition of done
 
 - [ ] A failing test was written first and now passes.
 - [ ] `pnpm verify` passes with zero warnings.
 - [ ] Docs, package READMEs, examples, website and root READMEs match the code.
+- [ ] New or changed exports have TSDoc comments; the API report and generated API docs are updated.
 - [ ] A changeset exists for user-facing changes.
 - [ ] No secrets, no CJK text in source, no `console` in packages.

@@ -37,8 +37,11 @@ export interface DeepseekConfig {
  * Tool description accepted by `rawTools` and `temporaryTools`.
  */
 export interface RawTool {
+  /** Unique tool name. */
   name: string;
+  /** Description that tells the model when to use the tool. */
   description: string;
+  /** JSON Schema of the arguments. Defaults to `{}`. */
   parameters?: Record<string, unknown> | undefined;
 }
 
@@ -64,10 +67,20 @@ export interface ToolCall {
  * (`type`, `function`) and the internal shape (`tool_name`, `arguments`).
  */
 export interface ResponseToolCall {
+  /** Identifier assigned by the API. A `tool` message answers the call with it. */
   id: string;
+  /** Always `function`. */
   type: 'function';
-  function: { name: string; arguments: string };
+  /** The call in the OpenAI shape: function name and raw JSON arguments. An empty argument string is sent as `{}`. */
+  function: {
+    /** Name of the tool to call. */
+    name: string;
+    /** Arguments as JSON text. */
+    arguments: string;
+  };
+  /** Name of the tool, same as `function.name`. */
   tool_name: string;
+  /** Parsed arguments. JSON that is not an object becomes `{}`. */
   arguments: Record<string, unknown>;
 }
 
@@ -75,10 +88,20 @@ export interface ResponseToolCall {
  * Partial tool call emitted while streaming. `arguments` holds the raw JSON fragment.
  */
 export interface StreamToolCall {
+  /** Identifier assigned by the API. Only the first delta of a call carries it; later deltas have `''`. */
   id: string;
+  /** Always `function`. */
   type: 'function';
-  function: { name: string; arguments: string };
+  /** The delta in the OpenAI shape. `arguments` holds only this delta's JSON fragment. */
+  function: {
+    /** Name of the tool to call. */
+    name: string;
+    /** Arguments as JSON text. */
+    arguments: string;
+  };
+  /** Name of the tool when this delta carries it, otherwise `''`. */
   tool_name: string;
+  /** Raw JSON fragment of this delta. Concatenate the fragments of a call to get its arguments. */
   arguments: string;
 }
 
@@ -86,10 +109,15 @@ export interface StreamToolCall {
  * Token usage reported by the API.
  */
 export interface TokenUsage {
+  /** Tokens in the generated reply. */
   completion_tokens: number;
+  /** Tokens in the request. */
   prompt_tokens: number;
+  /** Prompt tokens served from DeepSeek's context cache. */
   prompt_cache_hit_tokens?: number | undefined;
+  /** Prompt tokens not served from the cache. */
   prompt_cache_miss_tokens?: number | undefined;
+  /** Sum of prompt and completion tokens. */
   total_tokens: number;
 }
 
@@ -100,11 +128,13 @@ export interface TokenUsage {
 export interface Message {
   /** One of `system`, `user`, `assistant` or `tool` (see `MessageRole`). */
   role: string;
+  /** Text content. Omitted content is sent as no content. */
   content?: string | undefined;
   /** Accepted for compatibility. Assistant tool calls are not forwarded to the API. */
   tool_calls?: readonly unknown[] | undefined;
   /** Identifier of the call that a `tool` message answers. */
   tool_call_id?: string | undefined;
+  /** Ignored on input. Present so agent histories can be passed unchanged. */
   usage?: TokenUsage | undefined;
 }
 
@@ -112,9 +142,13 @@ export interface Message {
  * Assistant message returned by `chatCompletion`.
  */
 export interface AssistantMessage {
+  /** Always `assistant`. */
   role: 'assistant';
+  /** Reply text. Empty when the model only calls tools. */
   content: string;
+  /** Tool calls requested by the model, if any. */
   tool_calls?: ResponseToolCall[] | undefined;
+  /** Token usage of this request, when the API reports it. */
   usage?: TokenUsage | undefined;
 }
 
@@ -122,9 +156,13 @@ export interface AssistantMessage {
  * Chunk yielded by `streamChatCompletion`.
  */
 export interface StreamChunk {
+  /** Always `assistant`. */
   role: 'assistant';
+  /** Text delta. Empty in chunks that carry tool calls or usage. */
   content: string;
+  /** Tool-call deltas in this chunk. */
   tool_calls?: StreamToolCall[] | undefined;
+  /** Token usage. Sent once, in the final chunk, when the API reports it. */
   usage?: TokenUsage | undefined;
 }
 
@@ -357,7 +395,7 @@ class Deepseek extends Component {
   /**
    * Runs the model outside a pipeline.
    *
-   * @param input A prompt string or a list of messages.
+   * @param input - A prompt string or a list of messages.
    */
   override run(input: string | Message[]): Promise<string | AssistantMessage> {
     return typeof input === 'string' ? this.generateCompletion(input) : this.chatCompletion(input);

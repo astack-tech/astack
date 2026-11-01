@@ -100,8 +100,8 @@ class Pipeline {
   /**
    * Connects an output port to an input port. Duplicate connections are ignored.
    *
-   * @param sourceName Output port identifier, for example `splitter.out`.
-   * @param sinkName Input port identifier, for example `embedder.in`.
+   * @param sourceName - Output port identifier, for example `splitter.out`.
+   * @param sinkName - Input port identifier, for example `embedder.in`.
    */
   connect(sourceName: string, sinkName: string): void {
     const exists = this.connectPairs.some(([src, snk]) => src === sourceName && snk === sinkName);

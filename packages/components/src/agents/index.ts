@@ -24,6 +24,7 @@ export type {
   FileInfo,
   FileSystemContextOptions,
   LLMProvider,
+  MemoryLimits,
   MemoryUsage,
   RLMAgentConfig,
   RLMChunk,

@@ -3,6 +3,7 @@ title: Tools
 description: Turn functions, components and MCP methods into tools that agents can call.
 order: 6
 examples: [tools, agent]
+api: [tools/functions/createTool, tools/functions/createToolSet, tools/functions/createComponentTool, tools/functions/createMCPTool, components/classes/ToolInvoker]
 ---
 
 A tool has a name, a description, a JSON Schema for its arguments, and an `invoke(args)` method that returns a promise.

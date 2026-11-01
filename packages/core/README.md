@@ -85,6 +85,7 @@ Subpath imports: `@astack-tech/core/component`, `@astack-tech/core/pipeline`.
 
 ## Learn more
 
+- [API reference](https://astack.tech/docs/api/core): every export, generated from the source
 - [Components](https://astack.tech/docs/components), [Pipelines](https://astack.tech/docs/pipelines) and [Routing](https://astack.tech/docs/routing)
 - Examples: [component](https://astack.tech/examples/component), [pipeline](https://astack.tech/examples/pipeline), [routing](https://astack.tech/examples/routing)
 

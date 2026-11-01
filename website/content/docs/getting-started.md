@@ -3,6 +3,7 @@ title: Getting started
 description: Install AStack, write a component and connect it into a pipeline.
 order: 2
 examples: [component, pipeline]
+api: [core/classes/Component, core/classes/Pipeline]
 ---
 
 ## Install

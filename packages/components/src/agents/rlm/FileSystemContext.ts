@@ -8,8 +8,11 @@ import type { Logger } from '../../utils/logger';
  * File information without content
  */
 export interface FileInfo {
+  /** Path relative to the context's base path. Memory mode uses `__memory__.txt`. */
   path: string;
+  /** File size in bytes (in memory mode, the text length). */
   size: number;
+  /** Line count. In filesystem mode it stays 0 until the file is first read. */
   lines: number;
 }
 
@@ -17,9 +20,13 @@ export interface FileInfo {
  * Context statistics
  */
 export interface ContextStats {
+  /** Number of files in the context. */
   totalFiles: number;
+  /** Sum of all file sizes in bytes. */
   totalSize: number;
+  /** Sum of the line counts known so far. Files not yet read count as 0. */
   totalLines: number;
+  /** Number of files per extension. */
   fileTypes: Record<string, number>;
 }
 
@@ -27,10 +34,15 @@ export interface ContextStats {
  * Memory usage information
  */
 export interface MemoryUsage {
+  /** Bytes currently held in the content cache. Not a cumulative total. */
   bytesRead: number;
+  /** Cache capacity in bytes (`maxCacheSize`). */
   maxBytes: number;
+  /** Cache use as a percentage of `maxBytes`. */
   percentUsed: number;
+  /** Bytes currently held in the content cache. */
   cacheSize: number;
+  /** Number of files currently in the content cache. */
   cacheEntries: number;
 }
 
@@ -62,6 +74,16 @@ export interface FileSystemContextOptions {
    * Log skipped files and other diagnostics. Default: false.
    */
   verbose?: boolean | undefined;
+}
+
+/**
+ * Limits reported by `FileSystemContext.getMemoryLimits()`.
+ */
+export interface MemoryLimits {
+  /** Content cache capacity in bytes. Kept under this name for compatibility. */
+  maxTotalRead: number;
+  /** Largest file that can be read, in bytes. */
+  maxFileSize: number;
 }
 
 /**
@@ -379,9 +401,9 @@ export class FileSystemContext {
   /**
    * Get memory limits configuration
    */
-  getMemoryLimits(): { maxTotalRead: number; maxFileSize: number } {
+  getMemoryLimits(): MemoryLimits {
     return {
-      maxTotalRead: this.maxCacheSize, // The cache size, not a cumulative read limit.
+      maxTotalRead: this.maxCacheSize,
       maxFileSize: this.maxFileSize,
     };
   }

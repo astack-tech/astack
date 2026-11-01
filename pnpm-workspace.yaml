@@ -4,4 +4,16 @@ packages:
 
 overrides:
   minimatch@>=10.0.0 <11.0.1: ^11.0.1
+  # TypeDoc calls Minimatch#matchOne, which minimatch 11 made private. Keep TypeDoc on
+  # the last 10.x release; see the audit exception below.
+  typedoc>minimatch: 10.2.6
   uuid@<11.1.1: ^11.1.1
+
+auditConfig:
+  ignoreGhsas:
+    # GHSA-g3hv-75wg-m249 (minimatch globparts amplification) needs optimizationLevel >= 2.
+    # TypeDoc builds every Minimatch with the default level 1, and its patterns come from
+    # our own typedoc.json, so the vulnerable path is unreachable. All other dependents
+    # are overridden to the patched 11.x line. Remove this entry when TypeDoc moves to
+    # minimatch 11.
+    - GHSA-g3hv-75wg-m249

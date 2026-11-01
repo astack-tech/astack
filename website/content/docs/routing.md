@@ -3,6 +3,7 @@ title: Routing
 description: Send data down different branches with named output ports.
 order: 5
 examples: [routing]
+api: [core/type-aliases/Port, core/classes/Pipeline]
 ---
 
 A component routes data by choosing which output port to send on. There is no separate router type.
