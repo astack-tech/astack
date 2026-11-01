@@ -1,5 +1,11 @@
 # @astack-tech/components
 
+## 0.2.0-beta.9
+
+### Patch Changes
+
+- 149aa02: The `Tool` type (`AgentTool`) now declares the optional `execute(args)` and `invoke(args)` methods that agents call, so a tool object with `execute` type-checks without a cast.
+
 ## 0.2.0-beta.8
 
 ### Patch Changes
