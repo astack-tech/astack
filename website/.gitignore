@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Written by `next dev` (agentRules). The repository rules live in /AGENTS.md.
+/AGENTS.md

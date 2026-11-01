@@ -1,6 +1,5 @@
 /** Landing page for the AStack component framework. */
 
-import BetaNotification from '@/components/BetaNotification';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Hero from '@/components/Hero';
@@ -50,16 +49,15 @@ export default function Home() {
       />
 
       <Navbar />
-      <main id="main-content" className="homepage">
-        <BetaNotification />
+      <main id="main-content" className="home frame">
         <Hero />
-        <div className="foundation-strip shell">
-          <span>Framework foundations</span>
-          <span>TypeScript native</span>
-          <span>Observable streams</span>
-          <span>Flow-based programming</span>
-          <span>MIT licensed</span>
-        </div>
+        <ul className="board foundations" aria-label="Framework foundations">
+          <li className="tile">Framework foundations</li>
+          <li className="tile block hue-blue">TypeScript native</li>
+          <li className="tile block hue-rose">Observable streams</li>
+          <li className="tile block hue-mint">Flow-based programming</li>
+          <li className="tile block hue-amber">MIT licensed</li>
+        </ul>
         <Features />
         <ComputationModel />
         <QuickStart />

@@ -3,40 +3,41 @@ import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr
 
 import ExampleCard from './ExampleCard';
 import { getAllExamples } from '@/lib/cookbook';
+import { BlurFade } from './magicui/blur-fade';
 
 /** Examples featured on the homepage, in learning order. */
 const FEATURED = ['pipeline', 'routing', 'workflow', 'agent', 'streaming-agent', 'rlm-agent'];
 
 export default function UseCases() {
-  const featured = getAllExamples().filter(example => FEATURED.includes(example.name));
+  const all = getAllExamples();
+  const featured = all.filter(example => FEATURED.includes(example.name));
   return (
-    <section id="use-cases" className="section examples-section">
-      <div className="shell">
-        <div className="section-heading">
-          <p className="eyebrow">EXAMPLES</p>
-          <h2>Start with working code.</h2>
-          <p>
-            Each example is one short file that shows one idea. The code you read here is the code
-            that runs in CI.
-          </p>
-        </div>
-        <div className="cookbook-grid">
-          {featured.map(example => (
-            <ExampleCard key={example.name} example={example} />
-          ))}
-        </div>
-        <Link className="section-link" href="/examples">
-          View all {getAllExamples().length} examples <ArrowRightIcon size={15} />
+    <section id="use-cases" className="section" aria-labelledby="examples-title">
+      <BlurFade className="section-head">
+        <h2 id="examples-title">Start with working code.</h2>
+        <p>
+          Each example is one short file that shows one idea. The code you read here is the code
+          that runs in CI.
+        </p>
+      </BlurFade>
+
+      <div className="board example-grid">
+        {featured.map(example => (
+          <ExampleCard key={example.name} example={example} />
+        ))}
+        <Link className="tile all-examples" href="/examples">
+          <span>View all {all.length} examples</span>
+          <ArrowRightIcon size={24} />
         </Link>
-        <Link className="journal-feature" href="/blog/implementing-rlm-recursive-language-model">
-          <span className="journal-mark" aria-hidden="true">
+        <Link className="tile journal" href="/blog/implementing-rlm-recursive-language-model">
+          <span className="journal-mark block hue-rose" aria-hidden="true">
             RLM
           </span>
-          <div>
-            <span className="eyebrow">FROM THE ENGINEERING BLOG</span>
-            <h3>Implementing recursive language models</h3>
-            <p>Inside AStack&apos;s recursive language model implementation.</p>
-          </div>
+          <span className="journal-text">
+            <span className="journal-kicker">From the engineering blog</span>
+            <span className="journal-title">Implementing recursive language models</span>
+            <span>Inside AStack&apos;s recursive language model implementation.</span>
+          </span>
           <ArrowUpRightIcon size={24} />
         </Link>
       </div>

@@ -78,8 +78,38 @@ function fitToContent(svg: SVGSVGElement | null, narrow: boolean): void {
   svg.removeAttribute('height');
 }
 
-function scheduleDiagrams(container: HTMLElement): void {
+function scheduleDiagrams(container: HTMLElement): Promise<void> {
   renderQueue = renderQueue.then(() => renderDiagrams(container)).catch(() => undefined);
+  return renderQueue;
+}
+
+/**
+ * Diagrams change the page height after the browser has scrolled to the URL's #anchor.
+ * Once they render, scroll to the anchor again, unless the reader has scrolled meanwhile.
+ */
+function keepAnchorInPlace(rendered: Promise<void>): () => void {
+  const hash = window.location.hash;
+  if (hash.length < 2) {
+    return () => undefined;
+  }
+  let moved = false;
+  const onInput = (): void => {
+    moved = true;
+  };
+  const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+  for (const name of events) {
+    window.addEventListener(name, onInput, { once: true, passive: true });
+  }
+  void rendered.then(() => {
+    if (!moved && window.location.hash === hash) {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ block: 'start' });
+    }
+  });
+  return () => {
+    for (const name of events) {
+      window.removeEventListener(name, onInput);
+    }
+  };
 }
 
 async function renderDiagrams(container: HTMLElement): Promise<void> {
@@ -113,17 +143,17 @@ async function renderDiagrams(container: HTMLElement): Promise<void> {
     },
     themeVariables: {
       fontSize: '14px',
-      background: cssVar('--color-bg-primary'),
-      primaryColor: cssVar('--color-bg-secondary'),
-      primaryTextColor: cssVar('--color-text-primary'),
-      primaryBorderColor: cssVar('--strong-line'),
-      secondaryColor: cssVar('--color-bg-tertiary'),
-      tertiaryColor: cssVar('--color-bg-primary'),
-      lineColor: cssVar('--silver-edge'),
-      textColor: cssVar('--color-text-primary'),
-      edgeLabelBackground: cssVar('--color-bg-primary'),
-      clusterBkg: cssVar('--color-bg-secondary'),
-      clusterBorder: cssVar('--line'),
+      background: cssVar('--tile'),
+      primaryColor: cssVar('--tile-2'),
+      primaryTextColor: cssVar('--ink'),
+      primaryBorderColor: cssVar('--tile-3'),
+      secondaryColor: cssVar('--tile-3'),
+      tertiaryColor: cssVar('--tile'),
+      lineColor: cssVar('--muted'),
+      textColor: cssVar('--ink'),
+      edgeLabelBackground: cssVar('--tile'),
+      clusterBkg: cssVar('--tile-2'),
+      clusterBorder: cssVar('--tile-3'),
     },
   });
 
@@ -158,7 +188,7 @@ async function renderDiagrams(container: HTMLElement): Promise<void> {
 }
 
 async function copyCode(button: HTMLButtonElement): Promise<void> {
-  const code = button.parentElement?.querySelector('pre')?.textContent ?? '';
+  const code = button.closest('.code-frame')?.querySelector('pre')?.textContent ?? '';
   let label = 'Copied';
   try {
     await navigator.clipboard.writeText(code.replace(/\n$/, ''));
@@ -197,20 +227,21 @@ export default function RichContent({ html, className }: RichContentProps) {
     };
     container.addEventListener('click', onClick);
 
-    scheduleDiagrams(container);
+    const releaseAnchor = keepAnchorInPlace(scheduleDiagrams(container));
     const observer = new MutationObserver(() => {
-      scheduleDiagrams(container);
+      void scheduleDiagrams(container);
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
 
     const narrowQuery = window.matchMedia(NARROW_QUERY);
     const onViewportChange = (): void => {
-      scheduleDiagrams(container);
+      void scheduleDiagrams(container);
     };
     narrowQuery.addEventListener('change', onViewportChange);
 
     return () => {
       container.removeEventListener('click', onClick);
+      releaseAnchor();
       observer.disconnect();
       narrowQuery.removeEventListener('change', onViewportChange);
     };

@@ -10,6 +10,7 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import PagerLinks from '@/components/PagerLinks';
 import RichContent from '@/components/RichContent';
+import Toc from '@/components/Toc';
 import { apiHref, getApiPage } from '@/lib/api-docs';
 import { getExamplesForDoc } from '@/lib/cookbook';
 import { getAllDocs, getDoc } from '@/lib/docs';
@@ -74,10 +75,10 @@ export default async function DocPageRoute({ params }: DocPageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="docs-page shell">
+      <main id="main-content" className="docs frame">
         <DocsNav docs={docs} current={doc.slug} />
-        <article className="docs-article">
-          <header className="docs-heading">
+        <article className="docs-main">
+          <header className="docs-head">
             <Breadcrumb
               items={[
                 { label: 'Home', href: '/' },
@@ -88,12 +89,11 @@ export default async function DocPageRoute({ params }: DocPageProps) {
             <h1>{doc.title}</h1>
             <p>{doc.description}</p>
           </header>
-          <RichContent className="prose article-content docs-content" html={html} />
+          <RichContent className="article-content" html={html} />
           {examples.length > 0 && (
-            <section className="docs-examples" aria-labelledby="docs-examples-title">
-              <p className="eyebrow">RUN IT</p>
+            <section className="docs-related" aria-labelledby="docs-examples-title">
               <h2 id="docs-examples-title">Examples for this page</h2>
-              <div className="cookbook-grid">
+              <div className="board related-examples">
                 {examples.map(example => (
                   <ExampleCard key={example.name} example={example} />
                 ))}
@@ -101,25 +101,23 @@ export default async function DocPageRoute({ params }: DocPageProps) {
             </section>
           )}
           {apiPages.length > 0 && (
-            <nav className="api-members docs-api-links" aria-labelledby="docs-api-title">
-              <section>
-                <h2 id="docs-api-title">API reference</h2>
-                <ul>
-                  {apiPages.map(page => (
-                    <li key={page.segments.join('/')}>
-                      <Link href={apiHref(page.segments)}>
-                        <span className="mono">{page.title}</span>
-                        {page.summary && (
+            <section className="docs-related" aria-labelledby="docs-api-title">
+              <h2 id="docs-api-title">API reference</h2>
+              <ul className="api-list">
+                {apiPages.map(page => (
+                  <li key={page.segments.join('/')}>
+                    <Link className="tile api-item" href={apiHref(page.segments)}>
+                      <code>{page.title}</code>
+                      {page.summary && (
                         <span>
                           <InlineCode text={page.summary} />
                         </span>
                       )}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </nav>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
           <PagerLinks
             label="Documentation pages"
@@ -129,18 +127,7 @@ export default async function DocPageRoute({ params }: DocPageProps) {
             next={next ? { href: `/docs/${next.slug}`, title: next.title } : undefined}
           />
         </article>
-        {headings.length > 1 && (
-          <aside className="docs-toc" aria-label="On this page">
-            <p className="eyebrow">ON THIS PAGE</p>
-            <ol>
-              {headings.map(heading => (
-                <li key={heading.id}>
-                  <a href={`#${heading.id}`}>{heading.text}</a>
-                </li>
-              ))}
-            </ol>
-          </aside>
-        )}
+        {headings.length > 1 ? <Toc headings={headings} /> : <div aria-hidden="true" />}
       </main>
       <Footer />
     </>

@@ -1,0 +1,136 @@
+/*
+ * Design tokens. Every rule in the site reads these roles, never raw values.
+ *
+ * The board: one ground, tiles one tone off it, separated by space and tone
+ * (never by hairlines or shadows). Color appears only as translucent component
+ * blocks; each hue keeps one meaning across the site:
+ *   silver = core, blue = components, amber = tools, mint = integrations,
+ *   rose = streams and output.
+ */
+
+:root {
+  color-scheme: light;
+
+  --ground: #f5f5f6;
+  --tile: #eaeaec;
+  --tile-2: #dfdfe3;
+  --tile-3: #d2d2d8;
+  --ink: #0e0e10;
+  --ink-2: #3a3a41;
+  --muted: #5b5b64;
+  --invert: #f5f5f6;
+
+  /*
+   * Block hues share one lightness and one chroma in OKLCH; only the hue angle
+   * changes. That keeps them a single family of quiet, glass-like tints.
+   */
+  --hue-silver: oklch(0.56 0.008 260);
+  --hue-blue: oklch(0.58 0.11 258);
+  --hue-aqua: oklch(0.6 0.085 205);
+  --hue-mint: oklch(0.6 0.09 158);
+  --hue-amber: oklch(0.66 0.1 78);
+  --hue-rose: oklch(0.6 0.11 18);
+  /* Strength of a block's tint over the tile it sits on. */
+  --block: 15%;
+  --block-strong: 24%;
+
+  --spot: rgb(255 255 255 / 0.6);
+  --spot-edge: rgb(14 14 16 / 0.22);
+  --focus: #2563eb;
+
+  --code-bg: var(--tile);
+  --syntax-keyword: #9a2fb0;
+  --syntax-string: #17703f;
+  --syntax-type: #9a4a06;
+  --syntax-method: #1d5fc4;
+  --syntax-number: #b4301c;
+  --syntax-comment: #6a6a73;
+
+  /* Type: five sizes. */
+  --text-display: clamp(44px, 6.6vw, 96px);
+  --text-title: clamp(34px, 4.2vw, 60px);
+  --text-lead: clamp(19px, 1.45vw, 23px);
+  --text-body: 16px;
+  --text-small: 14px;
+  --text-code: 14px;
+
+  /* Space: one 8px grid. */
+  --gap: 8px;
+  --pad: clamp(16px, 1.7vw, 28px);
+  --margin: clamp(16px, 2.2vw, 32px);
+  --section: clamp(96px, 11vw, 176px);
+  --max: 1440px;
+  --header-h: 64px;
+
+  --ease: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+:root.dark {
+  color-scheme: dark;
+
+  --ground: #09090b;
+  --tile: #131316;
+  --tile-2: #1b1b1f;
+  --tile-3: #26262b;
+  --ink: #f4f4f5;
+  --ink-2: #c6c6ce;
+  --muted: #94949e;
+  --invert: #09090b;
+
+  --hue-silver: oklch(0.86 0.008 260);
+  --hue-blue: oklch(0.72 0.13 258);
+  --hue-aqua: oklch(0.76 0.11 205);
+  --hue-mint: oklch(0.77 0.12 158);
+  --hue-amber: oklch(0.8 0.12 78);
+  --hue-rose: oklch(0.72 0.13 18);
+  --block: 17%;
+  --block-strong: 27%;
+
+  --spot: rgb(255 255 255 / 0.06);
+  --spot-edge: rgb(255 255 255 / 0.3);
+  --focus: #8ab8ff;
+
+  --syntax-keyword: #d7a6ff;
+  --syntax-string: #9fdcae;
+  --syntax-type: #f2c98a;
+  --syntax-method: #93c0ff;
+  --syntax-number: #ffab94;
+  --syntax-comment: #8d8d97;
+}
+
+@media (max-width: 700px) {
+  :root {
+    --header-h: 56px;
+    --gap: 6px;
+    --text-display: clamp(30px, 9.8vw, 60px);
+    --text-title: clamp(30px, 8.6vw, 44px);
+  }
+}
+
+/* Names Magic UI components read. */
+@theme inline {
+  --color-background: var(--ground);
+  --color-foreground: var(--ink);
+  --color-border: var(--tile-3);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+.hue-silver {
+  --hue: var(--hue-silver);
+}
+.hue-blue {
+  --hue: var(--hue-blue);
+}
+.hue-aqua {
+  --hue: var(--hue-aqua);
+}
+.hue-amber {
+  --hue: var(--hue-amber);
+}
+.hue-mint {
+  --hue: var(--hue-mint);
+}
+.hue-rose {
+  --hue: var(--hue-rose);
+}

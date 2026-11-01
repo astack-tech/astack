@@ -53,7 +53,7 @@ export default function CopyButton({ text, className = '', size = 'md' }: CopyBu
       {status === 'copied' ? (
         <CheckIcon size={size === 'sm' ? 15 : 17} />
       ) : status === 'error' ? (
-        <WarningCircleIcon size={17} />
+        <WarningCircleIcon size={16} />
       ) : (
         <CopyIcon size={size === 'sm' ? 15 : 17} />
       )}

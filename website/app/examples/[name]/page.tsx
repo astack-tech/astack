@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowUpRightIcon, BookOpenTextIcon, KeyIcon } from '@phosphor-icons/react/dist/ssr';
 
 import Breadcrumb from '@/components/Breadcrumb';
+import { TIER_HUE } from '@/components/ExampleCard';
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import PagerLinks from '@/components/PagerLinks';
@@ -69,8 +70,8 @@ export default async function ExamplePage({ params }: ExamplePageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="example-page shell">
-        <header className="example-heading">
+      <main id="main-content" className="frame example-page">
+        <header className="page-head example-head">
           <Breadcrumb
             items={[
               { label: 'Home', href: '/' },
@@ -78,51 +79,45 @@ export default async function ExamplePage({ params }: ExamplePageProps) {
               { label: example.title },
             ]}
           />
-          <div className="example-meta">
-            <span className="cookbook-order mono">{formatOrder(example.order)}</span>
-            <span>{tier?.label ?? example.tier}</span>
-            {example.requiresApiKey ? (
-              <span className="cookbook-badge">
-                <KeyIcon size={12} weight="bold" /> DEEPSEEK_API_KEY
-              </span>
-            ) : (
-              <span className="cookbook-badge cookbook-badge-quiet">Runs offline</span>
-            )}
+          <div className="board">
+            <div className="tile example-title-tile">
+              <p className="example-meta">
+                <span className={`example-order block hue-${TIER_HUE[example.tier]}`}>
+                  {formatOrder(example.order)}
+                </span>
+                <span>{tier?.label ?? example.tier}</span>
+                {example.requiresApiKey ? (
+                  <span className="chip">
+                    <KeyIcon size={12} weight="bold" aria-hidden="true" /> DEEPSEEK_API_KEY
+                  </span>
+                ) : (
+                  <span className="chip">Runs offline</span>
+                )}
+              </p>
+              <h1>{example.title}</h1>
+              <p className="example-lead">{example.description}</p>
+            </div>
           </div>
-          <h1>{example.title}</h1>
-          <p>{example.description}</p>
         </header>
 
+        <div className="example-layout">
         <div className="example-body">
-          <RichContent className="prose article-content example-overview" html={overviewHtml} />
+          <RichContent className="article-content example-overview" html={overviewHtml} />
 
-          <section className="example-code" aria-labelledby="code">
-            <div className="example-section-title">
+          <section className="example-section" aria-labelledby="code">
+            <div className="example-section-head">
               <h2 id="code">The program</h2>
-              <span className="mono">examples/{example.name}/index.ts</span>
+              <code>examples/{example.name}/index.ts</code>
             </div>
-            <RichContent className="article-content example-source" html={codeHtml} />
+            <RichContent className="article-content" html={codeHtml} />
           </section>
 
-          <section className="example-run" aria-labelledby="run">
-            <h2 id="run">Run it</h2>
-            <RichContent className="prose article-content" html={runHtml} />
+          <section className="example-section" aria-labelledby="run">
+            <div className="example-section-head">
+              <h2 id="run">Run it</h2>
+            </div>
+            <RichContent className="article-content" html={runHtml} />
           </section>
-
-          {concept && (
-            <Link className="example-concept" href={`/docs/${concept.slug}`}>
-              <BookOpenTextIcon size={22} weight="duotone" />
-              <span>
-                <span className="eyebrow">CONCEPT</span>
-                <b>{concept.title}</b>
-                <span>{concept.description}</span>
-              </span>
-            </Link>
-          )}
-
-          <a className="text-link example-source-link" href={`${SOURCE_ROOT}/${example.name}`}>
-            View the folder on GitHub <ArrowUpRightIcon size={13} />
-          </a>
 
           <PagerLinks
             label="Examples"
@@ -131,6 +126,22 @@ export default async function ExamplePage({ params }: ExamplePageProps) {
             }
             next={next ? { href: `/examples/${next.name}`, title: next.title } : undefined}
           />
+        </div>
+        <aside className="example-aside" aria-label="About this example">
+          {concept && (
+            <Link className="tile example-concept" href={`/docs/${concept.slug}`}>
+              <span className="example-concept-kicker">
+                <BookOpenTextIcon size={16} aria-hidden="true" /> Concept
+              </span>
+              <span className="example-concept-title">{concept.title}</span>
+              <span>{concept.description}</span>
+            </Link>
+          )}
+          <a className="tile example-source" href={`${SOURCE_ROOT}/${example.name}`}>
+            <span>View the folder on GitHub</span>
+            <ArrowUpRightIcon size={16} aria-hidden="true" />
+          </a>
+        </aside>
         </div>
       </main>
       <Footer />
