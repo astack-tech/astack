@@ -1,0 +1,89 @@
+/*
+ * Graceful degradation. The site targets the browsers Next.js 16 supports (Chrome
+ * and Edge 111, Firefox 111, Safari 16.4). These rules only apply where a newer
+ * colour feature is missing; there the page keeps its layout, hierarchy and
+ * contrast, and the tinted blocks become plain tone steps.
+ *
+ * Declarations that use var() are only checked when the page is drawn, so an
+ * unsupported colour function makes them "unset" instead of falling back to an
+ * earlier declaration. That is why the fallbacks live in @supports blocks here,
+ * last in the cascade, with the same selectors as the rules they replace.
+ */
+
+/* oklch() is missing: the same block hues in sRGB. */
+@supports not (color: oklch(0 0 0)) {
+  :root {
+    --hue-silver: #6f7179;
+    --hue-blue: #3b6bd6;
+    --hue-aqua: #2a8c99;
+    --hue-mint: #2e8a5e;
+    --hue-amber: #a77a1f;
+    --hue-rose: #c0455a;
+  }
+  :root.dark {
+    --hue-silver: #d6d8de;
+    --hue-blue: #7aa5f5;
+    --hue-aqua: #5cc4d1;
+    --hue-mint: #6fcf9d;
+    --hue-amber: #e4b45d;
+    --hue-rose: #f08594;
+  }
+}
+
+/* color-mix() is missing: tints become tone steps; translucent layers become solid. */
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .block,
+  .chip.block,
+  .pane,
+  .stack-block,
+  .shelf-block,
+  .marble-out,
+  .operator,
+  .event,
+  .model-tab:hover,
+  .tier-head,
+  .article-content blockquote,
+  .compare-table .is-astack,
+  .stack-slot,
+  .copy-button:hover,
+  .block-remove:hover,
+  .shelf-block:hover:not(:disabled) {
+    background: var(--tile-2);
+  }
+  .stack-block.is-lit,
+  .model-tab[aria-selected='true'],
+  .example-order,
+  .journal-mark,
+  .api-package-name,
+  .swatch,
+  .search-kind,
+  .search mark,
+  .code-copy[data-state='copied'] {
+    background: var(--tile-3);
+  }
+  .well-piece,
+  :root.dark .well-piece {
+    fill: var(--tile-3);
+  }
+  .compare-table tbody tr:nth-child(odd),
+  .article-table tbody tr:nth-child(even) {
+    background: transparent;
+  }
+  .hero-install,
+  .hero-install .copy-button:hover {
+    background: rgb(128 128 128 / 0.22);
+  }
+  .live-result > span {
+    color: inherit;
+    opacity: 0.7;
+  }
+  .search::backdrop {
+    background: rgb(0 0 0 / 0.5);
+  }
+  .section-head a:not(.button, .link),
+  .prose-link,
+  .article-content a:not(.heading-anchor),
+  .beta a {
+    text-decoration-color: currentColor;
+  }
+}

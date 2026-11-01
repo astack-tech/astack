@@ -15,11 +15,11 @@
     "format:check": "prettier --check .",
     "check-types": "turbo run check-types && tsc -p tsconfig.json",
     "test": "turbo run test",
-    "verify": "pnpm format:check && pnpm build && pnpm lint && pnpm check-types && pnpm test && pnpm check:packages && pnpm check:api && pnpm check:docs && pnpm check:examples",
+    "verify": "pnpm format:check && pnpm build && pnpm lint && pnpm check-types && pnpm test && pnpm test:scripts && pnpm check:packages && pnpm check:api && pnpm check:docs && pnpm check:examples",
     "clean": "turbo run clean && rm -rf node_modules",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish",
+    "release": "pnpm build && node scripts/publish-packages.mjs",
     "pre:beta": "changeset pre enter beta",
     "pre:exit": "changeset pre exit",
     "sync:examples": "node scripts/sync-examples.mjs",
@@ -28,7 +28,10 @@
     "docs:api": "typedoc",
     "check:api": "turbo run check:api",
     "update:api": "turbo run update:api",
-    "check:docs": "typedoc && git diff --exit-code -- website/content/api && test -z \"$(git ls-files --others --exclude-standard -- website/content/api)\""
+    "check:docs": "typedoc && git diff --exit-code -- website/content/api && test -z \"$(git ls-files --others --exclude-standard -- website/content/api)\"",
+    "release:dry-run": "pnpm build && node scripts/publish-packages.mjs --dry-run",
+    "test:scripts": "node --test scripts/__tests__/*.test.mjs",
+    "test:e2e": "node scripts/e2e-llm.mjs"
   },
   "keywords": [
     "ai-framework",
@@ -53,7 +56,7 @@
     "turbo": "^2.11.10",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.14.1",
-    "typescript": "^5.9.2",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^8.3.5"
   }

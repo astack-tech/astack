@@ -53,7 +53,7 @@ Run from the repository root with Node.js 20+ and pnpm 10.
 
 Package-scoped: `pnpm --filter @astack-tech/core test`, `pnpm --filter @astack-examples/pipeline start`.
 
-Website (separate install): `cd website && pnpm install` (the folder has its own `pnpm-workspace.yaml` and lockfile), then `pnpm lint`, `pnpm check-types`, `pnpm build`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
+Website (separate install): `cd website && pnpm install` (the folder has its own `pnpm-workspace.yaml` and lockfile), then `pnpm lint`, `pnpm check-types`, `pnpm test`, `pnpm build`. Website tests live in `website/lib/__tests__` and follow the same coverage thresholds. The website supports the browsers Next.js targets (Chrome and Edge 111, Firefox 111, Safari 16.4); newer CSS needs a fallback in `website/app/styles/resilience.css`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
 
 ## 4. TypeScript and lint standards
 
@@ -69,6 +69,7 @@ Website (separate install): `cd website && pnpm install` (the folder has its own
 
 - Vitest. Tests live next to the code in `src/**/__tests__/*.test.ts`.
 - Coverage thresholds per package: 90% lines, functions and statements; 85% branches. Do not lower them.
+- `pnpm test:e2e` runs the LLM examples against the real DeepSeek API with `DEEPSEEK_API_KEY`. It is not part of `verify`; `.github/workflows/e2e.yml` runs it weekly and on demand with the repository secret.
 - Tests never call the network. Mock model APIs (see `packages/integrations/src/model-provider/deepseek/__tests__`) or use fakes (see `packages/components/src/agents/__tests__/fakes.ts`).
 - Test behavior through the public API, including pipeline mode (`Pipeline.run`) for components.
 - When you fix a bug, the regression test name states the behavior, for example `keeps separate multi-output routes independent`.
@@ -80,7 +81,8 @@ Website (separate install): `cd website && pnpm install` (the folder has its own
 - Each package has its own README: what it is, install, a quick start that compiles, an API table, links to docs and examples, and the package family table. A package README MUST NOT copy another package's content.
 - `pnpm turbo run check:package` MUST pass.
 - Every user-facing change needs a changeset: `pnpm changeset`. Describe what changed for users, not how.
-- Releases: `pnpm version-packages`, then `pnpm release` from `master`. Do not publish by hand.
+- Releases run in CI (`.github/workflows/release.yml`). After changesets reach `master`, the workflow opens a "Version packages" pull request against `master`. Merging it publishes the new versions with npm Trusted Publishing (OIDC, with provenance), tags `<name>@<version>` and creates GitHub releases from the changelogs; then fast-forward `dev` to `master`. `pnpm release:dry-run` shows what would be published. Do not publish by hand.
+- While `.changeset/pre.json` is in pre mode, versions publish under `beta`, and `latest` follows until the first stable release.
 
 ## 7. API documentation
 

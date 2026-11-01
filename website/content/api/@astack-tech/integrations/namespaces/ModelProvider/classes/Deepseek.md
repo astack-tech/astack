@@ -1,8 +1,8 @@
 # Class: Deepseek
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:253](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L253)
+Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:38](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L38)
 
-DeepSeek model provider. It calls the DeepSeek API through the OpenAI-compatible client.
+DeepSeek model provider: `OpenAICompatible` set up for the DeepSeek API.
 
 Ports:
 - `prompt` (in): a text prompt. The answer is sent on `completion`.
@@ -10,7 +10,7 @@ Ports:
 
 ## Extends
 
-- `Component`
+- [`OpenAICompatible`](OpenAICompatible.md)
 
 ## Constructors
 
@@ -20,7 +20,7 @@ Ports:
 new Deepseek(config): Deepseek;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:263](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L263)
+Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:39](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L39)
 
 #### Parameters
 
@@ -34,24 +34,24 @@ Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:263](htt
 
 #### Overrides
 
-`Component.constructor`
+[`OpenAICompatible`](OpenAICompatible.md).[`constructor`](OpenAICompatible.md#constructor)
 
 ## Properties
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | `Component.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:24 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:26 |
-| <a id="property-id"></a> `id` | `public` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:18 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:25 |
-| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:49 |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | `Component.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:23 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:27 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:19 |
-| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:51 |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | `Component.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:22 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:17 |
-| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:47 |
+| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | [`OpenAICompatible`](OpenAICompatible.md).[`flow`](OpenAICompatible.md#property-flow) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:24 |
+| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | [`OpenAICompatible`](OpenAICompatible.md).[`I`](OpenAICompatible.md#property-i) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:26 |
+| <a id="property-id"></a> `id` | `public` | `string` | - | [`OpenAICompatible`](OpenAICompatible.md).[`id`](OpenAICompatible.md#property-id) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:18 |
+| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | [`OpenAICompatible`](OpenAICompatible.md).[`identity`](OpenAICompatible.md#property-identity) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:25 |
+| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | [`OpenAICompatible`](OpenAICompatible.md).[`inPort`](OpenAICompatible.md#property-inport) | packages/core/dist/component/index.d.ts:49 |
+| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | [`OpenAICompatible`](OpenAICompatible.md).[`isRunning`](OpenAICompatible.md#property-isrunning) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:23 |
+| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | [`OpenAICompatible`](OpenAICompatible.md).[`O`](OpenAICompatible.md#property-o) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:27 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | - | [`OpenAICompatible`](OpenAICompatible.md).[`opts`](OpenAICompatible.md#property-opts) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:19 |
+| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | [`OpenAICompatible`](OpenAICompatible.md).[`outPort`](OpenAICompatible.md#property-outport) | packages/core/dist/component/index.d.ts:51 |
+| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | [`OpenAICompatible`](OpenAICompatible.md).[`portMap`](OpenAICompatible.md#property-portmap) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:22 |
+| <a id="property-type"></a> `type` | `public` | `Symbol` | - | [`OpenAICompatible`](OpenAICompatible.md).[`type`](OpenAICompatible.md#property-type) | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:17 |
+| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | [`OpenAICompatible`](OpenAICompatible.md).[`Port`](OpenAICompatible.md#property-port) | packages/core/dist/component/index.d.ts:47 |
 
 ## Methods
 
@@ -61,7 +61,7 @@ Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:263](htt
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:408](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L408)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:414](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L414)
 
 Connects the `prompt` and `messages` input ports to the model.
 API errors produce a fallback value so the pipeline keeps flowing.
@@ -77,9 +77,9 @@ API errors produce a fallback value so the pipeline keeps flowing.
 
 `void`
 
-#### Overrides
+#### Inherited from
 
-`Component._transform`
+[`OpenAICompatible`](OpenAICompatible.md).[`_transform`](OpenAICompatible.md#_transform)
 
 ***
 
@@ -103,7 +103,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 
 #### Inherited from
 
-`Component.attach`
+[`OpenAICompatible`](OpenAICompatible.md).[`attach`](OpenAICompatible.md#attach)
 
 ***
 
@@ -127,7 +127,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 
 #### Inherited from
 
-`Component.attachPort`
+[`OpenAICompatible`](OpenAICompatible.md).[`attachPort`](OpenAICompatible.md#attachport)
 
 ***
 
@@ -137,7 +137,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 chatCompletion(messages, options?): Promise<DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:311](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L311)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:317](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L317)
 
 Sends a conversation and returns the assistant reply.
 
@@ -151,6 +151,10 @@ Sends a conversation and returns the assistant reply.
 #### Returns
 
 `Promise`\<[`DeepseekAssistantMessage`](../interfaces/DeepseekAssistantMessage.md)\>
+
+#### Inherited from
+
+[`OpenAICompatible`](OpenAICompatible.md).[`chatCompletion`](OpenAICompatible.md#chatcompletion)
 
 ***
 
@@ -168,7 +172,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 
 #### Inherited from
 
-`Component.E`
+[`OpenAICompatible`](OpenAICompatible.md).[`E`](OpenAICompatible.md#e)
 
 ***
 
@@ -193,7 +197,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 
 #### Inherited from
 
-`Component.executeOnce`
+[`OpenAICompatible`](OpenAICompatible.md).[`executeOnce`](OpenAICompatible.md#executeonce)
 
 ***
 
@@ -203,7 +207,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 generateCompletion(prompt): Promise<string>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:294](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L294)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:300](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L300)
 
 Generates a completion for a single prompt.
 
@@ -219,6 +223,10 @@ Generates a completion for a single prompt.
 
 The text answer, or the JSON-encoded assistant message when it contains tool calls.
 
+#### Inherited from
+
+[`OpenAICompatible`](OpenAICompatible.md).[`generateCompletion`](OpenAICompatible.md#generatecompletion)
+
 ***
 
 ### run()
@@ -229,7 +237,7 @@ run(input): Promise<
 | DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:400](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L400)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:406](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L406)
 
 Runs the model outside a pipeline.
 
@@ -245,9 +253,9 @@ Runs the model outside a pipeline.
   \| `string`
   \| [`DeepseekAssistantMessage`](../interfaces/DeepseekAssistantMessage.md)\>
 
-#### Overrides
+#### Inherited from
 
-`Component.run`
+[`OpenAICompatible`](OpenAICompatible.md).[`run`](OpenAICompatible.md#run)
 
 ***
 
@@ -257,7 +265,7 @@ Runs the model outside a pipeline.
 streamChatCompletion(messages, options?): AsyncGenerator<DeepseekStreamChunk>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:353](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/deepseek/index.ts#L353)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:359](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L359)
 
 Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or usage.
 
@@ -271,6 +279,10 @@ Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or
 #### Returns
 
 `AsyncGenerator`\<[`DeepseekStreamChunk`](../interfaces/DeepseekStreamChunk.md)\>
+
+#### Inherited from
+
+[`OpenAICompatible`](OpenAICompatible.md).[`streamChatCompletion`](OpenAICompatible.md#streamchatcompletion)
 
 ***
 
@@ -294,4 +306,4 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 
 #### Inherited from
 
-`Component.throw`
+[`OpenAICompatible`](OpenAICompatible.md).[`throw`](OpenAICompatible.md#throw)

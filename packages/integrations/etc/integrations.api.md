@@ -21,28 +21,14 @@ interface ChatCompletionOptions {
 }
 
 // @public
-class Deepseek extends Component {
+class Deepseek extends OpenAICompatible {
     constructor(config: DeepseekConfig);
-    chatCompletion(messages: Message[], options?: ChatCompletionOptions): Promise<AssistantMessage>;
-    generateCompletion(prompt: string): Promise<string>;
-    run(input: string | Message[]): Promise<string | AssistantMessage>;
-    streamChatCompletion(messages: Message[], options?: ChatCompletionOptions): AsyncGenerator<StreamChunk>;
-    _transform($i: Port, $o: Port): void;
 }
 
 // @public
-interface DeepseekConfig {
-    apiKey: string;
+interface DeepseekConfig extends Omit<OpenAICompatibleConfig, 'model' | 'name'> {
     baseURL?: string | undefined;
-    dangerouslyAllowBrowser?: boolean | undefined;
-    maxTokens?: number | undefined;
     model?: string | undefined;
-    rawTools?: RawTool[] | undefined;
-    systemPrompt?: string | undefined;
-    temperature?: number | undefined;
-    tools?: unknown[] | undefined;
-    topP?: number | undefined;
-    verbose?: boolean | undefined;
 }
 
 // @public
@@ -70,8 +56,46 @@ declare namespace ModelProvider {
         StreamChunk as DeepseekStreamChunk,
         StreamToolCall as DeepseekStreamToolCall,
         TokenUsage as DeepseekTokenUsage,
-        ToolCall as DeepseekToolCall
+        ToolCall as DeepseekToolCall,
+        OpenAICompatible,
+        AssistantMessage,
+        ChatCompletionOptions,
+        Message,
+        MessageRole,
+        OpenAICompatibleConfig,
+        RawTool,
+        ResponseToolCall,
+        StreamChunk,
+        StreamToolCall,
+        TokenUsage,
+        ToolCall
     }
+}
+
+// @public
+class OpenAICompatible extends Component {
+    constructor(config: OpenAICompatibleConfig);
+    chatCompletion(messages: Message[], options?: ChatCompletionOptions): Promise<AssistantMessage>;
+    generateCompletion(prompt: string): Promise<string>;
+    run(input: string | Message[]): Promise<string | AssistantMessage>;
+    streamChatCompletion(messages: Message[], options?: ChatCompletionOptions): AsyncGenerator<StreamChunk>;
+    _transform($i: Port, $o: Port): void;
+}
+
+// @public
+interface OpenAICompatibleConfig {
+    apiKey: string;
+    baseURL?: string | undefined;
+    dangerouslyAllowBrowser?: boolean | undefined;
+    maxTokens?: number | undefined;
+    model: string;
+    name?: string | undefined;
+    rawTools?: RawTool[] | undefined;
+    systemPrompt?: string | undefined;
+    temperature?: number | undefined;
+    tools?: unknown[] | undefined;
+    topP?: number | undefined;
+    verbose?: boolean | undefined;
 }
 
 // @public

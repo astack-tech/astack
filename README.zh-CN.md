@@ -114,7 +114,7 @@ pnpm --filter @astack-examples/pipeline start
 | [`@astack-tech/core`](./packages/core)                 | `Component`、`Pipeline`、`Port`                                      |
 | [`@astack-tech/components`](./packages/components)     | `Agent`、`StreamingAgent`、`RLMAgent`、`TextSplitter`、`ToolInvoker` |
 | [`@astack-tech/tools`](./packages/tools)               | `createTool`、工具集、组件工具、MCP 工具                             |
-| [`@astack-tech/integrations`](./packages/integrations) | 模型提供方（`Deepseek`）                                             |
+| [`@astack-tech/integrations`](./packages/integrations) | 模型提供方（`Deepseek`、兼容 OpenAI 接口的 `OpenAICompatible`）      |
 
 各包的 README 列出了完整 API。
 

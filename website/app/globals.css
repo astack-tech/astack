@@ -2,7 +2,7 @@
 
 /*
  * The AStack site styles, one file per layer. Order matters: tokens, base and
- * chrome first, then the page layers.
+ * chrome first, then the page layers, then the fallbacks for older browsers.
  */
 @import './styles/tokens.css';
 @import './styles/base.css';
@@ -10,3 +10,4 @@
 @import './styles/home.css';
 @import './styles/content.css';
 @import './styles/pages.css';
+@import './styles/resilience.css';

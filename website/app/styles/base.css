@@ -152,6 +152,8 @@ pre,
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 20px var(--gap);
+  /* Browsers without baseline alignment in grid use the bottom edge. */
+  align-items: end;
   align-items: last baseline;
   margin-bottom: clamp(28px, 3.2vw, 52px);
 }
