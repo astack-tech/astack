@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeftIcon } from '@phosphor-icons/react/dist/ssr';
-import { getAllPostSlugs, getPostBySlug, markdownToHtml } from '@/lib/blog';
+import { formatDate, getAllPostSlugs, getPostBySlug, markdownToHtml } from '@/lib/blog';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
@@ -45,8 +45,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="article-page shell">
-        <header className="article-heading">
+      <main id="main-content" className="frame post-page">
+        <header className="docs-head post-head">
           <Breadcrumb
             items={[
               { label: 'Home', href: '/' },
@@ -54,30 +54,25 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               { label: post.title },
             ]}
           />
-          <div className="article-tags">
+          <p className="post-tags">
             {post.tags.map(tag => (
-              <span key={tag}>{tag}</span>
+              <span key={tag} className="chip">
+                {tag}
+              </span>
             ))}
-          </div>
+          </p>
           <h1>{post.title}</h1>
           <p>{post.excerpt}</p>
-          <div className="article-meta">
+          <p className="post-meta">
             <span>{post.author}</span>
-            <time dateTime={post.date}>
-              {new Date(`${post.date}T00:00:00Z`).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                timeZone: 'UTC',
-              })}
-            </time>
+            <time dateTime={post.date}>{formatDate(post.date, 'long')}</time>
             <span>{post.readingTime}</span>
-          </div>
+          </p>
         </header>
-        <article>
-          <RichContent className="prose article-content" html={contentHtml} />
+        <article className="post-body">
+          <RichContent className="article-content" html={contentHtml} />
         </article>
-        <Link href="/blog" className="text-link article-back">
+        <Link href="/blog" className="link post-back">
           <ArrowLeftIcon size={16} />
           Back to all articles
         </Link>

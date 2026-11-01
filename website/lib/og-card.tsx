@@ -4,7 +4,7 @@ import { ImageResponse } from 'next/og';
 export const OG_SIZE = { width: 1200, height: 630 };
 
 interface CardProps {
-  /** Small uppercase label above the title, for example `DOCS` or `EXAMPLE 03 · BASICS`. */
+  /** Short label next to the wordmark, for example `Docs` or `Example 03 · Basics`. */
   eyebrow: string;
   title: string;
   description: string;
@@ -32,9 +32,12 @@ function Mark({ size, opacity }: { size: number; opacity: number }) {
   );
 }
 
+/** Block tints of the site's dark theme, mixed over the tile color. */
+const BLOCKS = ['#2f3f5c', '#5a3a3f', '#2e4a40', '#575038', '#3a3a40', '#2c4a52'];
+
 /**
- * Renders a social preview card in the site's black and silver style. It matches the
- * static `/brand/social-card.png` and adds the page title and summary.
+ * Renders a social preview card in the site's board style: tiles on black, the
+ * page title in its own tile, and a row of component blocks.
  */
 export function renderOgCard({ eyebrow, title, description }: CardProps): ImageResponse {
   return new ImageResponse(
@@ -45,39 +48,51 @@ export function renderOgCard({ eyebrow, title, description }: CardProps): ImageR
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '72px 80px 56px',
+          gap: 8,
+          padding: 24,
           backgroundColor: '#09090b',
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-          color: '#fafafa',
-          position: 'relative',
+          color: '#f4f4f5',
         }}
       >
-        <div style={{ position: 'absolute', right: 80, top: 64, display: 'flex' }}>
-          <Mark size={180} opacity={0.12} />
+        <div style={{ display: 'flex', gap: 8, flex: 1 }}>
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              padding: '40px 44px',
+              backgroundColor: '#131316',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <Mark size={52} opacity={1} />
+              <div style={{ fontSize: 38, letterSpacing: -1.5 }}>astack</div>
+              <div style={{ fontSize: 22, color: '#94949e', marginLeft: 12 }}>{eyebrow}</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={{ fontSize: 68, letterSpacing: -2.6, lineHeight: 1.02 }}>{title}</div>
+              <div style={{ fontSize: 27, lineHeight: 1.4, color: '#c6c6ce' }}>{description}</div>
+            </div>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <Mark size={64} opacity={1} />
-          <div style={{ fontSize: 44, letterSpacing: -1.5 }}>astack</div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 960 }}>
-          <div style={{ fontSize: 20, letterSpacing: 3, color: '#a1a1aa' }}>{eyebrow}</div>
-          <div style={{ fontSize: 72, letterSpacing: -2.5, lineHeight: 1.05 }}>{title}</div>
-          <div style={{ fontSize: 28, lineHeight: 1.4, color: '#a1a1aa' }}>{description}</div>
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            fontSize: 18,
-            letterSpacing: 2,
-            color: '#a1a1aa',
-          }}
-        >
-          <div>COMPONENTS → PORTS → PIPELINES</div>
-          <div>astack.tech</div>
+        <div style={{ display: 'flex', gap: 8, height: 64 }}>
+          {BLOCKS.map(color => (
+            <div key={color} style={{ flex: 1, backgroundColor: color }} />
+          ))}
+          <div
+            style={{
+              flex: 2,
+              display: 'flex',
+              alignItems: 'center',
+              padding: '0 24px',
+              backgroundColor: '#f4f4f5',
+              color: '#09090b',
+              fontSize: 22,
+            }}
+          >
+            astack.tech
+          </div>
         </div>
       </div>
     ),

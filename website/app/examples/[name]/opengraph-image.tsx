@@ -14,7 +14,7 @@ export default async function Image({ params }: { params: Promise<{ name: string
   const example = getExample(name);
   const tier = TIERS.find(item => item.id === example?.tier)?.label ?? '';
   return renderOgCard({
-    eyebrow: example ? `EXAMPLE ${formatOrder(example.order)} · ${tier.toUpperCase()}` : 'EXAMPLE',
+    eyebrow: example ? `Example ${formatOrder(example.order)} · ${tier}` : 'Example',
     title: example?.title ?? 'Example',
     description: example?.description ?? '',
   });

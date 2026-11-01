@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr';
-import { getAllPosts } from '@/lib/blog';
+import { ArrowRightIcon } from '@phosphor-icons/react/dist/ssr';
+import { formatDate, getAllPosts } from '@/lib/blog';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import type { Metadata } from 'next';
@@ -27,51 +27,44 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <>
       <Navbar />
-      <main id="main-content" className="journal-page shell">
-        <div className="journal-heading">
-          <p className="eyebrow">ASTACK ENGINEERING</p>
-          <h1>
-            Notes from
-            <br />
-            <span>the source.</span>
-          </h1>
-          <p>Release notes, tutorials, and implementation details from the AStack team.</p>
-        </div>
-        <div className="journal-list">
-          {posts.length ? (
-            posts.map(post => (
-              <article key={post.slug}>
-                <div className="journal-date">
-                  <time dateTime={post.date}>
-                    {new Date(`${post.date}T00:00:00Z`).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                      timeZone: 'UTC',
-                    })}
-                  </time>
-                  <span>{post.readingTime}</span>
-                </div>
-                <Link href={`/blog/${post.slug}`}>
-                  <div className="article-tags">
-                    {post.tags.map(tag => (
-                      <span key={tag}>{tag}</span>
-                    ))}
-                  </div>
-                  <h2>{post.title}</h2>
-                  <p>{post.excerpt}</p>
-                  <span className="text-link">
-                    Read article <ArrowRightIcon size={14} />
+      <main id="main-content" className="frame">
+        <header className="page-head">
+          <div className="section-head">
+            <h1 className="page-title">Notes from the source.</h1>
+            <p>Release notes, tutorials, and implementation details from the AStack team.</p>
+          </div>
+        </header>
+        {posts.length ? (
+          <ol className="board posts">
+            {posts.map(post => (
+              <li key={post.slug} className="post">
+                <Link className="tile post-link" href={`/blog/${post.slug}`}>
+                  <span className="post-meta">
+                    <time dateTime={post.date}>{formatDate(post.date, 'short')}</time>
+                    <span>{post.readingTime}</span>
+                    <span>{post.author}</span>
+                  </span>
+                  <span className="post-text">
+                    <span className="post-tags">
+                      {post.tags.map(tag => (
+                        <span key={tag} className="chip">
+                          {tag}
+                        </span>
+                      ))}
+                    </span>
+                    <span className="post-title">{post.title}</span>
+                    <span className="post-excerpt">{post.excerpt}</span>
+                    <span className="example-open">
+                      Read article <ArrowRightIcon size={14} />
+                    </span>
                   </span>
                 </Link>
-                <ArrowUpRightIcon className="journal-arrow" size={22} />
-                <span className="journal-author">{post.author}</span>
-              </article>
-            ))
-          ) : (
-            <p className="empty-posts">There are no published articles yet.</p>
-          )}
-        </div>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="tile">There are no published articles yet.</p>
+        )}
         {totalPages > 1 && (
           <nav className="pagination" aria-label="Blog pagination">
             {currentPage > 1 ? (

@@ -115,3 +115,13 @@ export function getAllTags(): string[] {
   });
   return Array.from(tags).sort();
 }
+
+/** Formats a post date (`YYYY-MM-DD`) the same way on the server and the client. */
+export function formatDate(date: string, style: 'short' | 'long'): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: style,
+    day: 'numeric',
+    timeZone: 'UTC',
+  });
+}
