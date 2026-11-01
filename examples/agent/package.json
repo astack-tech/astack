@@ -1,0 +1,26 @@
+{
+  "name": "@astack-examples/agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Give a model a tool and let it decide when to call it.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/integrations": "workspace:*",
+    "@astack-tech/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Agent",
+    "order": 8,
+    "tier": "llm",
+    "doc": "agents",
+    "requiresApiKey": true
+  }
+}

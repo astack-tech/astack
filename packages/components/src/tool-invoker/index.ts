@@ -1,278 +1,181 @@
 import { Component } from '@astack-tech/core';
-import { Tool, ToolCall, ToolCallResult, ToolSet } from '@astack-tech/tools';
+import type { Port } from '@astack-tech/core';
+import type { Tool, ToolCall, ToolCallResult, ToolSet } from '@astack-tech/tools';
+
+import { createLogger } from '../utils/logger';
+import type { Logger } from '../utils/logger';
 
 /**
- * 消息角色类型
+ * Role of a conversation message.
  */
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
 /**
- * 消息接口
+ * Conversation message read and produced by `ToolInvoker`.
  */
 export interface Message {
-  /**
-   * 消息角色
-   */
+  /** Message role. */
   role: MessageRole;
-
-  /**
-   * 消息内容
-   */
-  content?: string;
-
-  /**
-   * 工具调用
-   */
-  tool_calls?: ToolCall[];
-
-  /**
-   * 工具调用 ID
-   */
-  tool_call_id?: string;
-
-  /**
-   * 消息元数据
-   */
-  meta?: Record<string, unknown>;
+  /** Text content. */
+  content?: string | undefined;
+  /** Tool calls requested by an assistant message. */
+  tool_calls?: ToolCall[] | undefined;
+  /** Identifier of the call that a tool message answers. */
+  tool_call_id?: string | undefined;
+  /** Free-form metadata. */
+  meta?: Record<string, unknown> | undefined;
 }
 
 /**
- * 工具调用器配置
+ * Options for `ToolInvoker`.
  */
 export interface ToolInvokerConfig {
-  /**
-   * 可用工具集合或数组
-   */
+  /** Tools that can be called, as an array or a `ToolSet`. */
   tools: Tool[] | ToolSet;
-
-  /**
-   * 是否启用详细日志
-   */
-  verbose?: boolean;
-
-  /**
-   * 是否并行执行工具调用
-   */
-  parallel?: boolean;
-
-  /**
-   * 工具调用超时时间(毫秒)
-   */
-  timeout?: number;
+  /** Log progress through the console. Defaults to false. */
+  verbose?: boolean | undefined;
+  /** Run tool calls concurrently. Defaults to false (one at a time, in order). */
+  parallel?: boolean | undefined;
+  /** Timeout for each tool call in milliseconds. Defaults to 30000. */
+  timeout?: number | undefined;
 }
 
 /**
- * 工具调用器输入
+ * Input of `ToolInvoker`.
  */
 export interface ToolInvokerInput {
-  /**
-   * 消息数组
-   */
+  /** Messages to scan for tool calls. */
   messages: Message[];
 }
 
 /**
- * 工具调用器输出
+ * Output of `ToolInvoker`.
  */
 export interface ToolInvokerOutput {
-  /**
-   * 工具消息结果
-   */
+  /** One `tool` message per tool call, in call order. */
   tool_messages: Message[];
 }
 
+const DEFAULT_TIMEOUT_MS = 30_000;
+
 /**
- * 工具调用器组件
+ * Runs the tool calls found in a list of messages and returns one `tool` message per call.
  *
- * 根据消息中的工具调用，执行相应的工具并返回结果
+ * A failed, timed-out or unknown tool produces an error text in its tool message, so the
+ * model can see the failure and other calls in the batch still complete.
  */
 export class ToolInvoker extends Component {
-  private tools: Map<string, Tool>;
-  private verbose: boolean;
-  private parallel: boolean;
-  private timeout: number;
+  private readonly tools = new Map<string, Tool>();
+  private readonly parallel: boolean;
+  private readonly timeout: number;
+  private readonly logger: Logger;
 
-  /**
-   * 创建工具调用器组件
-   * @param config 配置参数
-   */
   constructor(config: ToolInvokerConfig) {
     super({});
 
-    // 初始化工具映射
-    this.tools = new Map();
-
-    // 处理工具集合或数组
-    if (Array.isArray(config.tools)) {
-      config.tools.forEach(tool => {
-        this.tools.set(tool.name, tool);
-      });
-    } else {
-      config.tools.getTools().forEach(tool => {
-        this.tools.set(tool.name, tool);
-      });
+    const tools = Array.isArray(config.tools) ? config.tools : config.tools.getTools();
+    for (const tool of tools) {
+      this.tools.set(tool.name, tool);
     }
 
-    this.verbose = config.verbose || false;
-    this.parallel = config.parallel || false;
-    this.timeout = config.timeout || 30000; // 默认 30 秒超时
+    this.parallel = config.parallel ?? false;
+    this.timeout = config.timeout ?? DEFAULT_TIMEOUT_MS;
+    this.logger = createLogger('ToolInvoker', config.verbose ?? false);
 
-    // 配置端口
-    Component.Port.I('in').attach(this);
-    Component.Port.O('out').attach(this);
-
-    if (this.verbose) {
-      console.log(`[ToolInvoker] 已初始化，工具数量: ${this.tools.size}`);
-    }
+    this.logger.debug(`Initialized with ${String(this.tools.size)} tools.`);
   }
 
   /**
-   * 查找可用工具
-   * @param name 工具名称
-   * @returns 工具实例
+   * Runs every tool call in `input.messages`.
    */
-  private findTool(name: string): Tool | undefined {
-    return this.tools.get(name);
+  override async run(input: ToolInvokerInput): Promise<ToolInvokerOutput> {
+    this.logger.debug(`Processing ${String(input.messages.length)} messages.`);
+    const toolCalls = input.messages.flatMap(message => message.tool_calls ?? []);
+
+    if (toolCalls.length === 0) {
+      this.logger.debug('No tool calls found.');
+      return { tool_messages: [] };
+    }
+
+    this.logger.debug(`Found ${String(toolCalls.length)} tool calls.`);
+    const results = this.parallel
+      ? await Promise.all(toolCalls.map(call => this.executeToolCall(call)))
+      : await this.executeSequentially(toolCalls);
+
+    return { tool_messages: results.map(toToolMessage) };
   }
 
   /**
-   * 执行单个工具调用
-   * @param toolCall 工具调用信息
-   * @returns 工具调用结果
+   * Reads `ToolInvokerInput` from the `in` port and sends `ToolInvokerOutput` to `out`.
+   * Invalid input produces an empty `tool_messages` array.
    */
+  override _transform($i: Port, $o: Port): void {
+    $i('in').receive((input: ToolInvokerInput) => {
+      this.run(input).then(
+        output => {
+          $o('out').send(output);
+        },
+        (error: unknown) => {
+          this.logger.error('Failed to process messages:', error);
+          $o('out').send({ tool_messages: [] } satisfies ToolInvokerOutput);
+        }
+      );
+    });
+  }
+
+  private async executeSequentially(toolCalls: ToolCall[]): Promise<ToolCallResult[]> {
+    const results: ToolCallResult[] = [];
+    for (const call of toolCalls) {
+      results.push(await this.executeToolCall(call));
+    }
+    return results;
+  }
+
   private async executeToolCall(toolCall: ToolCall): Promise<ToolCallResult> {
-    const { tool_name, arguments: args } = toolCall;
+    const { tool_name: toolName } = toolCall;
+    this.logger.debug(`Running tool: ${toolName}`);
 
-    if (this.verbose) {
-      console.log(`[ToolInvoker] 执行工具调用: ${tool_name}`);
-    }
-
-    // 查找工具
-    const tool = this.findTool(tool_name);
+    const tool = this.tools.get(toolName);
     if (!tool) {
-      throw new Error(`找不到工具: ${tool_name}`);
+      this.logger.warn(`Tool not found: ${toolName}`);
+      return { result: `Tool not found: ${toolName}`, origin: toolCall };
     }
 
     try {
-      // 执行工具，并设置超时
-      const result = await Promise.race([
-        tool.invoke(args),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error(`工具执行超时: ${tool_name}`)), this.timeout)
-        ),
-      ]);
-
-      if (this.verbose) {
-        console.log(`[ToolInvoker] 工具 ${tool_name} 执行成功`);
-      }
-
-      return {
-        result,
-        origin: toolCall,
-      };
+      const result = await this.withTimeout(tool.invoke(toolCall.arguments), toolName);
+      this.logger.debug(`Tool succeeded: ${toolName}`);
+      return { result, origin: toolCall };
     } catch (error) {
-      const errorMessage = `工具 ${tool_name} 执行失败: ${error instanceof Error ? error.message : '未知错误'}`;
-      console.error(`[ToolInvoker] ${errorMessage}`);
-
-      return {
-        result: errorMessage,
-        origin: toolCall,
-      };
+      const reason = error instanceof Error ? error.message : String(error);
+      const message = `Tool ${toolName} failed: ${reason}`;
+      this.logger.error(message);
+      return { result: message, origin: toolCall };
     }
   }
 
-  /**
-   * 处理消息中的工具调用
-   * @param messages 消息数组
-   * @returns 工具结果消息数组
-   */
-  private async processToolCalls(messages: Message[]): Promise<Message[]> {
-    const toolMessages: Message[] = [];
-
-    // 从所有消息中提取工具调用
-    const toolCalls: ToolCall[] = [];
-
-    for (const message of messages) {
-      if (message.tool_calls && message.tool_calls.length > 0) {
-        toolCalls.push(...message.tool_calls);
-      }
-    }
-
-    if (toolCalls.length === 0) {
-      if (this.verbose) {
-        console.log(`[ToolInvoker] 没有找到工具调用`);
-      }
-      return toolMessages;
-    }
-
-    if (this.verbose) {
-      console.log(`[ToolInvoker] 找到 ${toolCalls.length} 个工具调用`);
-    }
-
-    // 执行工具调用
-    let results: ToolCallResult[];
-
-    if (this.parallel) {
-      // 并行执行
-      const promises = toolCalls.map(call => this.executeToolCall(call));
-      results = await Promise.all(promises);
-    } else {
-      // 串行执行
-      results = [];
-      for (const call of toolCalls) {
-        const result = await this.executeToolCall(call);
-        results.push(result);
-      }
-    }
-
-    // 转换结果为工具消息
-    for (const result of results) {
-      const toolMessage: Message = {
-        role: 'tool',
-        content: JSON.stringify(result.result),
-        tool_call_id: result.origin?.id,
-      };
-
-      toolMessages.push(toolMessage);
-    }
-
-    return toolMessages;
-  }
-
-  /**
-   * 独立运行组件
-   * @param input 输入参数
-   * @returns 输出结果
-   */
-  async run(input: ToolInvokerInput): Promise<ToolInvokerOutput> {
-    if (this.verbose) {
-      console.log(`[ToolInvoker] 开始处理消息，消息数量: ${input.messages.length}`);
-    }
-
-    const tool_messages = await this.processToolCalls(input.messages);
-
-    return { tool_messages };
-  }
-
-  /**
-   * 在流水线中运行组件
-   * @param $i 输入端口
-   * @param $o 输出端口
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _transform($i: any, $o: any): void {
-    $i('in').receive(async (input: ToolInvokerInput) => {
-      try {
-        const output = await this.run(input);
-        $o('out').send(output);
-      } catch (error) {
-        console.error(
-          `[ToolInvoker] 处理消息失败: ${error instanceof Error ? error.message : String(error)}`
-        );
-        $o('out').send({ tool_messages: [] });
-      }
+  private async withTimeout<T>(promise: Promise<T>, toolName: string): Promise<T> {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        reject(new Error(`Tool timed out after ${String(this.timeout)} ms: ${toolName}`));
+      }, this.timeout);
     });
+
+    try {
+      return await Promise.race([promise, timeout]);
+    } finally {
+      clearTimeout(timer);
+    }
   }
+}
+
+function toToolMessage(result: ToolCallResult): Message {
+  const message: Message = { role: 'tool', content: JSON.stringify(result.result ?? null) };
+  const id = result.origin?.id;
+  if (id !== undefined) {
+    message.tool_call_id = id;
+  }
+  return message;
 }
 
 export default ToolInvoker;

@@ -65,14 +65,21 @@ The RLM components are in `packages/components/src/agents/rlm`. They provide rec
 ### 1. RLMAgent - The High-Level Interface
 
 ```typescript
-import { RLMAgent, FileSystemContext } from '@astack-tech/components';
+import { FileSystemContext, RLMAgent } from '@astack-tech/components';
+import type { LLMProvider } from '@astack-tech/components';
+import { ModelProvider } from '@astack-tech/integrations';
+
+// RLM needs a text-in, text-out provider. Adapt Deepseek to it.
+const deepseek = new ModelProvider.Deepseek({ apiKey, model: 'deepseek-chat' });
+const llm: LLMProvider = { generate: prompt => deepseek.generateCompletion(prompt) };
 
 const agent = new RLMAgent({
-  rootLLM: new DeepseekLLMProvider(apiKey, 'deepseek-chat'),
-  subLLM: new DeepseekLLMProvider(apiKey, 'deepseek-chat'),
+  rootLLM: llm,
+  subLLM: llm,
   maxDepth: 2, // Support nested recursion
 });
 
+// Filesystem mode needs the base path and an explicit list of relative file paths.
 const context = new FileSystemContext('./my-project', filePaths);
 const result = await agent.run({
   context,
@@ -218,31 +225,36 @@ The run selected files from a context larger than its file cache. The cache limi
 The following example analyzes project files for security issues:
 
 ```typescript
-import { RLMAgent, FileSystemContext } from '@astack-tech/components';
-import { DeepseekLLMProvider } from '@astack-tech/llm-deepseek';
+import { readdirSync } from 'node:fs';
 
-async function analyzeProject() {
-  // 1. Setup RLM Agent
-  const agent = new RLMAgent({
-    rootLLM: new DeepseekLLMProvider(process.env.DEEPSEEK_API_KEY, 'deepseek-chat'),
-    subLLM: new DeepseekLLMProvider(process.env.DEEPSEEK_API_KEY, 'deepseek-chat'),
-    maxDepth: 2,
+import { FileSystemContext, RLMAgent } from '@astack-tech/components';
+import type { LLMProvider, RLMExecutionMetadata } from '@astack-tech/components';
+import { ModelProvider } from '@astack-tech/integrations';
+
+async function analyzeProject(): Promise<void> {
+  const apiKey = process.env['DEEPSEEK_API_KEY'];
+  if (!apiKey) {
+    throw new Error('Set DEEPSEEK_API_KEY');
+  }
+
+  // 1. Set up the RLM agent with a Deepseek-backed provider
+  const deepseek = new ModelProvider.Deepseek({ apiKey, model: 'deepseek-chat' });
+  const llm: LLMProvider = { generate: prompt => deepseek.generateCompletion(prompt) };
+  const agent = new RLMAgent({ rootLLM: llm, subLLM: llm, maxDepth: 2 });
+
+  // 2. List the files to expose, then create a filesystem context with cache limits
+  const filePaths = readdirSync('./my-project', { recursive: true, encoding: 'utf8' }).filter(
+    file => file.endsWith('.ts') && !file.includes('node_modules')
+  );
+  const context = new FileSystemContext('./my-project', filePaths, {
+    maxFileSize: 10 * 1024 * 1024, // 10MB per file
+    maxCacheSize: 10 * 1024 * 1024, // 10MB LRU cache
   });
 
-  // 2. Create filesystem context with memory limits
-  const context = new FileSystemContext(
-    './my-project',
-    ['src/**/*.ts', 'lib/**/*.ts'],
-    {
-      maxTotalRead: 100 * 1024 * 1024, // 100MB limit
-      maxFileSize: 10 * 1024 * 1024,   // 10MB per file
-      maxCacheSize: 10 * 1024 * 1024,  // 10MB LRU cache
-    }
-  );
-
-  // 3. Run analysis with streaming
+  // 3. Run the analysis with streaming
   console.log('Analyzing project for security issues...\n');
 
+  let metadata: RLMExecutionMetadata | undefined;
   for await (const chunk of agent.runStream({
     context,
     query: `
@@ -261,18 +273,20 @@ async function analyzeProject() {
     `,
   })) {
     process.stdout.write(chunk.content);
+    metadata = chunk.metadata ?? metadata;
   }
 
-  // 4. Access execution metadata
-  const metadata = chunk.metadata;
-  console.log(`\n\nExecution Stats:`);
-  console.log(`- Sub-LLM Calls: ${metadata.subLLMCalls}`);
-  console.log(`- Execution Time: ${metadata.totalExecutionTime}ms`);
-  console.log(`- Context Size: ${metadata.contextLength} chars`);
-  console.log(`- Max Depth Used: ${metadata.actualDepth}/${metadata.maxDepth}`);
+  // 4. Read the execution metadata from the stream
+  if (metadata) {
+    console.log('\n\nExecution Stats:');
+    console.log(`- Sub-LLM Calls: ${String(metadata.subLLMCalls)}`);
+    console.log(`- Execution Time: ${String(metadata.totalExecutionTime)}ms`);
+    console.log(`- Context Size: ${String(metadata.contextLength)} chars`);
+    console.log(`- Max Depth Used: ${String(metadata.actualDepth)}/${String(metadata.maxDepth)}`);
+  }
 }
 
-analyzeProject();
+void analyzeProject();
 ```
 
 ## Generated Code Example
@@ -588,7 +602,7 @@ Install `@astack-tech/components` to use RLMAgent. Review the configuration and 
 - **Paper**: [arXiv:2512.24601](https://arxiv.org/abs/2512.24601)
 - **Official Implementation**: [alexzhang13/rlm (Python)](https://github.com/alexzhang13/rlm)
 - **AStack Implementation**: [RLMCore.ts (TypeScript)](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/rlm/RLMCore.ts)
-- **Documentation**: [AStack GitHub Repository](https://github.com/astack-tech/astack)
+- **Documentation**: [RLM guide](https://astack.tech/docs/rlm) and [RLM example](https://astack.tech/examples/rlm-agent)
 
 ## Join the Discussion
 

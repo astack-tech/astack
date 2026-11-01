@@ -10,7 +10,7 @@ export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
     <nav aria-label="Breadcrumb">
       <ol className="breadcrumbs">
         {items.map((item, i) => (
-          <li key={`${item.label}-${i}`}>
+          <li key={`${item.label}-${String(i)}`}>
             {i > 0 && <CaretRightIcon size={12} aria-hidden="true" />}
             {item.href && i !== items.length - 1 ? (
               <Link href={item.href}>{item.label}</Link>

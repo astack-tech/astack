@@ -1,101 +1,77 @@
 /**
- * 工具参数类型定义，遵循 JSON Schema 格式
+ * JSON Schema object that describes the arguments of a tool.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ToolParameters = {
+export interface ToolParameters {
   type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  properties: Record<string, any>;
-  required?: string[];
-  additionalProperties?: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-};
-
-/**
- * 工具调用结果
- */
-export interface ToolCallResult {
-  /**
-   * 工具调用结果
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  result: any;
-
-  /**
-   * 工具调用的原始信息
-   */
-  origin?: ToolCall;
+  properties: Record<string, unknown>;
+  required?: string[] | undefined;
+  additionalProperties?: boolean | undefined;
+  [key: string]: unknown;
 }
 
 /**
- * 工具调用信息
+ * A tool call requested by a model.
  */
 export interface ToolCall {
-  /**
-   * 工具调用 ID
-   */
-  id?: string;
-
-  /**
-   * 工具名称
-   */
+  /** Identifier assigned by the model provider. */
+  id?: string | undefined;
+  /** Name of the tool to call. */
   tool_name: string;
-
-  /**
-   * 工具调用参数
-   */
+  /** Arguments for the tool. */
   arguments: Record<string, unknown>;
 }
 
 /**
- * 工具接口
- *
- * 定义了一个工具的基本结构和行为
+ * The result of a tool call.
+ */
+export interface ToolCallResult {
+  /** Value returned by the tool. */
+  result: unknown;
+  /** The call that produced this result. */
+  origin?: ToolCall | undefined;
+}
+
+/**
+ * A capability that an agent can call by name.
  */
 export interface Tool {
-  /**
-   * 工具名称
-   */
+  /** Unique tool name. */
   name: string;
-
-  /**
-   * 工具描述
-   */
+  /** Description that tells the model when to use the tool. */
   description: string;
-
+  /** JSON Schema of the arguments. */
+  parameters?: ToolParameters | undefined;
   /**
-   * 工具参数定义
-   */
-  parameters?: ToolParameters;
-
-  /**
-   * 执行工具
-   * @param args 调用参数
-   * @returns 执行结果
+   * Runs the tool.
+   * @param args Arguments that match `parameters`.
    */
   invoke(args: Record<string, unknown>): Promise<unknown>;
 }
 
 /**
- * 创建一个简单工具
- * @param name 工具名称
- * @param description 工具描述
- * @param func 工具函数
- * @param parameters 参数定义
- * @returns 工具实例
+ * Function that implements a tool. It may return a value or a promise.
+ */
+export type ToolFunction = (args: Record<string, unknown>) => unknown;
+
+/**
+ * Creates a tool from a plain function.
+ *
+ * @param name Unique tool name.
+ * @param description Description that tells the model when to use the tool.
+ * @param func Implementation. Synchronous and asynchronous functions are both accepted.
+ * @param parameters JSON Schema of the arguments.
  */
 export function createTool(
   name: string,
   description: string,
-  func: (args: Record<string, unknown>) => Promise<unknown> | unknown,
+  func: ToolFunction,
   parameters?: ToolParameters
 ): Tool {
   return {
     name,
     description,
     parameters,
-    invoke: async (args: Record<string, unknown>) => {
+    invoke: async (args: Record<string, unknown>): Promise<unknown> => {
       return await Promise.resolve(func(args));
     },
   };

@@ -1,6 +1,12 @@
 import { Component } from '@astack-tech/core';
-import { RLMCore, RLMInput, RLMResult, RLMChunk, LLMProvider } from './RLMCore';
+import type { Port } from '@astack-tech/core';
+
+import { createLogger } from '../../utils/logger';
+import type { Logger } from '../../utils/logger';
+
 import type { FileSystemContext } from './FileSystemContext';
+import { RLMCore } from './RLMCore';
+import type { LLMProvider, RLMChunk, RLMInput, RLMResult } from './RLMCore';
 
 /**
  * System prompt builder function type
@@ -25,7 +31,7 @@ export interface RLMAgentConfig {
    *
    * When maxDepth > 1, nested RLM instances are automatically created.
    */
-  maxDepth?: number;
+  maxDepth?: number | undefined;
   /**
    * Shared FileSystemContext for all recursion levels (optional)
    *
@@ -33,7 +39,7 @@ export interface RLMAgentConfig {
    * When provided, all nested RLM instances share the same FileSystemContext,
    * avoiding redundant file reads through shared LRU cache.
    */
-  sharedContext?: FileSystemContext;
+  sharedContext?: FileSystemContext | undefined;
   /**
    * Task-specific additional prompt (optional)
    *
@@ -55,7 +61,11 @@ export interface RLMAgentConfig {
    * systemPrompt: (context, query) => `Task-specific guidance for: ${query}`
    * ```
    */
-  systemPrompt?: string | SystemPromptBuilder;
+  systemPrompt?: string | SystemPromptBuilder | undefined;
+  /**
+   * Mirror sandbox console output and errors to the real console. Default: false.
+   */
+  verbose?: boolean | undefined;
 }
 
 /**
@@ -89,24 +99,48 @@ export interface RLMAgentConfig {
  * ```
  */
 export class RLMAgent extends Component {
-  private rlm: RLMCore;
+  private readonly rlm: RLMCore;
+  private readonly logger: Logger;
 
   constructor(config: RLMAgentConfig) {
-    super(config);
+    super({});
+    const verbose = config.verbose ?? false;
+    this.logger = createLogger('RLMAgent', verbose);
     this.rlm = new RLMCore(
       config.rootLLM,
       config.subLLM,
       config.maxDepth ?? 1,
       config.sharedContext,
-      config.systemPrompt
+      config.systemPrompt,
+      { verbose }
     );
   }
 
   /**
    * Process input through RLM
    */
-  async run(data: RLMInput): Promise<RLMResult> {
+  override async run(data: RLMInput): Promise<RLMResult> {
     return await this.rlm.execute(data);
+  }
+
+  /**
+   * Pipeline mode: receives `RLMInput` on `in` and sends the resolved `RLMResult` on `out`.
+   * A failed run sends a result with an empty answer and an `error` message.
+   */
+  override _transform($i: Port, $o: Port): void {
+    $i('in').receive((input: RLMInput) => {
+      this.run(input).then(
+        result => {
+          $o('out').send(result);
+        },
+        (error: unknown) => {
+          const message = error instanceof Error ? error.message : String(error);
+          this.logger.error('Run failed:', message);
+          const failed: RLMResult = { answer: '', code: '', depth: 0, error: message };
+          $o('out').send(failed);
+        }
+      );
+    });
   }
 
   /**

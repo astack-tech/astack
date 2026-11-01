@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ArrowRightIcon, ArrowUpRightIcon } from '@phosphor-icons/react/dist/ssr';
 import FlowDiagram from './FlowDiagram';
 import CopyButton from './CopyButton';
@@ -15,16 +16,16 @@ export default function Hero() {
           <span>with components.</span>
         </h1>
         <p className="hero-description">
-          The composable framework for AI applications. Connect components with typed ports and
-          Observable streams. Use HLang&apos;s monadic FBP model.
+          A TypeScript framework for AI applications. Components exchange data through ports, and a
+          pipeline connects them into a graph that runs on HLang&apos;s reactive flow runtime.
         </p>
         <div className="hero-actions">
           <a href="#quickstart" className="button-primary">
             Start building <ArrowRightIcon size={17} />
           </a>
-          <a href="https://deepwiki.com/astack-tech/astack" className="text-link">
-            Read the docs <ArrowUpRightIcon size={15} />
-          </a>
+          <Link href="/docs" className="text-link">
+            Read the docs <ArrowRightIcon size={15} />
+          </Link>
         </div>
         <div className="install-inline">
           <span aria-hidden="true">$</span>

@@ -1,0 +1,25 @@
+{
+  "name": "@astack-examples/routing",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Send data to different branches through named output ports.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json",
+    "test": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack-tech/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Routing",
+    "order": 3,
+    "tier": "basics",
+    "doc": "routing",
+    "requiresApiKey": false
+  }
+}

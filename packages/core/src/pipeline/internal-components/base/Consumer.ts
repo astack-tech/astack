@@ -1,18 +1,24 @@
-import { WriteableNode, Port as HlangPort } from '@hlang-org/runtime';
+import { Port as HlangPort, WriteableNode } from '@hlang-org/runtime';
 
-class Consumer extends WriteableNode {
-  private in: ReturnType<typeof HlangPort.I>;
+/**
+ * Virtual END component. It forwards every value on its `in` port to a sink callback.
+ */
+class BaseConsumer extends WriteableNode {
+  private readonly inPort: HlangPort;
 
-  constructor(opt: unknown) {
-    super(opt);
+  constructor(opts: unknown) {
+    super(opts);
 
-    this.in = HlangPort.I('in');
-    this.in.attach(this);
+    this.inPort = HlangPort.I('in');
+    this.inPort.attach(this);
   }
 
-  consume(sink: unknown) {
-    this.in.receive(sink);
+  /**
+   * Subscribes `sink` to values that arrive on the `in` port.
+   */
+  consume(sink: (value: unknown) => void): void {
+    this.inPort.receive(sink);
   }
 }
 
-export default Consumer;
+export default BaseConsumer;

@@ -1,5 +1,18 @@
 # @astack-tech/components
 
+## 0.2.0-beta.6
+
+### Minor Changes
+
+- e71dd3b: Agent and StreamingAgent share one runtime. StreamingAgent now sums token usage across iterations, includes `usage` in its output, emits a single `error` event, sends real newlines in tool results, and falls back to `chatCompletion` when the model cannot stream. Console output is opt-in through `verbose`, and prompts and messages are in English. TextSplitter keeps every chunk within `chunkSize` and honors `overlap`. ToolInvoker reports unknown tools per call and clears its timeout. RLMAgent, RLMCore and FileSystemContext are exported from the package root, multi-line answers are kept, and RLMAgent works inside a pipeline. Node.js 20 or later is required.
+
+### Patch Changes
+
+- Updated dependencies [e71dd3b]
+- Updated dependencies [e71dd3b]
+  - @astack-tech/core@0.2.0-beta.2
+  - @astack-tech/tools@0.2.0-beta.1
+
 ## 0.1.1-beta.5
 
 ### Patch Changes

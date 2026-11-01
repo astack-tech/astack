@@ -1,0 +1,25 @@
+{
+  "name": "@astack-examples/http-server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Serve a streaming agent over HTTP with Server-Sent Events.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/integrations": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "HTTP server",
+    "order": 11,
+    "tier": "advanced",
+    "doc": "streaming",
+    "requiresApiKey": true
+  }
+}

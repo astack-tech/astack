@@ -1,214 +1,247 @@
 import { Component } from '@astack-tech/core';
+import type { Port } from '@astack-tech/core';
 import OpenAI from 'openai';
 
 /**
- * Deepseek 模型提供者配置
+ * Options for the DeepSeek model provider.
  */
 export interface DeepseekConfig {
-  /**
-   * API 密钥
-   */
+  /** DeepSeek API key. */
   apiKey: string;
-
+  /** Model name. Defaults to `deepseek-chat`. */
+  model?: string | undefined;
+  /** API base URL. Defaults to `https://api.deepseek.com/v1`. */
+  baseURL?: string | undefined;
+  /** Sampling temperature. Defaults to `0.7`. */
+  temperature?: number | undefined;
+  /** Maximum number of generated tokens. */
+  maxTokens?: number | undefined;
+  /** Nucleus sampling probability. */
+  topP?: number | undefined;
+  /** System prompt added before every request. */
+  systemPrompt?: string | undefined;
   /**
-   * 使用的模型名称
-   * 默认为 'deepseek-chat'
+   * Tools given as `{ name, description, parameters }` objects.
+   * When this list is not empty, it takes precedence over `tools`.
    */
-  model?: string;
-
-  /**
-   * 自定义 API 基础 URL
-   * 默认为 Deepseek 官方 API 地址
-   */
-  baseURL?: string;
-
-  /**
-   * 温度参数，控制输出的随机性
-   */
-  temperature?: number;
-
-  /**
-   * 最大生成的 token 数
-   */
-  maxTokens?: number;
-
-  /**
-   * 采样概率
-   */
-  topP?: number;
-
-  /**
-   * 系统提示消息
-   */
-  systemPrompt?: string;
-
-  /**
-   * 工具实例数组，直接传递工具实例
-   * 每个工具应具有 name、description 和 parameters 属性
-   */
-  rawTools?: Array<{
-    name: string;
-    description: string;
-    parameters?: Record<string, unknown>;
-  }>;
-
-  /**
-   * API 格式的工具定义数组，与 rawTools 二选一
-   * 使用 OpenAI 兼容的工具定义格式
-   */
-  tools?: unknown[];
-
-  /**
-   * dangerouslyAllowBrowser
-   * 是否允许在浏览器等非安全环境内运行
-   */
-  dangerouslyAllowBrowser?: boolean;
+  rawTools?: RawTool[] | undefined;
+  /** Tools in the OpenAI-compatible `{ type: 'function', function }` format. */
+  tools?: unknown[] | undefined;
+  /** Allows the OpenAI client to run in a browser. Defaults to `false`. */
+  dangerouslyAllowBrowser?: boolean | undefined;
+  /** Logs API errors to the console. Defaults to `false`. */
+  verbose?: boolean | undefined;
 }
 
 /**
- * 消息角色类型
+ * Tool description accepted by `rawTools` and `temporaryTools`.
+ */
+export interface RawTool {
+  name: string;
+  description: string;
+  parameters?: Record<string, unknown> | undefined;
+}
+
+/**
+ * Role of a chat message.
  */
 export type MessageRole = 'system' | 'user' | 'assistant' | 'tool';
 
 /**
- * 工具调用
+ * Tool call in the internal format.
  */
 export interface ToolCall {
-  /**
-   * 工具调用 ID
-   */
-  id?: string;
-
-  /**
-   * 工具名称
-   */
+  /** Identifier assigned by the API. */
+  id?: string | undefined;
+  /** Name of the tool. */
   tool_name: string;
-
-  /**
-   * 工具调用参数
-   */
+  /** Parsed arguments. */
   arguments: Record<string, unknown>;
 }
 
 /**
- * Token 使用统计
+ * Tool call returned by `chatCompletion`. It carries both the OpenAI shape
+ * (`type`, `function`) and the internal shape (`tool_name`, `arguments`).
+ */
+export interface ResponseToolCall {
+  id: string;
+  type: 'function';
+  function: { name: string; arguments: string };
+  tool_name: string;
+  arguments: Record<string, unknown>;
+}
+
+/**
+ * Partial tool call emitted while streaming. `arguments` holds the raw JSON fragment.
+ */
+export interface StreamToolCall {
+  id: string;
+  type: 'function';
+  function: { name: string; arguments: string };
+  tool_name: string;
+  arguments: string;
+}
+
+/**
+ * Token usage reported by the API.
  */
 export interface TokenUsage {
-  /**
-   * 完成部分的 token 数量
-   */
   completion_tokens: number;
-
-  /**
-   * 提示部分的 token 数量
-   */
   prompt_tokens: number;
-
-  /**
-   * 提示缓存命中的 token 数量（可选）
-   */
-  prompt_cache_hit_tokens?: number;
-
-  /**
-   * 提示缓存未命中的 token 数量（可选）
-   */
-  prompt_cache_miss_tokens?: number;
-
-  /**
-   * 总 token 数量
-   */
+  prompt_cache_hit_tokens?: number | undefined;
+  prompt_cache_miss_tokens?: number | undefined;
   total_tokens: number;
 }
 
 /**
- * 对话消息类型
+ * Chat message accepted as input. It matches the agent message contract in
+ * `@astack-tech/components`, so agent histories can be passed directly.
  */
 export interface Message {
-  /**
-   * 消息角色
-   */
-  role: MessageRole;
-
-  /**
-   * 消息内容
-   */
-  content?: string;
-
-  /**
-   * 工具调用
-   */
-  tool_calls?: ToolCall[];
-
-  /**
-   * 工具调用 ID，用于工具响应消息
-   */
-  tool_call_id?: string;
-
-  /**
-   * Token 使用统计（可选）
-   */
-  usage?: TokenUsage;
+  /** One of `system`, `user`, `assistant` or `tool` (see `MessageRole`). */
+  role: string;
+  content?: string | undefined;
+  /** Accepted for compatibility. Assistant tool calls are not forwarded to the API. */
+  tool_calls?: readonly unknown[] | undefined;
+  /** Identifier of the call that a `tool` message answers. */
+  tool_call_id?: string | undefined;
+  usage?: TokenUsage | undefined;
 }
 
 /**
- * Deepseek 组件
+ * Assistant message returned by `chatCompletion`.
+ */
+export interface AssistantMessage {
+  role: 'assistant';
+  content: string;
+  tool_calls?: ResponseToolCall[] | undefined;
+  usage?: TokenUsage | undefined;
+}
+
+/**
+ * Chunk yielded by `streamChatCompletion`.
+ */
+export interface StreamChunk {
+  role: 'assistant';
+  content: string;
+  tool_calls?: StreamToolCall[] | undefined;
+  usage?: TokenUsage | undefined;
+}
+
+/**
+ * Per-call options.
+ */
+export interface ChatCompletionOptions {
+  /** Tools for this call only. They replace the configured tools. */
+  temporaryTools?: unknown[] | undefined;
+}
+
+type ChatMessageParam = OpenAI.Chat.ChatCompletionMessageParam;
+type ChatTool = OpenAI.Chat.ChatCompletionTool;
+
+interface DeepseekUsage {
+  completion_tokens?: number;
+  prompt_tokens?: number;
+  total_tokens?: number;
+  prompt_cache_hit_tokens?: number;
+  prompt_cache_miss_tokens?: number;
+}
+
+const DEFAULT_BASE_URL = 'https://api.deepseek.com/v1';
+const DEFAULT_MODEL = 'deepseek-chat';
+const DEFAULT_TEMPERATURE = 0.7;
+const FALLBACK_TEXT = 'API call failed';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Converts a `{ name, description, parameters }` object to the OpenAI tool format.
+ * Objects already in the OpenAI format are returned unchanged.
+ */
+function toApiTool(tool: unknown): ChatTool {
+  if (isRecord(tool) && tool['type'] === 'function') {
+    return tool as unknown as ChatTool;
+  }
+  const raw = isRecord(tool) ? tool : {};
+  const { name, description, parameters } = raw;
+  return {
+    type: 'function',
+    function: {
+      name: typeof name === 'string' ? name : '',
+      description: typeof description === 'string' ? description : '',
+      parameters: isRecord(parameters) ? parameters : {},
+    },
+  };
+}
+
+/**
+ * Parses tool-call arguments. Anything that is not a JSON object becomes `{}`.
+ */
+function parseArguments(raw: string): Record<string, unknown> {
+  if (raw.trim().length === 0) {
+    return {};
+  }
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    return isRecord(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function mapUsage(usage: DeepseekUsage): TokenUsage {
+  return {
+    completion_tokens: usage.completion_tokens ?? 0,
+    prompt_tokens: usage.prompt_tokens ?? 0,
+    total_tokens: usage.total_tokens ?? 0,
+    ...(usage.prompt_cache_hit_tokens === undefined
+      ? {}
+      : { prompt_cache_hit_tokens: usage.prompt_cache_hit_tokens }),
+    ...(usage.prompt_cache_miss_tokens === undefined
+      ? {}
+      : { prompt_cache_miss_tokens: usage.prompt_cache_miss_tokens }),
+  };
+}
+
+/**
+ * DeepSeek model provider. It calls the DeepSeek API through the OpenAI-compatible client.
  *
- * 使用 OpenAI 兼容接口调用 Deepseek 模型
- *
- * 输入:
- *   - prompt: 文本提示
- *   - messages: 对话消息数组
- *
- * 输出:
- *   - completion: 生成的文本完成
- *   - message: 生成的响应消息
+ * Ports:
+ * - `prompt` (in): a text prompt. The answer is sent on `completion`.
+ * - `messages` (in): a list of chat messages. The reply is sent on `message`.
  */
 class Deepseek extends Component {
-  // OpenAI 客户端实例
-  private client: OpenAI;
-
-  // 配置选项
-  private model: string;
-  private temperature: number;
-  private maxTokens?: number;
-  private topP?: number;
-  private systemPrompt?: string;
-  private tools?: unknown[];
+  private readonly client: OpenAI;
+  private readonly model: string;
+  private readonly temperature: number;
+  private readonly maxTokens: number | undefined;
+  private readonly topP: number | undefined;
+  private readonly systemPrompt: string | undefined;
+  private readonly tools: unknown[] | undefined;
+  private readonly verbose: boolean;
 
   constructor(config: DeepseekConfig) {
     super({});
 
-    // 配置客户端
     this.client = new OpenAI({
       apiKey: config.apiKey,
-      baseURL: config.baseURL || 'https://api.deepseek.com/v1',
+      baseURL: config.baseURL ?? DEFAULT_BASE_URL,
       dangerouslyAllowBrowser: config.dangerouslyAllowBrowser ?? false,
     });
 
-    // 保存基本配置
-    this.model = config.model || 'deepseek-chat';
-    this.temperature = config.temperature ?? 0.7;
+    this.model = config.model ?? DEFAULT_MODEL;
+    this.temperature = config.temperature ?? DEFAULT_TEMPERATURE;
     this.maxTokens = config.maxTokens;
     this.topP = config.topP;
     this.systemPrompt = config.systemPrompt;
+    this.verbose = config.verbose ?? false;
+    this.tools =
+      config.rawTools !== undefined && config.rawTools.length > 0
+        ? config.rawTools.map(toApiTool)
+        : config.tools;
 
-    // 处理工具配置，优先使用 rawTools
-    if (config.rawTools && config.rawTools.length > 0) {
-      // 将工具实例转换为 API 格式
-      this.tools = config.rawTools.map(tool => ({
-        type: 'function',
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.parameters || {},
-        },
-      }));
-    } else {
-      // 使用直接提供的 API 格式工具
-      this.tools = config.tools;
-    }
-
-    // 重命名端口
     Component.Port.I('prompt').attach(this);
     Component.Port.I('messages').attach(this);
     Component.Port.O('completion').attach(this);
@@ -216,342 +249,59 @@ class Deepseek extends Component {
   }
 
   /**
-   * 生成文本完成
-   * @param prompt 提示文本
-   * @returns 生成的文本
+   * Generates a completion for a single prompt.
+   *
+   * @returns The text answer, or the JSON-encoded assistant message when it contains tool calls.
    */
   async generateCompletion(prompt: string): Promise<string> {
-    const messages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [];
-
-    // 添加系统提示
-    if (this.systemPrompt) {
-      messages.push({
-        role: 'system',
-        content: this.systemPrompt,
-      });
-    }
-
-    // 添加用户提示
-    messages.push({
-      role: 'user',
-      content: prompt,
+    const response = await this.client.chat.completions.create({
+      ...this.baseRequest(),
+      messages: [...this.systemMessages(), { role: 'user', content: prompt }],
+      ...this.toolsParam(this.tools),
     });
 
-    // 创建请求参数
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestParams: any = {
-      model: this.model,
-      messages,
-      temperature: this.temperature,
-      max_tokens: this.maxTokens,
-      top_p: this.topP,
-    };
-
-    // 如果有工具定义，添加到请求中
-    if (this.tools && this.tools.length > 0) {
-      requestParams.tools = this.tools;
+    const message = this.firstMessage(response);
+    if (message.tool_calls !== undefined && message.tool_calls.length > 0) {
+      return JSON.stringify(message);
     }
-
-    // 调用 API
-    const response = await this.client.chat.completions.create(requestParams);
-
-    // 处理工具调用结果
-    if (
-      response.choices[0].message.tool_calls &&
-      response.choices[0].message.tool_calls.length > 0
-    ) {
-      return JSON.stringify(response.choices[0].message);
-    }
-
-    return response.choices[0].message.content || '';
+    return message.content ?? '';
   }
 
   /**
-   * 流式处理对话消息
-   * @param messages 对话消息数组
-   * @param options 可选的调用选项，包含临时工具列表
-   * @returns 生成的流式响应消息异步生成器
-   */
-  async *streamChatCompletion(
-    messages: Message[],
-    options?: { temporaryTools?: unknown[] }
-  ): AsyncGenerator<Partial<Message>> {
-    // 转换消息格式 (复用现有逻辑)
-    const formattedMessages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [];
-
-    // 添加系统提示
-    if (this.systemPrompt) {
-      formattedMessages.push({
-        role: 'system',
-        content: this.systemPrompt,
-      });
-    }
-
-    // 添加用户提供的消息
-    formattedMessages.push(
-      ...messages.map(msg => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formattedMsg: any = {
-          role: msg.role,
-          content: msg.content,
-        };
-
-        if (msg.role === 'tool' && msg.tool_call_id) {
-          formattedMsg.tool_call_id = msg.tool_call_id;
-        }
-
-        return formattedMsg;
-      })
-    );
-
-    // 创建请求参数
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestParams: any = {
-      model: this.model,
-      messages: formattedMessages,
-      temperature: this.temperature,
-      max_tokens: this.maxTokens,
-      top_p: this.topP,
-      stream: true, // 开启流式模式
-    };
-
-    // 决定使用哪些工具
-    const toolsToUse = options?.temporaryTools || this.tools;
-
-    // 如果有工具定义，添加到请求中
-    if (toolsToUse && toolsToUse.length > 0) {
-      const formattedTools = toolsToUse.map(tool => {
-        type ToolType = {
-          type?: string;
-          name?: string;
-          description?: string;
-          parameters?: Record<string, unknown>;
-        };
-
-        const typedTool = tool as ToolType;
-
-        if (typedTool.type === 'function') {
-          return tool;
-        }
-
-        return {
-          type: 'function',
-          function: {
-            name: typedTool.name,
-            description: typedTool.description,
-            parameters: typedTool.parameters || {},
-          },
-        };
-      });
-
-      requestParams.tools = formattedTools;
-    }
-
-    // 调用流式 API
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const stream = (await this.client.chat.completions.create(requestParams)) as any;
-
-    // 处理流式响应
-    for await (const chunk of stream) {
-      const delta = chunk.choices[0]?.delta;
-
-      if (delta?.content) {
-        // 流式文本内容
-        yield {
-          role: 'assistant',
-          content: delta.content,
-        };
-      }
-
-      if (delta?.tool_calls) {
-        // 流式工具调用（如果需要）
-        yield {
-          role: 'assistant',
-          content: '',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          tool_calls: delta.tool_calls.map((toolCall: any) => ({
-            id: toolCall.id || '',
-            function: {
-              name: toolCall.function?.name || '',
-              arguments: toolCall.function?.arguments || '',
-            },
-            type: 'function',
-            tool_name: toolCall.function?.name || '',
-            arguments: toolCall.function?.arguments || '',
-          })),
-        };
-      }
-
-      // 提取并返回 token 使用统计信息
-      if (chunk.usage) {
-        yield {
-          role: 'assistant',
-          content: '',
-          usage: {
-            completion_tokens: chunk.usage.completion_tokens || 0,
-            prompt_tokens: chunk.usage.prompt_tokens || 0,
-            prompt_cache_hit_tokens: chunk.usage.prompt_cache_hit_tokens,
-            prompt_cache_miss_tokens: chunk.usage.prompt_cache_miss_tokens,
-            total_tokens: chunk.usage.total_tokens || 0,
-          },
-        };
-      }
-    }
-  }
-
-  /**
-   * 处理对话消息
-   * @param messages 对话消息数组
-   * @param options 可选的调用选项，包含临时工具列表
-   * @returns 生成的响应消息
+   * Sends a conversation and returns the assistant reply.
    */
   async chatCompletion(
     messages: Message[],
-    options?: { temporaryTools?: unknown[] }
-  ): Promise<Message> {
-    // 转换消息格式
-    const formattedMessages: Array<OpenAI.Chat.ChatCompletionMessageParam> = [];
+    options?: ChatCompletionOptions
+  ): Promise<AssistantMessage> {
+    const response = await this.client.chat.completions.create({
+      ...this.baseRequest(),
+      messages: this.formatMessages(messages),
+      ...this.toolsParam(options?.temporaryTools ?? this.tools),
+    });
 
-    // 添加系统提示
-    if (this.systemPrompt) {
-      formattedMessages.push({
-        role: 'system',
-        content: this.systemPrompt,
-      });
+    const message = this.firstMessage(response);
+    const result: AssistantMessage = { role: 'assistant', content: message.content ?? '' };
+
+    if (response.usage !== undefined) {
+      result.usage = mapUsage(response.usage);
     }
 
-    // 添加用户提供的消息
-    formattedMessages.push(
-      ...messages.map(msg => {
-        // 基本消息结构
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const formattedMsg: any = {
-          role: msg.role,
-          content: msg.content,
-        };
-
-        // 如果有工具调用 ID，添加到消息中
-        if (msg.role === 'tool' && msg.tool_call_id) {
-          formattedMsg.tool_call_id = msg.tool_call_id;
-        }
-
-        return formattedMsg;
-      })
-    );
-
-    // 创建请求参数
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requestParams: any = {
-      model: this.model,
-      messages: formattedMessages,
-      temperature: this.temperature,
-      max_tokens: this.maxTokens,
-      top_p: this.topP,
-    };
-
-    // 决定使用哪些工具
-    // 如果提供了临时工具，优先使用临时工具
-    const toolsToUse = options?.temporaryTools || this.tools;
-
-    // 如果有工具定义，添加到请求中
-    if (toolsToUse && toolsToUse.length > 0) {
-      // 检查工具格式并转换，确保符合 Deepseek API 要求
-      const formattedTools = toolsToUse.map(tool => {
-        // 使用类型断言来处理 unknown 类型
-        type ToolType = {
-          type?: string;
-          name?: string;
-          description?: string;
-          parameters?: Record<string, unknown>;
-        };
-
-        const typedTool = tool as ToolType;
-
-        // 如果工具已经是 API 格式，直接返回
-        if (typedTool.type === 'function') {
-          return tool;
-        }
-
-        // 如果是简单工具实例，转换为 API 格式
-        return {
-          type: 'function',
-          function: {
-            name: typedTool.name,
-            description: typedTool.description,
-            parameters: typedTool.parameters || {},
-          },
-        };
-      });
-
-      requestParams.tools = formattedTools;
-    }
-
-    // 调用 API
-    const response = await this.client.chat.completions.create(requestParams);
-
-    // 解析响应
-    const responseMessage = response.choices[0].message;
-
-    // 转换为内部消息格式
-    const result: Message = {
-      role: 'assistant',
-      content: responseMessage.content || '',
-    };
-
-    // 提取并添加 token 使用统计信息
-    if (response.usage) {
-      const usage = response.usage as typeof response.usage & {
-        prompt_cache_hit_tokens?: number;
-        prompt_cache_miss_tokens?: number;
-      };
-      result.usage = {
-        completion_tokens: usage.completion_tokens || 0,
-        prompt_tokens: usage.prompt_tokens || 0,
-        prompt_cache_hit_tokens: usage.prompt_cache_hit_tokens,
-        prompt_cache_miss_tokens: usage.prompt_cache_miss_tokens,
-        total_tokens: usage.total_tokens || 0,
-      };
-    }
-
-    // 如果有工具调用，添加到结果中
-    if (responseMessage.tool_calls && responseMessage.tool_calls.length > 0) {
-      // 为了兼容 Agent 组件期望的格式，保留 function 和 type 字段
-      // 同时为了满足内部 ToolCall 接口，也添加 tool_name 和 arguments 字段
-      result.tool_calls = responseMessage.tool_calls.map(toolCall => {
-        // Type guard: only handle function tool calls (not custom tool calls)
-        if (toolCall.type !== 'function' || !('function' in toolCall)) {
+    if (message.tool_calls !== undefined && message.tool_calls.length > 0) {
+      result.tool_calls = message.tool_calls.map(toolCall => {
+        if (toolCall.type !== 'function') {
           throw new Error(`Unsupported tool call type: ${toolCall.type}`);
         }
-
-        // 解析参数，确保是对象形式
-        let args: Record<string, unknown>;
-
-        const rawArgs = toolCall.function.arguments;
-
-        if (typeof rawArgs === 'string') {
-          const raw = rawArgs;
-          try {
-            args = raw && raw.trim().length > 0 ? (JSON.parse(raw) as Record<string, unknown>) : {};
-          } catch {
-            args = {};
-          }
-        } else if (rawArgs && typeof rawArgs === 'object') {
-          args = rawArgs as Record<string, unknown>;
-        } else {
-          args = {};
-        }
-
+        const rawArguments = toolCall.function.arguments;
         return {
           id: toolCall.id,
-          // 满足 Agent 组件期望的格式
+          type: 'function',
           function: {
             name: toolCall.function.name,
-            arguments: toolCall.function.arguments || '{}',
+            arguments: rawArguments.length > 0 ? rawArguments : '{}',
           },
-          type: 'function',
-          // 满足内部 ToolCall 接口
           tool_name: toolCall.function.name,
-          arguments: args,
+          arguments: parseArguments(rawArguments),
         };
       });
     }
@@ -560,51 +310,146 @@ class Deepseek extends Component {
   }
 
   /**
-   * 在独立模式下运行组件
-   * @param input 输入参数，可以是提示文本或对话消息数组
-   * @returns 生成的文本或响应消息
+   * Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or usage.
    */
-  async run(input: string | Message[]): Promise<string | Message> {
-    if (typeof input === 'string') {
-      return this.generateCompletion(input);
-    } else {
-      return this.chatCompletion(input);
+  async *streamChatCompletion(
+    messages: Message[],
+    options?: ChatCompletionOptions
+  ): AsyncGenerator<StreamChunk> {
+    const stream = await this.client.chat.completions.create({
+      ...this.baseRequest(),
+      messages: this.formatMessages(messages),
+      ...this.toolsParam(options?.temporaryTools ?? this.tools),
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta;
+
+      if (delta?.content) {
+        yield { role: 'assistant', content: delta.content };
+      }
+
+      if (delta?.tool_calls) {
+        yield {
+          role: 'assistant',
+          content: '',
+          tool_calls: delta.tool_calls.map(toolCall => {
+            const name = toolCall.function?.name ?? '';
+            const args = toolCall.function?.arguments ?? '';
+            return {
+              id: toolCall.id ?? '',
+              type: 'function',
+              function: { name, arguments: args },
+              tool_name: name,
+              arguments: args,
+            };
+          }),
+        };
+      }
+
+      if (chunk.usage) {
+        yield { role: 'assistant', content: '', usage: mapUsage(chunk.usage) };
+      }
     }
   }
 
   /**
-   * 在流水线中运行组件
-   * @param $i 输入端口
-   * @param $o 输出端口
+   * Runs the model outside a pipeline.
+   *
+   * @param input A prompt string or a list of messages.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _transform($i: any, $o: any) {
-    // 处理文本提示输入
-    $i('prompt').receive(async (prompt: string) => {
-      try {
-        const completion = await this.generateCompletion(prompt);
-        $o('completion').send(completion);
-      } catch (error) {
-        console.error('Deepseek API 调用错误:', error);
-        $o('completion').send('API 调用错误');
-      }
+  override run(input: string | Message[]): Promise<string | AssistantMessage> {
+    return typeof input === 'string' ? this.generateCompletion(input) : this.chatCompletion(input);
+  }
+
+  /**
+   * Connects the `prompt` and `messages` input ports to the model.
+   * API errors produce a fallback value so the pipeline keeps flowing.
+   */
+  override _transform($i: Port, $o: Port): void {
+    $i('prompt').receive((prompt: string) => {
+      this.generateCompletion(prompt).then(
+        completion => {
+          $o('completion').send(completion);
+        },
+        (error: unknown) => {
+          this.logError(error);
+          $o('completion').send(FALLBACK_TEXT);
+        }
+      );
     });
 
-    // 处理对话消息输入
-    $i('messages').receive(async (messages: Message[]) => {
-      try {
-        const responseMessage = await this.chatCompletion(messages);
-        $o('message').send(responseMessage);
-      } catch (error) {
-        console.error('Deepseek API 调用错误:', error);
-        $o('message').send({
-          role: 'assistant',
-          content: 'API 调用错误',
-        });
-      }
+    $i('messages').receive((messages: Message[]) => {
+      this.chatCompletion(messages).then(
+        message => {
+          $o('message').send(message);
+        },
+        (error: unknown) => {
+          this.logError(error);
+          $o('message').send({ role: 'assistant', content: FALLBACK_TEXT });
+        }
+      );
     });
+  }
+
+  private baseRequest(): {
+    model: string;
+    temperature: number;
+    max_tokens?: number;
+    top_p?: number;
+  } {
+    return {
+      model: this.model,
+      temperature: this.temperature,
+      ...(this.maxTokens === undefined ? {} : { max_tokens: this.maxTokens }),
+      ...(this.topP === undefined ? {} : { top_p: this.topP }),
+    };
+  }
+
+  private toolsParam(tools: unknown[] | undefined): { tools?: ChatTool[] } {
+    return tools !== undefined && tools.length > 0 ? { tools: tools.map(toApiTool) } : {};
+  }
+
+  private systemMessages(): ChatMessageParam[] {
+    return this.systemPrompt ? [{ role: 'system', content: this.systemPrompt }] : [];
+  }
+
+  /**
+   * Converts input messages to API messages. Assistant `tool_calls` are not forwarded:
+   * agents send tool results back as user messages, and the API rejects assistant tool
+   * calls that are not followed by tool messages.
+   */
+  private formatMessages(messages: Message[]): ChatMessageParam[] {
+    return [
+      ...this.systemMessages(),
+      ...messages.map(
+        (message): ChatMessageParam =>
+          ({
+            role: message.role,
+            content: message.content,
+            ...(message.role === 'tool' && message.tool_call_id
+              ? { tool_call_id: message.tool_call_id }
+              : {}),
+          }) as ChatMessageParam
+      ),
+    ];
+  }
+
+  private firstMessage(response: OpenAI.Chat.ChatCompletion): OpenAI.Chat.ChatCompletionMessage {
+    const choice = response.choices[0];
+    if (choice === undefined) {
+      throw new Error('DeepSeek returned no choices.');
+    }
+    return choice.message;
+  }
+
+  private logError(error: unknown): void {
+    if (this.verbose) {
+      // eslint-disable-next-line no-console -- opt-in diagnostics controlled by `verbose`.
+      console.error('[Deepseek] API call failed:', error);
+    }
   }
 }
 
-// 默认导出组件
 export default Deepseek;

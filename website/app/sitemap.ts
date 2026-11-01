@@ -1,5 +1,8 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
+
 import { getAllPosts } from '@/lib/blog';
+import { getAllExamples } from '@/lib/cookbook';
+import { getAllDocs } from '@/lib/docs';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://astack.tech';
@@ -12,6 +15,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(post.date),
     changeFrequency: 'monthly',
     priority: 0.7,
+  }));
+
+  const docEntries: MetadataRoute.Sitemap = getAllDocs().map(doc => ({
+    url: `${baseUrl}/docs/${doc.slug}`,
+    lastModified: currentDate,
+    changeFrequency: 'monthly',
+    priority: 0.9,
+  }));
+  const exampleEntries: MetadataRoute.Sitemap = getAllExamples().map(example => ({
+    url: `${baseUrl}/examples/${example.name}`,
+    lastModified: currentDate,
+    changeFrequency: 'monthly',
+    priority: 0.8,
   }));
 
   return [
@@ -63,6 +79,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.6,
     },
+    {
+      url: `${baseUrl}/examples`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    ...docEntries,
+    ...exampleEntries,
     ...blogEntries,
   ];
 }

@@ -1,35 +1,16 @@
-## Description
+## Summary
 
-<!-- Please include a summary of the changes and which issue is fixed. -->
-<!-- Also include relevant motivation and context. -->
+<!-- What changes for users, and why. Link the issue: Fixes #123 -->
 
-Fixes # (issue)
+## Test first
 
-## Type of change
+<!-- Name the test that failed before this change and passes after it. -->
 
-<!-- Please delete options that are not relevant. -->
+## Checklist
 
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Performance improvement
-- [ ] Code refactoring (no functional changes)
-
-## How Has This Been Tested?
-
-<!-- Please describe the tests that you ran to verify your changes. -->
-<!-- Provide instructions so we can reproduce. -->
-
-## Checklist:
-
-- [ ] I have created a changeset using `pnpm changeset`
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a this-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] Any dependent changes have been merged and published
-- [ ] My PR is targeting the `dev` branch, not `master`
+- [ ] The PR targets `dev`.
+- [ ] A test failed before the change and passes now.
+- [ ] `pnpm verify` passes with zero warnings.
+- [ ] Docs, package READMEs, examples and website match the code (AGENTS.md, rule 1).
+- [ ] A changeset is included for user-facing changes, or none is needed.
+- [ ] No secrets, no `console` in package code, English only.

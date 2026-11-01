@@ -8,9 +8,9 @@ export default function Footer() {
       <div className="shell">
         <div className="footer-invitation">
           <h2>Your next agent starts here.</h2>
-          <a href="https://github.com/astack-tech/astack" className="button-primary">
-            Read the source <ArrowRightIcon size={17} />
-          </a>
+          <Link href="/docs/getting-started" className="button-primary">
+            Start with the docs <ArrowRightIcon size={17} />
+          </Link>
         </div>
         <div className="footer-main">
           <div>
@@ -18,14 +18,11 @@ export default function Footer() {
             <p>Everything is a Component</p>
           </div>
           <nav aria-label="Footer navigation">
-            <Link href="/#features">Features</Link>
-            <Link href="/#computation-model">Computation Model</Link>
-            <Link href="/#quickstart">Quick Start</Link>
-            <Link href="/#use-cases">Use Cases</Link>
+            <Link href="/docs">Docs</Link>
+            <Link href="/examples">Examples</Link>
+            <Link href="/#computation-model">Computation model</Link>
+            <Link href="/#comparison">Comparison</Link>
             <Link href="/blog">Blog</Link>
-            <a href="https://deepwiki.com/astack-tech/astack">
-              DeepWiki <ArrowUpRightIcon size={12} />
-            </a>
             <a href="https://github.com/astack-tech/astack">
               GitHub <ArrowUpRightIcon size={12} />
             </a>

@@ -1,0 +1,11 @@
+{
+  "name": "rlm-agent",
+  "title": "RLM agent",
+  "order": 10,
+  "tier": "advanced",
+  "doc": "rlm",
+  "requiresApiKey": true,
+  "description": "Answer a question about a source directory that is too large for one prompt.",
+  "readme": "# RLM agent\n\nAnswer a question about a source directory that is too large for one prompt.\n\n**Level:** Advanced · **Concept:** [Rlm](https://astack.tech/docs/rlm) · **Needs:** `DEEPSEEK_API_KEY`\n\n```mermaid\nflowchart LR\n  Q([query]) --> R[RLMAgent]\n  R -- writes code --> X[sandbox]\n  X -- reads files --> F[(FileSystemContext)]\n  X -- sub-queries --> L[subLLM]\n  R --> A([answer])\n```\n\n## What it shows\n\n- The root model writes code that reads only the files it needs.\n- `FileSystemContext` loads files lazily and caches them.\n\n## Run\n\n```bash\n# Once, from the repository root\npnpm install && pnpm build\n\nexport DEEPSEEK_API_KEY=sk-...\npnpm --filter @astack-examples/rlm-agent start\n```\n\nThe full program is [`index.ts`](./index.ts).\n\nNext: [HTTP server](../http-server/)\n",
+  "code": "import { readdirSync } from 'node:fs';\nimport { fileURLToPath } from 'node:url';\n\nimport { FileSystemContext, RLMAgent } from '@astack-tech/components';\nimport type { LLMProvider } from '@astack-tech/components';\nimport { ModelProvider } from '@astack-tech/integrations';\n\nconst apiKey = process.env['DEEPSEEK_API_KEY'];\nif (!apiKey) {\n  throw new Error('Set DEEPSEEK_API_KEY to run this example.');\n}\n\n// RLM needs a minimal text-in, text-out interface. Adapt Deepseek to it.\nconst model = new ModelProvider.Deepseek({ apiKey });\nconst llm: LLMProvider = {\n  generate: prompt => model.generateCompletion(prompt),\n};\n\n// The context is a directory and a list of files in it. The root model writes code that\n// reads files on demand, so the whole directory never has to fit in one prompt.\nconst sourceDir = fileURLToPath(new URL('../../packages/core/src', import.meta.url));\nconst files = readdirSync(sourceDir, { recursive: true, encoding: 'utf8' }).filter(file =>\n  file.endsWith('.ts')\n);\nconst context = new FileSystemContext(sourceDir, files);\n\nconst agent = new RLMAgent({ rootLLM: llm, subLLM: llm });\n\nconst result = await agent.run({\n  context,\n  query: 'How does Pipeline decide which output to return when no endpoint is given?',\n});\n\nconsole.log(result.answer);\n"
+}
