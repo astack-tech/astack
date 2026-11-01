@@ -1,5 +1,13 @@
 # @astack-tech/integrations
 
+## 0.2.0-beta.11
+
+### Patch Changes
+
+- 8098657: The `prompt` and `messages` ports of `Deepseek` and `OpenAICompatible` check their input. A value of the wrong type rejects the pipeline run with a `TypeError` before the API is called.
+- Updated dependencies [fa0689e]
+  - @astack-tech/core@0.2.0-beta.5
+
 ## 0.2.0-beta.10
 
 ### Patch Changes

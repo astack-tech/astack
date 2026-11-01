@@ -1,5 +1,17 @@
 # @astack-tech/components
 
+## 0.2.0-beta.10
+
+### Minor Changes
+
+- 0178c3c: `Agent`, `StreamingAgent`, `RLMAgent` and `ToolInvoker` check the value on their `in` port. A value of the wrong type rejects the pipeline run with a `TypeError` before any model or tool is called. `ToolInvoker` used to send an empty `tool_messages` array for invalid input.
+
+### Patch Changes
+
+- Updated dependencies [fa0689e]
+  - @astack-tech/core@0.2.0-beta.5
+  - @astack-tech/tools@0.2.0-beta.4
+
 ## 0.2.0-beta.9
 
 ### Patch Changes
