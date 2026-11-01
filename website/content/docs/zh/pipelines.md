@@ -4,7 +4,7 @@ description: 连接组件、运行一张图，并选择读取哪个输出。
 order: 4
 examples: [pipeline, workflow]
 api: [core/classes/Pipeline, core/interfaces/RunOptions]
-source: 9ee66af9cafc347951af8af4e4a2c147c43aeb10e80d3b0c608515606c0a60cf
+source: 2ae611ac0148ffef7b51e189cbf581826e69341619eb8ce55abf8d309fdc02c7
 ---
 
 `Pipeline` 保存具名的组件，以及它们端口之间的连接。
@@ -30,8 +30,17 @@ pipeline.connect('upper.out', 'exclaim.in');
 `run(trigger, input, endpoint?)` 把 `input` 发送到触发端口，并以第一个到达终点的值作为结果。
 
 ```typescript
-await pipeline.run<string>('trim.in', '  hi  '); // 'HI!'  (endpoint inferred)
-await pipeline.run<string>('trim.in', '  hi  ', 'upper.out'); // 'HI'   (explicit endpoint)
+await pipeline.run('trim.in', '  hi  '); // 'HI!'  (endpoint inferred)
+await pipeline.run('trim.in', '  hi  ', 'upper.out'); // 'HI'   (explicit endpoint)
+```
+
+图在运行时才连接，所以结果是 `unknown`，使用前先检查：
+
+```typescript
+const result = await pipeline.run('trim.in', '  hi  ');
+if (typeof result !== 'string') {
+  throw new TypeError('Expected a string.');
+}
 ```
 
 ### 终点推断
@@ -52,7 +61,7 @@ await pipeline.run<string>('trim.in', '  hi  ', 'upper.out'); // 'HI'   (explici
 传入 `includeOutputsFrom` 可以等待多个端口，结果以端口为键：
 
 ```typescript
-const result = await pipeline.run<number>('fork.in', 2, {
+const result = await pipeline.run('fork.in', 2, {
   includeOutputsFrom: ['fork.left', 'fork.right'],
 });
 // { 'fork.left': 20, 'fork.right': 200 }
@@ -64,6 +73,7 @@ const result = await pipeline.run<number>('fork.in', 2, {
 - 各次运行之间并不隔离。同一路由的并发运行按开始的顺序返回结果。
 - 运行本身不会超时。如果没有值到达终点，Promise 会一直处于等待状态。请确保每条路径都会发送值，或者使用一个一定会收到值的显式终点。
 - 校验运行参数时抛出的错误（未知组件、无效的端口名、有歧义的终点）会使 Promise 被拒绝。
+- 组件抛出错误，或在 `receive` 回调中返回被拒绝的 Promise，会以该错误拒绝一次运行：同步错误拒绝正在投递输入的那次运行，之后的错误拒绝最早一次仍在等待的运行。之后的运行不受影响。
 
 ## 工作流
 

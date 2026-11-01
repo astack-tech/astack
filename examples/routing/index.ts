@@ -13,7 +13,12 @@ class Classifier extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((text: string) => {
+    // A port carries `unknown`: check the value before you use it.
+    // A throw rejects the pipeline run that sent the value.
+    $i('in').receive(text => {
+      if (typeof text !== 'string') {
+        throw new TypeError('Classifier expects a string.');
+      }
       $o(text.trim().endsWith('?') ? 'question' : 'statement').send(text);
     });
   }
@@ -48,8 +53,8 @@ pipeline.connect('classify.question', 'answer.in');
 pipeline.connect('classify.statement', 'note.in');
 
 // With two branches there are two possible endpoints, so name the one you expect.
-console.log(await pipeline.run<string>('classify.in', 'What is AStack?', 'answer.out'));
+console.log(await pipeline.run('classify.in', 'What is AStack?', 'answer.out'));
 // Answering: What is AStack?
 
-console.log(await pipeline.run<string>('classify.in', 'AStack is a framework.', 'note.out'));
+console.log(await pipeline.run('classify.in', 'AStack is a framework.', 'note.out'));
 // Noted: AStack is a framework.

@@ -17,7 +17,10 @@ class Classifier extends Component {
   }
 
   override _transform($i: Port, $o: Port): void {
-    $i('in').receive((text: string) => {
+    $i('in').receive(text => {
+      if (typeof text !== 'string') {
+        throw new TypeError('Classifier expects a string.');
+      }
       $o(text.trim().endsWith('?') ? 'question' : 'statement').send(text);
     });
   }

@@ -19,8 +19,13 @@ const pipeline = new Pipeline();
 pipeline.addComponent('splitter', splitter);
 
 // TextSplitter reads from its `text` port and writes the chunks to `out`.
-const chunks = await pipeline.run<string[]>('splitter.text', article, 'splitter.out');
+// A pipeline is wired at run time, so its result is `unknown`. Check it before you use it.
+const chunks = await pipeline.run('splitter.text', article, 'splitter.out');
+if (!Array.isArray(chunks)) {
+  throw new TypeError('Expected an array of chunks.');
+}
 
-chunks.forEach((chunk, index) => {
-  console.log(`--- chunk ${String(index + 1)} (${String(chunk.length)} chars)\n${chunk}`);
+chunks.forEach((chunk: unknown, index) => {
+  const text = String(chunk);
+  console.log(`--- chunk ${String(index + 1)} (${String(text.length)} chars)\n${text}`);
 });

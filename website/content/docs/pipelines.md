@@ -29,8 +29,17 @@ pipeline.connect('upper.out', 'exclaim.in');
 `run(trigger, input, endpoint?)` sends `input` to the trigger port and resolves with the first value that reaches the endpoint.
 
 ```typescript
-await pipeline.run<string>('trim.in', '  hi  '); // 'HI!'  (endpoint inferred)
-await pipeline.run<string>('trim.in', '  hi  ', 'upper.out'); // 'HI'   (explicit endpoint)
+await pipeline.run('trim.in', '  hi  '); // 'HI!'  (endpoint inferred)
+await pipeline.run('trim.in', '  hi  ', 'upper.out'); // 'HI'   (explicit endpoint)
+```
+
+The graph is connected at run time, so the result is `unknown`. Check it before you use it:
+
+```typescript
+const result = await pipeline.run('trim.in', '  hi  ');
+if (typeof result !== 'string') {
+  throw new TypeError('Expected a string.');
+}
 ```
 
 ### Endpoint inference
@@ -51,7 +60,7 @@ Pass an explicit endpoint whenever the graph branches.
 Pass `includeOutputsFrom` to wait for several ports. The result is keyed by port:
 
 ```typescript
-const result = await pipeline.run<number>('fork.in', 2, {
+const result = await pipeline.run('fork.in', 2, {
   includeOutputsFrom: ['fork.left', 'fork.right'],
 });
 // { 'fork.left': 20, 'fork.right': 200 }
@@ -63,6 +72,7 @@ const result = await pipeline.run<number>('fork.in', 2, {
 - Runs are not isolated from each other. Concurrent runs of the same route resolve in the order they started.
 - A run never times out by itself. If no value reaches the endpoint, the promise stays pending. Make sure every path sends a value, or use an explicit endpoint that always receives one.
 - Errors thrown while validating the run (an unknown component, an invalid port name, an ambiguous endpoint) reject the promise.
+- A component that throws, or returns a rejected promise from a `receive` callback, rejects a run with that error. A synchronous error rejects the run whose input was being delivered; a later one rejects the oldest run still waiting. The pipeline keeps working for later runs.
 
 ## Workflows
 

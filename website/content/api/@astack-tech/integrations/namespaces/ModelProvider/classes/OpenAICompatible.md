@@ -1,6 +1,6 @@
 # Class: OpenAICompatible
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:267](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L267)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:302](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L302)
 
 Model provider for any API that speaks the OpenAI chat completions protocol:
 OpenAI itself, and the compatible endpoints of DeepSeek, Qwen, Moonshot, Ollama,
@@ -26,7 +26,7 @@ Ports:
 new OpenAICompatible(config): OpenAICompatible;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:278](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L278)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:313](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L313)
 
 #### Parameters
 
@@ -46,18 +46,16 @@ Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | [`Deepseek`](Deepseek.md).[`flow`](Deepseek.md#property-flow) | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:63 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:65 |
-| <a id="property-id"></a> `id` | `public` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:57 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:64 |
-| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:49 |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | `Component.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:62 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:66 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:58 |
-| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:51 |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | `Component.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:61 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:56 |
-| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:47 |
+| <a id="property-closeswithinputs"></a> `closesWithInputs` | `readonly` | `boolean` | Whether the node closes its outputs once all its inputs have ended (RFC 0001), so the end of a stream travels on. A node that keeps producing after its inputs end (a timer) overrides it with `false` and closes its outputs itself. | [`Deepseek`](Deepseek.md).[`closesWithInputs`](Deepseek.md#property-closeswithinputs) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:204 |
+| <a id="property-i"></a> `I` | `readonly` | `PortAccessor` | Resolves an input port. Bound to the node, so it can be passed around as `$i`. | [`Deepseek`](Deepseek.md).[`I`](Deepseek.md#property-i) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:167 |
+| <a id="property-id"></a> `id` | `readonly` | `string` | - | [`Deepseek`](Deepseek.md).[`id`](Deepseek.md#property-id) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:163 |
+| <a id="property-identity"></a> `identity` | `readonly` | `symbol` | - | [`Deepseek`](Deepseek.md).[`identity`](Deepseek.md#property-identity) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:164 |
+| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:51 |
+| <a id="property-o"></a> `O` | `readonly` | `PortAccessor` | Resolves an output port. Bound to the node, so it can be passed around as `$o`. | [`Deepseek`](Deepseek.md).[`O`](Deepseek.md#property-o) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:169 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:165 |
+| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:53 |
+| <a id="property-type"></a> `type` | `readonly` | *typeof* `TRANSFORM` | - | [`Deepseek`](Deepseek.md).[`type`](Deepseek.md#property-type) | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:197 |
+| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:49 |
 
 ## Methods
 
@@ -67,10 +65,11 @@ Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:425](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L425)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:461](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L461)
 
 Connects the `prompt` and `messages` input ports to the model.
-API errors produce a fallback value so the pipeline keeps flowing.
+API errors produce a fallback value so the pipeline keeps flowing. Input of the wrong
+type fails the pipeline run with a `TypeError` before the API is called.
 
 #### Parameters
 
@@ -89,61 +88,13 @@ API errors produce a fallback value so the pipeline keeps flowing.
 
 ***
 
-### attach()
-
-```ts
-attach(flow): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:70
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `flow` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.attach`
-
-***
-
-### attachPort()
-
-```ts
-attachPort(port): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:71
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `port` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.attachPort`
-
-***
-
 ### chatCompletion()
 
 ```ts
 chatCompletion(messages, options?): Promise<DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:327](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L327)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:362](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L362)
 
 Sends a conversation and returns the assistant reply.
 
@@ -166,7 +117,9 @@ Sends a conversation and returns the assistant reply.
 E(): Port;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:69
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:208
+
+The error output (`@node/error`); Readable and Transform nodes have one.
 
 #### Returns
 
@@ -178,38 +131,13 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 
 ***
 
-### executeOnce()
-
-```ts
-executeOnce(type, ...args): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:68
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `type` | `any` |
-| ...`args` | `any`[] |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.executeOnce`
-
-***
-
 ### generateCompletion()
 
 ```ts
 generateCompletion(prompt): Promise<string>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:310](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L310)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:345](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L345)
 
 Generates a completion for a single prompt.
 
@@ -235,7 +163,7 @@ run(input): Promise<
 | DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:417](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L417)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:452](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L452)
 
 Runs the model outside a pipeline.
 
@@ -263,7 +191,7 @@ Runs the model outside a pipeline.
 streamChatCompletion(messages, options?): AsyncGenerator<DeepseekStreamChunk>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:369](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L369)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:404](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L404)
 
 Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or usage.
 
@@ -286,13 +214,15 @@ Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or
 throw(error): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:87
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:207
+
+Sends `error` on the error output.
 
 #### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `error` | `any` |
+| `error` | `unknown` |
 
 #### Returns
 

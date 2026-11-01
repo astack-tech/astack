@@ -15,7 +15,7 @@ AStack has three ideas, and every feature is built from them.
 | Idea | What it is | API |
 | --- | --- | --- |
 | Component | A unit of work with named input and output ports. | `class X extends Component` |
-| Port | A typed channel. Output ports connect to input ports. | `$i('in').receive()`, `$o('out').send()` |
+| Port | A channel. Output ports connect to input ports. | `$i('in').receive()`, `$o('out').send()` |
 | Pipeline | A graph of components. It runs data from a trigger port to an endpoint. | `addComponent`, `connect`, `run` |
 
 A component never calls another component. It reads from its input ports and writes to its output ports. The pipeline decides where data goes. This keeps each component small and testable, and lets you rewire a graph without editing the components in it.

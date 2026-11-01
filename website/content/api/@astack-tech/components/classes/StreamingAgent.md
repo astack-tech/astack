@@ -1,6 +1,6 @@
 # Class: StreamingAgent
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:137](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L137)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:138](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L138)
 
 Agent that reports its progress as a stream of `StreamingChunk` events.
 
@@ -22,7 +22,7 @@ Ports: `in` receives a string or an `AgentInput`; `out` sends every `StreamingCh
 new StreamingAgent(config): StreamingAgent;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:140](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L140)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:141](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L141)
 
 #### Parameters
 
@@ -42,18 +42,16 @@ Defined in: [packages/components/src/agents/StreamingAgent.ts:140](https://githu
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | `Component.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:63 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:65 |
-| <a id="property-id"></a> `id` | `public` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:57 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:64 |
-| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:49 |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | `Component.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:62 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:66 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:58 |
-| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:51 |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | `Component.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:61 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:56 |
-| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:47 |
+| <a id="property-closeswithinputs"></a> `closesWithInputs` | `readonly` | `boolean` | Whether the node closes its outputs once all its inputs have ended (RFC 0001), so the end of a stream travels on. A node that keeps producing after its inputs end (a timer) overrides it with `false` and closes its outputs itself. | `Component.closesWithInputs` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:204 |
+| <a id="property-i"></a> `I` | `readonly` | `PortAccessor` | Resolves an input port. Bound to the node, so it can be passed around as `$i`. | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:167 |
+| <a id="property-id"></a> `id` | `readonly` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:163 |
+| <a id="property-identity"></a> `identity` | `readonly` | `symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:164 |
+| <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:51 |
+| <a id="property-o"></a> `O` | `readonly` | `PortAccessor` | Resolves an output port. Bound to the node, so it can be passed around as `$o`. | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:169 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:165 |
+| <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:53 |
+| <a id="property-type"></a> `type` | `readonly` | *typeof* `TRANSFORM` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:197 |
+| <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:49 |
 
 ## Methods
 
@@ -63,9 +61,11 @@ Defined in: [packages/components/src/agents/StreamingAgent.ts:140](https://githu
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:179](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L179)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:182](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L182)
 
 Streams every event of a run to `out`. A failed run ends with one `error` event.
+Input that is neither a string nor an `AgentInput` fails the pipeline run with a
+`TypeError`.
 
 #### Parameters
 
@@ -84,61 +84,15 @@ Streams every event of a run to `out`. A failed run ends with one `error` event.
 
 ***
 
-### attach()
-
-```ts
-attach(flow): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:70
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `flow` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.attach`
-
-***
-
-### attachPort()
-
-```ts
-attachPort(port): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:71
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `port` | `any` |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.attachPort`
-
-***
-
 ### E()
 
 ```ts
 E(): Port;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:69
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:208
+
+The error output (`@node/error`); Readable and Transform nodes have one.
 
 #### Returns
 
@@ -150,38 +104,13 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 
 ***
 
-### executeOnce()
-
-```ts
-executeOnce(type, ...args): void;
-```
-
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:68
-
-#### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `type` | `any` |
-| ...`args` | `any`[] |
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-`Component.executeOnce`
-
-***
-
 ### reset()
 
 ```ts
 reset(): void;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:196](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L196)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:204](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L204)
 
 Clears the memory and stores the system prompt again.
 
@@ -197,7 +126,7 @@ Clears the memory and stores the system prompt again.
 run(input): Promise<AgentOutput>;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:166](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L166)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:167](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L167)
 
 Runs the agent to completion and returns the final output.
 
@@ -223,7 +152,7 @@ Runs the agent to completion and returns the final output.
 runStream(input): AsyncGenerator<StreamingChunk, AgentOutput>;
 ```
 
-Defined in: [packages/components/src/agents/StreamingAgent.ts:150](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L150)
+Defined in: [packages/components/src/agents/StreamingAgent.ts:151](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/StreamingAgent.ts#L151)
 
 Runs the agent and yields progress events. The generator returns the final output.
 On failure it yields one `error` event and rethrows.
@@ -246,13 +175,15 @@ On failure it yields one `error` event and rethrows.
 throw(error): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:87
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@2.1.0\_rxjs@7.8.2/node\_modules/@hlang-org/runtime/lib/index.d.ts:207
+
+Sends `error` on the error output.
 
 #### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `error` | `any` |
+| `error` | `unknown` |
 
 #### Returns
 
