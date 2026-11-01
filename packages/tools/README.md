@@ -45,6 +45,7 @@ A tool is any object with `name`, `description`, optional `parameters` and `invo
 
 ## Learn more
 
+- [API reference](https://astack.tech/docs/api/tools): every export, generated from the source
 - [Tools](https://astack.tech/docs/tools) and [Agents](https://astack.tech/docs/agents)
 - Examples: [tools](https://astack.tech/examples/tools), [agent](https://astack.tech/examples/agent)
 
