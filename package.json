@@ -18,7 +18,7 @@
     "verify": "pnpm format:check && pnpm build && pnpm lint && pnpm check-types && pnpm test && pnpm test:scripts && pnpm check:packages && pnpm check:api && pnpm check:docs && pnpm check:examples",
     "clean": "turbo run clean && rm -rf node_modules",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && node scripts/sync-examples.mjs",
     "release": "pnpm build && node scripts/publish-packages.mjs",
     "pre:beta": "changeset pre enter beta",
     "pre:exit": "changeset pre exit",

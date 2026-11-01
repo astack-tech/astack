@@ -15,7 +15,7 @@ import {
   stackNames,
 } from '@/lib/blocks';
 import type { BlockSpec } from '@/lib/blocks';
-import { CORE_VERSION } from '@/lib/site';
+import core from '@astack-tech/core/package.json';
 
 interface StackItem {
   key: number;
@@ -163,7 +163,7 @@ export default function LiveStack() {
         </div>
         <span className="live-status">
           <span className={`live-dot ${done ? 'is-idle' : 'is-busy'}`} aria-hidden="true" />
-          @astack-tech/core {CORE_VERSION} running in your browser
+          @astack-tech/core {core.version} running in your browser
         </span>
       </div>
 
