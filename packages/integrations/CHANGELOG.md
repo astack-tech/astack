@@ -1,5 +1,16 @@
 # @astack-tech/integrations
 
+## 0.2.0-beta.8
+
+### Minor Changes
+
+- 9aab43a: Add `ModelProvider.OpenAICompatible`, a provider for any API that speaks the OpenAI chat completions protocol: OpenAI and the compatible endpoints of DeepSeek, Qwen, Moonshot, Ollama, vLLM and others. Pass `model`, and `baseURL` for providers other than OpenAI; `name` labels errors and logs. `Deepseek` is now this provider with DeepSeek's defaults; its options, methods, ports and exported types are unchanged. The neutral message, tool and usage types are exported next to the `Deepseek*` names.
+
+### Patch Changes
+
+- Updated dependencies [1aba97f]
+  - @astack-tech/core@0.2.0-beta.3
+
 ## 0.2.0-beta.7
 
 ### Minor Changes

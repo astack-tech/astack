@@ -1,5 +1,14 @@
 # @astack-tech/components
 
+## 0.2.0-beta.7
+
+### Patch Changes
+
+- da7486c: Export the `AgentToolCall`, `ToolInvokerMessageRole` and `MemoryLimits` types, which public types already referenced. Every export now has TSDoc documentation, published in the API reference at https://astack.tech/docs/api.
+- Updated dependencies [1aba97f]
+  - @astack-tech/core@0.2.0-beta.3
+  - @astack-tech/tools@0.2.0-beta.2
+
 ## 0.2.0-beta.6
 
 ### Minor Changes

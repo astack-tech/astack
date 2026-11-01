@@ -1,6 +1,6 @@
 {
   "name": "@astack-tech/tools",
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "description": "Tool definitions for AStack agents: function tools, tool sets, component tools and MCP tools.",
   "keywords": [
     "astack",

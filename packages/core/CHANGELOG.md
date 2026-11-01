@@ -1,5 +1,11 @@
 # @astack-tech/core
 
+## 0.2.0-beta.3
+
+### Patch Changes
+
+- 1aba97f: Require `@hlang-org/runtime` 1.0.7 or later. That release depends on `uuid` 11.1.1, which fixes GHSA-w5hq-g745-h8pq, so installs no longer need an override for it.
+
 ## 0.2.0-beta.2
 
 ### Minor Changes
