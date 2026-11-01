@@ -360,7 +360,9 @@ class Pipeline {
     const sourceComponents = new Set(
       pairs.map(([source]) => parsePortIdentifier(source).componentName)
     );
-    const sinkComponents = new Set(pairs.map(([, sink]) => parsePortIdentifier(sink).componentName));
+    const sinkComponents = new Set(
+      pairs.map(([, sink]) => parsePortIdentifier(sink).componentName)
+    );
 
     return [...sinkComponents].filter(name => !sourceComponents.has(name));
   }

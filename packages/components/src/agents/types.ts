@@ -83,7 +83,10 @@ export interface ModelProviderOptions {
  * `Deepseek` from `@astack-tech/integrations` implements it.
  */
 export interface ModelProvider {
-  chatCompletion(messages: Message[], options?: ModelProviderOptions): Promise<MessageWithToolCalls>;
+  chatCompletion(
+    messages: Message[],
+    options?: ModelProviderOptions
+  ): Promise<MessageWithToolCalls>;
   streamChatCompletion?(
     messages: Message[],
     options?: ModelProviderOptions

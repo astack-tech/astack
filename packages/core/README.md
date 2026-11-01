@@ -55,31 +55,31 @@ await pipeline.run<string>('trim.in', '  hello  '); // 'HELLO'
 
 Base class for every component. Each component has an `in` and an `out` port.
 
-| Member | Description |
-| --- | --- |
-| `run(input)` | Standalone mode. Override it; the default returns the input. |
-| `_transform($i, $o)` | Pipeline mode. The default calls `run()` for each value on `in` and sends the result to `out`. |
-| `Component.Port.I(name)` / `Component.Port.O(name)` | Create extra ports; call `.attach(this)` in the constructor. |
+| Member                                              | Description                                                                                    |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `run(input)`                                        | Standalone mode. Override it; the default returns the input.                                   |
+| `_transform($i, $o)`                                | Pipeline mode. The default calls `run()` for each value on `in` and sends the result to `out`. |
+| `Component.Port.I(name)` / `Component.Port.O(name)` | Create extra ports; call `.attach(this)` in the constructor.                                   |
 
 ### `Pipeline`
 
-| Method | Description |
-| --- | --- |
-| `addComponent(name, component)` | Register a component. Duplicate names are ignored. |
-| `connect('a.out', 'b.in')` | Connect an output port to an input port. |
-| `getComponent(name)` | Return a registered component. |
-| `run(trigger, input)` | Run and infer the endpoint from the only terminal component. |
-| `run(trigger, input, endpoint)` | Run and resolve with the value on `endpoint`. |
-| `run(trigger, input, { includeOutputsFrom })` | Resolve with an object keyed by each listed port. |
+| Method                                        | Description                                                  |
+| --------------------------------------------- | ------------------------------------------------------------ |
+| `addComponent(name, component)`               | Register a component. Duplicate names are ignored.           |
+| `connect('a.out', 'b.in')`                    | Connect an output port to an input port.                     |
+| `getComponent(name)`                          | Return a registered component.                               |
+| `run(trigger, input)`                         | Run and infer the endpoint from the only terminal component. |
+| `run(trigger, input, endpoint)`               | Run and resolve with the value on `endpoint`.                |
+| `run(trigger, input, { includeOutputsFrom })` | Resolve with an object keyed by each listed port.            |
 
 The topology of each route is built once and reused. Concurrent runs of a route resolve in order.
 
 ### Types
 
-| Type | Description |
-| --- | --- |
-| `Port` | The `$i` / `$o` accessor passed to `_transform`: `receive(callback)`, `send(value)`, `$` (the RxJS subject). |
-| `RunOptions` | `{ includeOutputsFrom: string[] }` |
+| Type         | Description                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| `Port`       | The `$i` / `$o` accessor passed to `_transform`: `receive(callback)`, `send(value)`, `$` (the RxJS subject). |
+| `RunOptions` | `{ includeOutputsFrom: string[] }`                                                                           |
 
 Subpath imports: `@astack-tech/core/component`, `@astack-tech/core/pipeline`.
 
@@ -90,12 +90,12 @@ Subpath imports: `@astack-tech/core/component`, `@astack-tech/core/pipeline`.
 
 ## The AStack packages
 
-| Package | Purpose |
-| --- | --- |
-| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core) | `Component`, `Pipeline` and ports |
-| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components) | Agents, text splitting and tool invocation |
-| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions for agents |
-| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers |
+| Package                                                                                | Purpose                                    |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core)                 | `Component`, `Pipeline` and ports          |
+| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components)     | Agents, text splitting and tool invocation |
+| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools)               | Tool definitions for agents                |
+| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers                            |
 
 ## License
 

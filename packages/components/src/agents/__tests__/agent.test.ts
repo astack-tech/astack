@@ -6,15 +6,10 @@ import Agent, { DefaultMemory } from '../index';
 import type { AgentOutput, Tool } from '../index';
 import { ScriptedModel, toolCallReply } from './fakes';
 
-const add = createTool(
-  'add',
-  'Adds two numbers',
-  args => Number(args['a']) + Number(args['b']),
-  {
-    type: 'object',
-    properties: { a: { type: 'number', description: 'First number' }, b: { type: 'number' } },
-  }
-);
+const add = createTool('add', 'Adds two numbers', args => Number(args['a']) + Number(args['b']), {
+  type: 'object',
+  properties: { a: { type: 'number', description: 'First number' }, b: { type: 'number' } },
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -153,7 +148,9 @@ describe('Agent.run', () => {
     const output = await agent.run('go');
 
     expect(execute).toHaveBeenCalledWith({ x: 1 });
-    expect(output.toolCalls).toEqual([{ tool: 'echo', args: { x: 1 }, result: { echoed: { x: 1 } } }]);
+    expect(output.toolCalls).toEqual([
+      { tool: 'echo', args: { x: 1 }, result: { echoed: { x: 1 } } },
+    ]);
   });
 
   it('serializes falsy tool results instead of replacing them with {}', async () => {

@@ -23,8 +23,10 @@ import { Agent } from '@astack-tech/components';
 import { ModelProvider } from '@astack-tech/integrations';
 import { createTool } from '@astack-tech/tools';
 
-const multiply = createTool('multiply', 'Multiply two numbers.', args =>
-  Number(args['a']) * Number(args['b'])
+const multiply = createTool(
+  'multiply',
+  'Multiply two numbers.',
+  args => Number(args['a']) * Number(args['b'])
 );
 
 const agent = new Agent({
@@ -37,13 +39,13 @@ const { message, toolCalls } = await agent.run('What is 37 times 43?');
 
 ## Components
 
-| Component | Ports | Description |
-| --- | --- | --- |
-| `Agent` | `in` → `out` | Calls the model, runs requested tools, repeats until the model answers or `maxIterations` is reached. |
-| `StreamingAgent` | `in` → `out` | The same loop. `runStream()` yields `iteration_start`, `assistant_message`, `tool_start`, `tool_result`, `completed` and `error` events. |
-| `RLMAgent` | `in` → `out` | Answers questions over a large `FileSystemContext` by letting a root model write code that reads files on demand. |
-| `TextSplitter` | `text` → `out` | Splits text into chunks of at most `chunkSize` characters, with `overlap`. |
-| `ToolInvoker` | `in` → `out` | Runs the tool calls in a message list and returns one `tool` message per call. |
+| Component        | Ports          | Description                                                                                                                              |
+| ---------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `Agent`          | `in` → `out`   | Calls the model, runs requested tools, repeats until the model answers or `maxIterations` is reached.                                    |
+| `StreamingAgent` | `in` → `out`   | The same loop. `runStream()` yields `iteration_start`, `assistant_message`, `tool_start`, `tool_result`, `completed` and `error` events. |
+| `RLMAgent`       | `in` → `out`   | Answers questions over a large `FileSystemContext` by letting a root model write code that reads files on demand.                        |
+| `TextSplitter`   | `text` → `out` | Splits text into chunks of at most `chunkSize` characters, with `overlap`.                                                               |
+| `ToolInvoker`    | `in` → `out`   | Runs the tool calls in a message list and returns one `tool` message per call.                                                           |
 
 Also exported: `DefaultMemory`, `FileSystemContext`, `RLMCore`, and the types `AgentConfig`, `AgentInput`, `AgentOutput`, `ModelProvider`, `StreamingChunk`, `LLMProvider`, `RLMInput`, `RLMResult`, `ToolInvokerConfig` and more.
 
@@ -51,13 +53,13 @@ Subpath imports: `@astack-tech/components/agents`, `/text`, `/tool-invoker`.
 
 ### Agent options
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `model` | — | Any object with `chatCompletion()`; `streamChatCompletion()` is optional |
-| `tools` | `[]` | Tools with `invoke(args)` or `execute(args)` |
-| `systemPrompt` | `You are a helpful assistant.` | The tool list is appended |
-| `maxIterations` | `10` | Maximum model calls per run |
-| `verbose` | `false` | Log each step to the console |
+| Option          | Default                        | Description                                                              |
+| --------------- | ------------------------------ | ------------------------------------------------------------------------ |
+| `model`         | —                              | Any object with `chatCompletion()`; `streamChatCompletion()` is optional |
+| `tools`         | `[]`                           | Tools with `invoke(args)` or `execute(args)`                             |
+| `systemPrompt`  | `You are a helpful assistant.` | The tool list is appended                                                |
+| `maxIterations` | `10`                           | Maximum model calls per run                                              |
+| `verbose`       | `false`                        | Log each step to the console                                             |
 
 Tool failures never throw: they are reported to the model, which decides what to do next.
 
@@ -72,12 +74,12 @@ Tool failures never throw: they are reported to the model, which decides what to
 
 ## The AStack packages
 
-| Package | Purpose |
-| --- | --- |
-| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core) | `Component`, `Pipeline` and ports |
-| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components) | Agents, text splitting and tool invocation |
-| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions for agents |
-| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers |
+| Package                                                                                | Purpose                                    |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core)                 | `Component`, `Pipeline` and ports          |
+| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components)     | Agents, text splitting and tool invocation |
+| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools)               | Tool definitions for agents                |
+| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers                            |
 
 ## License
 

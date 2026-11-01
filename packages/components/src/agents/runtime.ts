@@ -1,12 +1,5 @@
 import type { Logger } from '../utils/logger';
-import type {
-  AgentInput,
-  Message,
-  TokenUsage,
-  Tool,
-  ToolCall,
-  ToolCallRecord,
-} from './types';
+import type { AgentInput, Message, TokenUsage, Tool, ToolCall, ToolCallRecord } from './types';
 
 /** Default system prompt. */
 export const DEFAULT_SYSTEM_PROMPT = 'You are a helpful assistant.';
@@ -82,7 +75,8 @@ export function addUsage(total: TokenUsage | undefined, usage: TokenUsage): Toke
     total_tokens: base.total_tokens + usage.total_tokens,
   };
   if (usage.prompt_cache_hit_tokens) {
-    sum.prompt_cache_hit_tokens = (base.prompt_cache_hit_tokens ?? 0) + usage.prompt_cache_hit_tokens;
+    sum.prompt_cache_hit_tokens =
+      (base.prompt_cache_hit_tokens ?? 0) + usage.prompt_cache_hit_tokens;
   }
   if (usage.prompt_cache_miss_tokens) {
     sum.prompt_cache_miss_tokens =

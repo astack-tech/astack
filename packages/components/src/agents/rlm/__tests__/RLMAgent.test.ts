@@ -42,7 +42,10 @@ describe('RLMAgent', () => {
     });
 
     const chunks: RLMChunk[] = [];
-    for await (const chunk of agent.runStream({ context: new FileSystemContext('ctx'), query: 'q' })) {
+    for await (const chunk of agent.runStream({
+      context: new FileSystemContext('ctx'),
+      query: 'q',
+    })) {
       chunks.push(chunk);
     }
 
@@ -52,7 +55,10 @@ describe('RLMAgent', () => {
   it('sends resolved results, not promises, to downstream components', async () => {
     const pipeline = new Pipeline();
     const recorder = new Recorder();
-    pipeline.addComponent('rlm', new RLMAgent({ rootLLM: fixed('FINAL("ok");'), subLLM: fixed('unused') }));
+    pipeline.addComponent(
+      'rlm',
+      new RLMAgent({ rootLLM: fixed('FINAL("ok");'), subLLM: fixed('unused') })
+    );
     pipeline.addComponent('recorder', recorder);
     pipeline.connect('rlm.out', 'recorder.in');
 
@@ -68,7 +74,10 @@ describe('RLMAgent', () => {
 
   it('sends an error result when the run fails inside a pipeline', async () => {
     const pipeline = new Pipeline();
-    pipeline.addComponent('rlm', new RLMAgent({ rootLLM: fixed('const x = 1;'), subLLM: fixed('unused') }));
+    pipeline.addComponent(
+      'rlm',
+      new RLMAgent({ rootLLM: fixed('const x = 1;'), subLLM: fixed('unused') })
+    );
 
     const result = await pipeline.run<RLMResult>(
       'rlm.in',

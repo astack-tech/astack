@@ -4,5 +4,5 @@
     "allowJs": true,
     "checkJs": true
   },
-  "include": ["eslint.config.mjs", "vitest.workspace.ts", "scripts/**/*"]
+  "include": ["eslint.config.mjs", "scripts/**/*"]
 }

@@ -87,7 +87,9 @@ export class Agent extends Component {
       'Tools:',
       tools.map(tool => tool.name)
     );
-    return this.executeWithTools(buildInitialMessages(input, buildSystemPrompt(systemPrompt, tools)));
+    return this.executeWithTools(
+      buildInitialMessages(input, buildSystemPrompt(systemPrompt, tools))
+    );
   }
 
   /**

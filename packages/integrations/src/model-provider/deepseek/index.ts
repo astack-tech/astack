@@ -436,9 +436,7 @@ class Deepseek extends Component {
     ];
   }
 
-  private firstMessage(
-    response: OpenAI.Chat.ChatCompletion
-  ): OpenAI.Chat.ChatCompletionMessage {
+  private firstMessage(response: OpenAI.Chat.ChatCompletion): OpenAI.Chat.ChatCompletionMessage {
     const choice = response.choices[0];
     if (choice === undefined) {
       throw new Error('DeepSeek returned no choices.');

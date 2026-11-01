@@ -31,7 +31,10 @@ class Step extends Component {
 
 const pipeline = new Pipeline();
 pipeline.addComponent('outline', new Step(topic => `Write a 3-point outline about: ${topic}`));
-pipeline.addComponent('draft', new Step(outline => `Write one short paragraph per point:\n${outline}`));
+pipeline.addComponent(
+  'draft',
+  new Step(outline => `Write one short paragraph per point:\n${outline}`)
+);
 pipeline.addComponent('edit', new Step(draft => `Make this clearer and shorter:\n${draft}`));
 
 pipeline.connect('outline.out', 'draft.in');

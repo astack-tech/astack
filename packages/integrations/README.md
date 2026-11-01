@@ -31,28 +31,28 @@ const reply = await model.chatCompletion([{ role: 'user', content: 'Hello' }]);
 
 Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
 
-| Option | Default | Description |
-| --- | --- | --- |
-| `apiKey` | — | DeepSeek API key |
-| `model` | `deepseek-chat` | Model name |
-| `baseURL` | `https://api.deepseek.com/v1` | API base URL |
-| `temperature` | `0.7` | Sampling temperature |
-| `maxTokens`, `topP` | not sent | Optional sampling limits |
-| `systemPrompt` | none | Added before every request |
-| `rawTools` / `tools` | none | Tools as `{ name, description, parameters }` or in the OpenAI format |
-| `verbose` | `false` | Log API errors to the console |
+| Option               | Default                       | Description                                                          |
+| -------------------- | ----------------------------- | -------------------------------------------------------------------- |
+| `apiKey`             | —                             | DeepSeek API key                                                     |
+| `model`              | `deepseek-chat`               | Model name                                                           |
+| `baseURL`            | `https://api.deepseek.com/v1` | API base URL                                                         |
+| `temperature`        | `0.7`                         | Sampling temperature                                                 |
+| `maxTokens`, `topP`  | not sent                      | Optional sampling limits                                             |
+| `systemPrompt`       | none                          | Added before every request                                           |
+| `rawTools` / `tools` | none                          | Tools as `{ name, description, parameters }` or in the OpenAI format |
+| `verbose`            | `false`                       | Log API errors to the console                                        |
 
-| Method | Returns |
-| --- | --- |
-| `run(prompt)` | Text |
-| `run(messages)`, `chatCompletion(messages, { temporaryTools })` | Assistant message with `content`, `tool_calls` and `usage` |
-| `streamChatCompletion(messages, options)` | Async generator of text, tool-call and usage chunks |
-| `generateCompletion(prompt)` | Text, or the JSON assistant message when the model calls tools |
+| Method                                                          | Returns                                                        |
+| --------------------------------------------------------------- | -------------------------------------------------------------- |
+| `run(prompt)`                                                   | Text                                                           |
+| `run(messages)`, `chatCompletion(messages, { temporaryTools })` | Assistant message with `content`, `tool_calls` and `usage`     |
+| `streamChatCompletion(messages, options)`                       | Async generator of text, tool-call and usage chunks            |
+| `generateCompletion(prompt)`                                    | Text, or the JSON assistant message when the model calls tools |
 
-| Pipeline input port | Output port |
-| --- | --- |
-| `prompt` | `completion` |
-| `messages` | `message` |
+| Pipeline input port | Output port  |
+| ------------------- | ------------ |
+| `prompt`            | `completion` |
+| `messages`          | `message`    |
 
 `Deepseek` satisfies the `ModelProvider` interface of `@astack-tech/components`, so it can drive `Agent` and `StreamingAgent` directly.
 
@@ -63,12 +63,12 @@ Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
 
 ## The AStack packages
 
-| Package | Purpose |
-| --- | --- |
-| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core) | `Component`, `Pipeline` and ports |
-| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components) | Agents, text splitting and tool invocation |
-| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions for agents |
-| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers |
+| Package                                                                                | Purpose                                    |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core)                 | `Component`, `Pipeline` and ports          |
+| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components)     | Agents, text splitting and tool invocation |
+| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools)               | Tool definitions for agents                |
+| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers                            |
 
 ## License
 

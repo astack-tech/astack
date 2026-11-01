@@ -66,7 +66,9 @@ export class MCPTool implements Tool {
 
     let result: unknown;
     try {
-      result = await Promise.resolve(this.mcpClient.call(this.serviceName, this.methodName, mcpArgs));
+      result = await Promise.resolve(
+        this.mcpClient.call(this.serviceName, this.methodName, mcpArgs)
+      );
     } catch (error) {
       throw new Error(
         `MCP call failed: ${error instanceof Error ? error.message : String(error)}`,

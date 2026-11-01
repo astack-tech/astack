@@ -19,16 +19,11 @@ npm install @astack-tech/tools
 ```typescript
 import { createTool } from '@astack-tech/tools';
 
-const add = createTool(
-  'add',
-  'Add two numbers.',
-  args => Number(args['a']) + Number(args['b']),
-  {
-    type: 'object',
-    properties: { a: { type: 'number' }, b: { type: 'number' } },
-    required: ['a', 'b'],
-  }
-);
+const add = createTool('add', 'Add two numbers.', args => Number(args['a']) + Number(args['b']), {
+  type: 'object',
+  properties: { a: { type: 'number' }, b: { type: 'number' } },
+  required: ['a', 'b'],
+});
 
 await add.invoke({ a: 2, b: 3 }); // 5
 ```
@@ -37,12 +32,12 @@ Pass tools to `Agent` or `StreamingAgent` from `@astack-tech/components`.
 
 ## API
 
-| Export | Description |
-| --- | --- |
-| `createTool(name, description, fn, parameters?)` | Wrap a sync or async function. Errors reject `invoke()`. |
-| `createToolSet(tools)` / `DefaultToolSet` | A named collection: `getTool`, `addTool`, `removeTool`, `getTools`, `size`. The first tool with a name wins. |
-| `createComponentTool(config)` / `ComponentTool` | Expose a component's `run()` as a tool, with optional `transformArgs` and `transformResult`. |
-| `createMCPTool(config)` / `MCPTool` | Call `mcpClient.call(serviceName, methodName, args)`. Errors are rethrown as `MCP call failed: …` with the original `cause`. |
+| Export                                           | Description                                                                                                                  |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `createTool(name, description, fn, parameters?)` | Wrap a sync or async function. Errors reject `invoke()`.                                                                     |
+| `createToolSet(tools)` / `DefaultToolSet`        | A named collection: `getTool`, `addTool`, `removeTool`, `getTools`, `size`. The first tool with a name wins.                 |
+| `createComponentTool(config)` / `ComponentTool`  | Expose a component's `run()` as a tool, with optional `transformArgs` and `transformResult`.                                 |
+| `createMCPTool(config)` / `MCPTool`              | Call `mcpClient.call(serviceName, methodName, args)`. Errors are rethrown as `MCP call failed: …` with the original `cause`. |
 
 Types: `Tool`, `ToolParameters` (JSON Schema), `ToolCall`, `ToolCallResult`, `ToolSet`, `ToolFunction`, `ComponentToolConfig`, `MCPToolConfig`, `MCPClient`.
 
@@ -55,12 +50,12 @@ A tool is any object with `name`, `description`, optional `parameters` and `invo
 
 ## The AStack packages
 
-| Package | Purpose |
-| --- | --- |
-| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core) | `Component`, `Pipeline` and ports |
-| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components) | Agents, text splitting and tool invocation |
-| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools) | Tool definitions for agents |
-| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers |
+| Package                                                                                | Purpose                                    |
+| -------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@astack-tech/core`](https://www.npmjs.com/package/@astack-tech/core)                 | `Component`, `Pipeline` and ports          |
+| [`@astack-tech/components`](https://www.npmjs.com/package/@astack-tech/components)     | Agents, text splitting and tool invocation |
+| [`@astack-tech/tools`](https://www.npmjs.com/package/@astack-tech/tools)               | Tool definitions for agents                |
+| [`@astack-tech/integrations`](https://www.npmjs.com/package/@astack-tech/integrations) | Model providers                            |
 
 ## License
 

@@ -3,7 +3,13 @@ import type { Port } from '@astack-tech/core';
 
 import { resetMemory, resolveAgentSettings } from './Agent';
 import type { AgentSettings } from './Agent';
-import { addUsage, buildInitialMessages, buildSystemPrompt, runToolCall, toolRoundMessages } from './runtime';
+import {
+  addUsage,
+  buildInitialMessages,
+  buildSystemPrompt,
+  runToolCall,
+  toolRoundMessages,
+} from './runtime';
 import type {
   AgentConfig,
   AgentInput,
@@ -191,7 +197,11 @@ export class StreamingAgent extends Component {
     if (model.streamChatCompletion === undefined) {
       const reply = await model.chatCompletion(history, options);
       if (reply.content) {
-        yield { type: 'assistant_message', content: reply.content, toolCalls: reply.tool_calls ?? [] };
+        yield {
+          type: 'assistant_message',
+          content: reply.content,
+          toolCalls: reply.tool_calls ?? [],
+        };
       }
       return reply;
     }

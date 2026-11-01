@@ -1,21 +1,22 @@
-# Security Policy
+# Security policy
 
-## Supported Versions
+## Supported versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+AStack is in public beta. Security fixes are released for the latest published version of each `@astack-tech/*` package only.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version            | Supported |
+| ------------------ | --------- |
+| Latest beta on npm | Yes       |
+| Older releases     | No        |
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Use this section to tell people how to report a vulnerability.
+Do not open a public issue for a security problem.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Report it privately through [GitHub private vulnerability reporting](https://github.com/astack-tech/astack/security/advisories/new). Include the affected package and version, steps to reproduce, and the impact you expect.
+
+You can expect an acknowledgement within 7 days. We will tell you whether the report is accepted, work on a fix in a private advisory, and credit you in the advisory unless you ask us not to.
+
+## Known limitations
+
+`RLMAgent` in `@astack-tech/components` runs model-written JavaScript in a Node.js `vm` context. A `vm` context is not a security boundary. Use RLM only with trusted inputs, or isolate it in its own process or container. Reports that only restate this limitation are out of scope.

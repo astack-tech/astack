@@ -30,7 +30,11 @@ afterEach(() => {
 describe('StreamingAgent.runStream', () => {
   it('streams text deltas and completes', async () => {
     const model = new ScriptedStreamingModel([
-      [{ content: 'Hel' }, { content: 'lo' }, { usage: { completion_tokens: 1, prompt_tokens: 2, total_tokens: 3 } }],
+      [
+        { content: 'Hel' },
+        { content: 'lo' },
+        { usage: { completion_tokens: 1, prompt_tokens: 2, total_tokens: 3 } },
+      ],
     ]);
     const agent = new StreamingAgent({ model });
 
@@ -54,7 +58,11 @@ describe('StreamingAgent.runStream', () => {
   it('merges streamed tool-call deltas, runs the tool and sums usage over iterations', async () => {
     const model = new ScriptedStreamingModel([
       [
-        { tool_calls: [{ id: 'c1', type: 'function', function: { name: 'add', arguments: '{"a":2,' } }] },
+        {
+          tool_calls: [
+            { id: 'c1', type: 'function', function: { name: 'add', arguments: '{"a":2,' } },
+          ],
+        },
         { tool_calls: [{ id: '', type: '', function: { name: '', arguments: '"b":3}' } }] },
         { usage: { completion_tokens: 1, prompt_tokens: 1, total_tokens: 2 } },
       ],
@@ -81,8 +89,16 @@ describe('StreamingAgent.runStream', () => {
   it('re-keys a call whose id arrives after its first delta', async () => {
     const model = new ScriptedStreamingModel([
       [
-        { tool_calls: [{ id: '', type: 'function', function: { name: 'add', arguments: '{"a":1,' } }] },
-        { tool_calls: [{ id: 'late', type: 'function', function: { name: '', arguments: '"b":1}' } }] },
+        {
+          tool_calls: [
+            { id: '', type: 'function', function: { name: 'add', arguments: '{"a":1,' } },
+          ],
+        },
+        {
+          tool_calls: [
+            { id: 'late', type: 'function', function: { name: '', arguments: '"b":1}' } },
+          ],
+        },
       ],
       [{ content: 'ok' }],
     ]);
@@ -96,7 +112,13 @@ describe('StreamingAgent.runStream', () => {
 
   it('reports tool errors as tool_result events', async () => {
     const model = new ScriptedStreamingModel([
-      [{ tool_calls: [{ id: '1', type: 'function', function: { name: 'missing', arguments: '{}' } }] }],
+      [
+        {
+          tool_calls: [
+            { id: '1', type: 'function', function: { name: 'missing', arguments: '{}' } },
+          ],
+        },
+      ],
       [{ content: 'sorry' }],
     ]);
     const agent = new StreamingAgent({ model, tools: [add] });
@@ -113,7 +135,11 @@ describe('StreamingAgent.runStream', () => {
   it('falls back to chatCompletion when the model cannot stream', async () => {
     const model = new ScriptedModel([
       toolCallReply([{ id: '1', name: 'add', args: '{"a":1,"b":2}' }]),
-      { role: 'assistant', content: 'three', usage: { completion_tokens: 1, prompt_tokens: 1, total_tokens: 2 } },
+      {
+        role: 'assistant',
+        content: 'three',
+        usage: { completion_tokens: 1, prompt_tokens: 1, total_tokens: 2 },
+      },
     ]);
     const agent = new StreamingAgent({ model, tools: [add] });
 
@@ -136,7 +162,9 @@ describe('StreamingAgent.runStream', () => {
   });
 
   it('stops after maxIterations', async () => {
-    const loop = [{ tool_calls: [{ id: '1', type: 'function', function: { name: 'add', arguments: '{}' } }] }];
+    const loop = [
+      { tool_calls: [{ id: '1', type: 'function', function: { name: 'add', arguments: '{}' } }] },
+    ];
     const model = new ScriptedStreamingModel([loop, loop, loop]);
     const agent = new StreamingAgent({ model, tools: [add], maxIterations: 2 });
 
@@ -171,7 +199,9 @@ describe('StreamingAgent in a pipeline', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const agent = new StreamingAgent({ model: new ScriptedStreamingModel([]), verbose: true });
     const sent: unknown[] = [];
-    const port = (name: string): { receive: (fn: (input: string) => void) => void; send: (value: unknown) => void } => ({
+    const port = (
+      name: string
+    ): { receive: (fn: (input: string) => void) => void; send: (value: unknown) => void } => ({
       receive: fn => {
         if (name === 'in') {
           fn('x');

@@ -98,7 +98,6 @@ const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
 
 const formatArgs = (args: unknown[]): string => args.map(arg => String(arg)).join(' ');
 
-
 /**
  * RLM Core - Recursive Language Model with REPL environment
  * Based on the paper arXiv:2512.24601

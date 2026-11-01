@@ -2,16 +2,11 @@ import { ToolInvoker } from '@astack-tech/components';
 import { createTool } from '@astack-tech/tools';
 
 // A tool is a name, a description, a JSON Schema and a function.
-const add = createTool(
-  'add',
-  'Add two numbers.',
-  args => Number(args['a']) + Number(args['b']),
-  {
-    type: 'object',
-    properties: { a: { type: 'number' }, b: { type: 'number' } },
-    required: ['a', 'b'],
-  }
-);
+const add = createTool('add', 'Add two numbers.', args => Number(args['a']) + Number(args['b']), {
+  type: 'object',
+  properties: { a: { type: 'number' }, b: { type: 'number' } },
+  required: ['a', 'b'],
+});
 
 const now = createTool('now', 'Return the current ISO date.', () => new Date().toISOString());
 

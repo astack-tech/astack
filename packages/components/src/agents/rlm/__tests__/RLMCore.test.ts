@@ -57,7 +57,9 @@ describe('RLMCore.execute', () => {
   it('routes llm_query calls to the sub-LLM', async () => {
     const generate = vi.fn((prompt: string) => Promise.resolve(`<${prompt}>`));
     const sub: LLMProvider = { generate };
-    const root = fixed('const a = await llm_query("one"); const b = await llm_query("two"); FINAL(a + b);');
+    const root = fixed(
+      'const a = await llm_query("one"); const b = await llm_query("two"); FINAL(a + b);'
+    );
     const core = new RLMCore(root, sub);
 
     const result = await core.execute({ context: new FileSystemContext('x'), query: 'q' });
@@ -83,9 +85,9 @@ describe('RLMCore.execute', () => {
   it('fails when the code never calls FINAL', async () => {
     const core = new RLMCore(fixed('const x = 1;'), fixed('unused'));
 
-    await expect(
-      core.execute({ context: new FileSystemContext('x'), query: 'q' })
-    ).rejects.toThrow('FINAL() was never called');
+    await expect(core.execute({ context: new FileSystemContext('x'), query: 'q' })).rejects.toThrow(
+      'FINAL() was never called'
+    );
   });
 
   it('appends a static custom prompt', async () => {
@@ -126,7 +128,9 @@ describe('RLMCore.execute', () => {
 
 describe('RLMCore.executeStream', () => {
   it('streams code, execution output, answer and summary', async () => {
-    const root = streaming('console.log("hi"); console.info("info"); console.warn("careful"); console.error("bad"); FINAL(await llm_query("q"));');
+    const root = streaming(
+      'console.log("hi"); console.info("info"); console.warn("careful"); console.error("bad"); FINAL(await llm_query("q"));'
+    );
     const core = new RLMCore(root, streaming('sub-answer'));
 
     const chunks = await collect(
@@ -158,7 +162,9 @@ describe('RLMCore.executeStream', () => {
   it('writes each sub-LLM call to a log file', async () => {
     const core = new RLMCore(fixed('FINAL(await llm_query("ping"));'), fixed('pong'));
 
-    const chunks = await collect(core.executeStream({ context: new FileSystemContext('x'), query: 'q' }));
+    const chunks = await collect(
+      core.executeStream({ context: new FileSystemContext('x'), query: 'q' })
+    );
     const call = chunks.at(-1)?.metadata?.subLLMCallDetails[0];
 
     expect(call).toMatchObject({ depth: 1, promptLength: 4, resultLength: 4 });
@@ -170,7 +176,9 @@ describe('RLMCore.executeStream', () => {
   it('reports execution errors as an error chunk', async () => {
     const core = new RLMCore(fixed('throw new Error("broken");'), fixed('unused'));
 
-    const chunks = await collect(core.executeStream({ context: new FileSystemContext('x'), query: 'q' }));
+    const chunks = await collect(
+      core.executeStream({ context: new FileSystemContext('x'), query: 'q' })
+    );
 
     expect(chunks).toContainEqual({ type: 'error', content: '\nError: broken\n' });
     expect(chunks.at(-1)?.type).toBe('summary');
@@ -180,7 +188,9 @@ describe('RLMCore.executeStream', () => {
     const failing: LLMProvider = { generate: () => Promise.reject(new Error('sub failed')) };
     const core = new RLMCore(fixed('FINAL(await llm_query("x"));'), failing);
 
-    const chunks = await collect(core.executeStream({ context: new FileSystemContext('x'), query: 'q' }));
+    const chunks = await collect(
+      core.executeStream({ context: new FileSystemContext('x'), query: 'q' })
+    );
 
     expect(chunks).toContainEqual({ type: 'error', content: '\nError: sub failed\n' });
   });
@@ -188,7 +198,9 @@ describe('RLMCore.executeStream', () => {
   it('answers directly when maxDepth is zero', async () => {
     const core = new RLMCore(fixed('plain answer'), fixed('unused'), 0);
 
-    const chunks = await collect(core.executeStream({ context: new FileSystemContext('x'), query: 'q' }));
+    const chunks = await collect(
+      core.executeStream({ context: new FileSystemContext('x'), query: 'q' })
+    );
 
     expect(chunks).toEqual([{ type: 'answer', content: 'plain answer' }]);
   });
@@ -211,7 +223,9 @@ describe('RLMCore as an LLMProvider', () => {
     const base = fixed('base');
     const core = new RLMCore(root, base, 2);
 
-    const chunks = await collect(core.executeStream({ context: new FileSystemContext('x'), query: 'q' }));
+    const chunks = await collect(
+      core.executeStream({ context: new FileSystemContext('x'), query: 'q' })
+    );
 
     // The nested RLM runs the same code; its llm_query reaches the base LLM.
     expect(chunks.find(chunk => chunk.type === 'answer')?.content).toContain('base');
@@ -225,7 +239,12 @@ describe('RLMCore as an LLMProvider', () => {
 
   it('streams through generateStream() using the shared context', async () => {
     const shared = new FileSystemContext('shared');
-    const core = new RLMCore(fixed('FINAL(readFile("__memory__.txt"));'), fixed('unused'), 1, shared);
+    const core = new RLMCore(
+      fixed('FINAL(readFile("__memory__.txt"));'),
+      fixed('unused'),
+      1,
+      shared
+    );
 
     let text = '';
     for await (const part of core.generateStream('ignored')) {
