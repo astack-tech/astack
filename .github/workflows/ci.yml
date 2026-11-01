@@ -50,4 +50,5 @@ jobs:
       - run: pnpm audit
       - run: pnpm lint
       - run: pnpm check-types
+      - run: pnpm test
       - run: pnpm build
