@@ -1,43 +1,51 @@
 # Website and brand validation
 
-Date: 25 October 2026. Branch: `codex/brand-website-redesign`.
+Date: 1 November 2026. Scope: the board redesign of astack.tech (PR #56), search, the graceful-degradation layer (PR #61) and the board-style brand images.
 
-## Scope
+## Layout audit
 
-Pages: home, blog index, RLM article, brand guide, and not-found page. Light and dark appearances are checked separately. The preview runs at `http://127.0.0.1:43187`.
+An automated audit opened each page in Chromium (ego-browser) and measured it after load:
 
-Viewport widths: 320, 360, 375, 390, 414, 430, 600, 640, 768, 820, 1024, 1280, 1440, 1920, 2560, and 3440 CSS pixels. Mobile captures use 844-pixel height; desktop captures use 1000-pixel height. These are Chromium viewport simulations, not physical-device or Safari/Firefox certification.
+- horizontal page overflow;
+- elements outside the viewport that are not inside a scroll container;
+- text clipped by its box;
+- the hero headline overlapping the falling blocks;
+- headlines longer than two lines (`h1`, `h2`) or three lines (card titles).
 
-## Repairs from review
+Pages: home, docs introduction, docs pipelines, API overview, an API class page, examples index, an example page, blog index, blog article and brand guide. Widths: 320, 360, 375, 390, 414, 768, 820, 1024, 1280, 1440, 1920 and 2560 CSS pixels. Both themes. That is 240 checks; the raw results are in `viewport-results.json`.
 
-- Separate graph descriptions from icon/title columns; preserve complete Memory and Agent labels.
-- Remove the overlapping RLM decoration; retain the independent navigation arrow.
-- Separate syntax colors from brand colors and support both appearances.
-- Remove the article's duplicate title and its fixed dark syntax background.
-- Constrain article code and tables to keyboard-scrollable containers.
-- Reflow the blog listing at intermediate narrow widths.
-- Include Documentation in mobile navigation; support Escape to close.
-- Increase icon-button touch targets to at least 44 × 44 CSS pixels.
-- Replace the raw SVG footer destination with the `/brand` guide and explicit downloads.
-- Add a matching not-found page and PNG Apple touch icon.
-- Keep development and production caches separate to prevent build/dev conflicts.
+Result: no overflow, no element outside the viewport, no clipped text and no overlap on any page, width or theme. 26 checks are flagged, all for line count on blog content:
 
-## Checks
+| Page         | Widths    | Finding                                                   |
+| ------------ | --------- | --------------------------------------------------------- |
+| Blog index   | 320–390   | The 84-character article title wraps to 4 lines           |
+| Blog article | 320–414   | The same title as `h1` wraps to 4–5 lines                 |
+| Blog article | 1280–2560 | The `h1` wraps to 3 lines in the 800-pixel reading column |
+| Blog article | 320       | One `h2` wraps to 3 lines                                 |
 
-- Website `pnpm lint`, `pnpm check-types`, and `pnpm build`: pass.
-- Repository `pnpm lint`: pass.
-- Repository `pnpm test`: fails because the four package test commands find no test files. No package runtime source was changed. This is not reported as a passing test suite.
-- `node assets/brand/check.cjs`: pass. All brand variants share the three production paths; repository and website construction SVGs are byte-identical.
-- All five page types: 160 viewport/theme checks pass for page overflow, graph collisions, text escaping graph nodes, duplicate main headings, and broken loaded images. See `viewport-results.json`.
-- Mobile menu, Escape, keyboard tab selection, package-manager selection, copy feedback, and execution preview: checked in Ego Browser.
-- Text-token contrast against both primary and secondary surfaces: minimum 4.98:1 in light mode and 5.81:1 in dark mode across 18 pairs per theme. This is a token check, not a complete accessibility certification.
+These are long article titles, not layout defects. Article titles use a smaller size than page titles for this reason.
 
-## Brand publication
+## Navigation
 
-The GitHub organization avatar was replaced with the silver asset. GitHub's saved avatar URL changed to the new image version. English and Chinese repository READMEs reference the same black-and-silver SVG banner. Repository and website changes use the feature branch and require the normal review/merge workflow before appearing on the default branch or deployed website.
+Measured in the browser, the target heading lands at the header height plus 24 pixels for:
 
-## Content
+- table-of-contents links;
+- `/#computation-model` from another page, on desktop and from the mobile menu;
+- deep links into pages with Mermaid diagrams;
+- the hero's start link.
 
-The content map records the preserved topics. The RLM article retains its historical measurements with their original test conditions; those experiments were not rerun. Brand guidance applies ASD-STE100 editing principles without claiming full dictionary certification.
+Search opens with ⌘K, Ctrl+K or `/`, moves with the arrow keys, opens with Enter and closes with Escape.
 
-The organization avatar uses an opaque, full-bleed background. Host services apply their own rounded or circular crop; the source image has no transparent corners.
+## Older browsers
+
+`website/app/styles/resilience.css` replaces `oklch()` hues with sRGB and `color-mix()` tints with tone steps. With both fallbacks forced on in Chromium, home and docs keep layout, hierarchy and contrast in both themes, on desktop and phone. Only Chromium was used; Safari and Firefox were not run.
+
+## Automated checks
+
+- Website: `pnpm lint`, `pnpm check-types`, `pnpm test` (23 tests, coverage above the package thresholds) and `pnpm build` pass. The search-index test fails if a docs section points at an anchor the page does not have.
+- Repository: `pnpm verify` passes. `pnpm audit` reports no known vulnerabilities in either install.
+- `node assets/brand/check.cjs`: every brand variant uses the three production paths.
+
+## Brand images
+
+The README banner, the website's social card, the GitHub social preview and the construction drawing are generated from one board layout with Geist embedded, then exported from a browser. The organization profile banner (`astack-tech/.github`) and the repository's social preview use the new files; the repository page's `og:image` was checked after upload.
