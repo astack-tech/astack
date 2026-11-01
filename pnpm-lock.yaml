@@ -235,8 +235,8 @@ importers:
   packages/core:
     dependencies:
       '@hlang-org/runtime':
-        specifier: ^1.0.7
-        version: 1.0.7
+        specifier: ^1.1.1
+        version: 1.1.1
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
@@ -781,8 +781,8 @@ packages:
   '@gerrit0/mini-shiki@3.23.0':
     resolution: {integrity: sha512-bEMORlG0cqdjVyCEuU0cDQbORWX+kYCeo0kV1lbxF5bt4r7SID2l9bqsxJEM0zndaxpOUT7riCyIVEuqq/Ynxg==}
 
-  '@hlang-org/runtime@1.0.7':
-    resolution: {integrity: sha512-xfLvOq7VPyXCEIKKHJbIID+AfNo2OQ0K2UEHlZtdRKVs4M8+RGbkIbcKW7h0xTxlgHX/0QDh6eIRqbMssWtn9w==}
+  '@hlang-org/runtime@1.1.1':
+    resolution: {integrity: sha512-2hGFtW5mXcFMkSwHSBPAaiqsnEV1tdF9etAQh/auQCpChHEEOfz1wecnILSNILJf+i9E81BbFOHhu+vTyf6cuA==}
     engines: {node: '>=18'}
 
   '@humanfs/core@0.19.2':
@@ -2830,7 +2830,7 @@ snapshots:
       '@shikijs/types': 3.23.0
       '@shikijs/vscode-textmate': 10.1.0
 
-  '@hlang-org/runtime@1.0.7':
+  '@hlang-org/runtime@1.1.1':
     dependencies:
       rxjs: 6.6.7
       uuid: 11.1.1

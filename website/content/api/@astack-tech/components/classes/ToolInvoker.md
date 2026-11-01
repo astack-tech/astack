@@ -39,17 +39,17 @@ Defined in: [packages/components/src/tool-invoker/index.ts:73](https://github.co
 
 | Property | Modifier | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | `Component.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:24 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:26 |
-| <a id="property-id"></a> `id` | `public` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:18 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:25 |
+| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | - | `Component.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:63 |
+| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | - | `Component.I` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:65 |
+| <a id="property-id"></a> `id` | `public` | `string` | - | `Component.id` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:57 |
+| <a id="property-identity"></a> `identity` | `public` | `Symbol` | - | `Component.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:64 |
 | <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | The default `in` input port. | `Component.inPort` | packages/core/dist/component/index.d.ts:49 |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | `Component.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:23 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:27 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:19 |
+| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | - | `Component.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:62 |
+| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | - | `Component.O` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:66 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | - | `Component.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:58 |
 | <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | The default `out` output port. A pipeline uses it to infer the endpoint. | `Component.outPort` | packages/core/dist/component/index.d.ts:51 |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | `Component.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:22 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:17 |
+| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | - | `Component.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:61 |
+| <a id="property-type"></a> `type` | `public` | `Symbol` | - | `Component.type` | node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:56 |
 | <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | `Component.Port` | packages/core/dist/component/index.d.ts:47 |
 
 ## Methods
@@ -88,7 +88,7 @@ Invalid input produces an empty `tool_messages` array.
 attach(flow): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:31
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:70
 
 #### Parameters
 
@@ -112,7 +112,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 attachPort(port): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:32
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:71
 
 #### Parameters
 
@@ -136,7 +136,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 E(): Port;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:30
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:69
 
 #### Returns
 
@@ -154,7 +154,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-or
 executeOnce(type, ...args): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:29
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:68
 
 #### Parameters
 
@@ -205,7 +205,7 @@ Runs every tool call in `input.messages`.
 throw(error): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/transform.d.ts:4
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-org/runtime/lib/index.d.mts:87
 
 #### Parameters
 
