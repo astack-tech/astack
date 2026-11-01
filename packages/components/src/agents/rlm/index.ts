@@ -1,9 +1,11 @@
 export { RLMAgent } from './RLMAgent';
-export type { RLMAgentConfig } from './RLMAgent';
+export type { RLMAgentConfig, SystemPromptBuilder } from './RLMAgent';
 export { RLMCore } from './RLMCore';
 export type {
   RLMInput,
   RLMResult,
+  RLMCoreOptions,
+  CustomPromptBuilder,
   RLMChunk,
   LLMProvider,
   RLMExecutionMetadata,
