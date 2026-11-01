@@ -36,15 +36,19 @@ jobs:
       - run: npm install --global npm@^11.21.0
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
-      - uses: changesets/action@v1
+      # changesets/action v2 is the release line for Changesets v3 (the version this repo
+      # uses, with its .changeset/pre/ folder). Tags and GitHub releases come from
+      # scripts/publish-packages.mjs, so the action creates neither.
+      - uses: changesets/action@v2
         with:
-          version: pnpm version-packages
-          publish: pnpm release
-          title: 'chore(release): version packages'
-          commit: 'chore(release): version packages'
-          createGithubReleases: false
+          version-script: pnpm version-packages
+          publish-script: pnpm release
+          pr-title: 'chore(release): version packages'
+          commit-message: 'chore(release): version packages'
+          create-github-releases: false
+          push-git-tags: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Until the first stable release, `npm install` without a tag gets the newest beta.
           LATEST_FOLLOWS_PRERELEASE: 'true'
