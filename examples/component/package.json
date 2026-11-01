@@ -1,0 +1,25 @@
+{
+  "name": "@astack-examples/component",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Define a component and run it as a plain function.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json",
+    "test": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack-tech/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Component",
+    "order": 1,
+    "tier": "basics",
+    "doc": "components",
+    "requiresApiKey": false
+  }
+}

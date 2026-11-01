@@ -1,18 +1,26 @@
 {
-  "name": "text-splitter-example",
-  "version": "1.0.0",
+  "name": "@astack-examples/text-splitter",
+  "version": "0.0.0",
   "private": true,
-  "description": "Example demonstrating the TextSplitter component",
   "type": "module",
+  "description": "Split a document into overlapping chunks with a built-in component.",
   "scripts": {
     "start": "tsx index.ts",
-    "check-types": "tsc -p tsconfig.json --noEmit"
+    "check-types": "tsc -p tsconfig.json",
+    "test": "tsx index.ts"
   },
   "dependencies": {
     "@astack-tech/core": "workspace:*",
     "@astack-tech/components": "workspace:*"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Text splitter",
+    "order": 4,
+    "tier": "basics",
+    "doc": "components",
+    "requiresApiKey": false
   }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "@astack-examples/tools",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Create tools and run tool calls without a model.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json",
+    "test": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Tools",
+    "order": 5,
+    "tier": "basics",
+    "doc": "tools",
+    "requiresApiKey": false
+  }
+}

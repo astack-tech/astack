@@ -1,89 +1,30 @@
-import { RLMAgent, FileSystemContext, type LLMProvider } from '@astack-tech/components/agents';
-import { Deepseek } from '@astack-tech/integrations/model-provider';
+import { fileURLToPath } from 'node:url';
 
-/**
- * Adapter to wrap Deepseek as LLMProvider for RLM
- */
-class DeepseekLLMProvider implements LLMProvider {
-  private deepseek: Deepseek;
+import { FileSystemContext, RLMAgent } from '@astack-tech/components';
+import type { LLMProvider } from '@astack-tech/components';
+import { ModelProvider } from '@astack-tech/integrations';
 
-  constructor(apiKey: string, model: string) {
-    this.deepseek = new Deepseek({ apiKey, model });
-  }
-
-  async generate(prompt: string): Promise<string> {
-    return await this.deepseek.generateCompletion(prompt);
-  }
-
-  async *generateStream(prompt: string): AsyncGenerator<string> {
-    const messages = [{ role: 'user' as const, content: prompt }];
-    for await (const chunk of this.deepseek.streamChatCompletion(messages)) {
-      if (chunk.content) {
-        yield chunk.content;
-      }
-    }
-  }
+const apiKey = process.env['DEEPSEEK_API_KEY'];
+if (!apiKey) {
+  throw new Error('Set DEEPSEEK_API_KEY to run this example.');
 }
 
-async function main() {
-  const apiKey = process.env.DEEPSEEK_API_KEY || '';
-  if (!apiKey) {
-    console.error('Please set DEEPSEEK_API_KEY environment variable');
-    process.exit(1);
-  }
+// RLM needs a minimal text-in, text-out interface. Adapt Deepseek to it.
+const model = new ModelProvider.Deepseek({ apiKey });
+const llm: LLMProvider = {
+  generate: prompt => model.generateCompletion(prompt),
+};
 
-  console.log('Creating RLM Agent with DeepSeek...\n');
+// The context is a directory. The root model writes code that reads files on demand,
+// so the whole directory never has to fit in one prompt.
+const sourceDir = fileURLToPath(new URL('../../packages/core/src', import.meta.url));
+const context = new FileSystemContext(sourceDir);
 
-  const rootLLM = new DeepseekLLMProvider(apiKey, 'deepseek-chat');
-  const subLLM = new DeepseekLLMProvider(apiKey, 'deepseek-chat');
+const agent = new RLMAgent({ rootLLM: llm, subLLM: llm });
 
-  const rlmAgent = new RLMAgent({
-    rootLLM,
-    subLLM,
-    // maxDepth defaults to 1 (current implementation only supports depth=1)
-  });
-
-  const longContext = `
-This is a long document about AI architectures.
-
-Section 1: Transformer Architecture
-Transformers use self-attention mechanisms to process sequences. The key innovation
-is the attention mechanism that allows the model to focus on different parts of the
-input when producing each part of the output.
-
-Section 2: GPT Models
-GPT (Generative Pre-trained Transformer) models are autoregressive language models
-that use transformer architecture. They are trained on large text corpora and can
-generate coherent text.
-
-Section 3: BERT and Bidirectional Models
-BERT uses bidirectional transformers to understand context from both directions.
-This makes it particularly effective for tasks like question answering.
-
-Section 4: Modern Developments
-Recent developments include models like GPT-4, Claude, and other large language
-models that can handle complex reasoning tasks.
-  `.trim();
-
-  // Create FileSystemContext in memory mode
-  const context = new FileSystemContext(longContext);
-
-  console.log('Long context prepared (length:', longContext.length, 'characters)\n');
-  console.log('Query: "What are the main AI architectures mentioned?"\n');
-  console.log('=== Streaming RLM Execution ===\n');
-
-  for await (const chunk of rlmAgent.runStream({
-    context,
-    query: 'What are the main AI architectures mentioned in the document?',
-  })) {
-    process.stdout.write(chunk.content);
-  }
-
-  console.log('\n=== Done ===');
-  process.exit(0);
-}
-
-main().catch(error => {
-  console.error(error);
-  process.exit(1);
+const result = await agent.run({
+  context,
+  query: 'How does Pipeline decide which output to return when no endpoint is given?',
 });
+
+console.log(result.answer);

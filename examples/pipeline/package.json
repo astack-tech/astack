@@ -1,0 +1,25 @@
+{
+  "name": "@astack-examples/pipeline",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Connect three components and let the pipeline infer the endpoint.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json",
+    "test": "tsx index.ts"
+  },
+  "dependencies": {
+    "@astack-tech/core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Pipeline",
+    "order": 2,
+    "tier": "basics",
+    "doc": "pipelines",
+    "requiresApiKey": false
+  }
+}
