@@ -19,6 +19,17 @@ export interface BlockSpec {
   transform: (text: string) => string;
 }
 
+/**
+ * Reverses text by grapheme, so emoji and accents stay whole. Where Intl.Segmenter is
+ * missing it reverses by code point, which keeps surrogate pairs intact.
+ */
+export function reverseText(text: string, graphemes = typeof Intl.Segmenter === 'function'): string {
+  const parts = graphemes
+    ? Array.from(new Intl.Segmenter().segment(text), part => part.segment)
+    : Array.from(text);
+  return parts.reverse().join('');
+}
+
 export const BLOCKS: readonly BlockSpec[] = [
   {
     id: 'trim',
@@ -39,10 +50,7 @@ export const BLOCKS: readonly BlockSpec[] = [
     className: 'Reverse',
     body: "return Array.from(new Intl.Segmenter().segment(String(text)), s => s.segment).reverse().join('');",
     hue: 'amber',
-    transform: text =>
-      Array.from(new Intl.Segmenter().segment(text), part => part.segment)
-        .reverse()
-        .join(''),
+    transform: text => reverseText(text),
   },
   {
     id: 'slug',

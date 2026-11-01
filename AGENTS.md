@@ -53,7 +53,7 @@ Run from the repository root with Node.js 20+ and pnpm 10.
 
 Package-scoped: `pnpm --filter @astack-tech/core test`, `pnpm --filter @astack-examples/pipeline start`.
 
-Website (separate install): `cd website && pnpm install` (the folder has its own `pnpm-workspace.yaml` and lockfile), then `pnpm lint`, `pnpm check-types`, `pnpm build`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
+Website (separate install): `cd website && pnpm install` (the folder has its own `pnpm-workspace.yaml` and lockfile), then `pnpm lint`, `pnpm check-types`, `pnpm test`, `pnpm build`. Website tests live in `website/lib/__tests__` and follow the same coverage thresholds. The website supports the browsers Next.js targets (Chrome and Edge 111, Firefox 111, Safari 16.4); newer CSS needs a fallback in `website/app/styles/resilience.css`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
 
 ## 4. TypeScript and lint standards
 
