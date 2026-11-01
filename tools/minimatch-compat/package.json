@@ -1,0 +1,26 @@
+{
+  "name": "minimatch-compat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The minimatch 3 and 10 interface, implemented on minimatch 11. Lets dependencies that still expect the old interface use the patched release.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./index.cjs",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.cjs",
+    "index.mjs"
+  ],
+  "dependencies": {
+    "minimatch": "^11.0.3"
+  },
+  "scripts": {
+    "test": "node --test test.mjs"
+  }
+}
