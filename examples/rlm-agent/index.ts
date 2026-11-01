@@ -1,3 +1,4 @@
+import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 import { FileSystemContext, RLMAgent } from '@astack-tech/components';
@@ -15,10 +16,13 @@ const llm: LLMProvider = {
   generate: prompt => model.generateCompletion(prompt),
 };
 
-// The context is a directory. The root model writes code that reads files on demand,
-// so the whole directory never has to fit in one prompt.
+// The context is a directory and a list of files in it. The root model writes code that
+// reads files on demand, so the whole directory never has to fit in one prompt.
 const sourceDir = fileURLToPath(new URL('../../packages/core/src', import.meta.url));
-const context = new FileSystemContext(sourceDir);
+const files = readdirSync(sourceDir, { recursive: true, encoding: 'utf8' }).filter(file =>
+  file.endsWith('.ts')
+);
+const context = new FileSystemContext(sourceDir, files);
 
 const agent = new RLMAgent({ rootLLM: llm, subLLM: llm });
 

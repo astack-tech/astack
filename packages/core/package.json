@@ -1,11 +1,32 @@
 {
   "name": "@astack-tech/core",
   "version": "0.2.0-beta.1",
-  "description": "Core for the Astack AI Framework.",
+  "description": "Component and Pipeline runtime for AStack: typed ports, reactive data flow and endpoint inference.",
+  "keywords": [
+    "astack",
+    "flow-based-programming",
+    "dataflow",
+    "pipeline",
+    "component",
+    "reactive",
+    "typescript"
+  ],
+  "homepage": "https://astack.tech/docs",
+  "bugs": {
+    "url": "https://github.com/astack-tech/astack/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astack-tech/astack.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "author": "AStack contributors",
+  "type": "module",
+  "sideEffects": false,
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "exports": {
     ".": {
       "types": {
@@ -30,28 +51,33 @@
       },
       "import": "./dist/component/index.js",
       "require": "./dist/component/index.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "src",
+    "!src/**/__tests__",
+    "!src/**/*.test.ts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
     "check-types": "tsc -p tsconfig.json",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "check:package": "publint --strict && attw --pack . --profile node16"
   },
-  "keywords": [
-    "ai-framework",
-    "ai-agent",
-    "ai"
-  ],
-  "author": "xiaoa",
-  "license": "MIT",
+  "dependencies": {
+    "@hlang-org/runtime": "^1.0.5",
+    "rxjs": "^7.8.2"
+  },
   "devDependencies": {
     "@types/node": "^22.20.5",
     "@vitest/coverage-v8": "^5.0.5",
@@ -60,11 +86,7 @@
     "typescript": "^5.8.3",
     "vitest": "^5.0.5"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "@hlang-org/runtime": "^1.0.5",
-    "rxjs": "^7.8.2"
+  "publishConfig": {
+    "access": "public"
   }
 }
