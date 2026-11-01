@@ -10,6 +10,7 @@ import localFont from 'next/font/local';
 import Script from 'next/script';
 import './globals.css';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { SITE_DESCRIPTION, SITE_KEYWORDS, SITE_TITLE } from '@/lib/site';
 
 // Configure Geist Sans font for body text
 const geistSans = localFont({
@@ -31,39 +32,11 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL('https://astack.tech'),
   title: {
-    default: 'AStack - AI Agent Framework Built on Monadic Paradigm',
+    default: SITE_TITLE,
     template: '%s | AStack',
   },
-  description:
-    'AStack is a TypeScript framework for AI agents, RAG applications, and workflows. It connects components through typed ports, Observable streams, and HLang monadic composition.',
-  keywords: [
-    // Primary keywords
-    'AI agent framework',
-    'AI agent',
-    'agent framework',
-    'autonomous agents',
-    // Technology keywords
-    'TypeScript AI framework',
-    'monadic programming',
-    'functional programming AI',
-    'composable AI',
-    // Feature keywords
-    'LLM framework',
-    'RAG framework',
-    'AI workflow',
-    'AI pipeline',
-    'tool calling',
-    'agent orchestration',
-    // Comparison keywords
-    'LangChain alternative',
-    'Haystack alternative',
-    'AI framework TypeScript',
-    // Use case keywords
-    'build AI agents',
-    'AI application development',
-    'conversational AI',
-    'AI automation',
-  ],
+  description: SITE_DESCRIPTION,
+  keywords: SITE_KEYWORDS,
   authors: [{ name: 'AStack Team', url: 'https://github.com/astack-tech' }],
   creator: 'AStack Team',
   publisher: 'AStack',
@@ -95,9 +68,8 @@ export const metadata: Metadata = {
     alternateLocale: ['zh_CN'],
     url: 'https://astack.tech',
     siteName: 'AStack',
-    title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
-    description:
-      'Build AI agents and workflows in TypeScript. Connect components through ports, Observable streams, and monadic composition.',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: [
       {
         url: '/brand/social-card.png',
@@ -109,8 +81,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AStack - AI Agent Framework Built on Monadic Paradigm',
-    description: 'Build AI agents in TypeScript with components, ports, and Observable streams.',
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
     images: ['/brand/social-card.png'],
     creator: '@astack_tech',
   },

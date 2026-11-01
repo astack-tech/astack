@@ -15,7 +15,7 @@ export default function Footer() {
         <div className="footer-main">
           <div>
             <Brand />
-            <p>Everything is a Component</p>
+            <p>Everything is a component.</p>
           </div>
           <nav aria-label="Footer navigation">
             <Link href="/docs">Docs</Link>

@@ -23,7 +23,7 @@
     "pre:beta": "changeset pre enter beta",
     "pre:exit": "changeset pre exit",
     "sync:examples": "node scripts/sync-examples.mjs",
-    "check:examples": "node scripts/sync-examples.mjs && git diff --exit-code -- website/content/examples && test -z \"$(git ls-files --others --exclude-standard -- website/content/examples)\"",
+    "check:examples": "node scripts/sync-examples.mjs && git diff --exit-code -- website/content/examples website/content/release.json && test -z \"$(git ls-files --others --exclude-standard -- website/content/examples website/content/release.json)\"",
     "check:packages": "turbo run check:package"
   },
   "keywords": [
