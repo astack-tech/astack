@@ -7,8 +7,7 @@ import type { Locale } from './i18n';
 import { slugify } from './markdown';
 
 /** What a search result points at. The order is the order of result groups. */
-export const SEARCH_KINDS = ['Docs', 'API', 'Examples', 'Blog'] as const;
-export type SearchKind = (typeof SEARCH_KINDS)[number];
+export type SearchKind = 'Docs' | 'API' | 'Examples' | 'Blog';
 
 export interface SearchEntry {
   kind: SearchKind;
@@ -52,11 +51,11 @@ function docEntries(locale: Locale): SearchEntry[] {
     };
     return [
       page,
-      ...sections.map(section => {
+      ...sections.map((section): SearchEntry => {
         const [heading = '', ...body] = section.split('\n');
         const title = heading.replace(/`/g, '').trim();
         return {
-          kind: 'Docs' as const,
+          kind: 'Docs',
           title,
           parent: doc.title,
           url: `${url}#${slugify(title)}`,
@@ -71,21 +70,21 @@ function docEntries(locale: Locale): SearchEntry[] {
 export function buildSearchIndex(): SearchEntry[] {
   return [
     ...LOCALES.flatMap(docEntries),
-    ...getAllApiPages().map(page => ({
-      kind: 'API' as const,
+    ...getAllApiPages().map((page): SearchEntry => ({
+      kind: 'API',
       title: page.kind === 'Package' ? `@astack-tech/${page.pkg}` : page.title,
       parent: page.kind === 'Package' ? 'Package' : `${page.kind} · @astack-tech/${page.pkg}`,
       url: apiHref(page.segments),
       text: shorten(plain(page.summary)),
     })),
-    ...getAllExamples().map(example => ({
-      kind: 'Examples' as const,
+    ...getAllExamples().map((example): SearchEntry => ({
+      kind: 'Examples',
       title: example.title,
       url: `/examples/${example.name}`,
       text: example.description,
     })),
-    ...getAllPosts().map(post => ({
-      kind: 'Blog' as const,
+    ...getAllPosts().map((post): SearchEntry => ({
+      kind: 'Blog',
       title: post.title,
       url: `/blog/${post.slug}`,
       text: shorten(post.excerpt),

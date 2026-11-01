@@ -32,7 +32,7 @@ export default function Footer() {
           <span
             key={`${letter}-${String(index)}`}
             className={`block hue-${hue}`}
-            style={{ '--h': height } as React.CSSProperties}
+            style={{ '--h': height }}
           >
             {letter}
           </span>

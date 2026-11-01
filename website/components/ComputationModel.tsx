@@ -10,7 +10,21 @@ import { AnimatedList } from './magicui/animated-list';
 import { agentCode, componentCode, pipelineCode, streamingCode } from '@/lib/examples';
 import { BlurFade } from './magicui/blur-fade';
 
-const MODES = [
+/** One way of building with AStack, shown as a tab. */
+interface Mode {
+  id: string;
+  label: string;
+  hue: string;
+  title: string;
+  description: string;
+  code: string;
+  example: string;
+  doc: string;
+  nodes: readonly string[];
+  details: readonly string[];
+}
+
+const MODES: readonly [Mode, ...Mode[]] = [
   {
     id: 'component',
     label: 'Component',
@@ -71,9 +85,9 @@ const MODES = [
     nodes: ['Text deltas', 'Tool events', 'Completed'],
     details: ['Async generator API', 'Same events in a pipeline', 'Server-Sent Events over HTTP'],
   },
-] as const;
+];
 
-const NODE_HUES = ['silver', 'blue', 'rose'] as const;
+const NODE_HUES: readonly string[] = ['silver', 'blue', 'rose'];
 
 export default function ComputationModel() {
   const [active, setActive] = useState(0);

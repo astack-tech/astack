@@ -26,7 +26,7 @@ const RUN_COMMANDS =
 function headSpan(cards: number): React.CSSProperties {
   const wide = 12 - ((cards * 4) % 12);
   const medium = cards % 2 === 0 ? 12 : 6;
-  return { '--head-span': String(wide), '--head-span-md': String(medium) } as React.CSSProperties;
+  return { '--head-span': String(wide), '--head-span-md': String(medium) };
 }
 
 export default function ExamplesPage() {

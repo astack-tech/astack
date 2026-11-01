@@ -62,7 +62,9 @@ export function piecePath(cells: readonly Cell[], unit: number): string {
   if (first === undefined) {
     return '';
   }
-  const nextFrom = new Map([...edges.values()].map(([from, to]) => [id(from), to] as const));
+  const nextFrom = new Map(
+    [...edges.values()].map(([from, to]): [string, Point] => [id(from), to])
+  );
   const loop: Point[] = [];
   let point = first[0];
   do {

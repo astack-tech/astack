@@ -68,7 +68,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
   const minutes = Math.max(1, Math.ceil(wordCount / 200));
   const readingTime = minutes === 1 ? '1 min read' : `${String(minutes)} mins read`;
 
-  const meta = data as Record<string, unknown>;
+  const meta: Record<string, unknown> = data;
   const text = (key: string, fallback: string): string => {
     const value = meta[key];
     return typeof value === 'string' && value.length > 0 ? value : fallback;

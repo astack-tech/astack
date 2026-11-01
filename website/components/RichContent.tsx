@@ -96,7 +96,12 @@ function keepAnchorInPlace(rendered: Promise<void>): () => void {
   const onInput = (): void => {
     moved = true;
   };
-  const events = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
+  const events: readonly ('wheel' | 'touchstart' | 'keydown' | 'pointerdown')[] = [
+    'wheel',
+    'touchstart',
+    'keydown',
+    'pointerdown',
+  ];
   for (const name of events) {
     window.addEventListener(name, onInput, { once: true, passive: true });
   }

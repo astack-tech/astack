@@ -17,6 +17,7 @@ const COMMANDS = {
   yarn: `yarn add ${PACKAGES}`,
 };
 type Manager = keyof typeof COMMANDS;
+const MANAGERS: readonly Manager[] = ['npm', 'pnpm', 'yarn'];
 
 export default function QuickStart() {
   const [manager, setManager] = useState<Manager>('npm');
@@ -39,7 +40,7 @@ export default function QuickStart() {
           <div className="code">
             <div className="code-bar">
               <div className="segmented" role="group" aria-label="Package manager">
-                {(Object.keys(COMMANDS) as Manager[]).map(pm => (
+                {MANAGERS.map(pm => (
                   <button
                     type="button"
                     aria-pressed={manager === pm}

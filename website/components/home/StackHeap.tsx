@@ -20,13 +20,11 @@ export default function StackHeap({ className }: { className?: string }) {
           key={piece.cells.map(cell => cell.join(',')).join(';')}
           className={`well-piece hue-${piece.hue}`}
           d={piecePath(piece.cells, UNIT)}
-          style={
-            {
-              '--order': String(index),
-              // A piece falls from above the well to its resting row.
-              '--fall': String(Math.min(...piece.cells.map(([, y]) => y)) + 3),
-            } as React.CSSProperties
-          }
+          style={{
+            '--order': String(index),
+            // A piece falls from above the well to its resting row.
+            '--fall': String(Math.min(...piece.cells.map(([, y]) => y)) + 3),
+          }}
         />
       ))}
     </svg>
