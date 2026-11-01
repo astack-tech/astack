@@ -21,6 +21,18 @@ export function releaseTag(name, version) {
 }
 
 /**
+ * One line of the NDJSON file that changesets/action reads from `CHANGESETS_OUTPUT`
+ * after a custom publish script. Each line reports a published package and its git tag;
+ * the action sets its `published` and `publishedPackages` outputs from them.
+ * @param {string} name - Package name.
+ * @param {string} version - Published version.
+ * @returns {string}
+ */
+export function changesetsOutputLine(name, version) {
+  return `${JSON.stringify({ type: 'git-tag', tag: releaseTag(name, version), packageName: name })}\n`;
+}
+
+/**
  * The body of the `## <version>` section of a changesets CHANGELOG.md.
  * @param {string} changelog - The file contents.
  * @param {string} version - The version to extract.
