@@ -9,6 +9,7 @@ import ComputationModel from '@/components/ComputationModel';
 import QuickStart from '@/components/QuickStart';
 import Comparison from '@/components/Comparison';
 import UseCases from '@/components/UseCases';
+import { CORE_VERSION, SITE_DESCRIPTION, SITE_KEYWORDS } from '@/lib/site';
 
 export default function Home() {
   // Structured data for SEO (JSON-LD)
@@ -18,11 +19,10 @@ export default function Home() {
     name: 'AStack',
     applicationCategory: 'DeveloperApplication',
     operatingSystem: 'Cross-platform',
-    description:
-      'AStack connects TypeScript components through ports and Observable streams. Use HLang monadic composition to build AI agents and workflows.',
+    description: SITE_DESCRIPTION,
     url: 'https://astack.tech',
     downloadUrl: 'https://www.npmjs.com/package/@astack-tech/core',
-    softwareVersion: 'v0.2.0-beta.1',
+    softwareVersion: CORE_VERSION,
     programmingLanguage: 'TypeScript',
     offers: {
       '@type': 'Offer',
@@ -38,8 +38,7 @@ export default function Home() {
       'https://github.com/astack-tech/astack',
       'https://www.npmjs.com/package/@astack-tech/core',
     ],
-    keywords:
-      'AI agent framework, autonomous agents, TypeScript AI, monadic programming, LLM framework, RAG framework, AI workflow, agent orchestration',
+    keywords: SITE_KEYWORDS.join(', '),
   };
 
   return (
