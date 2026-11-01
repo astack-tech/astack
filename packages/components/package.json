@@ -80,7 +80,7 @@
     "build": "tsup",
     "check-types": "tsc -p tsconfig.json",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "check:package": "publint --strict && attw --pack . --profile node16"
   },
   "dependencies": {
@@ -91,7 +91,6 @@
     "@astack-tech/integrations": "workspace:*",
     "@types/node": "^22.20.5",
     "@vitest/coverage-v8": "^5.0.5",
-    "rimraf": "^6.1.2",
     "tsup": "^9.0.0",
     "typescript": "^5.8.3",
     "vitest": "^5.0.5"
