@@ -48,7 +48,7 @@ Run from the repository root with Node.js 20+ and pnpm 10.
 
 Package-scoped: `pnpm --filter @astack-tech/core test`, `pnpm --filter @astack-examples/pipeline start`.
 
-Website (separate install): `cd website && pnpm install --ignore-workspace`, then `pnpm lint`, `pnpm check-types`, `pnpm build`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
+Website (separate install): `cd website && pnpm install` (the folder has its own `pnpm-workspace.yaml` and lockfile), then `pnpm lint`, `pnpm check-types`, `pnpm build`. The dev server uses `.next-dev` and the build uses `.next`; never run both against the same directory.
 
 ## 4. TypeScript and lint standards
 

@@ -1,0 +1,4 @@
+# The website is its own pnpm workspace root, separate from the packages workspace.
+# This keeps pnpm (and Dependabot) on website/pnpm-lock.yaml when run in this folder.
+packages:
+  - '.'

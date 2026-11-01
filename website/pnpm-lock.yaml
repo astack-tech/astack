@@ -70,8 +70,8 @@ importers:
         specifier: ^3
         version: 3.3.1
       '@eslint/js':
-        specifier: ^9.28.0
-        version: 9.28.0
+        specifier: ^9.39.5
+        version: 9.39.5
       '@tailwindcss/postcss':
         specifier: ^4
         version: 4.1.8
@@ -169,6 +169,10 @@ packages:
 
   '@eslint/js@9.28.0':
     resolution: {integrity: sha512-fnqSjGWd/CoIp4EXIxWVK/sHA6DOHN4+8Ix2cX5ycOY7LG0UY8nHCU5pIp2eaE1Mc7Qd8kHspYNzYXT2ojPLzg==}
+    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@eslint/js@9.39.5':
+    resolution: {integrity: sha512-QywQuszQh77pIXCsq998c8hbhSTI/azTty1Z6N53dmAudKHhy573j3yvRLsX2BSp8YpLtoCEG8E9DJe+8zUh4A==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.6':
@@ -2826,6 +2830,8 @@ snapshots:
       - supports-color
 
   '@eslint/js@9.28.0': {}
+
+  '@eslint/js@9.39.5': {}
 
   '@eslint/object-schema@2.1.6': {}
 
