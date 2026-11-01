@@ -101,3 +101,4 @@ Subpath imports: `@astack-tech/core/component`, `@astack-tech/core/pipeline`.
 ## License
 
 [MIT](./LICENSE). AStack is in public beta: APIs can change between beta releases. See [CHANGELOG.md](./CHANGELOG.md).
+
