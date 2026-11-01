@@ -57,7 +57,7 @@ export default function Home() {
           <span>Framework foundations</span>
           <span>TypeScript native</span>
           <span>Observable streams</span>
-          <span>Monadic composition</span>
+          <span>Flow-based programming</span>
           <span>MIT licensed</span>
         </div>
         <Features />
