@@ -1,8 +1,4 @@
 /**
- * Astack 集成包
- *
- * 提供与各种外部服务和平台的集成组件
+ * AStack integrations: components that connect pipelines to external services.
  */
-
-// 导出模型提供者组件
 export * as ModelProvider from './model-provider';
