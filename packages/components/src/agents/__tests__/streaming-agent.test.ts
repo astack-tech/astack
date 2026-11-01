@@ -1,10 +1,28 @@
-import { Pipeline } from '@astack-tech/core';
+import { Component, Pipeline } from '@astack-tech/core';
+import type { Port } from '@astack-tech/core';
 import { createTool } from '@astack-tech/tools';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { StreamingAgent } from '../StreamingAgent';
 import type { StreamingChunk } from '../StreamingAgent';
 import { ScriptedModel, ScriptedStreamingModel, toolCallReply } from './fakes';
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+/** Records every value that reaches its `in` port. */
+class Collector extends Component {
+  constructor(private readonly sink: unknown[]) {
+    super({});
+  }
+
+  override _transform($i: Port): void {
+    $i('in').receive(value => {
+      this.sink.push(value);
+    });
+  }
+}
 
 const add = createTool('add', 'Adds two numbers', args => Number(args['a']) + Number(args['b']));
 
@@ -197,26 +215,20 @@ describe('StreamingAgent in a pipeline', () => {
 
   it('sends one error chunk when the run fails', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    const agent = new StreamingAgent({ model: new ScriptedStreamingModel([]), verbose: true });
     const sent: unknown[] = [];
-    const port = (
-      name: string
-    ): { receive: (fn: (input: string) => void) => void; send: (value: unknown) => void } => ({
-      receive: fn => {
-        if (name === 'in') {
-          fn('x');
-        }
-      },
-      send: value => {
-        sent.push(value);
-      },
-    });
+    const pipeline = new Pipeline();
+    pipeline.addComponent(
+      'agent',
+      new StreamingAgent({ model: new ScriptedStreamingModel([]), verbose: true })
+    );
+    pipeline.addComponent('collect', new Collector(sent));
+    pipeline.connect('agent.out', 'collect.in');
 
-    agent._transform(port as never, port as never);
+    void pipeline.run('agent.in', 'x', 'collect.out');
     await vi.waitFor(() => {
       expect(consoleError).toHaveBeenCalled();
     });
 
-    expect(sent.filter(value => (value as StreamingChunk).type === 'error')).toHaveLength(1);
+    expect(sent.filter(value => isRecord(value) && value['type'] === 'error')).toHaveLength(1);
   });
 });

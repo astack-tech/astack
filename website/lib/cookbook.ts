@@ -8,6 +8,10 @@ import path from 'node:path';
 
 import index from '@/content/examples/index.json';
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /** Learning level of an example. */
 export type Tier = 'basics' | 'llm' | 'advanced';
 
@@ -57,11 +61,13 @@ export function getExample(name: string): Example | undefined {
     return undefined;
   }
   const file = path.join(process.cwd(), 'content/examples', `${name}.json`);
-  const data = JSON.parse(fs.readFileSync(file, 'utf8')) as Partial<Example>;
-  if (typeof data.readme !== 'string' || typeof data.code !== 'string') {
+  const data: unknown = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const readme = isRecord(data) ? data['readme'] : undefined;
+  const code = isRecord(data) ? data['code'] : undefined;
+  if (typeof readme !== 'string' || typeof code !== 'string') {
     throw new Error(`content/examples/${name}.json is missing readme or code`);
   }
-  return { ...summary, readme: data.readme, code: data.code };
+  return { ...summary, readme, code };
 }
 
 /** Returns the examples linked to a documentation page, in learning order. */

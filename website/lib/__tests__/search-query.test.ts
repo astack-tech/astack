@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import type { SearchEntry } from '../search';
-import { search, score, tokenize } from '../search-query';
+import { parseSearchIndex, search, score, tokenize } from '../search-query';
 
 const entry = (over: Partial<SearchEntry>): SearchEntry => ({
   kind: 'Docs',
@@ -76,5 +76,32 @@ describe('search', () => {
 
   it('returns nothing when no entry matches', () => {
     expect(search(INDEX, 'zebra')).toEqual([]);
+  });
+});
+
+describe('parseSearchIndex', () => {
+  it('keeps well-formed entries, with or without a parent', () => {
+    const entries = [
+      { kind: 'Docs', title: 'Pipelines', parent: 'Docs', url: '/docs/pipelines', text: 'Run' },
+      { kind: 'Blog', title: 'RLM', url: '/blog/rlm', text: 'Article' },
+    ];
+
+    expect(parseSearchIndex(entries)).toEqual(entries);
+  });
+
+  it('drops malformed entries', () => {
+    const index = [
+      null,
+      'text',
+      { kind: 'Video', title: 't', url: '/u', text: 'x' },
+      { kind: 'Docs', title: 1, url: '/u', text: 'x' },
+      { kind: 'Docs', title: 't', url: '/u', text: 'x', parent: 2 },
+    ];
+
+    expect(parseSearchIndex(index)).toEqual([{ kind: 'Docs', title: 't', url: '/u', text: 'x' }]);
+  });
+
+  it('returns an empty index for anything but an array', () => {
+    expect(parseSearchIndex({ entries: [] })).toEqual([]);
   });
 });

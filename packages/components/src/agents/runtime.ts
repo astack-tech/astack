@@ -74,11 +74,11 @@ export function addUsage(total: TokenUsage | undefined, usage: TokenUsage): Toke
     prompt_tokens: base.prompt_tokens + usage.prompt_tokens,
     total_tokens: base.total_tokens + usage.total_tokens,
   };
-  if (usage.prompt_cache_hit_tokens) {
+  if (usage.prompt_cache_hit_tokens !== undefined && usage.prompt_cache_hit_tokens !== 0) {
     sum.prompt_cache_hit_tokens =
       (base.prompt_cache_hit_tokens ?? 0) + usage.prompt_cache_hit_tokens;
   }
-  if (usage.prompt_cache_miss_tokens) {
+  if (usage.prompt_cache_miss_tokens !== undefined && usage.prompt_cache_miss_tokens !== 0) {
     sum.prompt_cache_miss_tokens =
       (base.prompt_cache_miss_tokens ?? 0) + usage.prompt_cache_miss_tokens;
   }
@@ -100,12 +100,12 @@ export interface ToolCallOutcome {
 }
 
 function resolveToolFunction(tool: Tool): ToolFunction | undefined {
-  const candidate = tool as Tool & { execute?: unknown; invoke?: unknown };
-  if (typeof candidate.execute === 'function') {
-    return candidate.execute.bind(tool) as ToolFunction;
+  const { execute, invoke } = tool;
+  if (execute !== undefined) {
+    return args => execute.call(tool, args);
   }
-  if (typeof candidate.invoke === 'function') {
-    return candidate.invoke.bind(tool) as ToolFunction;
+  if (invoke !== undefined) {
+    return args => invoke.call(tool, args);
   }
   return undefined;
 }

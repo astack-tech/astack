@@ -1,6 +1,6 @@
 # Interface: ModelProvider
 
-Defined in: [packages/components/src/agents/types.ts:101](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L101)
+Defined in: [packages/components/src/agents/types.ts:112](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L112)
 
 Contract that a model component must meet to drive an agent.
 `Deepseek` from `@astack-tech/integrations` implements it.
@@ -13,7 +13,7 @@ Contract that a model component must meet to drive an agent.
 chatCompletion(messages, options?): Promise<AgentMessage>;
 ```
 
-Defined in: [packages/components/src/agents/types.ts:103](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L103)
+Defined in: [packages/components/src/agents/types.ts:114](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L114)
 
 Sends the conversation and resolves with the assistant reply, including any tool calls and token usage.
 
@@ -36,7 +36,7 @@ Sends the conversation and resolves with the assistant reply, including any tool
 streamChatCompletion?(messages, options?): AsyncGenerator<Partial<AgentMessage>>;
 ```
 
-Defined in: [packages/components/src/agents/types.ts:108](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L108)
+Defined in: [packages/components/src/agents/types.ts:119](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L119)
 
 Optional. Streams the reply as partial messages: text deltas, tool-call deltas and usage. Without it, `StreamingAgent` falls back to `chatCompletion`.
 

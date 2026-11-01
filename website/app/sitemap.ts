@@ -23,7 +23,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     getAllDocs(locale).map(doc => ({
       url: `${baseUrl}${docsPath(locale, doc.slug)}`,
       lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
+      changeFrequency: 'monthly',
       priority: locale === 'en' ? 0.9 : 0.8,
       alternates: {
         languages: Object.fromEntries(

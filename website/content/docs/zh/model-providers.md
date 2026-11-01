@@ -4,7 +4,7 @@ description: 调用 DeepSeek 或任何 OpenAI 兼容接口，并为其他模型�
 order: 7
 examples: [chat]
 api: [integrations/namespaces/ModelProvider/classes/Deepseek, integrations/namespaces/ModelProvider/interfaces/DeepseekConfig, integrations/namespaces/ModelProvider/classes/OpenAICompatible, integrations/namespaces/ModelProvider/interfaces/OpenAICompatibleConfig, components/interfaces/ModelProvider]
-source: 2d19548ae3bd32de7626c418825a4482dc8a8afe7cfe18ae133cf550a3132e28
+source: 4c3735fe4cbe62eecd8c66dcc992f22e7f7b0d89faf29a3d8628a855e14403cb
 ---
 
 模型提供方是与模型 API 通信的组件。智能体接受任何满足 `@astack-tech/components` 中 `ModelProvider` 接口的对象：
@@ -62,6 +62,8 @@ const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY
 | `messages`（消息列表） | `message`（assistant 消息） |
 
 如果在管道中 API 调用失败，提供方会发送 `'API call failed'`（在 `completion` 上），或一条内容为该文本的 assistant 消息（在 `message` 上），这样管道不会卡住。设置 `verbose: true` 可以输出错误信息。
+
+消息在发送请求之前会先经过检查：role 必须是 `system`、`user`、`assistant` 或 `tool`，`tool` 消息必须带上它所回应的调用的 `tool_call_id`；否则调用会失败，错误信息里带有提供方的名称。省略的 content 会以空文本发送，`assistant` 消息除外。
 
 ## OpenAI 兼容接口
 

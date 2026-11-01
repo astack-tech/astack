@@ -13,8 +13,8 @@ function Lane({ label, values, mapped }: { label: string; values: string[]; mapp
         {values.map((value, index) => (
           <span
             key={`${value}-${String(index)}`}
-            className={`marble ${mapped ? 'marble-out block hue-blue' : ''}`}
-            style={{ '--i': String(index) } as React.CSSProperties}
+            className={`marble ${mapped === true ? 'marble-out block hue-blue' : ''}`}
+            style={{ '--i': String(index) }}
           >
             {value}
           </span>

@@ -175,7 +175,7 @@ export function MagicCard(props: MagicCardProps) {
         'group relative isolate overflow-hidden rounded-[inherit] border border-transparent',
         className
       )}
-      onPointerMove={reducedMotion ? undefined : handlePointerMove}
+      onPointerMove={reducedMotion === true ? undefined : handlePointerMove}
       onPointerLeave={() => {
         reset('leave');
       }}

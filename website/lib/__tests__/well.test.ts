@@ -34,12 +34,13 @@ describe('the well', () => {
         }
         reached.add(key(...cell));
         const [x, y] = cell;
-        for (const [nx, ny] of [
+        const neighbours: [number, number][] = [
           [x + 1, y],
           [x - 1, y],
           [x, y + 1],
           [x, y - 1],
-        ] as [number, number][]) {
+        ];
+        for (const [nx, ny] of neighbours) {
           if (cells.has(key(nx, ny))) {
             stack.push([nx, ny]);
           }

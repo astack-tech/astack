@@ -3,7 +3,7 @@ import { ModelProvider } from '@astack-tech/integrations';
 import { createTool } from '@astack-tech/tools';
 
 const apiKey = process.env['DEEPSEEK_API_KEY'];
-if (!apiKey) {
+if (apiKey === undefined || apiKey === '') {
   throw new Error('Set DEEPSEEK_API_KEY to run this example.');
 }
 

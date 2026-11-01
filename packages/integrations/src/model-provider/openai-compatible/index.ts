@@ -201,10 +201,20 @@ function isRecord(value: unknown): value is Record<string, unknown> {
  * Objects already in the OpenAI format are returned unchanged.
  */
 function toApiTool(tool: unknown): ChatTool {
-  if (isRecord(tool) && tool['type'] === 'function') {
-    return tool as unknown as ChatTool;
-  }
   const raw = isRecord(tool) ? tool : {};
+  const definition = raw['function'];
+  if (raw['type'] === 'function' && isRecord(definition)) {
+    const { name, description, parameters, strict } = definition;
+    return {
+      type: 'function',
+      function: {
+        name: typeof name === 'string' ? name : '',
+        ...(typeof description === 'string' ? { description } : {}),
+        ...(isRecord(parameters) ? { parameters } : {}),
+        ...(typeof strict === 'boolean' ? { strict } : {}),
+      },
+    };
+  }
   const { name, description, parameters } = raw;
   return {
     type: 'function',
@@ -370,8 +380,9 @@ class OpenAICompatible extends Component {
     for await (const chunk of stream) {
       const delta = chunk.choices[0]?.delta;
 
-      if (delta?.content) {
-        yield { role: 'assistant', content: delta.content };
+      const text = delta?.content ?? '';
+      if (text !== '') {
+        yield { role: 'assistant', content: text };
       }
 
       if (delta?.tool_calls) {
@@ -456,7 +467,9 @@ class OpenAICompatible extends Component {
   }
 
   private systemMessages(): ChatMessageParam[] {
-    return this.systemPrompt ? [{ role: 'system', content: this.systemPrompt }] : [];
+    return this.systemPrompt === undefined || this.systemPrompt === ''
+      ? []
+      : [{ role: 'system', content: this.systemPrompt }];
   }
 
   /**
@@ -465,19 +478,38 @@ class OpenAICompatible extends Component {
    * calls that are not followed by tool messages.
    */
   private formatMessages(messages: Message[]): ChatMessageParam[] {
-    return [
-      ...this.systemMessages(),
-      ...messages.map(
-        (message): ChatMessageParam =>
-          ({
-            role: message.role,
-            content: message.content,
-            ...(message.role === 'tool' && message.tool_call_id
-              ? { tool_call_id: message.tool_call_id }
-              : {}),
-          }) as ChatMessageParam
-      ),
-    ];
+    return [...this.systemMessages(), ...messages.map(message => this.toApiMessage(message))];
+  }
+
+  /**
+   * Converts one input message to its API shape.
+   *
+   * @throws Error when the role is not one of `MessageRole`, or a `tool` message has no
+   * `tool_call_id`. The API would reject both.
+   */
+  private toApiMessage(message: Message): ChatMessageParam {
+    const content = message.content ?? '';
+    switch (message.role) {
+      case 'system':
+        return { role: 'system', content };
+      case 'user':
+        return { role: 'user', content };
+      case 'assistant':
+        return message.content === undefined
+          ? { role: 'assistant' }
+          : { role: 'assistant', content: message.content };
+      case 'tool':
+        if (message.tool_call_id === undefined || message.tool_call_id === '') {
+          throw new Error(
+            `${this.name}: a tool message needs the tool_call_id of the call it answers.`
+          );
+        }
+        return { role: 'tool', content, tool_call_id: message.tool_call_id };
+      default:
+        throw new Error(
+          `${this.name}: unsupported message role '${message.role}'. Use system, user, assistant or tool.`
+        );
+    }
   }
 
   private firstMessage(response: OpenAI.Chat.ChatCompletion): OpenAI.Chat.ChatCompletionMessage {

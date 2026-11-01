@@ -13,7 +13,6 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const examplesDir = path.join(root, 'examples');
 const outputDir = path.join(root, 'website', 'content', 'examples');
-const TIERS = new Set(['basics', 'llm', 'advanced']);
 
 /**
  * @typedef {object} ExampleEntry
@@ -37,6 +36,22 @@ function fail(message) {
 }
 
 /**
+ * @param {unknown} value
+ * @returns {value is Record<string, unknown>}
+ */
+function isRecord(value) {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is ExampleEntry['tier']}
+ */
+function isTier(value) {
+  return value === 'basics' || value === 'llm' || value === 'advanced';
+}
+
+/**
  * @param {string} name
  * @returns {ExampleEntry | undefined}
  */
@@ -47,20 +62,23 @@ function readExample(name) {
     return undefined;
   }
 
-  /** @type {{ description?: unknown, astack?: Record<string, unknown> }} */
+  /** @type {unknown} */
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
-  const meta = manifest.astack;
+  if (!isRecord(manifest)) fail(`${name}: package.json is not an object`);
+  const meta = manifest['astack'];
   if (meta === undefined) {
     return undefined;
   }
+  if (!isRecord(meta)) fail(`${name}: astack must be an object`);
 
   const { title, order, tier, doc, requiresApiKey } = meta;
+  const description = manifest['description'];
   if (typeof title !== 'string' || title.length === 0) fail(`${name}: astack.title is required`);
   if (typeof order !== 'number') fail(`${name}: astack.order must be a number`);
-  if (typeof tier !== 'string' || !TIERS.has(tier)) fail(`${name}: astack.tier is invalid`);
+  if (!isTier(tier)) fail(`${name}: astack.tier is invalid`);
   if (typeof doc !== 'string' || doc.length === 0) fail(`${name}: astack.doc is required`);
   if (typeof requiresApiKey !== 'boolean') fail(`${name}: astack.requiresApiKey must be boolean`);
-  if (typeof manifest.description !== 'string') fail(`${name}: description is required`);
+  if (typeof description !== 'string') fail(`${name}: description is required`);
 
   const readmePath = path.join(dir, 'README.md');
   const codePath = path.join(dir, 'index.ts');
@@ -71,10 +89,10 @@ function readExample(name) {
     name,
     title,
     order,
-    tier: /** @type {ExampleEntry['tier']} */ (tier),
+    tier,
     doc,
     requiresApiKey,
-    description: manifest.description,
+    description,
     readme: readFileSync(readmePath, 'utf8'),
     code: readFileSync(codePath, 'utf8'),
   };

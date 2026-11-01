@@ -62,6 +62,8 @@ You can also import it from the subpath: `import { Deepseek } from '@astack-tech
 
 If the API call fails inside a pipeline, the provider sends `'API call failed'` (on `completion`) or an assistant message with that text (on `message`), so the pipeline does not hang. Set `verbose: true` to log the error.
 
+Messages are checked before the request is sent. The role must be `system`, `user`, `assistant` or `tool`, and a `tool` message needs the `tool_call_id` of the call it answers; otherwise the call fails with an error that names the provider. Content that is omitted is sent as empty text, except on `assistant` messages.
+
 ## OpenAI-compatible APIs
 
 `OpenAICompatible` calls any API that speaks the OpenAI chat completions protocol: OpenAI itself and the compatible endpoints of providers such as DeepSeek, Qwen, Moonshot, Ollama and vLLM. `Deepseek` is this provider with DeepSeek's endpoint and model as defaults, so the methods, ports and options above are the same.

@@ -1,6 +1,6 @@
 # Interface: Memory
 
-Defined in: [packages/components/src/agents/types.ts:78](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L78)
+Defined in: [packages/components/src/agents/types.ts:89](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L89)
 
 Conversation memory used by an agent.
 
@@ -12,7 +12,7 @@ Conversation memory used by an agent.
 addMessage(message): void;
 ```
 
-Defined in: [packages/components/src/agents/types.ts:80](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L80)
+Defined in: [packages/components/src/agents/types.ts:91](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L91)
 
 Stores a message at the end of the history.
 
@@ -34,7 +34,7 @@ Stores a message at the end of the history.
 clear(): void;
 ```
 
-Defined in: [packages/components/src/agents/types.ts:86](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L86)
+Defined in: [packages/components/src/agents/types.ts:97](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L97)
 
 Removes every stored message.
 
@@ -50,7 +50,7 @@ Removes every stored message.
 getFormattedMemory(maxTokens?): string | AgentMessage[];
 ```
 
-Defined in: [packages/components/src/agents/types.ts:84](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L84)
+Defined in: [packages/components/src/agents/types.ts:95](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L95)
 
 Returns the history prepared for a model request, optionally limited to `maxTokens`.
 
@@ -72,7 +72,7 @@ Returns the history prepared for a model request, optionally limited to `maxToke
 getMessages(): AgentMessage[];
 ```
 
-Defined in: [packages/components/src/agents/types.ts:82](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L82)
+Defined in: [packages/components/src/agents/types.ts:93](https://github.com/astack-tech/astack/blob/master/packages/components/src/agents/types.ts#L93)
 
 Returns a copy of every stored message, oldest first.
 

@@ -59,6 +59,8 @@ export interface AgentOutput {
 // @public
 export interface AgentTool {
     description: string;
+    execute?: ((args: Record<string, unknown>) => unknown) | undefined;
+    invoke?: ((args: Record<string, unknown>) => unknown) | undefined;
     name: string;
     parameters?: Record<string, unknown> | undefined;
 }

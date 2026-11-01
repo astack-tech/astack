@@ -9,9 +9,9 @@ const SCOPE = '@astack-tech';
 export const API_BASE = '/docs/api';
 
 /** Packages in the order the docs introduce them. */
-export const API_PACKAGES = ['core', 'components', 'tools', 'integrations'] as const;
+export const API_PACKAGES: readonly ApiPackage[] = ['core', 'components', 'tools', 'integrations'];
 
-export type ApiPackage = (typeof API_PACKAGES)[number];
+export type ApiPackage = 'core' | 'components' | 'tools' | 'integrations';
 
 /** Section headings for the generated folders. */
 const KIND_LABELS: Record<string, string> = {
@@ -39,7 +39,7 @@ export interface ApiPage {
 }
 
 function isApiPackage(value: string): value is ApiPackage {
-  return (API_PACKAGES as readonly string[]).includes(value);
+  return API_PACKAGES.some(pkg => pkg === value);
 }
 
 /** Converts a path of a generated file to URL segments. */

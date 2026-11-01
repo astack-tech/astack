@@ -61,7 +61,7 @@ Defined in: [packages/integrations/src/model-provider/deepseek/index.ts:39](http
 _transform($i, $o): void;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:414](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L414)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:425](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L425)
 
 Connects the `prompt` and `messages` input ports to the model.
 API errors produce a fallback value so the pipeline keeps flowing.
@@ -137,7 +137,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 chatCompletion(messages, options?): Promise<DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:317](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L317)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:327](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L327)
 
 Sends a conversation and returns the assistant reply.
 
@@ -207,7 +207,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.1.1/node\_modules/@hlang-or
 generateCompletion(prompt): Promise<string>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:300](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L300)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:310](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L310)
 
 Generates a completion for a single prompt.
 
@@ -237,7 +237,7 @@ run(input): Promise<
 | DeepseekAssistantMessage>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:406](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L406)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:417](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L417)
 
 Runs the model outside a pipeline.
 
@@ -265,7 +265,7 @@ Runs the model outside a pipeline.
 streamChatCompletion(messages, options?): AsyncGenerator<DeepseekStreamChunk>;
 ```
 
-Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:359](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L359)
+Defined in: [packages/integrations/src/model-provider/openai-compatible/index.ts:369](https://github.com/astack-tech/astack/blob/master/packages/integrations/src/model-provider/openai-compatible/index.ts#L369)
 
 Streams the assistant reply. Each chunk holds a text delta, tool-call deltas, or usage.
 

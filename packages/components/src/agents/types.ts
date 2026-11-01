@@ -60,8 +60,9 @@ export interface Message {
 export type MessageWithToolCalls = Message;
 
 /**
- * Tool shape accepted by agents. At run time, a tool must expose `invoke(args)`
- * (as in `@astack-tech/tools`) or `execute(args)`.
+ * Tool shape accepted by agents. A tool runs through `execute(args)` or, when that is
+ * absent, `invoke(args)` (as in `@astack-tech/tools`). A tool with neither is reported
+ * to the model as an error when it is called.
  */
 export interface Tool {
   /** Unique tool name. */
@@ -70,6 +71,16 @@ export interface Tool {
   description: string;
   /** JSON Schema of the arguments. */
   parameters?: Record<string, unknown> | undefined;
+  /**
+   * Runs the tool. Takes precedence over `invoke`.
+   * @param args - Arguments parsed from the model's tool call.
+   */
+  execute?: ((args: Record<string, unknown>) => unknown) | undefined;
+  /**
+   * Runs the tool when `execute` is absent.
+   * @param args - Arguments parsed from the model's tool call.
+   */
+  invoke?: ((args: Record<string, unknown>) => unknown) | undefined;
 }
 
 /**
