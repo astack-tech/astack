@@ -39,17 +39,17 @@ Defined in: [packages/core/src/component/index.ts:55](https://github.com/astack-
 
 | Property | Modifier | Type | Default value | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | `undefined` | - | `TransformNode.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:24 |
-| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.I` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:26 |
-| <a id="property-id"></a> `id` | `public` | `string` | `undefined` | - | `TransformNode.id` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:18 |
-| <a id="property-identity"></a> `identity` | `public` | `Symbol` | `undefined` | - | `TransformNode.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:25 |
+| <a id="property-flow"></a> `flow` | `public` | `Flow` \| `null` | `undefined` | - | `TransformNode.flow` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:24 |
+| <a id="property-i"></a> `I` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.I` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:26 |
+| <a id="property-id"></a> `id` | `public` | `string` | `undefined` | - | `TransformNode.id` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:18 |
+| <a id="property-identity"></a> `identity` | `public` | `Symbol` | `undefined` | - | `TransformNode.identity` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:25 |
 | <a id="property-inport"></a> `inPort` | `protected readonly` | `Port` | `undefined` | The default `in` input port. | - | [packages/core/src/component/index.ts:51](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L51) |
-| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | `undefined` | - | `TransformNode.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:23 |
-| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.O` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:27 |
-| <a id="property-opts"></a> `opts` | `public` | `object` | `undefined` | - | `TransformNode.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:19 |
+| <a id="property-isrunning"></a> `isRunning` | `public` | `boolean` | `undefined` | - | `TransformNode.isRunning` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:23 |
+| <a id="property-o"></a> `O` | `public` | (`name`) => `Port` | `undefined` | - | `TransformNode.O` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:27 |
+| <a id="property-opts"></a> `opts` | `public` | `object` | `undefined` | - | `TransformNode.opts` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:19 |
 | <a id="property-outport"></a> `outPort` | `protected readonly` | `Port` | `undefined` | The default `out` output port. A pipeline uses it to infer the endpoint. | - | [packages/core/src/component/index.ts:53](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L53) |
-| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | `undefined` | - | `TransformNode.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:22 |
-| <a id="property-type"></a> `type` | `public` | `Symbol` | `undefined` | - | `TransformNode.type` | node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:17 |
+| <a id="property-portmap"></a> `portMap` | `public` | `PortMap` | `undefined` | - | `TransformNode.portMap` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:22 |
+| <a id="property-type"></a> `type` | `public` | `Symbol` | `undefined` | - | `TransformNode.type` | node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:17 |
 | <a id="property-port"></a> `Port` | `static` | *typeof* `Port` | `HlangPort` | Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. | - | [packages/core/src/component/index.ts:49](https://github.com/astack-tech/astack/blob/master/packages/core/src/component/index.ts#L49) |
 
 ## Methods
@@ -118,7 +118,7 @@ _transform($i: Port, $o: Port) {
 attach(flow): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:31
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:31
 
 #### Parameters
 
@@ -142,7 +142,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-or
 attachPort(port): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:32
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:32
 
 #### Parameters
 
@@ -166,7 +166,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-or
 E(): Port;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:30
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:30
 
 #### Returns
 
@@ -184,7 +184,7 @@ Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-or
 executeOnce(type, ...args): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:29
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/node.d.ts:29
 
 #### Parameters
 
@@ -231,7 +231,7 @@ Processes one input outside a pipeline. The default implementation returns the i
 throw(error): void;
 ```
 
-Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.5/node\_modules/@hlang-org/runtime/lib/node/transform.d.ts:4
+Defined in: node\_modules/.pnpm/@hlang-org+runtime@1.0.7/node\_modules/@hlang-org/runtime/lib/node/transform.d.ts:4
 
 #### Parameters
 
