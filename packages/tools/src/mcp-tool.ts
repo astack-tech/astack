@@ -4,6 +4,7 @@ import type { Tool, ToolParameters } from './tool';
  * Minimal client interface that `MCPTool` needs. Adapt your MCP SDK client to it.
  */
 export interface MCPClient {
+  /** Calls `methodName` on the MCP service `serviceName`. May return a value or a promise. */
   call(serviceName: string, methodName: string, args: unknown): unknown;
 }
 

@@ -23,7 +23,7 @@ export class DefaultToolSet implements ToolSet {
   private readonly tools = new Map<string, Tool>();
 
   /**
-   * @param tools Initial tools. Later duplicates of a name are ignored.
+   * @param tools - Initial tools. Later duplicates of a name are ignored.
    */
   constructor(tools: Tool[] = []) {
     for (const tool of tools) {

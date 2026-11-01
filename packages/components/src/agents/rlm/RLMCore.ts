@@ -15,7 +15,9 @@ const EXECUTION_TIMEOUT_MS = 120_000;
  * RLM input configuration
  */
 export interface RLMInput {
+  /** Files or text that the generated code can read. */
   context: FileSystemContext;
+  /** Question to answer about the context. */
   query: string;
   /** Reserved. The depth is fixed when the RLM is constructed. */
   maxDepth?: number | undefined;
@@ -25,8 +27,11 @@ export interface RLMInput {
  * RLM execution result
  */
 export interface RLMResult {
+  /** Final answer passed to `FINAL()` by the generated code. */
   answer: string;
+  /** JavaScript that the root model generated and the sandbox ran. */
   code: string;
+  /** Recursion depth of this run. The root run reports 0. */
   depth: number;
   /** Error message when the run failed inside a pipeline. */
   error?: string | undefined;
@@ -36,8 +41,11 @@ export interface RLMResult {
  * RLM streaming chunk
  */
 export interface RLMChunk {
+  /** `code`: generated code. `execution`: sandbox console output. `answer`: the final answer. `error`: a failure. `metadata`: progress after each sub-model call. `summary`: totals at the end. */
   type: 'code' | 'execution' | 'answer' | 'error' | 'metadata' | 'summary';
+  /** Text of this chunk. Empty for `metadata` chunks. */
   content: string;
+  /** Execution statistics, on `metadata` and `summary` chunks. */
   metadata?: RLMExecutionMetadata | undefined;
 }
 
@@ -46,11 +54,17 @@ export interface RLMChunk {
  * Full prompt/result content is offloaded to temporary log files to prevent OOM
  */
 export interface SubLLMCall {
+  /** Depth of the sub-model call. Calls made by the root run have depth 1. */
   depth: number;
-  logFile: string; // Path to temporary log file containing full prompt and result
+  /** Temporary JSON file with the full prompt and result of the call. Kept outside memory to bound memory use. */
+  logFile: string;
+  /** Prompt length in characters. */
   promptLength: number;
+  /** Result length in characters. */
   resultLength: number;
+  /** Call duration in milliseconds. */
   duration: number;
+  /** Time the call finished, in milliseconds since the Unix epoch. */
   timestamp: number;
 }
 
@@ -58,14 +72,23 @@ export interface SubLLMCall {
  * RLM execution metadata
  */
 export interface RLMExecutionMetadata {
+  /** Maximum nesting depth configured for this RLM. */
   maxDepth: number;
+  /** Deepest nesting level reached during the run. */
   actualDepth: number;
+  /** Number of sub-model calls made so far. */
   subLLMCalls: number;
+  /** One record per sub-model call. */
   subLLMCallDetails: SubLLMCall[];
+  /** Total run time in milliseconds. */
   totalExecutionTime: number;
+  /** Time the root model spent generating code, in milliseconds. */
   codeGenTime: number;
+  /** Time spent running the generated code, in milliseconds. */
   replExecutionTime: number;
+  /** Total size of the context in characters. */
   contextLength: number;
+  /** Length of the generated code in characters. */
   generatedCodeLength: number;
 }
 
@@ -73,7 +96,9 @@ export interface RLMExecutionMetadata {
  * LLM provider interface for RLM
  */
 export interface LLMProvider {
+  /** Sends a prompt and resolves with the complete text response. */
   generate(prompt: string): Promise<string>;
+  /** Optional. Streams the response as text fragments. When present, `runStream()` streams generated code as it arrives. */
   generateStream?(prompt: string): AsyncGenerator<string>;
 }
 
@@ -142,7 +167,7 @@ export class RLMCore implements LLMProvider {
    *
    * All nested RLMs share the same FileSystemContext (if provided) to avoid redundant file reads.
    *
-   * For most tasks, depth=1 is sufficient. Use depth>1 only for extremely complex multi-layer analysis.
+   * For most tasks, depth=1 is sufficient. Use a greater depth only for complex multi-layer analysis.
    */
   constructor(
     rootLLM: LLMProvider,

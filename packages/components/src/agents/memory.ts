@@ -6,10 +6,12 @@ import type { Memory, Message } from './types';
 export class DefaultMemory implements Memory {
   private messages: Message[] = [];
 
+  /** Stores a message at the end of the history. */
   addMessage(message: Message): void {
     this.messages.push(message);
   }
 
+  /** Returns a copy of every stored message, oldest first. */
   getMessages(): Message[] {
     return [...this.messages];
   }
@@ -21,6 +23,7 @@ export class DefaultMemory implements Memory {
     return this.getMessages();
   }
 
+  /** Removes every stored message. */
   clear(): void {
     this.messages = [];
   }

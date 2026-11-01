@@ -2,9 +2,8 @@ import { TransformNode, Port as HlangPort } from '@hlang-org/runtime';
 import type { Subscription, Subject } from 'rxjs';
 
 /**
- * Port type
- *
- * Used to access ports by name in _transform method
+ * Port accessor passed to `Component._transform()` as `$i` and `$o`. Call it with a port
+ * name to read from an input port (`receive`) or write to an output port (`send`).
  *
  * @example
  * ```typescript
@@ -23,14 +22,14 @@ import type { Subscription, Subject } from 'rxjs';
 export type Port = (portName: string) => {
   /**
    * Receive data from port
-   * @param callback Data receive callback function
+   * @param callback - Data receive callback function
    * @returns RxJS Subscription object
    */
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters -- lets callers annotate the payload type of a port.
   receive: <T = unknown>(callback: (data: T) => void) => Subscription;
   /**
    * Send data to port
-   * @param data Data to send
+   * @param data - Data to send
    */
   send: (data: unknown) => void;
   /**
@@ -46,8 +45,11 @@ export type Port = (portName: string) => {
  * or add it to a `Pipeline`, which calls `_transform()` for reactive execution.
  */
 class Component extends TransformNode {
+  /** Port factory from the HLang runtime. `Component.Port.I(name)` and `Component.Port.O(name)` create input and output ports; call `.attach(this)` in the constructor. */
   static Port: typeof HlangPort = HlangPort;
+  /** The default `in` input port. */
   protected readonly inPort: HlangPort;
+  /** The default `out` output port. A pipeline uses it to infer the endpoint. */
   protected readonly outPort: HlangPort;
 
   constructor(opts: unknown) {
@@ -73,8 +75,8 @@ class Component extends TransformNode {
    *
    * Override this method in subclasses to implement custom data processing logic
    *
-   * @param $i Input port mapper function - call $i('portName') to get input port, then call .receive() to receive data
-   * @param $o Output port mapper function - call $o('portName') to get output port, then call .send() to send data
+   * @param $i - Input port accessor. Call `$i('portName').receive(callback)` to read data.
+   * @param $o - Output port accessor. Call `$o('portName').send(value)` to emit data.
    *
    * @example
    * Basic component with single input and output

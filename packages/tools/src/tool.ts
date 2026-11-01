@@ -2,9 +2,13 @@
  * JSON Schema object that describes the arguments of a tool.
  */
 export interface ToolParameters {
+  /** JSON Schema type of the arguments value. Tools take an object, so this is `object`. */
   type: string;
+  /** JSON Schema of each argument, keyed by argument name. */
   properties: Record<string, unknown>;
+  /** Names of the arguments the model must provide. */
   required?: string[] | undefined;
+  /** Whether arguments not listed in `properties` are allowed. */
   additionalProperties?: boolean | undefined;
   [key: string]: unknown;
 }
@@ -43,7 +47,7 @@ export interface Tool {
   parameters?: ToolParameters | undefined;
   /**
    * Runs the tool.
-   * @param args Arguments that match `parameters`.
+   * @param args - Arguments that match `parameters`.
    */
   invoke(args: Record<string, unknown>): Promise<unknown>;
 }
@@ -56,10 +60,10 @@ export type ToolFunction = (args: Record<string, unknown>) => unknown;
 /**
  * Creates a tool from a plain function.
  *
- * @param name Unique tool name.
- * @param description Description that tells the model when to use the tool.
- * @param func Implementation. Synchronous and asynchronous functions are both accepted.
- * @param parameters JSON Schema of the arguments.
+ * @param name - Unique tool name.
+ * @param description - Description that tells the model when to use the tool.
+ * @param func - Implementation. Synchronous and asynchronous functions are both accepted.
+ * @param parameters - JSON Schema of the arguments.
  */
 export function createTool(
   name: string,
