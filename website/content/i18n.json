@@ -1,0 +1,38 @@
+{
+  "en": {
+    "home": "Home",
+    "docs": "Docs",
+    "documentation": "Documentation",
+    "apiReference": "API reference",
+    "overview": "Overview",
+    "allExamples": "All examples",
+    "onThisPage": "On this page",
+    "examplesForPage": "Examples for this page",
+    "previous": "Previous",
+    "next": "Next",
+    "pagerLabel": "Documentation pages",
+    "breadcrumb": "Breadcrumb",
+    "switchLanguage": "中文",
+    "switchLanguageLabel": "Read this page in Chinese",
+    "docsTitleSuffix": "Docs",
+    "docsSiteName": "AStack docs"
+  },
+  "zh": {
+    "home": "首页",
+    "docs": "文档",
+    "documentation": "文档",
+    "apiReference": "API 参考（英文）",
+    "overview": "概览",
+    "allExamples": "全部示例",
+    "onThisPage": "本页内容",
+    "examplesForPage": "本页相关示例",
+    "previous": "上一页",
+    "next": "下一页",
+    "pagerLabel": "文档分页",
+    "breadcrumb": "面包屑导航",
+    "switchLanguage": "English",
+    "switchLanguageLabel": "Read this page in English",
+    "docsTitleSuffix": "文档",
+    "docsSiteName": "AStack 中文文档"
+  }
+}

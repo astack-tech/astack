@@ -10,7 +10,7 @@ export default defineConfig({
     environment: 'node',
     coverage: {
       provider: 'v8',
-      include: ['lib/blocks.ts', 'lib/search-query.ts', 'lib/search.ts', 'lib/well.ts'],
+      include: ['lib/blocks.ts', 'lib/i18n.ts', 'lib/search-query.ts', 'lib/search.ts', 'lib/well.ts'],
       reporter: ['text', 'json-summary'],
       thresholds: {
         lines: 90,
