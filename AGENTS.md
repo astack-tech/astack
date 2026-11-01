@@ -80,7 +80,8 @@ Website (separate install): `cd website && pnpm install` (the folder has its own
 - Each package has its own README: what it is, install, a quick start that compiles, an API table, links to docs and examples, and the package family table. A package README MUST NOT copy another package's content.
 - `pnpm turbo run check:package` MUST pass.
 - Every user-facing change needs a changeset: `pnpm changeset`. Describe what changed for users, not how.
-- Releases: `pnpm version-packages`, then `pnpm release` from `master`. Do not publish by hand.
+- Releases run in CI (`.github/workflows/release.yml`). After changesets reach `master`, the workflow opens a "Version packages" pull request against `master`. Merging it publishes the new versions with npm Trusted Publishing (OIDC, with provenance), tags `<name>@<version>` and creates GitHub releases from the changelogs; then fast-forward `dev` to `master`. `pnpm release:dry-run` shows what would be published. Do not publish by hand.
+- While `.changeset/pre.json` is in pre mode, versions publish under `beta`, and `latest` follows until the first stable release.
 
 ## 7. API documentation
 
