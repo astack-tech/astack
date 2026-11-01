@@ -1,5 +1,13 @@
 # @astack-tech/components
 
+## 0.2.0-beta.8
+
+### Patch Changes
+
+- Updated dependencies [1eb93f0]
+  - @astack-tech/core@0.2.0-beta.4
+  - @astack-tech/tools@0.2.0-beta.3
+
 ## 0.2.0-beta.7
 
 ### Patch Changes
