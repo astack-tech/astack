@@ -69,6 +69,7 @@ Website (separate install): `cd website && pnpm install` (the folder has its own
 
 - Vitest. Tests live next to the code in `src/**/__tests__/*.test.ts`.
 - Coverage thresholds per package: 90% lines, functions and statements; 85% branches. Do not lower them.
+- `pnpm test:e2e` runs the LLM examples against the real DeepSeek API with `DEEPSEEK_API_KEY`. It is not part of `verify`; `.github/workflows/e2e.yml` runs it weekly and on demand with the repository secret.
 - Tests never call the network. Mock model APIs (see `packages/integrations/src/model-provider/deepseek/__tests__`) or use fakes (see `packages/components/src/agents/__tests__/fakes.ts`).
 - Test behavior through the public API, including pipeline mode (`Pipeline.run`) for components.
 - When you fix a bug, the regression test name states the behavior, for example `keeps separate multi-output routes independent`.
