@@ -7,9 +7,10 @@
  *
  * Usage: DEEPSEEK_API_KEY=... node scripts/e2e-llm.mjs [example ...]
  */
-import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { spawnGroup, stopGroup } from './process-tree.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TIMEOUT_MS = 180_000;
@@ -26,10 +27,9 @@ if (!process.env['DEEPSEEK_API_KEY']) {
  * @param {Record<string, string>} [env] - Extra environment variables.
  */
 function start(name, env = {}) {
-  return spawn('pnpm', ['--filter', `@astack-examples/${name}`, 'start'], {
+  return spawnGroup('pnpm', ['--filter', `@astack-examples/${name}`, 'start'], {
     cwd: root,
     env: { ...process.env, ...env },
-    stdio: ['ignore', 'pipe', 'pipe'],
   });
 }
 
@@ -45,7 +45,7 @@ function runCli(name) {
     child.stdout.on('data', chunk => (output += String(chunk)));
     child.stderr.on('data', chunk => (output += String(chunk)));
     const timer = setTimeout(() => {
-      child.kill('SIGTERM');
+      stopGroup(child);
       reject(new Error(`${name}: no exit within ${String(TIMEOUT_MS / 1000)}s`));
     }, TIMEOUT_MS);
     child.on('exit', code => {
@@ -98,7 +98,7 @@ async function runHttpServer() {
     }
     console.log(`--- http-server\n${String(events.length)} events, last: completed\n`);
   } finally {
-    child.kill('SIGTERM');
+    stopGroup(child);
   }
 }
 
