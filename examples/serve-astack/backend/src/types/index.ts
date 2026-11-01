@@ -16,11 +16,11 @@ export interface ChatResponse {
   agent?: string;
   metadata?: {
     thinking?: string;
-    toolCalls?: Array<{
+    toolCalls?: {
       tool: string;
       args: Record<string, unknown>;
       result: unknown;
-    }>;
+    }[];
   };
 }
 
@@ -29,10 +29,10 @@ export type IntentType = 'chat' | 'math' | 'text';
 export interface AgentResult {
   message: string;
   thinking?: string;
-  toolCalls?: Array<{
+  toolCalls?: {
     tool: string;
     args: Record<string, unknown>;
     result: unknown;
-  }>;
+  }[];
   history: ChatMessage[];
 }

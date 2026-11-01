@@ -74,10 +74,10 @@ const getAgent = (): StreamingAgent => {
 // Bedrock request/response types
 interface BedrockRequest {
   inputText?: string;
-  messages?: Array<{
+  messages?: {
     role: 'user' | 'assistant' | 'system';
     content: string;
-  }>;
+  }[];
 }
 
 // Health check endpoint

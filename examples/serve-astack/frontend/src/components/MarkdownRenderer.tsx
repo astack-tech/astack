@@ -25,7 +25,7 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
     if (typeof children === 'string') {
       await navigator.clipboard.writeText(children);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      setTimeout(() => { setCopied(false); }, 2000);
     }
   };
 
@@ -37,8 +37,8 @@ function CodeBlock({ children, className, ...props }: CodeBlockProps) {
   return (
     <div
       className="group relative"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => { setIsHovered(true); }}
+      onMouseLeave={() => { setIsHovered(false); }}
     >
       {/* Language label and copy button */}
       <div className="flex items-center justify-between bg-neutral-800 px-4 py-2 text-xs">

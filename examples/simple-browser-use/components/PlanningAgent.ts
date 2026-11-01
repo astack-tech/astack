@@ -31,7 +31,7 @@ export class PlanningAgent extends Component {
     this.agent = new StreamingAgent({
       model: modelProvider,
       systemPrompt: this.buildPlanningPrompt(),
-    } as AgentConfig);
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -99,7 +99,7 @@ export class PlanningAgent extends Component {
             message: '',
             history: [],
             toolCalls: [],
-          } as AgentOutput);
+          });
 
         // 将计划发送到输出端口
         $o('plan').send(this.structurePlan(finalOutputNormalized.message));
@@ -122,7 +122,7 @@ export class PlanningAgent extends Component {
     try {
       const steps = rawPlan
         .split(/\n+/)
-        .filter(line => line.trim().match(/^\d+\./))
+        .filter(line => /^\d+\./.exec(line.trim()))
         .map(step => step.replace(/^\d+\.\s*/, '').trim())
         .filter(Boolean);
 

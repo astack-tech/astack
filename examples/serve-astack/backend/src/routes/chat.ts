@@ -59,7 +59,7 @@ export default async function chatRoutes(fastify: FastifyInstance) {
 
         // Convert UIMessage format to LLM format
         const llmMessages = messages.map(msg => ({
-          role: msg.role as 'user' | 'assistant' | 'system',
+          role: msg.role,
           content: msg.parts
             .filter(part => part.type === 'text')
             .map(part => part.text)

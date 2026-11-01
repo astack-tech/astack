@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 // 动态代理 API 路由 - 运行时判断后端地址
 export async function POST(request: NextRequest) {

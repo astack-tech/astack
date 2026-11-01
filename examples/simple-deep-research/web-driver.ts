@@ -1,5 +1,6 @@
 import { Component } from '@astack-tech/core';
-import { chromium, Browser, Page, BrowserContext } from 'playwright';
+import type { Browser, Page, BrowserContext } from 'playwright';
+import { chromium } from 'playwright';
 import * as cheerio from 'cheerio';
 
 /**
@@ -387,7 +388,7 @@ export default class WebDriverComponent extends Component {
     // 尝试验证 URL
     try {
       new URL(url);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
     } catch (_) {
       console.error(`[WebDriver] URL 解析失败: ${url}`);
       return `[错误] URL 解析失败: ${url}`;

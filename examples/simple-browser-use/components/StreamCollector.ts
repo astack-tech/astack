@@ -15,7 +15,7 @@ export interface StreamEvent {
  */
 export class StreamCollector extends Component {
   private buffers: Record<string, string> = {};
-  private prefixPrinted: Set<string> = new Set();
+  private prefixPrinted = new Set<string>();
 
   constructor() {
     super({});
@@ -34,7 +34,7 @@ export class StreamCollector extends Component {
         const payload: StreamEvent =
           typeof event === 'object' && 'chunk' in event
             ? { source: event.source ?? fallbackSource, chunk: event.chunk, context: event.context }
-            : { source: fallbackSource, chunk: event as StreamingChunk };
+            : { source: fallbackSource, chunk: event };
 
         this.logEvent(payload);
         $o('events').send(payload);
@@ -124,7 +124,7 @@ export class StreamCollector extends Component {
       process.stdout.write(text);
     } else {
       // Fallback: 浏览器或其他环境下直接打印
-      // eslint-disable-next-line no-console
+       
       console.log(text);
     }
   }

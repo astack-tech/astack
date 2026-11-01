@@ -51,7 +51,7 @@ function serializeElement<T>(
     // 获取元素的文本内容（清理并截断）
     let text = $el.clone().children().remove().end().text().trim();
     if (text.length > 80) {
-      text = text.substring(0, 80) + '...';
+      text = `${text.substring(0, 80)  }...`;
     }
 
     // 构建元素描述
@@ -60,7 +60,7 @@ function serializeElement<T>(
     // 添加文本内容（如果有）
     if (text) {
       elementInfo += `> ${text.replace(/\s+/g, ' ')}</${tagName}>`;
-      output += elementInfo + '\n';
+      output += `${elementInfo  }\n`;
     } else {
       // 递归处理子元素
       const children = $el.children();

@@ -5,11 +5,13 @@ import {
   type AgentInput,
   type AgentOutput,
 } from '@astack-tech/components';
-import { chromium, Browser, Page } from 'playwright';
+import type { Browser, Page } from 'playwright';
+import { chromium } from 'playwright';
+import type {
+  InteractiveElement} from '../utils/dom-annotator';
 import {
   annotateInteractiveElements,
-  removeAnnotations,
-  InteractiveElement,
+  removeAnnotations
 } from '../utils/dom-annotator';
 import { createTool } from '@astack-tech/tools';
 import type { ModelProvider } from '@astack-tech/components';
@@ -23,11 +25,11 @@ interface BrowserAgentConfig {
   waitForLoadState?: 'domcontentloaded' | 'load' | 'networkidle';
 }
 
-type DomSnapshotPayload = {
+interface DomSnapshotPayload {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   domSnapshot: { interactive: InteractiveElement[]; meta: any };
   domSnapshotSize: number;
-};
+}
 
 function safeGetString(obj: Record<string, unknown>, key: string): string {
   const value = obj[key];
@@ -100,7 +102,7 @@ export class BrowserAgent extends Component {
       systemPrompt: this.getSystemPrompt(),
       tools: this.getBrowserTools(),
       maxIterations,
-    } as AgentConfig);
+    });
   }
 
   /**
@@ -110,12 +112,12 @@ export class BrowserAgent extends Component {
     console.log('[BrowserAgent] 正在关闭浏览器资源...');
     try {
       if (this.page) {
-        await this.page.close().catch(e => console.error('[BrowserAgent] 关闭页面出错:', e));
+        await this.page.close().catch(e => { console.error('[BrowserAgent] 关闭页面出错:', e); });
         this.page = null;
       }
 
       if (this.browser) {
-        await this.browser.close().catch(e => console.error('[BrowserAgent] 关闭浏览器出错:', e));
+        await this.browser.close().catch(e => { console.error('[BrowserAgent] 关闭浏览器出错:', e); });
         this.browser = null;
       }
 
@@ -389,7 +391,7 @@ export class BrowserAgent extends Component {
               message: '',
               history: [],
               toolCalls: [],
-            } as AgentOutput);
+            });
 
           $o('result').send({
             success: true,
@@ -556,7 +558,7 @@ export class BrowserAgent extends Component {
 
             // 通过保存的端口引用发送状态更新
             // 这将触发状态组件的广播，并最终返回到 BrowserAgent
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
               console.log(`[BrowserAgent] 工具已发送状态更新`);
             } else {
@@ -623,7 +625,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `点击 ${selector} (成功)`;
 
             // 通过保存的端口引用发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
               console.log(`[BrowserAgent] 工具已发送状态更新`);
             }
@@ -669,7 +671,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `在 ${selector} 中输入文本 (成功)`;
 
             // 通过保存的端口引用发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
               console.log(`[BrowserAgent] 工具已发送状态更新`);
             }
@@ -726,7 +728,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `提取 ${selector} 元素数据`;
 
             // 通过保存的端口引用发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
               console.log(`[BrowserAgent] 工具已发送状态更新`);
             }
@@ -769,7 +771,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = '截取页面截图 (成功)';
 
             // 通过保存的端口引用发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
               console.log(`[BrowserAgent] 工具已发送状态更新`);
             }
@@ -811,7 +813,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `按键 ${key} (成功)`;
 
             // 发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
@@ -857,7 +859,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `鼠标悬停在 ${selector} 上 (成功)`;
 
             // 发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
@@ -918,11 +920,11 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `${actionDesc} (成功)`;
 
             // 发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
-            return `Successfully scrolled ${selector ? 'to element: ' + selector : pixels + ' pixels'}`;
+            return `Successfully scrolled ${selector ? `to element: ${  selector}` : `${pixels  } pixels`}`;
           } catch (error) {
             this.browserState.lastError = `滚动失败: ${error instanceof Error ? error.message : String(error)}`;
             console.error(`[BrowserAgent] ${this.browserState.lastError}`);
@@ -986,7 +988,7 @@ export class BrowserAgent extends Component {
             this.browserState.lastAction = `${actionDesc} (成功)`;
 
             // 发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
@@ -1043,7 +1045,7 @@ export class BrowserAgent extends Component {
             await this.updateBrowserState();
 
             // 发送状态更新
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
@@ -1132,7 +1134,7 @@ export class BrowserAgent extends Component {
 
             // 发送状态更新，包含交互元素分析结果
             this.browserState.lastAction = `分析并标注了 ${result.length} 个交互元素 (成功)`;
-            if (this.outputPorts && this.outputPorts.stateUpdate) {
+            if (this.outputPorts?.stateUpdate) {
               this.outputPorts.stateUpdate.send(this.browserState);
             }
 
@@ -1140,7 +1142,7 @@ export class BrowserAgent extends Component {
             return {
               message: `Found ${result.length} interactive elements on the page`,
               elements: result,
-              stats: stats,
+              stats,
               annotationsVisible: showAnnotations,
             };
           } catch (error) {

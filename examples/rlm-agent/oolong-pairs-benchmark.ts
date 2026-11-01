@@ -66,7 +66,7 @@ interface OolongPairsTask {
   name: string;
   context: string;
   query: string;
-  expectedPairs: Array<[number, number]>;
+  expectedPairs: [number, number][];
   numEntries: number;
 }
 
@@ -168,7 +168,7 @@ function createTask1(numEntries: number): OolongPairsTask {
     .sort((a, b) => a - b);
 
   // Generate all pairs (lower ID first)
-  const expectedPairs: Array<[number, number]> = [];
+  const expectedPairs: [number, number][] = [];
   for (let i = 0; i < validUsers.length; i++) {
     for (let j = i + 1; j < validUsers.length; j++) {
       expectedPairs.push([validUsers[i], validUsers[j]]);
@@ -192,9 +192,9 @@ function createTask1(numEntries: number): OolongPairsTask {
  * @param text - LLM response text
  * @returns Array of extracted user ID pairs
  */
-function extractPairs(text: string): Array<[number, number]> {
+function extractPairs(text: string): [number, number][] {
   const regex = /\((\d+),\s*(\d+)\)/g;
-  const pairs: Array<[number, number]> = [];
+  const pairs: [number, number][] = [];
   let match;
 
   while ((match = regex.exec(text)) !== null) {
@@ -219,8 +219,8 @@ function extractPairs(text: string): Array<[number, number]> {
  * @returns Evaluation metrics
  */
 function calculateMetrics(
-  predicted: Array<[number, number]>,
-  expected: Array<[number, number]>
+  predicted: [number, number][],
+  expected: [number, number][]
 ): EvaluationMetrics {
   // Convert to string sets for easy comparison
   const predSet = new Set(predicted.map(([a, b]) => `${a},${b}`));
@@ -350,7 +350,7 @@ Example 2 - Using llm_query for very large datasets:
   const testSizes = [100, 200, 500]; // Meaningful scales for O(N²) tasks
 
   for (const size of testSizes) {
-    console.log(`${'='.repeat(60)}`);
+    console.log('='.repeat(60));
     console.log(`📊 Running benchmark with ${size} entries`);
     console.log(`${'='.repeat(60)}\n`);
 

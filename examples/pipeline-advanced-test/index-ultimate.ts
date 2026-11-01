@@ -147,7 +147,7 @@ class IterativeEnhancer extends Component {
       console.log(`IterativeEnhancer: Iteration ${currentIteration}`);
 
       const enhanced = {
-        value: data.value + `_enhanced_${currentIteration}`,
+        value: `${data.value  }_enhanced_${currentIteration}`,
         iteration: currentIteration,
       };
 
@@ -274,7 +274,7 @@ class ParallelProcessorB extends Component {
  * Output: { totalOutputs: number; sum: number; sources: string[] }
  */
 class ResultAggregator extends Component {
-  private results: Array<{ processedBy: string; output: number }> = [];
+  private results: { processedBy: string; output: number }[] = [];
 
   constructor(opts: unknown) {
     super(opts);
@@ -307,7 +307,7 @@ class ResultAggregator extends Component {
  * Output 'done': sends final count when threshold reached
  */
 class LoopCounter extends Component {
-  private count: number = 0;
+  private count = 0;
   private threshold: number;
 
   constructor(opts: { threshold?: number } = {}) {
@@ -720,7 +720,7 @@ async function runUltimateTests() {
     console.log('Ultimate Mix Result:', result);
   }
 
-  console.log('\n' + '='.repeat(80));
+  console.log(`\n${  '='.repeat(80)}`);
   console.log('AStack Ultimate Test Suite - ALL TESTS COMPLETED');
   console.log('='.repeat(80));
 

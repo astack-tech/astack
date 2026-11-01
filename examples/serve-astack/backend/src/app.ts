@@ -1,5 +1,5 @@
 import Fastify from 'fastify';
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import chatRoutes from './routes/chat.js';
 
 export async function createApp() {

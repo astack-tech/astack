@@ -3,7 +3,7 @@
  * 用于在页面中注入脚本，标注可交互元素并返回结构化数据
  */
 
-import { Page } from 'playwright';
+import type { Page } from 'playwright';
 
 // 可交互元素的类型
 export interface InteractiveElement {

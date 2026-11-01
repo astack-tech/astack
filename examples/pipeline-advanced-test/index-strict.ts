@@ -322,7 +322,7 @@ async function runStrictTests() {
   const passed = results.filter(Boolean).length;
   const failed = results.length - passed;
 
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${  '='.repeat(60)}`);
   console.log('Test Summary');
   console.log('-'.repeat(60));
   console.log(`Passed: ${passed}/${results.length}`);

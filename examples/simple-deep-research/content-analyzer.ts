@@ -1,5 +1,5 @@
 import { Component } from '@astack-tech/core';
-import { SearchResultItem } from './web-driver';
+import type { SearchResultItem } from './web-driver';
 
 /**
  * 内容分析组件配置
@@ -85,7 +85,7 @@ class ContentAnalyzer extends Component {
   private maxContentLength: number;
 
   // 存储页面内容的缓存
-  private contentCache: Map<string, string> = new Map();
+  private contentCache = new Map<string, string>();
 
   constructor(config: ContentAnalyzerConfig = {}) {
     super({});
@@ -274,7 +274,7 @@ class ContentAnalyzer extends Component {
         const truncatedContent = content.substring(0, this.maxContentLength);
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        allContent += truncatedContent + '\n\n';
+        allContent += `${truncatedContent  }\n\n`;
         sources.push(url);
       }
     }
@@ -332,7 +332,7 @@ class ContentAnalyzer extends Component {
     sections.push({
       title: '研究背景',
       content: `关于${topic}的研究已经收集了多个来源的信息。本报告将对这些信息进行整理和分析。`,
-      sources: sources,
+      sources,
     });
 
     // 生成报告
@@ -426,7 +426,7 @@ class ContentAnalyzer extends Component {
    */
   async run(input: {
     searchResults?: SearchResultItem[];
-    pageContents?: Array<{ url: string; content: string }>;
+    pageContents?: { url: string; content: string }[];
     topic: string;
   }): Promise<ResearchReport> {
     const { searchResults = [], pageContents = [], topic } = input;

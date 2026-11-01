@@ -1,13 +1,15 @@
 {
   "name": "rlm-agent",
   "version": "0.1.0",
+  "private": true,
   "description": "RLM Agent example with long context processing",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "tsx index.ts",
     "analyze": "tsx analyze-codebase.ts",
-    "benchmark": "tsx oolong-pairs-benchmark.ts"
+    "benchmark": "tsx oolong-pairs-benchmark.ts",
+    "check-types": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@astack-tech/components": "workspace:*",

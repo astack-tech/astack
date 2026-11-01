@@ -36,9 +36,9 @@ function analyzeMessageType(
       typeof item === 'object' &&
       item !== null &&
       'type' in item &&
-      ((item as any).type === 'tool_result' ||
-        (item as any).type === 'iteration_start' ||
-        (item as any).type === 'thinking')
+      ((item).type === 'tool_result' ||
+        (item).type === 'iteration_start' ||
+        (item).type === 'thinking')
   );
 
   if (hasAgentData) return 'agent';
@@ -90,9 +90,9 @@ function ThinkingIndicator() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prev => (prev.length >= 3 ? '' : prev + '.'));
+      setDots(prev => (prev.length >= 3 ? '' : `${prev  }.`));
     }, 400);
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); };
   }, []);
 
   return (
@@ -113,13 +113,13 @@ function parseAIResponse(content: string, messageType: string) {
 
   if (messageType === 'math') {
     // 尝试提取数学计算信息
-    const mathMatch = content.match(/计算[：:]?\s*(.+?)\s*[=＝]\s*(.+?)(?:\n|$)/);
+    const mathMatch = /计算[：:]?\s*(.+?)\s*[=＝]\s*(.+?)(?:\n|$)/.exec(content);
     if (mathMatch) {
       const expression = mathMatch[1].trim();
       const result = mathMatch[2].trim();
 
       // 提取计算步骤（如果有的话）
-      const stepsMatch = content.match(/步骤[：:]?\s*([\s\S]*?)(?:\n\n|$)/);
+      const stepsMatch = /步骤[：:]?\s*([\s\S]*?)(?:\n\n|$)/.exec(content);
       const steps = stepsMatch ? stepsMatch[1].split('\n').filter(s => s.trim()) : undefined;
 
       components.push(
@@ -128,17 +128,17 @@ function parseAIResponse(content: string, messageType: string) {
     }
   } else if (messageType === 'analysis') {
     // 尝试提取文本分析信息
-    const textMatch = content.match(/(?:分析文本|原文)[：:]?\s*(.+?)(?:\n|$)/);
+    const textMatch = /(?:分析文本|原文)[：:]?\s*(.+?)(?:\n|$)/.exec(content);
     if (textMatch) {
       const text = textMatch[1].trim();
 
       // 提取统计信息
-      const wordCountMatch = content.match(/词数[：:]?\s*(\d+)/);
-      const charCountMatch = content.match(/字符数[：:]?\s*(\d+)/);
-      const sentencesMatch = content.match(/句子数[：:]?\s*(\d+)/);
+      const wordCountMatch = /词数[：:]?\s*(\d+)/.exec(content);
+      const charCountMatch = /字符数[：:]?\s*(\d+)/.exec(content);
+      const sentencesMatch = /句子数[：:]?\s*(\d+)/.exec(content);
 
       // 提取关键词
-      const keywordsMatch = content.match(/关键词[：:]?\s*(.+?)(?:\n|$)/);
+      const keywordsMatch = /关键词[：:]?\s*(.+?)(?:\n|$)/.exec(content);
       const keywords = keywordsMatch
         ? keywordsMatch[1].split(/[，,、\s]+/).filter(k => k.trim())
         : undefined;

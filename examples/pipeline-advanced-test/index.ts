@@ -208,7 +208,7 @@ async function runAdvancedTests() {
   console.log('Result - Pipeline B (length only):', resultB);
   console.log();
 
-  console.log('\n' + '='.repeat(60));
+  console.log(`\n${  '='.repeat(60)}`);
   console.log('All tests completed successfully!');
   console.log('\nAStack Pipeline Capabilities Demonstrated:');
   console.log('   - Virtual START/END nodes enable arbitrary execution paths');

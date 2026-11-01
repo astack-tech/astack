@@ -1,5 +1,5 @@
 import { Component } from '@astack-tech/core';
-import { InteractiveElement } from '../utils/dom-annotator';
+import type { InteractiveElement } from '../utils/dom-annotator';
 
 /**
  * BrowserStateComponent

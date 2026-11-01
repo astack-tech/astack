@@ -1,5 +1,5 @@
 import { Component } from '@astack-tech/core';
-import { ResearchReport } from './content-analyzer';
+import type { ResearchReport } from './content-analyzer';
 
 /**
  * 网关组件配置
@@ -153,11 +153,11 @@ class GatewayComponent extends Component {
           receive: (callback: (data: unknown) => void) => {
             // 对于 input 端口，立即使用提供的输入调用
             if (name === 'input') {
-              setTimeout(() => callback(input), 0);
+              setTimeout(() => { callback(input); }, 0);
             }
             // 对于 analyzerReady，在短暂延迟后模拟就绪信号
             if (name === 'analyzerReady') {
-              setTimeout(() => callback(true), 50);
+              setTimeout(() => { callback(true); }, 50);
             }
           },
         }),

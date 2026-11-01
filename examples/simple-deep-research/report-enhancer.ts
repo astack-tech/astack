@@ -1,5 +1,5 @@
 import { Component } from '@astack-tech/core';
-import { ResearchReport } from './content-analyzer';
+import type { ResearchReport } from './content-analyzer';
 
 // 定义 Message 接口，避免依赖路径问题
 interface Message {
@@ -134,18 +134,18 @@ class ReportEnhancer extends Component {
       let responseContent: {
         title?: string;
         summary?: string;
-        sections?: Array<{
+        sections?: {
           title: string;
           content: string;
-        }>;
+        }[];
       };
 
       try {
         responseContent = JSON.parse(llmResponse.content);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+         
       } catch (_) {
         // 如果不是有效的 JSON，尝试从文本中提取 JSON 部分
-        const jsonMatch = llmResponse.content.match(/\{[\s\S]*\}/);
+        const jsonMatch = /\{[\s\S]*\}/.exec(llmResponse.content);
         if (jsonMatch) {
           responseContent = JSON.parse(jsonMatch[0]);
         } else {
@@ -177,7 +177,7 @@ class ReportEnhancer extends Component {
       // 如果处理失败，返回原始报告
       return {
         ...report,
-        summary: report.summary + '\n\n(注: AI 增强失败，显示原始报告内容)',
+        summary: `${report.summary  }\n\n(注: AI 增强失败，显示原始报告内容)`,
       };
     }
   }

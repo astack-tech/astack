@@ -1,7 +1,8 @@
 import { Pipeline } from '@astack-tech/core';
 import { ModelProvider } from '@astack-tech/integrations';
 import WebDriverComponent from './web-driver';
-import ContentAnalyzer, { ResearchReport, ReportSection } from './content-analyzer';
+import type { ResearchReport, ReportSection } from './content-analyzer';
+import ContentAnalyzer from './content-analyzer';
 import ReportEnhancer from './report-enhancer';
 import GatewayComponent from './gateway';
 import DataRelayComponent from './data-relay';
@@ -147,6 +148,6 @@ const topic = process.argv[2] || '人工智能在医疗领域的应用';
 
 // 运行深度研究
 runSimpleDeepResearch(topic, apiKey)
-  .then(() => console.log('研究完成!'))
-  .catch(err => console.error('程序运行错误: ', err))
+  .then(() => { console.log('研究完成!'); })
+  .catch(err => { console.error('程序运行错误: ', err); })
   .finally(() => process.exit(0));
