@@ -1,32 +1,32 @@
 # Website content map
 
-The redesign keeps the original landing-page subjects and navigation destinations. It adds streaming, recursive language models, and source-based setup corrections.
+Where each subject of the website lives since the board redesign of 1 November 2026. The copy is unchanged; the sections were rebuilt.
 
-| Original content                                      | Location after redesign                                        |
-| ----------------------------------------------------- | -------------------------------------------------------------- |
-| Beta notice, release notes, install command           | Announcement, hero, and quick start                            |
-| GitHub and star count                                 | Main navigation; count falls back when offline                 |
-| Framework summary and HLang foundation                | Hero, features, and computation model                          |
-| Monadic component system                              | Features and Component tab                                     |
-| Data flow paradigm                                    | Features and architecture diagram                              |
-| Dual execution modes                                  | Features and Component tab                                     |
-| Type-safe ports                                       | Features, examples, and comparison                             |
-| Modular packages                                      | Features and both READMEs                                      |
-| OpenAI-compatible model integration                   | Features and quick start                                       |
-| Component example and port diagram                    | Component tab and hero diagram                                 |
-| Pipeline example and three execution modes            | Pipeline tab and both READMEs                                  |
-| Agent loop, tools, context, iteration limit           | Agent tab and execution preview                                |
-| Monadic laws, direct connections, reactive streams    | Computation model principles                                   |
-| npm, Yarn, and pnpm commands                          | Quick start selector                                           |
-| Create and run an agent                               | Quick start, including a key guard and the correct import path |
-| Technical independence and Haystack inspiration       | Comparison and both READMEs                                    |
-| Data flow, dual modes, ports, and language comparison | Comparison table                                               |
-| Original independence statement                       | Comparison, rewritten as a factual component description       |
-| Agent tools, research, RAG, multi-agent, automation   | Examples section                                               |
-| View all examples and documentation links             | Examples, quick start, and footer                              |
-| Blog list, article, metadata, pagination              | Existing routes and article content                            |
-| MIT license, copyright, section links                 | Footer                                                         |
+## Home
 
-All existing README sections, tables, Mermaid diagrams, and topic areas remain. The Banner replaces the header's square logo. The English prose uses direct language. Historical comparison claims remain with a date and scope note. Technical examples distinguish framework exports from application-defined components.
+| Subject                                         | Section                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------- |
+| Name, tagline, beta notice, release notes       | Hero name tile, with the falling well of twelve blocks                  |
+| Framework summary and HLang runtime             | Hero statement tile                                                     |
+| Install command, start link, docs link          | Hero action tile                                                        |
+| Live pipeline (`@astack-tech/core` in the page) | Hero live tile: stack blocks, see each value, read the generated code   |
+| Framework foundations                           | Foundations row                                                         |
+| Component model, data flow, execution modes     | "Everything is a component." board; data flow is a marble diagram       |
+| Named ports, packages, pluggable models         | Same board                                                              |
+| Component, Pipeline, Agent, Streaming           | "One model. Four ways to build." tabs with the example code             |
+| Explicit connections, built once, streams       | Principles row under the tabs                                           |
+| Install, run, first agent                       | "From install to first agent." steps with the package-manager selector |
+| PocketFlow and Haystack comparison              | "The graph is the framework." table and note                            |
+| Featured examples, RLM article                  | "Start with working code." board                                        |
+| Call to action, wordmark, links                 | Footer                                                                  |
 
-The source does not prove arbitrary compile-time validation of string-based pipeline connections. The port copy now describes TypeScript contracts and runtime ports separately. The old backpressure topic remains as a stream pattern, not an automatic guarantee for every component.
+## Other pages
+
+| Page                    | Contents                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `/docs/*`               | Docs navigation, article, examples and API links for the page, table of contents |
+| `/docs/api/*`           | Generated API reference (TypeDoc), with package colors                          |
+| `/examples`, `/examples/*` | Cookbook by tier; each example with its concept page and source folder       |
+| `/blog`, `/blog/*`      | Articles                                                                        |
+| `/brand`                | Mark, construction, variants, applications and downloads                        |
+| Search (⌘K, Ctrl+K, `/`) | Docs pages and sections, API reference, examples and blog                      |

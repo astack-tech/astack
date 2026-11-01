@@ -41,23 +41,130 @@ write(
     'AStack favicon'
   )
 );
-const grid =
-  '<defs><pattern id="g" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#bfc0c7" stroke-opacity=".09"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/>';
-function banner(w, h) {
-  return svg(
-    w,
-    h,
-    `${metal}<rect width="${w}" height="${h}" fill="#09090b"/>${grid}<path d="M0 ${h - 1}H${w}" stroke="#bfc0c7" stroke-opacity=".3"/><g transform="translate(78 68) scale(.55)" fill="url(#metal)">${mark}</g><text x="166" y="116" fill="#f4f4f5" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="48" letter-spacing="-2">astack</text><text x="78" y="${Math.round(h * 0.56)}" fill="#f4f4f5" font-family="Arial,Helvetica,sans-serif" font-size="${w === 1200 ? 62 : 58}" letter-spacing="-2">Everything is a component.</text><text x="80" y="${Math.round(h * 0.56) + 46}" fill="#a1a1aa" font-family="Arial,Helvetica,sans-serif" font-size="20">The composable TypeScript framework for AI applications.</text><text x="80" y="${h - 56}" fill="#bfc0c7" font-family="monospace" font-size="14">COMPONENTS → PORTS → PIPELINES</text><text x="${w - 172}" y="${h - 56}" fill="#a1a1aa" font-family="monospace" font-size="14">astack.tech</text><g transform="translate(${w - 290} 52) scale(1.75)" fill="#bfc0c7" opacity=".10">${mark}</g>`,
-    'AStack — Everything is a component. The composable TypeScript framework for AI applications.'
-  );
+// Board style (see docs/brand/README.md): square tiles on black, 8 px gaps, no hairlines,
+// Geist embedded so the text renders the same wherever the SVG is shown.
+const geist = fs
+  .readFileSync(path.join(root, 'website/app/fonts/Geist-Latin.woff2'))
+  .toString('base64');
+const font = `<style>@font-face{font-family:Geist;src:url(data:font/woff2;base64,${geist}) format('woff2');font-weight:100 900}text{font-family:Geist,Helvetica,Arial,sans-serif}</style>`;
+const C = {
+  ground: '#09090b',
+  tile: '#131316',
+  ink: '#f4f4f5',
+  ink2: '#c6c6ce',
+  muted: '#94949e',
+};
+// The six block tints of the dark theme: each hue mixed 30 % into the tile colour.
+const tints = ['#444548', '#2d3a50', '#274247', '#2d4439', '#4a3e2d', '#4c3134'];
+const esc = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+
+/**
+ * One layout for every wide brand image: the mark in a square tile, the name and the
+ * line in a text tile, and a strip of block tints that ends in the site address.
+ */
+function board(w, h, { lines, sub }) {
+  const pad = 24;
+  const gap = 8;
+  const strip = Math.round(h * 0.11);
+  const main = h - pad * 2 - gap - strip;
+  const markTile = Math.min(main, Math.round(w * 0.35));
+  const textX = pad + markTile + gap;
+  const textW = w - pad - textX;
+  const inset = Math.round(main * 0.11);
+  const scale = (markTile * 0.5) / 96;
+  const markX = pad + (markTile - 96 * scale) / 2 - 16 * scale;
+  const markY = pad + (main - 80 * scale) / 2 - 16 * scale;
+  const big = Math.round(Math.min(main * 0.19, textW / 11.6));
+  const subSize = Math.round(big * 0.36);
+  const nameSize = Math.round(big * 0.6);
+  const bottom = pad + main - inset;
+  const subY = bottom - Math.round(subSize * 0.3);
+  const lastLine = subY - Math.round(subSize * 1.9);
+  const tagline = lines
+    .map(
+      (line, i) =>
+        `<text x="${textX + inset}" y="${lastLine - (lines.length - 1 - i) * Math.round(big * 0.98)}" fill="${C.ink}" font-size="${big}" font-weight="500" letter-spacing="${(-0.055 * big).toFixed(1)}">${esc(line)}</text>`
+    )
+    .join('');
+  const unit = (w - pad * 2 - gap * 7) / 8;
+  const cells = tints
+    .map(
+      (fill, i) =>
+        `<rect x="${(pad + i * (unit + gap)).toFixed(1)}" y="${h - pad - strip}" width="${unit.toFixed(1)}" height="${strip}" fill="${fill}"/>`
+    )
+    .join('');
+  const urlX = pad + 6 * (unit + gap);
+  return [
+    font,
+    metal,
+    `<rect width="${w}" height="${h}" fill="${C.ground}"/>`,
+    `<rect x="${pad}" y="${pad}" width="${markTile}" height="${main}" fill="${C.tile}"/>`,
+    `<g transform="translate(${markX.toFixed(1)} ${markY.toFixed(1)}) scale(${scale.toFixed(3)})" fill="url(#metal)">${mark}</g>`,
+    `<rect x="${textX}" y="${pad}" width="${textW}" height="${main}" fill="${C.tile}"/>`,
+    `<text x="${textX + inset}" y="${pad + inset + nameSize}" fill="${C.ink}" font-size="${nameSize}" font-weight="600" letter-spacing="${(-0.05 * nameSize).toFixed(1)}">astack</text>`,
+    tagline,
+    `<text x="${textX + inset}" y="${subY}" fill="${C.ink2}" font-size="${subSize}" letter-spacing="${(-0.01 * subSize).toFixed(1)}">${esc(sub)}</text>`,
+    cells,
+    `<rect x="${urlX.toFixed(1)}" y="${h - pad - strip}" width="${(w - pad - urlX).toFixed(1)}" height="${strip}" fill="${C.ink}"/>`,
+    `<text x="${(urlX + 24).toFixed(1)}" y="${h - pad - strip / 2 + Math.round(strip * 0.12)}" fill="${C.ground}" font-size="${Math.round(strip * 0.34)}" font-weight="500" letter-spacing="-0.4">astack.tech</text>`,
+  ].join('');
 }
-write('assets/brand/readme-banner.svg', banner(1280, 480));
-write('website/public/brand/social-card.svg', banner(1200, 630));
+
+const tagline = ['Everything is', 'a component.'];
+write(
+  'assets/brand/readme-banner.svg',
+  svg(
+    1280,
+    480,
+    board(1280, 480, { lines: tagline, sub: 'The composable TypeScript framework for AI applications.' }),
+    'AStack — Everything is a component. The composable TypeScript framework for AI applications.'
+  )
+);
+write(
+  'website/public/brand/social-card.svg',
+  svg(
+    1200,
+    630,
+    board(1200, 630, { lines: tagline, sub: 'The composable TypeScript framework for AI applications.' }),
+    'AStack — Everything is a component. The composable TypeScript framework for AI applications.'
+  )
+);
+write(
+  'assets/brand/github-social-preview.svg',
+  svg(
+    1280,
+    640,
+    board(1280, 640, { lines: tagline, sub: 'A composable framework for building AI applications.' }),
+    'AStack — Everything is a component. A composable framework for building AI applications.'
+  )
+);
+
+// The construction drawing: the production paths on their 128 × 112 grid, beside the
+// three ideas the symbol stands for. Guides are the one place a drawing uses lines.
+const ideas = [
+  ['Compose', 'Three discrete solids. One shared grammar.'],
+  ['Connect', 'The bridge expresses a port-to-port contract.'],
+  ['Flow', 'An open apex. A system that can keep growing.'],
+];
 const skeleton = svg(
   1400,
   850,
-  `<rect width="1400" height="850" fill="#09090b"/>${grid}<text x="64" y="70" fill="#f4f4f5" font-family="Arial,sans-serif" font-size="30">Composition, made visible.</text><text x="64" y="104" fill="#a1a1aa" font-family="Arial,sans-serif" font-size="16">AStack / symbol construction and design rationale</text><g transform="translate(140 200) scale(4)" fill="#f4f4f5">${mark}<g fill="none" stroke="#bfc0c7" stroke-width=".3"><path d="M0 16H128M0 68H128M0 82H128M0 96H128M16 0V112M48 0V112M62 0V112M66 0V112M80 0V112M112 0V112"/><path d="M20 110L64 0L108 110" stroke-dasharray="1 1"/></g></g><g font-family="Arial,sans-serif" fill="#f4f4f5"><text x="820" y="240" font-size="24">01 / Compose</text><text x="820" y="274" font-size="17" fill="#a1a1aa">Three discrete solids. One shared grammar.</text><text x="820" y="378" font-size="24">02 / Connect</text><text x="820" y="412" font-size="17" fill="#a1a1aa">The bridge expresses a port-to-port contract.</text><text x="820" y="516" font-size="24">03 / Flow</text><text x="820" y="550" font-size="17" fill="#a1a1aa">An open apex. A system that can keep growing.</text></g><path d="M680 270H782M620 490H782M430 178H782V530" stroke="#bfc0c7" stroke-width="1" fill="none"/><text x="64" y="760" fill="#bfc0c7" font-family="monospace" font-size="15">128 × 112 units / 3 parts / 4-unit apex gap / 14-unit crossbar</text><text x="64" y="798" fill="#a1a1aa" font-family="Arial,sans-serif" font-size="16">The component stays simple. The composition creates the capability.</text>`,
-  'AStack logo skeleton: three components, port bridge, open apex, modular construction'
+  [
+    font,
+    `<rect width="1400" height="850" fill="${C.ground}"/>`,
+    `<rect x="24" y="24" width="792" height="802" fill="${C.tile}"/>`,
+    `<text x="64" y="96" fill="${C.ink}" font-size="40" font-weight="500" letter-spacing="-1.6">Composition, made visible.</text>`,
+    `<text x="64" y="132" fill="${C.muted}" font-size="18">AStack / symbol construction and design rationale</text>`,
+    `<g transform="translate(164 200) scale(3.8)" fill="${C.ink}">${mark}<g fill="none" stroke="#5c5c66" stroke-width=".3"><path d="M0 16H128M0 68H128M0 82H128M0 96H128M16 0V112M48 0V112M62 0V112M66 0V112M80 0V112M112 0V112"/><path d="M20 110L64 0L108 110" stroke-dasharray="1 1"/></g></g>`,
+    `<text x="64" y="786" fill="${C.muted}" font-size="17">128 × 112 units · 3 parts · 4-unit apex gap · 14-unit crossbar</text>`,
+    ideas
+      .map(([title, line], i) => {
+        const y = 24 + i * (262 + 8);
+        return `<rect x="824" y="${y}" width="552" height="262" fill="${tints[[1, 3, 5][i]]}"/><text x="864" y="${y + 196}" fill="${C.ink}" font-size="34" font-weight="500" letter-spacing="-1.2">${title}</text><text x="864" y="${y + 230}" fill="${C.ink2}" font-size="19">${esc(line)}</text>`;
+      })
+      .join(''),
+  ].join(''),
+  'AStack logo construction: three components, a port bridge and an open apex on a 128 by 112 grid'
 );
 write('assets/brand/logo-construction.svg', skeleton);
 write('website/public/brand/logo-construction.svg', skeleton);
@@ -76,15 +183,22 @@ const constructionMark = svg(
 );
 write('website/public/brand/construction-mark.svg', constructionMark);
 
+// The board images embed Geist, which librsvg (sharp) cannot load. Export their PNGs
+// from a browser instead: open each SVG at its native size and save a screenshot, as
+// listed in docs/brand/README.md.
 async function exportPngs() {
-  const sharp = require('sharp');
+  let sharp;
+  try {
+    sharp = require('sharp');
+  } catch {
+    console.log('sharp is not installed: SVGs written, logo and favicon PNGs skipped.');
+    console.log('Install it next to the script (`npm install --no-save sharp`) and run again.');
+    return;
+  }
   const exports = [
     ['assets/logo.svg', 'assets/logo.png', 240],
     ['website/public/favicon.svg', 'website/public/favicon-32.png', 32],
     ['assets/brand/avatar.svg', 'assets/brand/avatar.png', 512],
-    ['assets/brand/readme-banner.svg', 'assets/brand/readme-banner.png', 1280],
-    ['assets/brand/logo-construction.svg', 'assets/brand/concept-board.png', 1400],
-    ['website/public/brand/social-card.svg', 'website/public/brand/social-card.png', 1200],
     ['assets/brand/avatar.svg', 'website/public/apple-touch-icon.png', 180],
   ];
   for (const [source, target, width] of exports) {
@@ -118,7 +232,6 @@ async function exportPngs() {
   for (const [source, target] of [
     ['assets/logo.png', 'website/public/logo.png'],
     ['assets/brand/avatar.png', 'website/public/brand/avatar.png'],
-    ['assets/brand/readme-banner.png', 'website/public/brand/readme-banner.png'],
   ])
     fs.copyFileSync(path.join(root, source), path.join(root, target));
 }
