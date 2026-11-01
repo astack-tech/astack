@@ -27,7 +27,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dryRun = process.argv.includes('--dry-run');
 const latestFollows = process.env['LATEST_FOLLOWS_PRERELEASE'] === 'true';
 
-/** Runs a command and returns its output; the command's errors propagate. */
+/**
+ * Runs a command and returns its output; the command's errors propagate.
+ * @param {string} command - The executable.
+ * @param {string[]} args - Its arguments.
+ * @param {import('node:child_process').ExecFileSyncOptionsWithStringEncoding | object} [options] - Extra options, such as `cwd`.
+ * @returns {string}
+ */
 function run(command, args, options = {}) {
   console.log(`$ ${command} ${args.join(' ')}`);
   return execFileSync(command, args, {
@@ -37,7 +43,12 @@ function run(command, args, options = {}) {
   });
 }
 
-/** Whether npm already has this exact version. */
+/**
+ * Whether npm already has this exact version.
+ * @param {string} name - Package name.
+ * @param {string} version - Package version.
+ * @returns {boolean}
+ */
 function isPublished(name, version) {
   try {
     const out = execFileSync('npm', ['view', `${name}@${version}`, 'version'], {
@@ -74,6 +85,9 @@ try {
       .trim()
       .split('\n')
       .at(-1);
+    if (!tarball) {
+      throw new Error(`pnpm pack printed no tarball path for ${name}`);
+    }
     const publishArgs = ['publish', tarball, '--access', 'public', '--tag', tag];
     if (dryRun) {
       publishArgs.push('--dry-run');
