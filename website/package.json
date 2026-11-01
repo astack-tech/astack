@@ -18,7 +18,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@astack-tech/core": "0.2.0-beta.3",
+    "@astack-tech/core": "0.2.0-beta.4",
     "@phosphor-icons/react": "^2.1.10",
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
