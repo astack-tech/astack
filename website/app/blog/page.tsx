@@ -75,13 +75,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {totalPages > 1 && (
           <nav className="pagination" aria-label="Blog pagination">
             {currentPage > 1 ? (
-              <Link href={`/blog?page=${currentPage - 1}`}>Previous</Link>
+              <Link href={`/blog?page=${String(currentPage - 1)}`}>Previous</Link>
             ) : (
               <span aria-disabled="true">Previous</span>
             )}
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
               <Link
-                href={`/blog?page=${page}`}
+                href={`/blog?page=${String(page)}`}
                 key={page}
                 aria-current={page === currentPage ? 'page' : undefined}
               >
@@ -89,7 +89,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </Link>
             ))}
             {currentPage < totalPages ? (
-              <Link href={`/blog?page=${currentPage + 1}`}>Next</Link>
+              <Link href={`/blog?page=${String(currentPage + 1)}`}>Next</Link>
             ) : (
               <span aria-disabled="true">Next</span>
             )}

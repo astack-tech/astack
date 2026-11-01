@@ -2908,3 +2908,766 @@ h2 {
     border-radius: 5px;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Docs and examples                                                    */
+/* ------------------------------------------------------------------ */
+
+/* Shared: code frames with a copy button, produced by lib/markdown.ts. */
+.code-frame {
+  position: relative;
+  margin-block: 1.6em;
+}
+.article-content .code-frame > pre {
+  margin: 0;
+  padding-right: 56px;
+  border: 1px solid var(--line);
+}
+.code-copy {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.code-copy:hover,
+.code-copy:focus-visible {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  border-color: var(--line);
+}
+.code-copy[data-state='copied'] {
+  color: var(--color-text-primary);
+  border-color: var(--strong-line);
+}
+.code-copy[data-state='copied']::after {
+  content: 'Copied';
+  position: absolute;
+  right: calc(100% + 6px);
+  font: 11px var(--font-geist-mono, monospace);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Mermaid diagrams. The source stays visible until the diagram renders. */
+.mermaid-figure {
+  margin: 2em 0;
+  padding: 28px 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background:
+    radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0 / 18px 18px,
+    var(--color-bg-primary);
+  overflow-x: auto;
+}
+.mermaid-figure .mermaid-source {
+  margin: 0;
+  font: 12px/1.7 var(--font-geist-mono, monospace);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.mermaid-figure.is-rendered .mermaid-source {
+  display: none;
+}
+.mermaid-canvas {
+  display: flex;
+  justify-content: center;
+  min-width: min-content;
+}
+.mermaid-canvas svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-canvas svg .node rect,
+.mermaid-canvas svg .node circle,
+.mermaid-canvas svg .node polygon,
+.mermaid-canvas svg .node path {
+  stroke-width: 1px;
+}
+
+/* Heading anchors in rendered markdown. */
+.article-content h2[id],
+.article-content h3[id] {
+  scroll-margin-top: 96px;
+}
+.heading-anchor {
+  color: inherit;
+  text-decoration: none;
+}
+.heading-anchor:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--strong-line);
+  text-underline-offset: 6px;
+}
+
+/* Cookbook cards. */
+.cookbook-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.cookbook-card-frame {
+  border-radius: 10px;
+  height: 100%;
+}
+.cookbook-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 188px;
+  padding: 22px 22px 20px;
+  color: inherit;
+  text-decoration: none;
+}
+.cookbook-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.cookbook-order {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+.cookbook-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid var(--strong-line);
+  border-radius: 999px;
+  font: 10.5px var(--font-geist-mono, monospace);
+  letter-spacing: 0.04em;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+.cookbook-badge-quiet {
+  border-color: var(--line);
+  color: var(--color-text-secondary);
+}
+.cookbook-card-title {
+  font-size: 19px;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+.cookbook-card-description {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+.cookbook-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font: 12px var(--font-geist-mono, monospace);
+  color: var(--color-text-secondary);
+  transition: gap 0.15s ease;
+}
+.cookbook-card:hover .cookbook-card-link,
+.cookbook-card:focus-visible .cookbook-card-link {
+  color: var(--color-text-primary);
+  gap: 10px;
+}
+.examples-section .cookbook-grid {
+  margin-bottom: 32px;
+}
+
+/* Cookbook index page. */
+.cookbook-page {
+  padding-block: 55px 110px;
+}
+.cookbook-heading {
+  max-width: 820px;
+  margin-bottom: 72px;
+}
+.cookbook-heading nav {
+  margin-bottom: 35px;
+}
+.cookbook-heading h1 {
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 1.06;
+  letter-spacing: -0.05em;
+  margin: 0 0 24px;
+  text-wrap: balance;
+}
+.cookbook-heading h1 span {
+  color: var(--color-text-muted);
+}
+.cookbook-heading > p:not(.eyebrow) {
+  max-width: 640px;
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--color-text-secondary);
+}
+.cookbook-heading code,
+.cookbook-run code {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  background: var(--color-bg-secondary);
+}
+.cookbook-heading-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 28px;
+  margin-top: 32px;
+}
+.cookbook-tier {
+  padding-top: 40px;
+  margin-top: 40px;
+  border-top: 1px solid var(--line);
+}
+.cookbook-tier-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.cookbook-tier-heading h2 {
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+.cookbook-tier-heading p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.cookbook-run {
+  margin-top: 80px;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--color-bg-secondary);
+}
+.cookbook-run h2 {
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin: 0 0 18px;
+}
+.cookbook-run pre {
+  margin: 0 0 18px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--color-bg-primary);
+  font: 12.5px/1.9 var(--font-geist-mono, monospace);
+}
+.cookbook-run pre code {
+  background: none;
+  padding: 0;
+}
+.cookbook-run p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+}
+
+/* Example detail page. */
+.example-page {
+  padding-block: 55px 110px;
+}
+.example-heading {
+  max-width: 820px;
+  margin: 0 auto 48px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--line);
+}
+.example-heading nav {
+  margin-bottom: 35px;
+}
+.example-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  font: 12px var(--font-geist-mono, monospace);
+  color: var(--color-text-secondary);
+}
+.example-heading h1 {
+  font-size: clamp(34px, 4.5vw, 56px);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  margin: 22px 0 16px;
+}
+.example-heading > p {
+  font-size: 17px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.example-body {
+  max-width: 820px;
+  margin-inline: auto;
+}
+.example-body .article-content {
+  max-width: none;
+}
+.example-overview > :first-child {
+  margin-top: 0;
+}
+.example-code,
+.example-run {
+  margin-top: 56px;
+}
+.example-section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  margin-bottom: 14px;
+}
+.example-code h2,
+.example-run h2 {
+  font-size: 26px;
+  letter-spacing: -0.03em;
+  margin: 0;
+}
+.example-run h2 {
+  margin-bottom: 8px;
+}
+.example-section-title .mono {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+.example-source .code-frame {
+  margin: 0;
+}
+.example-source .code-frame > pre {
+  font-size: 13px;
+  line-height: 1.85;
+  background: var(--color-bg-secondary);
+  padding: 24px 56px 24px 24px;
+  border-radius: 10px;
+}
+.example-concept {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-top: 56px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.example-concept:hover {
+  border-color: var(--strong-line);
+  background: var(--color-bg-secondary);
+}
+.example-concept > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--color-text-secondary);
+}
+.example-concept > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.example-concept .eyebrow {
+  margin-bottom: 4px;
+}
+.example-concept b {
+  font-size: 18px;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+}
+.example-concept span span:last-child {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+.example-source-link {
+  display: inline-flex;
+  margin-top: 22px;
+  font-size: 13px;
+}
+
+/* Previous and next links. */
+.pager-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+}
+.pager-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+  transition: border-color 0.15s ease;
+}
+.pager-link:hover {
+  border-color: var(--strong-line);
+}
+.pager-link > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 11px var(--font-geist-mono, monospace);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.pager-link b {
+  font-size: 16px;
+  font-weight: 560;
+  overflow-wrap: anywhere;
+}
+.pager-next {
+  text-align: right;
+  align-items: flex-end;
+}
+
+/* Docs layout. */
+.docs-page {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) 200px;
+  gap: 56px;
+  align-items: start;
+  padding-block: 48px 110px;
+}
+.docs-nav-mobile {
+  display: none;
+}
+.docs-nav-desktop {
+  position: sticky;
+  top: 96px;
+  max-height: calc(100dvh - 120px);
+  overflow-y: auto;
+}
+.docs-nav-desktop .eyebrow {
+  margin-bottom: 16px;
+}
+.docs-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.docs-nav-list a {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+.docs-nav-list a .mono {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.docs-nav-list a:hover {
+  color: var(--color-text-primary);
+}
+.docs-nav-list a[aria-current='page'] {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  box-shadow: inset 2px 0 0 var(--color-text-primary);
+}
+.docs-nav-examples {
+  display: inline-flex;
+  margin: 20px 10px 0;
+  font: 12px var(--font-geist-mono, monospace);
+  color: var(--color-text-secondary);
+}
+.docs-nav-examples:hover {
+  color: var(--color-text-primary);
+}
+.docs-article {
+  min-width: 0;
+}
+.docs-heading {
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+.docs-heading nav {
+  margin-bottom: 28px;
+}
+.docs-heading h1 {
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: 1.1;
+  letter-spacing: -0.045em;
+  margin: 0 0 16px;
+}
+.docs-heading > p {
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.docs-article .article-content {
+  max-width: none;
+  margin: 0;
+}
+.docs-content > :first-child {
+  margin-top: 0;
+}
+.docs-examples {
+  margin-top: 64px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+.docs-examples h2 {
+  font-size: 24px;
+  letter-spacing: -0.03em;
+  margin: 0 0 24px;
+}
+.docs-examples .cookbook-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.docs-toc {
+  position: sticky;
+  top: 96px;
+}
+.docs-toc .eyebrow {
+  margin-bottom: 14px;
+}
+.docs-toc ol {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 14px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.docs-toc a {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+.docs-toc a:hover {
+  color: var(--color-text-primary);
+}
+.workbench-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+}
+
+@media (max-width: 1240px) {
+  .docs-page {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: 48px;
+  }
+  .docs-toc {
+    display: none;
+  }
+}
+@media (max-width: 1100px) {
+  .cookbook-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 860px) {
+  .docs-page {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-top: 20px;
+  }
+  .docs-nav-desktop {
+    display: none;
+  }
+  .docs-nav-mobile {
+    display: block;
+    position: sticky;
+    top: 72px;
+    z-index: 5;
+    margin-bottom: 28px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--color-bg-primary) 92%, transparent);
+    backdrop-filter: blur(12px);
+  }
+  .docs-nav-mobile summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 16px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .docs-nav-mobile summary::-webkit-details-marker {
+    display: none;
+  }
+  .docs-nav-mobile summary > span {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+  .docs-nav-mobile summary .eyebrow {
+    margin: 0;
+  }
+  .docs-nav-mobile summary > svg {
+    flex: none;
+    transition: transform 0.2s ease;
+  }
+  .docs-nav-mobile[open] summary > svg {
+    transform: rotate(180deg);
+  }
+  .docs-nav-mobile nav {
+    padding: 4px 8px 16px;
+    border-top: 1px solid var(--line);
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
+  }
+  .docs-nav-list a {
+    min-height: 44px;
+    align-items: center;
+  }
+  .docs-examples .cookbook-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .cookbook-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cookbook-card {
+    min-height: 0;
+  }
+  .cookbook-page,
+  .example-page {
+    padding-top: 28px;
+  }
+  .cookbook-heading {
+    margin-bottom: 48px;
+  }
+  .cookbook-run {
+    padding: 22px;
+  }
+  .pager-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pager-next {
+    text-align: left;
+    align-items: flex-start;
+  }
+  .example-source .code-frame > pre {
+    font-size: 12px;
+    padding: 18px 52px 18px 16px;
+  }
+  .example-concept {
+    padding: 20px;
+    gap: 14px;
+  }
+  .mermaid-figure {
+    padding: 20px 12px;
+  }
+}
+
+/* Tables in rendered markdown: wrap at word boundaries and keep the first column intact. */
+.article-content .article-table th,
+.article-content .article-table td {
+  overflow-wrap: normal;
+  word-break: normal;
+  vertical-align: top;
+  line-height: 1.65;
+}
+.article-content .article-table th:first-child,
+.article-content .article-table td:first-child {
+  white-space: nowrap;
+}
+.article-content .article-table td code {
+  white-space: nowrap;
+}
+
+/* Docs typography: a clear step between the page title and its sections. */
+.docs-content h2 {
+  font-size: 28px;
+  line-height: 1.25;
+  letter-spacing: -0.03em;
+  margin: 2.4em 0 0.8em;
+}
+.docs-content h3 {
+  font-size: 19px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  margin: 2em 0 0.6em;
+}
+.example-overview h2 {
+  font-size: 22px;
+  letter-spacing: -0.025em;
+  margin: 1.8em 0 0.6em;
+}
+@media (max-width: 600px) {
+  .docs-content h2 {
+    font-size: 23px;
+  }
+  .docs-content h3 {
+    font-size: 17px;
+  }
+}
+.mermaid-canvas svg .edgeLabel rect.background {
+  fill: var(--color-bg-primary);
+  opacity: 1;
+  stroke: none;
+}
+.mermaid-canvas svg .edgeLabel text {
+  fill: var(--color-text-secondary);
+  font-size: 12.5px;
+}
+@media (max-width: 800px) {
+  .comparison-table-3 {
+    min-width: 820px;
+  }
+  .comparison-table-3 caption::after {
+    content: ' · Swipe to compare';
+    color: var(--color-text-muted);
+  }
+}

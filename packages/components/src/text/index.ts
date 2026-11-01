@@ -1,127 +1,181 @@
 import { Component } from '@astack-tech/core';
-
-export interface TextSplitterConfig {
-  // 文本块的最大长度
-  chunkSize?: number;
-  // 块之间的重叠部分长度
-  overlap?: number;
-  // 分隔符，默认是段落(换行符)
-  separator?: string | RegExp;
-}
+import type { Port } from '@astack-tech/core';
 
 /**
- * TextSplitter 组件
+ * Options for `TextSplitter`.
+ */
+export interface TextSplitterConfig {
+  /** Maximum chunk length in characters (Unicode code points). Defaults to 1000. */
+  chunkSize?: number | undefined;
+  /**
+   * Characters shared by consecutive chunks. Must be smaller than `chunkSize`.
+   * Defaults to 200, capped at one fifth of `chunkSize`.
+   */
+  overlap?: number | undefined;
+  /**
+   * Segment separator. Defaults to blank lines (`/\n\s*\n/`).
+   * Pass `''` or `null` to split by characters only.
+   */
+  separator?: string | RegExp | null | undefined;
+}
+
+const DEFAULT_CHUNK_SIZE = 1000;
+const DEFAULT_OVERLAP = 200;
+const DEFAULT_SEPARATOR = /\n\s*\n/;
+const PARAGRAPH_JOINER = '\n\n';
+
+/**
+ * Splits long text into chunks for further processing.
  *
- * 将长文本分割成小块，用于进一步处理
+ * Ports:
+ * - input `text`: the text to split.
+ * - output `out`: the array of chunks.
  *
- * 输入:
- *   - text: 需要分割的文本
- *
- * 输出:
- *   - chunks: 分割后的文本块数组
+ * With a separator, whole segments are packed into chunks, and trailing segments that fit in
+ * `overlap` are repeated at the start of the next chunk. Segments longer than `chunkSize` are
+ * split by characters. Every chunk is at most `chunkSize` code points long.
  */
 class TextSplitter extends Component {
-  // 组件配置
-  private chunkSize: number;
-  private overlap: number;
-  private separator: string | RegExp | undefined;
+  private readonly chunkSize: number;
+  private readonly overlap: number;
+  private readonly separator: string | RegExp | null;
 
+  /**
+   * @throws RangeError when `chunkSize` is not a positive integer or `overlap` is not in
+   * `[0, chunkSize)`.
+   */
   constructor(config: TextSplitterConfig = {}) {
     super({});
 
-    // 设置配置参数，提供默认值
-    const { chunkSize = 1000, overlap = 200, separator = /\n\s*\n/ } = config;
+    const chunkSize = config.chunkSize ?? DEFAULT_CHUNK_SIZE;
+    const overlap = config.overlap ?? Math.min(DEFAULT_OVERLAP, Math.floor(chunkSize / 5));
+
+    if (!Number.isInteger(chunkSize) || chunkSize <= 0) {
+      throw new RangeError(`chunkSize must be a positive integer, received ${String(chunkSize)}.`);
+    }
+    if (!Number.isInteger(overlap) || overlap < 0 || overlap >= chunkSize) {
+      throw new RangeError(
+        `overlap must be an integer in [0, chunkSize), received ${String(overlap)}.`
+      );
+    }
+
     this.chunkSize = chunkSize;
     this.overlap = overlap;
-    this.separator = separator; // 默认按段落分割
+    this.separator = config.separator === undefined ? DEFAULT_SEPARATOR : config.separator;
 
-    // rename in
     Component.Port.I('text').attach(this);
   }
 
   /**
-   * 将文本分割成小块
+   * Splits `text` into chunks.
    */
   splitText(text: string): string[] {
-    if (!text || text.length === 0) {
+    if (text.length === 0) {
       return [];
     }
-
-    const { chunkSize, overlap, separator } = {
-      chunkSize: this.chunkSize,
-      overlap: this.overlap,
-      separator: this.separator,
-    };
-
-    // 如果长度小于块大小，直接返回
-    if (text.length <= chunkSize) {
+    if (codePointLength(text) <= this.chunkSize) {
       return [text];
     }
+    if (this.separator === null || this.separator === '') {
+      return this.splitByCharacters(text);
+    }
+    return this.splitBySegments(text, this.separator);
+  }
 
+  /**
+   * Splits input in standalone mode. Non-string input is converted with `String()`.
+   */
+  override run(input: unknown): string[] {
+    return this.splitText(typeof input === 'string' ? input : String(input));
+  }
+
+  /**
+   * Reads text from the `text` port and sends chunks to the `out` port.
+   */
+  override _transform($i: Port, $o: Port): void {
+    $i('text').receive((input: unknown) => {
+      $o('out').send(this.run(input));
+    });
+  }
+
+  private splitByCharacters(text: string): string[] {
+    const characters = Array.from(text);
+    const step = this.chunkSize - this.overlap;
     const chunks: string[] = [];
 
-    // 按分隔符分割
-    if (separator) {
-      const segments = text.split(separator);
-      let currentChunk = '';
-
-      for (const segment of segments) {
-        // 如果添加这个段落会超过块大小，则先保存当前块
-        if (currentChunk && currentChunk.length + segment.length > chunkSize) {
-          chunks.push(currentChunk);
-          // 保留重叠部分
-          const lastSegments = currentChunk.split(separator).slice(-2);
-          currentChunk = lastSegments.length > 0 ? lastSegments.join('\n\n') : '';
-        }
-
-        // 添加当前段落
-        if (currentChunk) {
-          currentChunk += '\n\n' + segment;
-        } else {
-          currentChunk = segment;
-        }
-      }
-
-      // 添加最后一个块
-      if (currentChunk) {
-        chunks.push(currentChunk);
+    for (let start = 0; start < characters.length; start += step) {
+      chunks.push(characters.slice(start, start + this.chunkSize).join(''));
+      if (start + this.chunkSize >= characters.length) {
+        break;
       }
     }
-    // 如果没有分隔符，按字符分割
-    else {
-      for (let i = 0; i < text.length; i += chunkSize - overlap) {
-        const chunk = text.substring(i, Math.min(i + chunkSize, text.length));
-        chunks.push(chunk);
-      }
-    }
-
     return chunks;
   }
 
-  /**
-   * 覆盖实现 Component 基类的 run 方法，Standalone 模式
-   * 处理输入文本，并返回分割后的块
-   */
-  run(input: unknown): string[] {
-    // 确保输入是字符串
-    const text = typeof input === 'string' ? input : String(input);
+  private splitBySegments(text: string, separator: string | RegExp): string[] {
+    const joiner = typeof separator === 'string' ? separator : PARAGRAPH_JOINER;
+    const joinerLength = codePointLength(joiner);
+    const chunks: string[] = [];
+    let current: string[] = [];
+    let currentLength = 0;
 
-    // 分割文本并返回结果
-    return this.splitText(text);
-  }
+    const lengthWith = (segmentLength: number): number =>
+      current.length === 0 ? segmentLength : currentLength + joinerLength + segmentLength;
 
-  /**
-   * 在流水线中运行组件
-   * @param $i 输入端口映射函数
-   * @param $o 输出端口映射函数
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _transform($i: any, $o: any) {
-    $i('text').receive((input: unknown) => {
-      const output = this.run(input);
-      $o('out').send(output);
-    });
+    const flush = (): void => {
+      chunks.push(current.join(joiner));
+      const carried: string[] = [];
+      let carriedLength = 0;
+      for (let index = current.length - 1; index >= 0; index -= 1) {
+        const segment = current[index] ?? '';
+        const nextLength =
+          carried.length === 0
+            ? codePointLength(segment)
+            : carriedLength + joinerLength + codePointLength(segment);
+        if (nextLength > this.overlap) {
+          break;
+        }
+        carried.unshift(segment);
+        carriedLength = nextLength;
+      }
+      current = carried;
+      currentLength = carriedLength;
+    };
+
+    const pieces = text
+      .split(separator)
+      .flatMap(segment =>
+        codePointLength(segment) > this.chunkSize ? this.splitByCharacters(segment) : [segment]
+      );
+
+    for (const piece of pieces) {
+      const pieceLength = codePointLength(piece);
+      if (current.length > 0 && lengthWith(pieceLength) > this.chunkSize) {
+        flush();
+        // Drop carried overlap that would still push the chunk over the limit.
+        while (current.length > 0 && lengthWith(pieceLength) > this.chunkSize) {
+          const removed = current.shift() ?? '';
+          currentLength =
+            current.length === 0 ? 0 : currentLength - codePointLength(removed) - joinerLength;
+        }
+      }
+      currentLength = lengthWith(pieceLength);
+      current.push(piece);
+    }
+
+    if (current.length > 0) {
+      chunks.push(current.join(joiner));
+    }
+    return chunks;
   }
+}
+
+function codePointLength(value: string): number {
+  let length = 0;
+  for (const _character of value) {
+    length += 1;
+  }
+  return length;
 }
 
 export default TextSplitter;

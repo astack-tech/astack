@@ -1,8 +1,15 @@
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 import vm from 'node:vm';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
+
+import { createLogger } from '../../utils/logger';
+import type { Logger } from '../../utils/logger';
+
 import { FileSystemContext } from './FileSystemContext';
+
+/** Maximum run time of generated code. */
+const EXECUTION_TIMEOUT_MS = 120_000;
 
 /**
  * RLM input configuration
@@ -10,7 +17,8 @@ import { FileSystemContext } from './FileSystemContext';
 export interface RLMInput {
   context: FileSystemContext;
   query: string;
-  maxDepth?: number;
+  /** Reserved. The depth is fixed when the RLM is constructed. */
+  maxDepth?: number | undefined;
 }
 
 /**
@@ -20,6 +28,8 @@ export interface RLMResult {
   answer: string;
   code: string;
   depth: number;
+  /** Error message when the run failed inside a pipeline. */
+  error?: string | undefined;
 }
 
 /**
@@ -28,7 +38,7 @@ export interface RLMResult {
 export interface RLMChunk {
   type: 'code' | 'execution' | 'answer' | 'error' | 'metadata' | 'summary';
   content: string;
-  metadata?: RLMExecutionMetadata;
+  metadata?: RLMExecutionMetadata | undefined;
 }
 
 /**
@@ -68,6 +78,27 @@ export interface LLMProvider {
 }
 
 /**
+ * Builds a task-specific prompt from the context and query.
+ */
+export type CustomPromptBuilder = (context: FileSystemContext, query: string) => string;
+
+/**
+ * Additional RLMCore options.
+ */
+export interface RLMCoreOptions {
+  /** Mirror sandbox console output and diagnostics to the real console. Default: false. */
+  verbose?: boolean | undefined;
+}
+
+const isPromiseLike = (value: unknown): value is PromiseLike<unknown> =>
+  typeof value === 'object' &&
+  value !== null &&
+  'then' in value &&
+  typeof value.then === 'function';
+
+const formatArgs = (args: unknown[]): string => args.map(arg => String(arg)).join(' ');
+
+/**
  * RLM Core - Recursive Language Model with REPL environment
  * Based on the paper arXiv:2512.24601
  *
@@ -86,13 +117,13 @@ export interface LLMProvider {
  * ```
  */
 export class RLMCore implements LLMProvider {
-  private rootLLM: LLMProvider;
-  private subLLM: LLMProvider;
-  private maxDepth: number;
-  private executionId: string;
-  private logDir: string;
-  private sharedContext: FileSystemContext | null = null;
-  private customPrompt?: string | ((context: FileSystemContext, query: string) => string);
+  private readonly rootLLM: LLMProvider;
+  private readonly subLLM: LLMProvider;
+  private readonly maxDepth: number;
+  private readonly logDir: string;
+  private readonly sharedContext: FileSystemContext | undefined;
+  private readonly customPrompt: string | CustomPromptBuilder | undefined;
+  private readonly logger: Logger;
 
   /**
    * Create an RLM instance with optional recursive nesting
@@ -102,6 +133,7 @@ export class RLMCore implements LLMProvider {
    * @param maxDepth - Maximum nesting depth (default: 1)
    * @param sharedContext - Shared FileSystemContext across all recursion levels (internal use)
    * @param customPrompt - Additional task-specific prompt (appended to default)
+   * @param options - Additional options, such as `verbose`
    *
    * @remarks
    * When `maxDepth > 1`, the constructor automatically creates nested RLM instances:
@@ -115,39 +147,25 @@ export class RLMCore implements LLMProvider {
   constructor(
     rootLLM: LLMProvider,
     subLLM: LLMProvider,
-    maxDepth: number = 1,
+    maxDepth = 1,
     sharedContext?: FileSystemContext,
-    customPrompt?: string | ((context: FileSystemContext, query: string) => string)
+    customPrompt?: string | CustomPromptBuilder,
+    options: RLMCoreOptions = {}
   ) {
     this.rootLLM = rootLLM;
     this.maxDepth = maxDepth;
-    this.sharedContext = sharedContext || null;
+    this.sharedContext = sharedContext;
     this.customPrompt = customPrompt;
+    this.logger = createLogger('RLM', options.verbose ?? false);
 
-    // Create unique execution ID and log directory
-    this.executionId = `rlm-${Date.now()}-${Math.random().toString(36).substring(7)}`;
-    this.logDir = path.join(os.tmpdir(), this.executionId);
+    // Each instance writes its sub-LLM call logs to its own temporary directory.
+    this.logDir = fs.mkdtempSync(path.join(os.tmpdir(), 'rlm-'));
 
-    // Create log directory
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
-    }
-
-    // Recursive construction: if maxDepth > 1, create nested RLM as subLLM
-    if (maxDepth > 1) {
-      // Create nested RLM with depth-1, sharing the same context and custom prompt
-      const nestedRLM = new RLMCore(
-        rootLLM,
-        subLLM,
-        maxDepth - 1,
-        this.sharedContext || undefined,
-        customPrompt
-      );
-      this.subLLM = nestedRLM; // Nested RLM implements LLMProvider
-    } else {
-      // Termination: use the provided base LLM
-      this.subLLM = subLLM;
-    }
+    // Recursive construction: a nested RLM with depth - 1 acts as the sub-LLM.
+    this.subLLM =
+      maxDepth > 1
+        ? new RLMCore(rootLLM, subLLM, maxDepth - 1, sharedContext, customPrompt, options)
+        : subLLM;
   }
 
   /**
@@ -162,10 +180,9 @@ export class RLMCore implements LLMProvider {
     let answer = '';
     for await (const chunk of this.runREPLStream(code, input.context, depth, subLLMCallDetails)) {
       if (chunk.type === 'answer') {
-        const match = chunk.content.match(/Answer:\s*(.+)/);
-        if (match) {
-          answer = match[1].trim();
-        }
+        // `[\s\S]` keeps multi-line answers intact.
+        const match = /Answer:\s*([\s\S]*)/.exec(chunk.content);
+        answer = match?.[1]?.trim() ?? '';
       }
     }
 
@@ -199,7 +216,7 @@ export class RLMCore implements LLMProvider {
     const codeGenStart = Date.now();
     let rawCode = '';
     const prompt = this.buildPrompt(input.context, input.query);
-    if (this.rootLLM.generateStream) {
+    if (this.rootLLM.generateStream !== undefined) {
       for await (const chunk of this.rootLLM.generateStream(prompt)) {
         rawCode += chunk;
         yield { type: 'code', content: chunk };
@@ -259,11 +276,8 @@ export class RLMCore implements LLMProvider {
    * Extract JavaScript code from LLM response
    */
   private extractCode(rawCode: string): string {
-    const codeBlockMatch = rawCode.match(/```(?:javascript|js)?\n([\s\S]*?)\n```/);
-    if (codeBlockMatch) {
-      return codeBlockMatch[1].trim();
-    }
-    return rawCode.trim();
+    const codeBlockMatch = /```(?:javascript|js)?\n([\s\S]*?)\n```/.exec(rawCode);
+    return (codeBlockMatch?.[1] ?? rawCode).trim();
   }
 
   /**
@@ -279,7 +293,7 @@ export class RLMCore implements LLMProvider {
 
 TASK: ${query}
 
-CONTEXT: ${isMemoryMode ? `In-memory data (single virtual file: __memory__.txt)` : `A file system with ${stats.totalFiles} files`}, ${stats.totalSize.toLocaleString()} bytes total.
+CONTEXT: ${isMemoryMode ? 'In-memory data (single virtual file: __memory__.txt)' : `A file system with ${String(stats.totalFiles)} files`}, ${stats.totalSize.toLocaleString()} bytes total.
 ${isMemoryMode ? `\nIMPORTANT: All data is in a single file called "__memory__.txt". Use readFile("__memory__.txt") to access it directly.` : ''}
 
 AVAILABLE TOOLS:
@@ -356,7 +370,7 @@ WRONG - using return:
 `;
 
     // Append custom task-specific prompt if provided
-    if (this.customPrompt) {
+    if (this.customPrompt !== undefined && this.customPrompt !== '') {
       const customPart =
         typeof this.customPrompt === 'function'
           ? this.customPrompt(context, query)
@@ -365,7 +379,7 @@ WRONG - using return:
       prompt += `\n\n${customPart}`;
     }
 
-    prompt += `\n\nGenerate the JavaScript code now:`;
+    prompt += '\n\nGenerate the JavaScript code now:';
 
     return prompt;
   }
@@ -381,13 +395,13 @@ WRONG - using return:
       '═'.repeat(60),
       '',
       '🔢 Recursion Statistics:',
-      `   Max Depth Configured: ${metadata.maxDepth}`,
-      `   Actual Depth Reached: ${metadata.actualDepth}`,
-      `   Sub-LLM Calls: ${metadata.subLLMCalls}`,
+      `   Max Depth Configured: ${String(metadata.maxDepth)}`,
+      `   Actual Depth Reached: ${String(metadata.actualDepth)}`,
+      `   Sub-LLM Calls: ${String(metadata.subLLMCalls)}`,
       '',
       '📏 Context & Code:',
       `   Context Length: ${metadata.contextLength.toLocaleString()} characters`,
-      `   Generated Code Length: ${metadata.generatedCodeLength} characters`,
+      `   Generated Code Length: ${String(metadata.generatedCodeLength)} characters`,
       '',
       '⏱️  Execution Time:',
       `   Total Time: ${(metadata.totalExecutionTime / 1000).toFixed(2)}s`,
@@ -399,7 +413,7 @@ WRONG - using return:
       lines.push('', '🔍 Sub-LLM Call Details:');
       metadata.subLLMCallDetails.forEach((call, idx) => {
         lines.push(
-          `   ${idx + 1}. Depth ${call.depth} | ${(call.duration / 1000).toFixed(2)}s | Prompt: ${call.promptLength} chars → Result: ${call.resultLength} chars`
+          `   ${String(idx + 1)}. Depth ${String(call.depth)} | ${(call.duration / 1000).toFixed(2)}s | Prompt: ${String(call.promptLength)} chars → Result: ${String(call.resultLength)} chars`
         );
       });
     }
@@ -424,7 +438,7 @@ WRONG - using return:
       subLLM: LLMProvider,
       prompt: string
     ): AsyncGenerator<string> {
-      if (subLLM.generateStream) {
+      if (subLLM.generateStream !== undefined) {
         yield* subLLM.generateStream(prompt);
       } else {
         yield await subLLM.generate(prompt);
@@ -435,33 +449,35 @@ WRONG - using return:
     const maxDepth = this.maxDepth;
     const subLLM = this.subLLM;
     const pendingChunks: RLMChunk[] = [];
-    const pendingYield = (chunk: RLMChunk) => {
+    const logger = this.logger;
+    const pendingYield = (chunk: RLMChunk): void => {
       pendingChunks.push(chunk);
     };
 
     // Queue for handling llm_query requests OUTSIDE VM context
-    const llmQueryQueue: Array<{
+    const llmQueryQueue: {
       prompt: string;
       resolve: (result: string) => void;
       reject: (error: Error) => void;
-    }> = [];
+    }[] = [];
 
     // Inject llm_query function - called FROM VM but processed OUTSIDE
-    const llm_query = async (prompt: string): Promise<string> => {
-      return new Promise<string>((resolve, reject) => {
+    const llm_query = (prompt: string): Promise<string> =>
+      new Promise<string>((resolve, reject) => {
         llmQueryQueue.push({ prompt, resolve, reject });
       });
-    };
 
     let queryProcessingActive: Promise<void> | null = null;
 
     // Process llm_query queue in background - CRITICAL: for await in EXTERNAL context!
-    const startQueryProcessing = () => {
-      if (queryProcessingActive) return;
+    const startQueryProcessing = (): void => {
+      if (queryProcessingActive !== null) {
+        return;
+      }
 
-      queryProcessingActive = (async () => {
-        while (llmQueryQueue.length > 0) {
-          const request = llmQueryQueue.shift()!;
+      queryProcessingActive = (async (): Promise<void> => {
+        let request = llmQueryQueue.shift();
+        while (request !== undefined) {
           const { prompt, resolve, reject } = request;
 
           try {
@@ -476,7 +492,7 @@ WRONG - using return:
 
             const callDuration = Date.now() - callStart;
             const callIndex = subLLMCallDetails.length;
-            const logFile = path.join(this.logDir, `call-${callIndex}.json`);
+            const logFile = path.join(this.logDir, `call-${String(callIndex)}.json`);
 
             fs.writeFileSync(
               logFile,
@@ -516,43 +532,40 @@ WRONG - using return:
 
             resolve(result);
           } catch (error) {
-            reject(error as Error);
+            reject(error instanceof Error ? error : new Error(String(error)));
           }
+          request = llmQueryQueue.shift();
         }
         queryProcessingActive = null;
       })();
     };
 
     // Inject FINAL function
-    const FINAL = (answer: string) => {
-      finalAnswer = String(answer); // Ensure it's always a string
+    const FINAL = (answer: unknown): void => {
+      finalAnswer = String(answer); // Generated code may pass a non-string value.
       pendingYield({
         type: 'execution',
-        content: `FINAL() called with ${finalAnswer.length} characters\n`,
+        content: `FINAL() called with ${String(finalAnswer.length)} characters\n`,
       });
     };
 
-    // Create custom console that streams output
+    // Sandbox console: streams output as chunks and mirrors it only in verbose mode.
     const customConsole = {
-      log: (...args: unknown[]) => {
-        const message = args.map(arg => String(arg)).join(' ');
-        pendingYield({ type: 'execution', content: message + '\n' });
-        console.log(...args); // Also log to actual console for debugging
+      log: (...args: unknown[]): void => {
+        pendingYield({ type: 'execution', content: `${formatArgs(args)}\n` });
+        logger.debug(...args);
       },
-      error: (...args: unknown[]) => {
-        const message = args.map(arg => String(arg)).join(' ');
-        pendingYield({ type: 'execution', content: 'Error: ' + message + '\n' });
-        console.error(...args);
+      error: (...args: unknown[]): void => {
+        pendingYield({ type: 'execution', content: `Error: ${formatArgs(args)}\n` });
+        logger.error(...args);
       },
-      warn: (...args: unknown[]) => {
-        const message = args.map(arg => String(arg)).join(' ');
-        pendingYield({ type: 'execution', content: 'Warning: ' + message + '\n' });
-        console.warn(...args);
+      warn: (...args: unknown[]): void => {
+        pendingYield({ type: 'execution', content: `Warning: ${formatArgs(args)}\n` });
+        logger.warn(...args);
       },
-      info: (...args: unknown[]) => {
-        const message = args.map(arg => String(arg)).join(' ');
-        pendingYield({ type: 'execution', content: message + '\n' });
-        console.info(...args);
+      info: (...args: unknown[]): void => {
+        pendingYield({ type: 'execution', content: `${formatArgs(args)}\n` });
+        logger.info(...args);
       },
     };
 
@@ -589,32 +602,34 @@ WRONG - using return:
       getStats: () => context.getStats(),
     };
 
-    // Create fresh VM context for this execution to prevent variable accumulation
-    // All user-defined variables from generated code will be GC'd after execution
     const vmContext = vm.createContext(sandbox);
 
     // Wrap and execute code in the fresh context
     const wrappedCode = `(async () => { ${code} })()`;
-    const scriptResult = vm.runInContext(wrappedCode, vmContext);
+    const scriptResult: unknown = vm.runInContext(wrappedCode, vmContext);
 
-    let isDone = false;
-    const executionPromise =
-      scriptResult && typeof scriptResult.then === 'function'
-        ? scriptResult.finally(() => {
-            isDone = true;
-          })
-        : Promise.resolve().then(() => {
-            isDone = true;
-          });
+    // An object, so the flag can change inside callbacks without breaking type narrowing.
+    const execution = { done: false };
+    const executionPromise = Promise.resolve(
+      isPromiseLike(scriptResult) ? scriptResult : undefined
+    ).finally(() => {
+      execution.done = true;
+    });
 
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Execution timeout after 120s')), 120000)
-    );
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutHandle = setTimeout(() => {
+        reject(new Error(`Execution timeout after ${String(EXECUTION_TIMEOUT_MS / 1000)}s`));
+      }, EXECUTION_TIMEOUT_MS);
+    });
 
-    const executionRace = Promise.race([executionPromise, timeoutPromise]);
+    // The timer must not outlive the execution, or it keeps the process alive.
+    const executionRace = Promise.race([executionPromise, timeoutPromise]).finally(() => {
+      clearTimeout(timeoutHandle);
+    });
 
     // Stream pending chunks AND process llm_query queue while execution is running
-    while (!isDone) {
+    while (!execution.done) {
       // Trigger background processing of llm_query queue (non-blocking!)
       if (llmQueryQueue.length > 0) {
         startQueryProcessing();
@@ -630,13 +645,15 @@ WRONG - using return:
 
       await Promise.race([
         new Promise(resolve => setImmediate(resolve)),
-        executionRace.catch(() => {}),
+        executionRace.catch(() => undefined),
       ]);
     }
 
     // Wait for any ongoing query processing to complete
-    if (queryProcessingActive) {
-      await queryProcessingActive;
+    // `queryProcessingActive` is reassigned inside the async processor.
+    const activeProcessing = queryProcessingActive as Promise<void> | null;
+    if (activeProcessing !== null) {
+      await activeProcessing;
     }
 
     // Flush remaining chunks
@@ -652,7 +669,7 @@ WRONG - using return:
     // Context cleanup: vmContext and all user-defined variables will be GC'd
     // after this function returns (no manual cleanup needed)
 
-    if (!finalAnswer) {
+    if (finalAnswer === '') {
       throw new Error('Code executed but FINAL() was never called');
     }
 
@@ -665,7 +682,7 @@ WRONG - using return:
    */
   async generate(prompt: string): Promise<string> {
     // Use sharedContext if available, otherwise create memory mode context
-    const context = this.sharedContext || new FileSystemContext(prompt);
+    const context = this.sharedContext ?? new FileSystemContext(prompt);
     const result = await this.execute({ context, query: prompt });
     return result.answer;
   }
@@ -674,7 +691,7 @@ WRONG - using return:
    * Implement LLMProvider.generateStream - streaming variant for recursive RLM
    */
   async *generateStream(prompt: string): AsyncGenerator<string> {
-    const context = this.sharedContext || new FileSystemContext(prompt);
+    const context = this.sharedContext ?? new FileSystemContext(prompt);
 
     for await (const chunk of this.executeStream({ context, query: prompt })) {
       // Only yield actual content, skip metadata/summary

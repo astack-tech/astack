@@ -1,5 +1,8 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+import { createLogger } from '../../utils/logger';
+import type { Logger } from '../../utils/logger';
 
 /**
  * File information without content
@@ -36,22 +39,29 @@ export interface MemoryUsage {
  */
 export interface FileSystemContextOptions {
   /**
-   * Maximum total bytes that can be read across all files
-   * Default: 50MB
+   * Not enforced. Memory use is bounded by `maxCacheSize`, and
+   * `getMemoryLimits().maxTotalRead` reports that cache size.
+   *
+   * @deprecated Use `maxCacheSize`.
    */
-  maxTotalRead?: number;
+  maxTotalRead?: number | undefined;
 
   /**
-   * Maximum size of a single file that can be read
-   * Default: 5MB
+   * Maximum size of a single file that can be read.
+   * Default: 5 MB.
    */
-  maxFileSize?: number;
+  maxFileSize?: number | undefined;
 
   /**
-   * Maximum cache size in bytes
-   * Default: 10MB
+   * Maximum cache size in bytes.
+   * Default: 10 MB.
    */
-  maxCacheSize?: number;
+  maxCacheSize?: number | undefined;
+
+  /**
+   * Log skipped files and other diagnostics. Default: false.
+   */
+  verbose?: boolean | undefined;
 }
 
 /**
@@ -64,10 +74,10 @@ const DEFAULT_MAX_CACHE_SIZE = 10 * 1024 * 1024; // 10MB
  * Simple LRU Cache implementation
  */
 class LRUCache<K, V> {
-  private cache: Map<K, { value: V; size: number }> = new Map();
-  private accessOrder: K[] = [];
+  // A Map iterates in insertion order, so re-inserting a key marks it as most recently used.
+  private readonly cache = new Map<K, { value: V; size: number }>();
   private currentSize = 0;
-  private maxSize: number;
+  private readonly maxSize: number;
 
   constructor(maxSize: number) {
     this.maxSize = maxSize;
@@ -75,39 +85,31 @@ class LRUCache<K, V> {
 
   get(key: K): V | undefined {
     const entry = this.cache.get(key);
-    if (entry) {
-      // Move to end (most recently used)
-      this.accessOrder = this.accessOrder.filter(k => k !== key);
-      this.accessOrder.push(key);
-      return entry.value;
+    if (entry === undefined) {
+      return undefined;
     }
-    return undefined;
+    this.cache.delete(key);
+    this.cache.set(key, entry);
+    return entry.value;
   }
 
   set(key: K, value: V, size: number): void {
-    // Remove old entry if exists
-    if (this.cache.has(key)) {
-      const oldEntry = this.cache.get(key)!;
-      this.currentSize -= oldEntry.size;
-      this.accessOrder = this.accessOrder.filter(k => k !== key);
+    const existing = this.cache.get(key);
+    if (existing !== undefined) {
+      this.currentSize -= existing.size;
+      this.cache.delete(key);
     }
 
-    // Evict entries if needed
-    while (this.currentSize + size > this.maxSize && this.accessOrder.length > 0) {
-      const evictKey = this.accessOrder.shift()!;
-      const evictEntry = this.cache.get(evictKey)!;
+    for (const [evictKey, evictEntry] of this.cache) {
+      if (this.currentSize + size <= this.maxSize) {
+        break;
+      }
       this.currentSize -= evictEntry.size;
       this.cache.delete(evictKey);
     }
 
-    // Add new entry
     this.cache.set(key, { value, size });
-    this.accessOrder.push(key);
     this.currentSize += size;
-  }
-
-  has(key: K): boolean {
-    return this.cache.has(key);
   }
 
   getSize(): number {
@@ -120,7 +122,6 @@ class LRUCache<K, V> {
 
   clear(): void {
     this.cache.clear();
-    this.accessOrder = [];
     this.currentSize = 0;
   }
 }
@@ -136,19 +137,15 @@ class LRUCache<K, V> {
  * Both modes enable handling massive contexts (100MB+) without OOM issues.
  */
 export class FileSystemContext {
-  private mode: 'filesystem' | 'memory';
-  private basePath: string;
-  private filePaths: Set<string>;
-  private fileMetadata: Map<string, FileInfo>;
-  private contentCache: LRUCache<string, string>;
-  private stats: ContextStats | null = null;
-
-  // Memory mode
-  private memoryContent: string | null = null;
-
-  // Memory safety tracking
+  private readonly mode: 'filesystem' | 'memory';
+  private readonly basePath: string;
+  private readonly filePaths: Set<string>;
+  private readonly fileMetadata: Map<string, FileInfo>;
+  private readonly contentCache: LRUCache<string, string>;
+  private readonly memoryContent: string;
   private readonly maxCacheSize: number;
   private readonly maxFileSize: number;
+  private readonly logger: Logger;
 
   /**
    * Create FileSystemContext from filesystem or memory
@@ -173,8 +170,9 @@ export class FileSystemContext {
     this.maxCacheSize = options?.maxCacheSize ?? DEFAULT_MAX_CACHE_SIZE;
     this.maxFileSize = options?.maxFileSize ?? DEFAULT_MAX_FILE_SIZE;
     this.contentCache = new LRUCache(this.maxCacheSize);
+    this.logger = createLogger('FileSystemContext', options?.verbose ?? false);
 
-    if (!filePaths || filePaths.length === 0) {
+    if (filePaths === undefined || filePaths.length === 0) {
       // Memory mode: treat input as string content
       this.mode = 'memory';
       this.basePath = '';
@@ -195,7 +193,7 @@ export class FileSystemContext {
       this.mode = 'filesystem';
       this.basePath = basePathOrContent;
       this.filePaths = new Set(filePaths);
-      this.memoryContent = null;
+      this.memoryContent = '';
       this.fileMetadata = this.computeMetadata();
     }
   }
@@ -210,14 +208,14 @@ export class FileSystemContext {
       const fullPath = path.join(this.basePath, relativePath);
       try {
         const stats = fs.statSync(fullPath);
-        // For now, lines is set to 0 (can be computed on-demand if needed)
+        // Line counts are computed when the file is first read.
         metadata.set(relativePath, {
           path: relativePath,
           size: stats.size,
           lines: 0, // Will be computed when file is read
         });
       } catch (error) {
-        console.warn(`Failed to read metadata for ${relativePath}:`, error);
+        this.logger.warn(`Failed to read metadata for ${relativePath}:`, error);
       }
     }
 
@@ -228,7 +226,7 @@ export class FileSystemContext {
    * List all available file paths
    */
   listFiles(): string[] {
-    return Array.from(this.filePaths);
+    return [...this.filePaths];
   }
 
   /**
@@ -242,7 +240,7 @@ export class FileSystemContext {
       if (filePath !== '__memory__.txt') {
         throw new Error(`File not found: ${filePath}`);
       }
-      return this.memoryContent!;
+      return this.memoryContent;
     }
 
     // Filesystem mode: check cache first
@@ -316,10 +314,7 @@ export class FileSystemContext {
    * Get overall context statistics
    */
   getStats(): ContextStats {
-    if (this.stats) {
-      return this.stats;
-    }
-
+    // Computed on every call so that line counts of files read later are included.
     let totalSize = 0;
     let totalLines = 0;
     const fileTypes: Record<string, number> = {};
@@ -332,18 +327,16 @@ export class FileSystemContext {
         totalLines += metadata.lines;
       }
 
-      const ext = filePath.split('.').pop() || 'unknown';
-      fileTypes[ext] = (fileTypes[ext] || 0) + 1;
+      const ext = filePath.split('.').pop() ?? 'unknown';
+      fileTypes[ext] = (fileTypes[ext] ?? 0) + 1;
     }
 
-    this.stats = {
+    return {
       totalFiles: this.filePaths.size,
       totalSize,
       totalLines,
       fileTypes,
     };
-
-    return this.stats;
   }
 
   /**
@@ -388,7 +381,7 @@ export class FileSystemContext {
    */
   getMemoryLimits(): { maxTotalRead: number; maxFileSize: number } {
     return {
-      maxTotalRead: this.maxCacheSize, // This is now maxCacheSize, not cumulative limit
+      maxTotalRead: this.maxCacheSize, // The cache size, not a cumulative read limit.
       maxFileSize: this.maxFileSize,
     };
   }

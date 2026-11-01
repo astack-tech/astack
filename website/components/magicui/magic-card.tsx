@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   motion,
   useMotionTemplate,
@@ -11,6 +11,8 @@ import {
 import { useTheme } from 'next-themes';
 
 import { cn } from '@/lib/utils';
+import { useMounted } from '@/lib/use-mounted';
+
 
 interface MagicCardBaseProps {
   children?: React.ReactNode;
@@ -74,12 +76,12 @@ export function MagicCard(props: MagicCardProps) {
   const glowBlur = isOrbMode(props) ? (props.glowBlur ?? 60) : 60;
   const glowOpacity = isOrbMode(props) ? (props.glowOpacity ?? 0.9) : 0.9;
   const { theme, systemTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => setMounted(true), []);
+  const mounted = useMounted();
 
   const isDarkTheme = useMemo(() => {
-    if (!mounted) return true;
+    if (!mounted) {
+      return true;
+    }
     const currentTheme = theme === 'system' ? systemTheme : theme;
     return currentTheme === 'dark';
   }, [theme, systemTheme, mounted]);
@@ -113,8 +115,11 @@ export function MagicCard(props: MagicCardProps) {
       const currentMode = modeRef.current;
 
       if (currentMode === 'orb') {
-        if (reason === 'enter') orbVisible.set(glowOpacityRef.current);
-        else orbVisible.set(0);
+        if (reason === 'enter') {
+          orbVisible.set(glowOpacityRef.current);
+        } else {
+          orbVisible.set(0);
+        }
         return;
       }
 
@@ -140,11 +145,17 @@ export function MagicCard(props: MagicCardProps) {
 
   useEffect(() => {
     const handleGlobalPointerOut = (e: PointerEvent) => {
-      if (!e.relatedTarget) reset('global');
+      if (!e.relatedTarget) {
+        reset('global');
+      }
     };
-    const handleBlur = () => reset('global');
+    const handleBlur = () => {
+      reset('global');
+    };
     const handleVisibility = () => {
-      if (document.visibilityState !== 'visible') reset('global');
+      if (document.visibilityState !== 'visible') {
+        reset('global');
+      }
     };
 
     window.addEventListener('pointerout', handleGlobalPointerOut);
@@ -165,8 +176,12 @@ export function MagicCard(props: MagicCardProps) {
         className
       )}
       onPointerMove={reducedMotion ? undefined : handlePointerMove}
-      onPointerLeave={() => reset('leave')}
-      onPointerEnter={() => reset('enter')}
+      onPointerLeave={() => {
+        reset('leave');
+      }}
+      onPointerEnter={() => {
+        reset('enter');
+      }}
       style={{
         background: useMotionTemplate`
           linear-gradient(var(--color-background) 0 0) padding-box,
@@ -209,9 +224,9 @@ export function MagicCard(props: MagicCardProps) {
             translateX: '-50%',
             translateY: '-50%',
             borderRadius: 9999,
-            filter: `blur(${glowBlur}px)`,
+            filter: `blur(${String(glowBlur)}px)`,
             opacity: orbVisible,
-            background: `linear-gradient(${glowAngle}deg, ${glowFrom}, ${glowTo})`,
+            background: `linear-gradient(${String(glowAngle)}deg, ${glowFrom}, ${glowTo})`,
 
             mixBlendMode: isDarkTheme ? 'screen' : 'multiply',
             willChange: 'transform, opacity',

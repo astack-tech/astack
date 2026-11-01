@@ -84,7 +84,7 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
         const endY = rectB.top - containerRect.top + rectB.height / 2 + endYOffset;
 
         const controlY = startY - curvature;
-        const d = `M ${startX},${startY} Q ${(startX + endX) / 2},${controlY} ${endX},${endY}`;
+        const d = `M ${String(startX)},${String(startY)} Q ${String((startX + endX) / 2)},${String(controlY)} ${String(endX)},${String(endY)}`;
         setPathD(d);
       }
     };
@@ -115,7 +115,7 @@ export const AnimatedBeam: React.FC<AnimatedBeamProps> = ({
       height={svgDimensions.height}
       xmlns="http://www.w3.org/2000/svg"
       className={cn('pointer-events-none absolute top-0 left-0 transform-gpu stroke-2', className)}
-      viewBox={`0 0 ${svgDimensions.width} ${svgDimensions.height}`}
+      viewBox={`0 0 ${String(svgDimensions.width)} ${String(svgDimensions.height)}`}
     >
       <path
         d={pathD}

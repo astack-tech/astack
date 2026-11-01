@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+.next
+.next-dev
+.turbo
+.pnpm-store
+pnpm-lock.yaml
+**/CHANGELOG.md
+website

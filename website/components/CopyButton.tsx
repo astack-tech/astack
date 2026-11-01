@@ -14,7 +14,9 @@ export default function CopyButton({ text, className = '', size = 'md' }: CopyBu
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
-      if (timeout.current) clearTimeout(timeout.current);
+      if (timeout.current) {
+        clearTimeout(timeout.current);
+      }
     },
     []
   );
@@ -25,8 +27,12 @@ export default function CopyButton({ text, className = '', size = 'md' }: CopyBu
     } catch {
       setStatus('error');
     }
-    if (timeout.current) clearTimeout(timeout.current);
-    timeout.current = setTimeout(() => setStatus('idle'), 2500);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
+    timeout.current = setTimeout(() => {
+      setStatus('idle');
+    }, 2500);
   }
   const label =
     status === 'copied'
@@ -37,7 +43,9 @@ export default function CopyButton({ text, className = '', size = 'md' }: CopyBu
   return (
     <button
       type="button"
-      onClick={copy}
+      onClick={() => {
+        void copy();
+      }}
       className={`copy-button ${className}`}
       aria-label={label}
       title={label}

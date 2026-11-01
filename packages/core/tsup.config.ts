@@ -1,5 +1,4 @@
 import { defineConfig } from 'tsup';
-import type { BuildOptions } from 'esbuild';
 
 export default defineConfig({
   entry: {
@@ -13,14 +12,9 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   outDir: 'dist',
-  esbuildOptions(options: BuildOptions) {
-    options.resolveExtensions = ['.ts', '.js'];
-  },
   outExtension({ format }) {
-    return {
-      js: format === 'cjs' ? '.cjs' : '.js',
-    };
+    return { js: format === 'cjs' ? '.cjs' : '.js' };
   },
   platform: 'node',
-  target: 'es2020',
+  target: 'es2022',
 });

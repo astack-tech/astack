@@ -1,120 +1,86 @@
-import { Tool, ToolParameters } from './tool';
+import type { Tool, ToolParameters } from './tool';
 
 /**
- * MCP 工具配置
+ * Minimal client interface that `MCPTool` needs. Adapt your MCP SDK client to it.
  */
-export interface MCPToolConfig {
-  /**
-   * 工具名称
-   */
-  name: string;
-
-  /**
-   * 工具描述
-   */
-  description: string;
-
-  /**
-   * MCP 服务名称
-   */
-  serviceName: string;
-
-  /**
-   * MCP 方法名称
-   */
-  methodName: string;
-
-  /**
-   * 工具参数定义
-   */
-  parameters?: ToolParameters;
-
-  /**
-   * MCP 客户端
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mcpClient: any;
-
-  /**
-   * 参数转换函数，将工具参数转换为 MCP 调用参数
-   * @param args 工具参数
-   * @returns MCP 调用参数
-   */
-  transformArgs?: (args: Record<string, unknown>) => unknown;
-
-  /**
-   * 结果转换函数，将 MCP 调用结果转换为工具结果
-   * @param result MCP 调用结果
-   * @returns 工具结果
-   */
-  transformResult?: (result: unknown) => unknown;
+export interface MCPClient {
+  call(serviceName: string, methodName: string, args: unknown): unknown;
 }
 
 /**
- * MCP 工具
- *
- * 包装 MCP 服务调用为工具
+ * Options for `MCPTool`.
+ */
+export interface MCPToolConfig {
+  /** Unique tool name. */
+  name: string;
+  /** Description that tells the model when to use the tool. */
+  description: string;
+  /** MCP service name. */
+  serviceName: string;
+  /** MCP method name. */
+  methodName: string;
+  /** Client that performs the call. */
+  mcpClient: MCPClient;
+  /** JSON Schema of the arguments. */
+  parameters?: ToolParameters | undefined;
+  /** Converts tool arguments to MCP call arguments. Defaults to the identity function. */
+  transformArgs?: ((args: Record<string, unknown>) => unknown) | undefined;
+  /** Converts the MCP result to the tool result. Defaults to the identity function. */
+  transformResult?: ((result: unknown) => unknown) | undefined;
+}
+
+const identity = <T>(value: T): T => value;
+
+/**
+ * Exposes one MCP service method as a tool.
  */
 export class MCPTool implements Tool {
-  name: string;
-  description: string;
-  parameters?: ToolParameters;
+  readonly name: string;
+  readonly description: string;
+  readonly parameters: ToolParameters | undefined;
 
-  private serviceName: string;
-  private methodName: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mcpClient: any;
-  private transformArgs: (args: Record<string, unknown>) => unknown;
-  private transformResult: (result: unknown) => unknown;
+  private readonly serviceName: string;
+  private readonly methodName: string;
+  private readonly mcpClient: MCPClient;
+  private readonly transformArgs: (args: Record<string, unknown>) => unknown;
+  private readonly transformResult: (result: unknown) => unknown;
 
-  /**
-   * 创建 MCP 工具
-   * @param config 配置参数
-   */
   constructor(config: MCPToolConfig) {
     this.name = config.name;
     this.description = config.description;
     this.parameters = config.parameters;
-
     this.serviceName = config.serviceName;
     this.methodName = config.methodName;
     this.mcpClient = config.mcpClient;
-
-    this.transformArgs = config.transformArgs || (args => args);
-    this.transformResult = config.transformResult || (result => result);
+    this.transformArgs = config.transformArgs ?? identity;
+    this.transformResult = config.transformResult ?? identity;
   }
 
   /**
-   * 执行工具
-   * @param args 工具参数
-   * @returns 执行结果
+   * Calls the MCP method.
+   *
+   * @throws Error that wraps the client error message.
    */
   async invoke(args: Record<string, unknown>): Promise<unknown> {
-    if (!this.mcpClient) {
-      throw new Error('MCP 客户端未配置');
-    }
-
-    // 转换参数
     const mcpArgs = this.transformArgs(args);
 
+    let result: unknown;
     try {
-      // 调用 MCP 服务
-      const result = await this.mcpClient.call(this.serviceName, this.methodName, mcpArgs);
-
-      // 转换结果
-      return this.transformResult(result);
+      result = await Promise.resolve(
+        this.mcpClient.call(this.serviceName, this.methodName, mcpArgs)
+      );
     } catch (error) {
       throw new Error(
-        `MCP 服务调用失败: ${error instanceof Error ? error.message : String(error)}`
+        `MCP call failed: ${error instanceof Error ? error.message : String(error)}`,
+        { cause: error }
       );
     }
+    return this.transformResult(result);
   }
 }
 
 /**
- * 创建 MCP 工具
- * @param config 配置参数
- * @returns MCP 工具实例
+ * Creates a tool that calls an MCP service method.
  */
 export function createMCPTool(config: MCPToolConfig): Tool {
   return new MCPTool(config);

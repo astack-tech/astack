@@ -1,11 +1,33 @@
 {
   "name": "@astack-tech/components",
   "version": "0.1.1-beta.5",
-  "description": "Components for the Astack AI Framework.",
+  "description": "Ready-made AStack components: Agent, StreamingAgent, RLMAgent, TextSplitter and ToolInvoker.",
+  "keywords": [
+    "astack",
+    "ai-agent",
+    "llm",
+    "agent",
+    "streaming",
+    "rlm",
+    "text-splitter",
+    "typescript"
+  ],
+  "homepage": "https://astack.tech/docs",
+  "bugs": {
+    "url": "https://github.com/astack-tech/astack/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/astack-tech/astack.git",
+    "directory": "packages/components"
+  },
+  "license": "MIT",
+  "author": "AStack contributors",
+  "type": "module",
+  "sideEffects": false,
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "type": "module",
   "exports": {
     ".": {
       "types": {
@@ -38,42 +60,42 @@
       },
       "import": "./dist/tool-invoker/index.js",
       "require": "./dist/tool-invoker/index.cjs"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
     "src",
+    "!src/**/__tests__",
+    "!src/**/*.test.ts",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "lint": "eslint src --ext .ts,.tsx",
-    "check-types": "tsc --noEmit",
-    "test": "vitest run",
-    "clean": "rimraf dist"
-  },
-  "keywords": [
-    "ai-framework",
-    "ai-agent",
-    "ai"
-  ],
-  "author": "xiaoa",
-  "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^20.11.5",
-    "eslint": "^8.56.0",
-    "rimraf": "^6.1.2",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3",
-    "vitest": "^1.2.1"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "check-types": "tsc -p tsconfig.json",
+    "test": "vitest run --coverage",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "check:package": "publint --strict && attw --pack . --profile node16"
   },
   "dependencies": {
     "@astack-tech/core": "workspace:*",
     "@astack-tech/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "@astack-tech/integrations": "workspace:*",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^5.0.5",
+    "tsup": "^9.0.0",
+    "typescript": "^5.8.3",
+    "vitest": "^5.0.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

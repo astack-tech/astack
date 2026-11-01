@@ -1,0 +1,26 @@
+{
+  "name": "@astack-examples/streaming-agent",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Print the agent's text and tool events as they happen.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/integrations": "workspace:*",
+    "@astack-tech/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Streaming agent",
+    "order": 9,
+    "tier": "llm",
+    "doc": "streaming",
+    "requiresApiKey": true
+  }
+}

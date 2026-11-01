@@ -1,0 +1,101 @@
+[
+  {
+    "name": "component",
+    "title": "Component",
+    "order": 1,
+    "tier": "basics",
+    "doc": "components",
+    "requiresApiKey": false,
+    "description": "Define a component and run it as a plain function."
+  },
+  {
+    "name": "pipeline",
+    "title": "Pipeline",
+    "order": 2,
+    "tier": "basics",
+    "doc": "pipelines",
+    "requiresApiKey": false,
+    "description": "Connect three components and let the pipeline infer the endpoint."
+  },
+  {
+    "name": "routing",
+    "title": "Routing",
+    "order": 3,
+    "tier": "basics",
+    "doc": "routing",
+    "requiresApiKey": false,
+    "description": "Send data to different branches through named output ports."
+  },
+  {
+    "name": "text-splitter",
+    "title": "Text splitter",
+    "order": 4,
+    "tier": "basics",
+    "doc": "components",
+    "requiresApiKey": false,
+    "description": "Split a document into overlapping chunks with a built-in component."
+  },
+  {
+    "name": "tools",
+    "title": "Tools",
+    "order": 5,
+    "tier": "basics",
+    "doc": "tools",
+    "requiresApiKey": false,
+    "description": "Create tools and run tool calls without a model."
+  },
+  {
+    "name": "chat",
+    "title": "Chat",
+    "order": 6,
+    "tier": "llm",
+    "doc": "model-providers",
+    "requiresApiKey": true,
+    "description": "Call DeepSeek directly and inside a pipeline."
+  },
+  {
+    "name": "workflow",
+    "title": "Workflow",
+    "order": 7,
+    "tier": "llm",
+    "doc": "pipelines",
+    "requiresApiKey": true,
+    "description": "Chain three LLM steps: outline, draft, edit."
+  },
+  {
+    "name": "agent",
+    "title": "Agent",
+    "order": 8,
+    "tier": "llm",
+    "doc": "agents",
+    "requiresApiKey": true,
+    "description": "Give a model a tool and let it decide when to call it."
+  },
+  {
+    "name": "streaming-agent",
+    "title": "Streaming agent",
+    "order": 9,
+    "tier": "llm",
+    "doc": "streaming",
+    "requiresApiKey": true,
+    "description": "Print the agent's text and tool events as they happen."
+  },
+  {
+    "name": "rlm-agent",
+    "title": "RLM agent",
+    "order": 10,
+    "tier": "advanced",
+    "doc": "rlm",
+    "requiresApiKey": true,
+    "description": "Answer a question about a source directory that is too large for one prompt."
+  },
+  {
+    "name": "http-server",
+    "title": "HTTP server",
+    "order": 11,
+    "tier": "advanced",
+    "doc": "streaming",
+    "requiresApiKey": true,
+    "description": "Serve a streaming agent over HTTP with Server-Sent Events."
+  }
+]

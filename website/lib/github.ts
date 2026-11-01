@@ -4,7 +4,7 @@ export async function fetchPublicGitHub(resource: string): Promise<Response> {
     Accept: 'application/vnd.github+json',
     'User-Agent': 'AStack-Website',
   };
-  const token = process.env.GITHUB_TOKEN;
+  const token = process.env['GITHUB_TOKEN'];
   const url = `https://api.github.com/repos/astack-tech/astack${resource}`;
   const options = { next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) };
   if (token) {
@@ -12,7 +12,9 @@ export async function fetchPublicGitHub(resource: string): Promise<Response> {
       ...options,
       headers: { ...headers, Authorization: `Bearer ${token}` },
     });
-    if (response.status !== 401) return response;
+    if (response.status !== 401) {
+      return response;
+    }
   }
   return fetch(url, { ...options, headers });
 }

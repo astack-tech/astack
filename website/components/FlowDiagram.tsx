@@ -12,6 +12,7 @@ import {
 } from '@phosphor-icons/react';
 import { AnimatedBeam } from './magicui/animated-beam';
 import { BorderBeam } from './magicui/border-beam';
+import { useMounted } from '@/lib/use-mounted';
 
 /** Local illustration of the component graph; no model request is sent. */
 export default function FlowDiagram() {
@@ -21,7 +22,10 @@ export default function FlowDiagram() {
   const tool = useRef<HTMLDivElement>(null);
   const memory = useRef<HTMLDivElement>(null);
   const output = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
+  const mounted = useMounted();
+  const prefersReduced = useReducedMotion();
+  // Read the preference only after hydration so server and client markup match.
+  const reduced = mounted && prefersReduced === true;
   const [run, setRun] = useState(0);
   const beamProps = {
     containerRef: container,
@@ -91,7 +95,12 @@ export default function FlowDiagram() {
       </div>
       <div className="flow-caption">
         <span>Components connected through ports.</span>
-        <button type="button" onClick={() => setRun(run + 1)}>
+        <button
+          type="button"
+          onClick={() => {
+            setRun(run + 1);
+          }}
+        >
           <PlayIcon size={12} weight="fill" />
           {run ? 'Replay flow' : 'Run preview'}
         </button>

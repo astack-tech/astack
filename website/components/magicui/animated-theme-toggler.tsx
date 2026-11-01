@@ -7,13 +7,7 @@ import { flushSync } from 'react-dom';
 import { cn } from '@/lib/utils';
 
 export type TransitionVariant =
-  | 'circle'
-  | 'square'
-  | 'triangle'
-  | 'diamond'
-  | 'hexagon'
-  | 'rectangle'
-  | 'star';
+  'circle' | 'square' | 'triangle' | 'diamond' | 'hexagon' | 'rectangle' | 'star';
 
 interface AnimatedThemeTogglerProps extends React.ComponentPropsWithoutRef<'button'> {
   duration?: number;
@@ -46,12 +40,12 @@ function getThemeTransitionClipPaths(
   viewportWidth: number,
   viewportHeight: number
 ): [string, string] {
-  const toX = (x: number) => `${(x / viewportWidth) * 100}%`;
-  const toY = (y: number) => `${(y / viewportHeight) * 100}%`;
+  const toX = (x: number) => `${String((x / viewportWidth) * 100)}%`;
+  const toY = (y: number) => `${String((y / viewportHeight) * 100)}%`;
   const point = (x: number, y: number) => `${toX(x)} ${toY(y)}`;
   // circle() percentage radii resolve against hypot(w, h) / sqrt(2) of the reference box.
   const toRadius = (r: number) =>
-    `${(r / (Math.hypot(viewportWidth, viewportHeight) / Math.SQRT2)) * 100}%`;
+    `${String((r / (Math.hypot(viewportWidth, viewportHeight) / Math.SQRT2)) * 100)}%`;
 
   switch (variant) {
     case 'circle':
@@ -165,15 +159,19 @@ export const AnimatedThemeToggler = ({
     return () => {
       cancelAnim();
       const root = document.documentElement;
-      if (root.dataset.magicuiThemeVt !== 'active') return;
-      delete root.dataset.magicuiThemeVt;
+      if (root.dataset['magicuiThemeVt'] !== 'active') {
+        return;
+      }
+      delete root.dataset['magicuiThemeVt'];
       root.style.removeProperty('--magicui-theme-toggle-vt-duration');
       root.style.removeProperty('--magicui-theme-vt-clip-from');
     };
   }, [cancelAnim]);
 
   useEffect(() => {
-    if (isControlled) return;
+    if (isControlled) {
+      return;
+    }
 
     const updateTheme = () => {
       setInternalIsDark(document.documentElement.classList.contains('dark'));
@@ -187,7 +185,9 @@ export const AnimatedThemeToggler = ({
       attributeFilter: ['class'],
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, [isControlled]);
 
   const toggleTheme = useCallback(() => {
@@ -195,9 +195,10 @@ export const AnimatedThemeToggler = ({
     if (
       !button ||
       isTransitioningRef.current ||
-      document.documentElement.dataset.magicuiThemeVt === 'active'
-    )
+      document.documentElement.dataset['magicuiThemeVt'] === 'active'
+    ) {
       return;
+    }
 
     // innerWidth/innerHeight (not visualViewport): percentages must resolve
     // against the snapshot reference box, which includes classic scrollbars.
@@ -248,14 +249,14 @@ export const AnimatedThemeToggler = ({
     );
 
     const root = document.documentElement;
-    root.dataset.magicuiThemeVt = 'active';
-    root.style.setProperty('--magicui-theme-toggle-vt-duration', `${duration}ms`);
+    root.dataset['magicuiThemeVt'] = 'active';
+    root.style.setProperty('--magicui-theme-toggle-vt-duration', `${String(duration)}ms`);
     // Pin the collapsed clip-path via CSS so Firefox does not paint the new
     // theme unclipped between snapshot and the ready.then() JS animation.
     root.style.setProperty('--magicui-theme-vt-clip-from', clipPath[0]);
     const cleanup = () => {
       isTransitioningRef.current = false;
-      delete root.dataset.magicuiThemeVt;
+      delete root.dataset['magicuiThemeVt'];
       root.style.removeProperty('--magicui-theme-toggle-vt-duration');
       root.style.removeProperty('--magicui-theme-vt-clip-from');
       cancelAnim();
@@ -265,32 +266,25 @@ export const AnimatedThemeToggler = ({
     const transition = document.startViewTransition(() => {
       flushSync(applyTheme);
     });
-    if (typeof transition?.finished?.finally === 'function') {
-      transition.finished.finally(cleanup).catch(() => {});
-    } else {
-      cleanup();
-    }
+    transition.finished.finally(cleanup).catch(() => undefined);
 
-    const ready = transition?.ready;
-    if (ready && typeof ready.then === 'function') {
-      ready
-        .then(() => {
-          const anim = document.documentElement.animate(
-            {
-              clipPath,
-            },
-            {
-              duration,
-              // Star: linear avoids easing overshoot that fights polygon interpolation at t→1; VT group duration is synced above.
-              easing: shape === 'star' ? 'linear' : 'ease-in-out',
-              fill: 'forwards',
-              pseudoElement: '::view-transition-new(root)',
-            }
-          );
-          activeAnimRef.current = anim;
-        })
-        .catch(() => {});
-    }
+    transition.ready
+      .then(() => {
+        const anim = document.documentElement.animate(
+          {
+            clipPath,
+          },
+          {
+            duration,
+            // Star: linear avoids easing overshoot that fights polygon interpolation at t→1; VT group duration is synced above.
+            easing: shape === 'star' ? 'linear' : 'ease-in-out',
+            fill: 'forwards',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+        activeAnimRef.current = anim;
+      })
+      .catch(() => undefined);
   }, [shape, fromCenter, duration, isDark, isControlled, onThemeChange, cancelAnim]);
 
   return (

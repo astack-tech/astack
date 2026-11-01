@@ -57,9 +57,9 @@ coverage
 tmp
 temp
 
-# claude code
-.claude/
+# Local agent state (AGENTS.md and CLAUDE.md are tracked)
+.claude/settings.local.json
+.claude/worktrees/
 .serena/
-CLAUDE.md
-AGENTS.md
 .playwright-mcp/
+.codex/

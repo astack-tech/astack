@@ -69,7 +69,7 @@ export const BorderBeam = ({
       className="pointer-events-none absolute inset-0 rounded-[inherit] border-(length:--border-beam-width) border-transparent mask-[linear-gradient(transparent,transparent),linear-gradient(#000,#000)] mask-intersect [mask-clip:padding-box,border-box]"
       style={
         {
-          '--border-beam-width': `${borderWidth}px`,
+          '--border-beam-width': `${String(borderWidth)}px`,
         } as React.CSSProperties
       }
     >
@@ -82,17 +82,17 @@ export const BorderBeam = ({
         style={
           {
             width: size,
-            offsetPath: `rect(0 auto auto 0 round ${size}px)`,
+            offsetPath: `rect(0 auto auto 0 round ${String(size)}px)`,
             '--color-from': colorFrom,
             '--color-to': colorTo,
             ...style,
           } as MotionStyle
         }
-        initial={{ offsetDistance: `${initialOffset}%` }}
+        initial={{ offsetDistance: `${String(initialOffset)}%` }}
         animate={{
           offsetDistance: reverse
-            ? [`${100 - initialOffset}%`, `${-initialOffset}%`]
-            : [`${initialOffset}%`, `${100 + initialOffset}%`],
+            ? [`${String(100 - initialOffset)}%`, `${String(-initialOffset)}%`]
+            : [`${String(initialOffset)}%`, `${String(100 + initialOffset)}%`],
         }}
         transition={{
           repeat: Infinity,

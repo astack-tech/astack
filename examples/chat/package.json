@@ -1,0 +1,25 @@
+{
+  "name": "@astack-examples/chat",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Call DeepSeek directly and inside a pipeline.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@astack-tech/core": "workspace:*",
+    "@astack-tech/integrations": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Chat",
+    "order": 6,
+    "tier": "llm",
+    "doc": "model-providers",
+    "requiresApiKey": true
+  }
+}

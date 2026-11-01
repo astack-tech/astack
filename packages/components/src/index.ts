@@ -1,26 +1,47 @@
-// TextSplitter
 export { default as TextSplitter } from './text';
+export type { TextSplitterConfig } from './text';
 
-// Agent
 export {
-  default as Agent,
+  Agent,
+  DefaultMemory,
+  FileSystemContext,
+  RLMAgent,
+  RLMCore,
   StreamingAgent,
-  type Message as AgentMessage,
-  type Tool as AgentTool,
-  type Memory,
-  type DefaultMemory,
-  type AgentConfig,
-  type AgentInput,
-  type AgentOutput,
-  type ModelProvider,
-  type StreamingChunk,
+} from './agents';
+export type {
+  AgentConfig,
+  AgentInput,
+  AgentOutput,
+  Message as AgentMessage,
+  Tool as AgentTool,
+  ContextStats,
+  CustomPromptBuilder,
+  FileInfo,
+  FileSystemContextOptions,
+  LLMProvider,
+  Memory,
+  MemoryUsage,
+  MessageWithToolCalls,
+  ModelProvider,
+  ModelProviderOptions,
+  RLMAgentConfig,
+  RLMChunk,
+  RLMCoreOptions,
+  RLMExecutionMetadata,
+  RLMInput,
+  RLMResult,
+  StreamingChunk,
+  SubLLMCall,
+  SystemPromptBuilder,
+  TokenUsage,
+  ToolCallRecord,
 } from './agents';
 
-// Tool Invoker
-export {
-  default as ToolInvoker,
-  type ToolInvokerConfig,
-  type ToolInvokerInput,
-  type ToolInvokerOutput,
-  type Message as ToolInvokerMessage,
+export { default as ToolInvoker } from './tool-invoker';
+export type {
+  Message as ToolInvokerMessage,
+  ToolInvokerConfig,
+  ToolInvokerInput,
+  ToolInvokerOutput,
 } from './tool-invoker';

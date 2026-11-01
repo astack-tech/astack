@@ -1,20 +1,25 @@
 {
-  "name": "rlm-agent",
-  "version": "0.1.0",
-  "description": "RLM Agent example with long context processing",
-  "main": "index.js",
+  "name": "@astack-examples/rlm-agent",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
+  "description": "Answer a question about a source directory that is too large for one prompt.",
   "scripts": {
     "start": "tsx index.ts",
-    "analyze": "tsx analyze-codebase.ts",
-    "benchmark": "tsx oolong-pairs-benchmark.ts"
+    "check-types": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@astack-tech/components": "workspace:*",
-    "@astack-tech/core": "workspace:*",
     "@astack-tech/integrations": "workspace:*"
   },
   "devDependencies": {
-    "tsx": "^4.7.0"
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "RLM agent",
+    "order": 10,
+    "tier": "advanced",
+    "doc": "rlm",
+    "requiresApiKey": true
   }
 }

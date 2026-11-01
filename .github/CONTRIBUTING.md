@@ -1,190 +1,41 @@
 # Contributing to AStack
 
-Thank you for your interest in contributing to AStack! This document provides guidelines and instructions for contributing to this project.
+Thank you for helping. This page is the short version. The full rules, written for people and AI agents alike, are in [AGENTS.md](../AGENTS.md). Read it before your first pull request.
 
-## Table of Contents
+## Set up
 
-- [Code of Conduct](#code-of-conduct)
-- [Development Setup](#development-setup)
-- [Project Structure](#project-structure)
-- [Contribution Workflow](#contribution-workflow)
-- [Pull Request Guidelines](#pull-request-guidelines)
-- [Coding Standards](#coding-standards)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Component Design Principles](#component-design-principles)
+Requirements: Node.js 20 or later and pnpm 10.
 
-## Code of Conduct
-
-By participating in this project, you agree to abide by our Code of Conduct. Please read it before contributing.
-
-## Development Setup
-
-### Prerequisites
-
-- Node.js >= 18
-- pnpm 10.10.0 or later
-
-### Getting Started
-
-1. Fork the repository
-2. Clone your fork:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/astack.git
-   cd astack
-   ```
-
-3. Install dependencies:
-   ```bash
-   pnpm install
-   ```
-
-4. Build the packages:
-   ```bash
-   pnpm build
-   ```
-
-5. Run tests:
-   ```bash
-   pnpm test
-   ```
-
-## Project Structure
-
-AStack is a monorepo managed with pnpm workspaces, containing the following packages:
-
-- `packages/core` - Core framework functionality
-- `packages/components` - Ready-to-use AI components
-- `packages/integrations` - Integration with third-party services
-- `packages/tools` - Utility tools for AStack applications
-- `examples` - Example applications and usage patterns
-- `apps` - Full applications built with AStack
-
-## Branching Strategy
-
-AStack uses the following branching strategy:
-
-- `dev` - Development branch where all new features and fixes are integrated
-- `master` - Stable release branch, only updated for releases
-
-## Contribution Workflow
-
-1. Ensure you have the latest `dev` branch:
-   ```bash
-   git checkout dev
-   git pull origin dev
-   ```
-
-2. Create a new branch from `dev`:
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. Make your changes
-
-4. Create a changeset to document your changes:
-   ```bash
-   pnpm changeset
-   ```
-   Follow the prompts to describe your changes. Be specific about what you've changed and why.
-
-5. Commit your changes:
-   ```bash
-   git commit -m "feat: add new feature"
-   ```
-   Please follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
-
-6. Push your branch:
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-7. Open a pull request against the `dev` branch
-
-## Pull Request Guidelines
-
-- PR title should follow the [Conventional Commits](https://www.conventionalcommits.org/) format
-- Include a reference to related issues (if applicable)
-- Include a clear description of the changes
-- Include tests for new functionality
-- Update documentation for API changes
-- Ensure all tests pass and linting is clean
-
-## Coding Standards
-
-AStack follows strict coding standards to ensure consistency and maintainability:
-
-- TypeScript for all code
-- ESLint for code linting
-- Prettier for code formatting
-
-### Key Principles
-
-- Strongly typed interfaces
-- Immutable data structures where possible
-- Functional programming patterns
-- Clear, descriptive naming
-
-Run the linter before submitting:
 ```bash
-pnpm lint
+git clone https://github.com/astack-tech/astack.git
+cd astack
+pnpm install
+pnpm build
+pnpm verify
 ```
 
-## Testing
+`pnpm verify` runs formatting, lint, type checks, tests and package checks. It must pass before you open a pull request.
 
-We strive for high test coverage. Please include tests for new features and bug fixes:
+## The rules that matter most
 
-- Unit tests for individual components
-- Integration tests for component interactions
-- E2E tests for complete workflows (where applicable)
+1. **Code is the single source of truth.** Docs, READMEs, examples and the website describe the code as it is. Update them in the same pull request as the code.
+2. **Test first.** Start every fix or feature with a test that fails. Then make it pass.
+3. **Zero warnings.** Do not weaken lint rules, compiler flags, coverage thresholds or tests.
+4. **English only** in code, comments, strings, commits and docs.
 
-Run tests with:
-```bash
-pnpm test
-```
+## Workflow
 
-## Documentation
+1. Branch from `dev`: `feat/...`, `fix/...`, `docs/...` or `chore/...`.
+2. Commit with [Conventional Commits](https://www.conventionalcommits.org/), for example `fix(core): ...`.
+3. Add a changeset for user-facing changes: `pnpm changeset`.
+4. Open the pull request against `dev`. CI must be green.
 
-Documentation is crucial for AStack:
+## Examples and docs
 
-- Add JSDoc comments to all public APIs
-- Update README files when changing package functionality
-- Add examples for new features
-- Update website documentation for significant changes
+- An example shows one concept in one `index.ts`. See [examples/README.md](../examples/README.md).
+- Docs pages are in `website/content/docs`. Link each page to its examples, and each example to its page.
+- After changing an example, run `pnpm sync:examples`.
 
-## Component Design Principles
+## Questions
 
-When contributing new components, follow these principles:
-
-### "Everything is a Component" Philosophy
-
-- Components should inherit from the `Component` base class
-- Components must have well-defined input and output ports
-- Components should be reusable and composable
-
-### Zero-Adaptation Design
-
-- Avoid unnecessary adaptation layers
-- Components should be directly compatible with their integrations
-- Keep APIs consistent across the framework
-
-### Dual Operation Modes
-
-- Support standalone operation via `run()` method
-- Support pipeline integration via the transform system
-
-### Component Interface Guidelines
-
-- Use semantic port naming
-- Follow the established naming conventions
-- Ensure proper type definitions
-- Document the purpose and behavior of each port
-
-## Getting Help
-
-If you have questions or need help, you can:
-
-- Open an issue with your question
-- Reach out to the maintainers
-
-Thank you for contributing to AStack!
+Use [GitHub Discussions](https://github.com/astack-tech/astack/discussions). Report security issues as described in [SECURITY.md](../SECURITY.md).
