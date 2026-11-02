@@ -1,5 +1,11 @@
 # @astack-tech/components
 
+## 0.2.0-beta.11
+
+### Patch Changes
+
+- a395d53: The READMEs lead with the model you choose: `OpenAICompatible` for OpenAI, Qwen, local models through Ollama and any other OpenAI-compatible API, `Deepseek` as a preset, and any object with `chatCompletion()` for everything else.
+
 ## 0.2.0-beta.10
 
 ### Minor Changes
