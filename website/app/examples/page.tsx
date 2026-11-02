@@ -81,7 +81,9 @@ export default function ExamplesPage() {
           <div className="section-head">
             <h2 id="run-any-title">Run any example</h2>
             <p>
-              Examples marked <b>API key</b> need <code>DEEPSEEK_API_KEY</code> in the environment.
+              Examples marked <b>API key</b> call a real model. They use DeepSeek, so they need{' '}
+              <code>DEEPSEEK_API_KEY</code> as written; change the one line that creates the model to
+              use OpenAI, Qwen, a local model or <Link href="/examples/custom-model">your own</Link>.
               The others run offline, and CI runs them on every change.
             </p>
           </div>
