@@ -23,6 +23,7 @@ const multiply = createTool(
 
 // The agent asks the model, runs the tools it requests, and repeats until the model answers.
 const agent = new Agent({
+  // Any model works here: OpenAICompatible for OpenAI, Qwen or Ollama, or your own ModelProvider.
   model: new ModelProvider.Deepseek({ apiKey }),
   tools: [multiply],
   systemPrompt: 'Use tools for arithmetic.',

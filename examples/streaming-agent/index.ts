@@ -15,6 +15,7 @@ const wordCount = createTool(
 );
 
 const agent = new StreamingAgent({
+  // Any model works here: OpenAICompatible for OpenAI, Qwen or Ollama, or your own ModelProvider.
   model: new ModelProvider.Deepseek({ apiKey }),
   tools: [wordCount],
 });

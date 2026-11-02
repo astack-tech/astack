@@ -8,6 +8,7 @@ if (apiKey === undefined || apiKey === '') {
   throw new Error('Set DEEPSEEK_API_KEY to run this example.');
 }
 
+// Any model works here: OpenAICompatible for OpenAI, Qwen or Ollama, or your own ModelProvider.
 const agent = new StreamingAgent({ model: new ModelProvider.Deepseek({ apiKey }) });
 const port = Number(process.env['PORT'] ?? 3000);
 

@@ -2,7 +2,7 @@
 
 Chain three LLM steps: outline, draft, edit.
 
-**Level:** LLM · **Concept:** [Pipelines](https://astack.tech/docs/pipelines) · **Needs:** `DEEPSEEK_API_KEY`
+**Level:** LLM · **Concept:** [Pipelines](https://astack.tech/docs/pipelines) · **Needs:** a model API key (`DEEPSEEK_API_KEY` as written; any provider works)
 
 ```mermaid
 flowchart LR
