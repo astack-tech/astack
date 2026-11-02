@@ -2,7 +2,7 @@
 
 Give a model a tool and let it decide when to call it.
 
-**Level:** LLM · **Concept:** [Agents](https://astack.tech/docs/agents) · **Needs:** `DEEPSEEK_API_KEY`
+**Level:** LLM · **Concept:** [Agents](https://astack.tech/docs/agents) · **Needs:** a model API key (`DEEPSEEK_API_KEY` as written; any provider works)
 
 ```mermaid
 flowchart LR
@@ -29,4 +29,4 @@ pnpm --filter @astack-examples/agent start
 
 The full program is [`index.ts`](./index.ts).
 
-Next: [Streaming agent](../streaming-agent/)
+Next: [Custom model](../custom-model/)

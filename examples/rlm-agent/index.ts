@@ -10,7 +10,8 @@ if (apiKey === undefined || apiKey === '') {
   throw new Error('Set DEEPSEEK_API_KEY to run this example.');
 }
 
-// RLM needs a minimal text-in, text-out interface. Adapt Deepseek to it.
+// RLM needs a minimal text-in, text-out interface. Adapt a model provider to it.
+// Any model works here: OpenAICompatible for OpenAI, Qwen or Ollama, or your own ModelProvider.
 const model = new ModelProvider.Deepseek({ apiKey });
 const llm: LLMProvider = {
   generate: prompt => model.generateCompletion(prompt),

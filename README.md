@@ -76,13 +76,27 @@ const multiply = createTool(
   args => Number(args['a']) * Number(args['b'])
 );
 
-const agent = new Agent({
-  model: new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' }),
-  tools: [multiply],
-});
+// Any model works: see the table below.
+const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' });
+
+const agent = new Agent({ model, tools: [multiply] });
 
 const { message, toolCalls } = await agent.run('What is 37 times 43?');
 ```
+
+## Any model
+
+An agent depends on one interface, `chatCompletion(messages)`, not on a vendor. `OpenAICompatible` calls any API that speaks the OpenAI chat completions protocol, and `Deepseek` is a preset of it.
+
+| Model                                           | Provider                                                                                                            |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| OpenAI                                          | `new ModelProvider.OpenAICompatible({ apiKey, model: 'gpt-4o-mini' })`                                              |
+| DeepSeek                                        | `new ModelProvider.Deepseek({ apiKey })`                                                                            |
+| Qwen, Moonshot and other OpenAI-compatible APIs | `new ModelProvider.OpenAICompatible({ apiKey, baseURL, model })`                                                    |
+| Local models through Ollama or vLLM             | `new ModelProvider.OpenAICompatible({ apiKey: 'ollama', baseURL: 'http://localhost:11434/v1', model: 'llama3.1' })` |
+| Any other API                                   | An object with `chatCompletion(messages)`: see [custom-model](./examples/custom-model)                              |
+
+The examples use DeepSeek so they run as written; change the line that creates the model to use another one. Details: [Model providers](https://astack.tech/docs/model-providers).
 
 ## Examples
 
@@ -95,12 +109,13 @@ Each example is one short file that shows one idea. Read them in order; the code
 | 3   | [routing](./examples/routing)                 | Branch through named output ports               | No      |
 | 4   | [text-splitter](./examples/text-splitter)     | Split documents with a built-in component       | No      |
 | 5   | [tools](./examples/tools)                     | Create tools and run tool calls                 | No      |
-| 6   | [chat](./examples/chat)                       | Call DeepSeek directly and in a pipeline        | Yes     |
+| 6   | [chat](./examples/chat)                       | Call a model directly and in a pipeline         | Yes     |
 | 7   | [workflow](./examples/workflow)               | Chain outline, draft and edit steps             | Yes     |
 | 8   | [agent](./examples/agent)                     | Let a model call a tool                         | Yes     |
-| 9   | [streaming-agent](./examples/streaming-agent) | Stream text and tool events                     | Yes     |
-| 10  | [rlm-agent](./examples/rlm-agent)             | Question a codebase too large for one prompt    | Yes     |
-| 11  | [http-server](./examples/http-server)         | Serve a streaming agent over Server-Sent Events | Yes     |
+| 9   | [custom-model](./examples/custom-model)       | Drive an agent with your own model              | No      |
+| 10  | [streaming-agent](./examples/streaming-agent) | Stream text and tool events                     | Yes     |
+| 11  | [rlm-agent](./examples/rlm-agent)             | Question a codebase too large for one prompt    | Yes     |
+| 12  | [http-server](./examples/http-server)         | Serve a streaming agent over Server-Sent Events | Yes     |
 
 ```bash
 pnpm install && pnpm build
@@ -109,12 +124,12 @@ pnpm --filter @astack-examples/pipeline start
 
 ## Packages
 
-| Package                                                | Contents                                                             |
-| ------------------------------------------------------ | -------------------------------------------------------------------- |
-| [`@astack-tech/core`](./packages/core)                 | `Component`, `Pipeline`, `Port`                                      |
-| [`@astack-tech/components`](./packages/components)     | `Agent`, `StreamingAgent`, `RLMAgent`, `TextSplitter`, `ToolInvoker` |
-| [`@astack-tech/tools`](./packages/tools)               | `createTool`, tool sets, component tools, MCP tools                  |
-| [`@astack-tech/integrations`](./packages/integrations) | Model providers (`Deepseek`, `OpenAICompatible`)                     |
+| Package                                                | Contents                                                                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| [`@astack-tech/core`](./packages/core)                 | `Component`, `Pipeline`, `Port`                                                              |
+| [`@astack-tech/components`](./packages/components)     | `Agent`, `StreamingAgent`, `RLMAgent`, `TextSplitter`, `ToolInvoker`                         |
+| [`@astack-tech/tools`](./packages/tools)               | `createTool`, tool sets, component tools, MCP tools                                          |
+| [`@astack-tech/integrations`](./packages/integrations) | Model providers: `OpenAICompatible` for any OpenAI-compatible API, and the `Deepseek` preset |
 
 Each package README lists its full API.
 

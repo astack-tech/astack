@@ -2,7 +2,7 @@
 
 Answer a question about a source directory that is too large for one prompt.
 
-**Level:** Advanced · **Concept:** [Rlm](https://astack.tech/docs/rlm) · **Needs:** `DEEPSEEK_API_KEY`
+**Level:** Advanced · **Concept:** [Rlm](https://astack.tech/docs/rlm) · **Needs:** a model API key (`DEEPSEEK_API_KEY` as written; any provider works)
 
 ```mermaid
 flowchart LR

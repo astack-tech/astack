@@ -30,7 +30,10 @@ export default function ExampleCard({ example }: { example: ExampleSummary }) {
             {formatOrder(example.order)}
           </span>
           {example.requiresApiKey ? (
-            <span className="chip" title="Needs DEEPSEEK_API_KEY">
+            <span
+              className="chip"
+              title="Calls a model. Uses DEEPSEEK_API_KEY as written; any model provider works."
+            >
               <KeyIcon size={12} weight="bold" aria-hidden="true" /> API key
             </span>
           ) : (

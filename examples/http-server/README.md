@@ -2,7 +2,7 @@
 
 Serve a streaming agent over HTTP with Server-Sent Events.
 
-**Level:** Advanced · **Concept:** [Streaming](https://astack.tech/docs/streaming) · **Needs:** `DEEPSEEK_API_KEY`
+**Level:** Advanced · **Concept:** [Streaming](https://astack.tech/docs/streaming) · **Needs:** a model API key (`DEEPSEEK_API_KEY` as written; any provider works)
 
 ```mermaid
 flowchart LR

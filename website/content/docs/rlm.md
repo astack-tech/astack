@@ -28,7 +28,7 @@ interface LLMProvider {
 }
 ```
 
-Adapt any model in a few lines, for example `{ generate: prompt => deepseek.generateCompletion(prompt) }`.
+Adapt any model in a few lines, for example `{ generate: prompt => model.generateCompletion(prompt) }`, where `model` is any model provider.
 
 ## FileSystemContext
 

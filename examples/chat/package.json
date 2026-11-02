@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Call DeepSeek directly and inside a pipeline.",
+  "description": "Call a model provider directly and inside a pipeline.",
   "scripts": {
     "start": "tsx index.ts",
     "check-types": "tsc -p tsconfig.json"

@@ -88,8 +88,9 @@ export default function Features() {
           <div className="feature-text">
             <h3>Pluggable models</h3>
             <p>
-              Agents accept any object with chatCompletion(). The DeepSeek provider ships today; add
-              others by implementing the same contract.
+              Agents accept any object with chatCompletion(). DeepSeek and any OpenAI-compatible API
+              work today, including OpenAI, Qwen and local models through Ollama; add others by
+              implementing the same contract.
             </p>
           </div>
         </Tile>
