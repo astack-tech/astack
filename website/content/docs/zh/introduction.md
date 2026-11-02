@@ -4,7 +4,7 @@ description: AStack 是什么、它背后的计算模型，以及它与 PocketFl
 order: 1
 examples: [component, pipeline]
 api: [core/classes/Component, core/classes/Pipeline]
-source: faf5ee2e0a3777a57881e957d10b888a8a535bf5fd13a79ef0512d2894193820
+source: b5260e09cdf06008f4b5a312b45e1eee2767065e8c7f9884f49c83edbd0a84f1
 ---
 
 AStack 是一个用于构建 AI 应用的 TypeScript 框架。它只有一条原则：**一切皆组件**。模型、工具、智能体以及你自己的逻辑都是组件。管道（pipeline）把它们的端口连接成一张图，数据沿着连接流动。
@@ -56,6 +56,6 @@ AStack 的计算模型是原创的。有两个项目与它比较接近，对比�
 | `@astack-tech/core` | `Component`、`Pipeline`、`Port` |
 | `@astack-tech/components` | `Agent`、`StreamingAgent`、`RLMAgent`、`TextSplitter`、`ToolInvoker` |
 | `@astack-tech/tools` | `createTool`、工具集、组件工具、MCP 工具 |
-| `@astack-tech/integrations` | 模型提供方：`Deepseek`，以及适用于任何 OpenAI 兼容接口的 `OpenAICompatible`。 |
+| `@astack-tech/integrations` | 模型提供方：适用于 OpenAI 及任何 OpenAI 兼容接口的 `OpenAICompatible`，以及 `Deepseek` 预设。其他任何模型都可以通过 `ModelProvider` 接口接入。 |
 
 AStack 目前处于公开测试阶段，不同测试版之间的 API 可能会变化。每个版本的变更都记录在各软件包的更新日志中。

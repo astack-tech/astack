@@ -80,4 +80,5 @@ The built-in components check their input the same way: a value of the wrong typ
 | `Agent` | components | `in` → `out` | Run a model with tools in a loop. See [Agents](/docs/agents). |
 | `StreamingAgent` | components | `in` → `out` | Same loop, emitting progress events. See [Streaming](/docs/streaming). |
 | `RLMAgent` | components | `in` → `out` | Answer questions over large contexts. See [RLM](/docs/rlm). |
-| `Deepseek` | integrations | `prompt` → `completion`, `messages` → `message` | Call the DeepSeek API. See [Model providers](/docs/model-providers). |
+| `OpenAICompatible` | integrations | `prompt` → `completion`, `messages` → `message` | Call OpenAI or any OpenAI-compatible API (Qwen, Ollama, ...). See [Model providers](/docs/model-providers). |
+| `Deepseek` | integrations | `prompt` → `completion`, `messages` → `message` | `OpenAICompatible` with DeepSeek's defaults. |
