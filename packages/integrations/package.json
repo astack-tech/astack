@@ -1,6 +1,6 @@
 {
   "name": "@astack-tech/integrations",
-  "version": "0.2.0-beta.11",
+  "version": "0.2.0-beta.12",
   "description": "Model provider integrations for AStack, starting with DeepSeek through the OpenAI-compatible API.",
   "keywords": [
     "astack",
