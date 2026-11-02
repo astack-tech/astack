@@ -4,7 +4,7 @@ description: 在一个提示词放不下的上下文上回答问题。
 order: 10
 examples: [rlm-agent]
 api: [components/classes/RLMAgent, components/classes/FileSystemContext, components/interfaces/LLMProvider, components/interfaces/RLMResult]
-source: 0cc07febabdcf2edb68ec9cd9202cd1dbb2d6193ccf6da95090d7e830c2c5f64
+source: 1317708810fb29ad428093e8074b0c080608815bd64d5d2e8d63d302e762dc20
 ---
 
 `RLMAgent` 实现了递归语言模型（Recursive Language Model）模式。它不把庞大的上下文放进提示词，而是让一个根模型编写 JavaScript 代码来探索上下文：代码按需读取文件，并向子模型提出有针对性的问题。
@@ -29,7 +29,7 @@ interface LLMProvider {
 }
 ```
 
-任何模型都可以用几行代码适配，例如 `{ generate: prompt => deepseek.generateCompletion(prompt) }`。
+任何模型都可以用几行代码适配，例如 `{ generate: prompt => model.generateCompletion(prompt) }`，其中 `model` 可以是任意模型提供方。
 
 ## FileSystemContext
 

@@ -51,7 +51,7 @@
     "tier": "llm",
     "doc": "model-providers",
     "requiresApiKey": true,
-    "description": "Call DeepSeek directly and inside a pipeline."
+    "description": "Call a model provider directly and inside a pipeline."
   },
   {
     "name": "workflow",
@@ -72,9 +72,18 @@
     "description": "Give a model a tool and let it decide when to call it."
   },
   {
+    "name": "custom-model",
+    "title": "Custom model",
+    "order": 9,
+    "tier": "llm",
+    "doc": "model-providers",
+    "requiresApiKey": false,
+    "description": "Drive an agent with any model: implement chatCompletion() and plug it in."
+  },
+  {
     "name": "streaming-agent",
     "title": "Streaming agent",
-    "order": 9,
+    "order": 10,
     "tier": "llm",
     "doc": "streaming",
     "requiresApiKey": true,
@@ -83,7 +92,7 @@
   {
     "name": "rlm-agent",
     "title": "RLM agent",
-    "order": 10,
+    "order": 11,
     "tier": "advanced",
     "doc": "rlm",
     "requiresApiKey": true,
@@ -92,7 +101,7 @@
   {
     "name": "http-server",
     "title": "HTTP server",
-    "order": 11,
+    "order": 12,
     "tier": "advanced",
     "doc": "streaming",
     "requiresApiKey": true,

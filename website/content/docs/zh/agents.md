@@ -4,7 +4,7 @@ description: 让模型循环调用工具，直到能够给出回答。
 order: 8
 examples: [agent]
 api: [components/classes/Agent, components/interfaces/AgentConfig, components/interfaces/AgentOutput, tools/interfaces/Tool]
-source: 97f12d9fd3c0612afb951c95a3bbf0cbc227a0a85b8461c3c17b303cf149eaac
+source: d4639ccabc2121f943e819baa847cb12c08faf19ad9d8a83ba362eb0d78a85fa
 ---
 
 `@astack-tech/components` 中的 `Agent` 运行这样一个循环：
@@ -20,6 +20,7 @@ import { Agent } from '@astack-tech/components';
 import { ModelProvider } from '@astack-tech/integrations';
 
 const agent = new Agent({
+  // Any model works: OpenAICompatible (OpenAI, Qwen, Ollama, ...), Deepseek or your own.
   model: new ModelProvider.Deepseek({ apiKey }),
   tools: [multiply],
   systemPrompt: 'Use tools for arithmetic.',
@@ -32,7 +33,7 @@ const output = await agent.run('What is 37 times 43?');
 
 | 选项 | 默认值 | 含义 |
 | --- | --- | --- |
-| `model` | — | 一个[模型提供方](/zh/docs/model-providers) |
+| `model` | — | 任意[模型提供方](/zh/docs/model-providers)：一个带 `chatCompletion()` 的对象 |
 | `tools` | `[]` | 提供 `invoke(args)` 或 `execute(args)` 的工具 |
 | `systemPrompt` | `You are a helpful assistant.` | 工具列表会追加在它后面 |
 | `maxIterations` | `10` | 每次运行最多调用模型的次数 |

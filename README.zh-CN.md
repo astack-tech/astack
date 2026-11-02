@@ -76,13 +76,27 @@ const multiply = createTool(
   args => Number(args['a']) * Number(args['b'])
 );
 
-const agent = new Agent({
-  model: new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' }),
-  tools: [multiply],
-});
+// Any model works: see the table below.
+const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' });
+
+const agent = new Agent({ model, tools: [multiply] });
 
 const { message, toolCalls } = await agent.run('What is 37 times 43?');
 ```
+
+## 任意模型
+
+Agent 只依赖一个接口 `chatCompletion(messages)`，不绑定任何厂商。`OpenAICompatible` 可以调用任何兼容 OpenAI chat completions 协议的 API，`Deepseek` 是它的一个预设。
+
+| 模型                                    | 写法                                                                                                                |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| OpenAI                                  | `new ModelProvider.OpenAICompatible({ apiKey, model: 'gpt-4o-mini' })`                                              |
+| DeepSeek                                | `new ModelProvider.Deepseek({ apiKey })`                                                                            |
+| 通义千问、Moonshot 等兼容 OpenAI 的 API | `new ModelProvider.OpenAICompatible({ apiKey, baseURL, model })`                                                    |
+| 通过 Ollama 或 vLLM 运行的本地模型      | `new ModelProvider.OpenAICompatible({ apiKey: 'ollama', baseURL: 'http://localhost:11434/v1', model: 'llama3.1' })` |
+| 其他任何 API                            | 一个带 `chatCompletion(messages)` 的对象，见 [custom-model](./examples/custom-model)                                |
+
+示例使用 DeepSeek，以便按原样直接运行；只需修改创建模型的那一行，就能换成其他模型。详见[模型提供方](https://astack.tech/zh/docs/model-providers)。
 
 ## 示例
 
@@ -95,12 +109,13 @@ const { message, toolCalls } = await agent.run('What is 37 times 43?');
 | 3   | [routing](./examples/routing)                 | 通过具名输出端口分支                        | 否           |
 | 4   | [text-splitter](./examples/text-splitter)     | 用内置组件切分文档                          | 否           |
 | 5   | [tools](./examples/tools)                     | 创建工具并执行工具调用                      | 否           |
-| 6   | [chat](./examples/chat)                       | 直接调用 DeepSeek，以及在管道中调用         | 是           |
+| 6   | [chat](./examples/chat)                       | 直接调用模型，以及在管道中调用              | 是           |
 | 7   | [workflow](./examples/workflow)               | 串联大纲、初稿、润色三步                    | 是           |
 | 8   | [agent](./examples/agent)                     | 让模型调用工具                              | 是           |
-| 9   | [streaming-agent](./examples/streaming-agent) | 流式输出文本与工具事件                      | 是           |
-| 10  | [rlm-agent](./examples/rlm-agent)             | 对超出单个提示词容量的代码库提问            | 是           |
-| 11  | [http-server](./examples/http-server)         | 通过 Server-Sent Events 提供流式 Agent 服务 | 是           |
+| 9   | [custom-model](./examples/custom-model)       | 用你自己的模型驱动 Agent                    | 否           |
+| 10  | [streaming-agent](./examples/streaming-agent) | 流式输出文本与工具事件                      | 是           |
+| 11  | [rlm-agent](./examples/rlm-agent)             | 对超出单个提示词容量的代码库提问            | 是           |
+| 12  | [http-server](./examples/http-server)         | 通过 Server-Sent Events 提供流式 Agent 服务 | 是           |
 
 ```bash
 pnpm install && pnpm build
@@ -109,12 +124,12 @@ pnpm --filter @astack-examples/pipeline start
 
 ## 包
 
-| 包                                                     | 内容                                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------------------- |
-| [`@astack-tech/core`](./packages/core)                 | `Component`、`Pipeline`、`Port`                                      |
-| [`@astack-tech/components`](./packages/components)     | `Agent`、`StreamingAgent`、`RLMAgent`、`TextSplitter`、`ToolInvoker` |
-| [`@astack-tech/tools`](./packages/tools)               | `createTool`、工具集、组件工具、MCP 工具                             |
-| [`@astack-tech/integrations`](./packages/integrations) | 模型提供方（`Deepseek`、兼容 OpenAI 接口的 `OpenAICompatible`）      |
+| 包                                                     | 内容                                                                            |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| [`@astack-tech/core`](./packages/core)                 | `Component`、`Pipeline`、`Port`                                                 |
+| [`@astack-tech/components`](./packages/components)     | `Agent`、`StreamingAgent`、`RLMAgent`、`TextSplitter`、`ToolInvoker`            |
+| [`@astack-tech/tools`](./packages/tools)               | `createTool`、工具集、组件工具、MCP 工具                                        |
+| [`@astack-tech/integrations`](./packages/integrations) | 模型提供方：调用任何兼容 OpenAI 接口的 `OpenAICompatible`，以及 `Deepseek` 预设 |
 
 各包的 README 列出了完整 API。
 

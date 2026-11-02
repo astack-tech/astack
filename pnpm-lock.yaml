@@ -103,6 +103,19 @@ importers:
         specifier: ^4.20.0
         version: 4.20.6
 
+  examples/custom-model:
+    dependencies:
+      '@astack-tech/components':
+        specifier: workspace:*
+        version: link:../../packages/components
+      '@astack-tech/tools':
+        specifier: workspace:*
+        version: link:../../packages/tools
+    devDependencies:
+      tsx:
+        specifier: ^4.20.0
+        version: 4.20.6
+
   examples/http-server:
     dependencies:
       '@astack-tech/components':

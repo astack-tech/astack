@@ -87,8 +87,11 @@ export default async function ExamplePage({ params }: ExamplePageProps) {
                 </span>
                 <span>{tier?.label ?? example.tier}</span>
                 {example.requiresApiKey ? (
-                  <span className="chip">
-                    <KeyIcon size={12} weight="bold" aria-hidden="true" /> DEEPSEEK_API_KEY
+                  <span
+                    className="chip"
+                    title="Uses DEEPSEEK_API_KEY as written; change one line to use any model provider."
+                  >
+                    <KeyIcon size={12} weight="bold" aria-hidden="true" /> Model API key
                   </span>
                 ) : (
                   <span className="chip">Runs offline</span>

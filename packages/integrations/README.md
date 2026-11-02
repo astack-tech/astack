@@ -19,28 +19,45 @@ npm install @astack-tech/integrations @astack-tech/core
 ```typescript
 import { ModelProvider } from '@astack-tech/integrations';
 
-const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' });
+// OpenAI, or any API that speaks the OpenAI chat completions protocol
+const model = new ModelProvider.OpenAICompatible({
+  apiKey: process.env['OPENAI_API_KEY'] ?? '',
+  model: 'gpt-4o-mini',
+});
 
 const text = await model.run('What is flow-based programming?');
 const reply = await model.chatCompletion([{ role: 'user', content: 'Hello' }]);
 ```
 
-`Deepseek` and `OpenAICompatible` are also available from the subpath: `import { Deepseek, OpenAICompatible } from '@astack-tech/integrations/model-provider'`.
+`OpenAICompatible` and `Deepseek` are also available from the subpath: `import { OpenAICompatible, Deepseek } from '@astack-tech/integrations/model-provider'`.
 
-## Deepseek
+## Choose a model
 
-Uses the OpenAI-compatible DeepSeek API through the official `openai` client.
+| Model                                           | Provider                                                                                                            |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| OpenAI                                          | `new ModelProvider.OpenAICompatible({ apiKey, model: 'gpt-4o-mini' })`                                              |
+| DeepSeek                                        | `new ModelProvider.Deepseek({ apiKey })`                                                                            |
+| Qwen, Moonshot and other OpenAI-compatible APIs | `new ModelProvider.OpenAICompatible({ apiKey, baseURL, model })`                                                    |
+| Local models through Ollama or vLLM             | `new ModelProvider.OpenAICompatible({ apiKey: 'ollama', baseURL: 'http://localhost:11434/v1', model: 'llama3.1' })` |
+| Any other API                                   | Implement the `ModelProvider` interface of `@astack-tech/components` (`chatCompletion(messages)`)                   |
 
-| Option               | Default                       | Description                                                          |
-| -------------------- | ----------------------------- | -------------------------------------------------------------------- |
-| `apiKey`             | —                             | DeepSeek API key                                                     |
-| `model`              | `deepseek-chat`               | Model name                                                           |
-| `baseURL`            | `https://api.deepseek.com/v1` | API base URL                                                         |
-| `temperature`        | `0.7`                         | Sampling temperature                                                 |
-| `maxTokens`, `topP`  | not sent                      | Optional sampling limits                                             |
-| `systemPrompt`       | none                          | Added before every request                                           |
-| `rawTools` / `tools` | none                          | Tools as `{ name, description, parameters }` or in the OpenAI format |
-| `verbose`            | `false`                       | Log API errors to the console                                        |
+Every provider satisfies the `ModelProvider` interface of `@astack-tech/components`, so it can drive `Agent` and `StreamingAgent` directly.
+
+## OpenAICompatible
+
+Calls any API that speaks the OpenAI chat completions protocol through the official `openai` client: OpenAI and the compatible endpoints of DeepSeek, Qwen, Moonshot, Ollama, vLLM and others. Tool calling and streaming depend on what the endpoint supports.
+
+| Option               | Default                     | Description                                                          |
+| -------------------- | --------------------------- | -------------------------------------------------------------------- |
+| `apiKey`             | —                           | API key of the provider                                              |
+| `model`              | —                           | Model name (required)                                                |
+| `baseURL`            | `https://api.openai.com/v1` | API base URL                                                         |
+| `name`               | `The model API`             | Provider name in errors and logs                                     |
+| `temperature`        | `0.7`                       | Sampling temperature                                                 |
+| `maxTokens`, `topP`  | not sent                    | Optional sampling limits                                             |
+| `systemPrompt`       | none                        | Added before every request                                           |
+| `rawTools` / `tools` | none                        | Tools as `{ name, description, parameters }` or in the OpenAI format |
+| `verbose`            | `false`                     | Log API errors to the console                                        |
 
 | Method                                                          | Returns                                                        |
 | --------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -56,33 +73,27 @@ Messages are checked before the request: the role must be `system`, `user`, `ass
 | `prompt`            | `completion` |
 | `messages`          | `message`    |
 
-`Deepseek` satisfies the `ModelProvider` interface of `@astack-tech/components`, so it can drive `Agent` and `StreamingAgent` directly.
+A value of the wrong type on an input port rejects the pipeline run with a `TypeError` before the API is called.
 
-## OpenAICompatible
+## Deepseek
 
-Calls any API that speaks the OpenAI chat completions protocol: OpenAI and the compatible endpoints of DeepSeek, Qwen, Moonshot, Ollama, vLLM and others. `Deepseek` is this provider with DeepSeek's defaults, so methods, ports and the other options are the same.
+`OpenAICompatible` with DeepSeek's defaults. Methods, ports and the other options are the same.
 
 ```typescript
-import { ModelProvider } from '@astack-tech/integrations';
-
-const model = new ModelProvider.OpenAICompatible({
-  apiKey: process.env['OPENAI_API_KEY'] ?? '',
-  model: 'gpt-4o-mini',
-});
+const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' });
 ```
 
-| Option    | Default                     | Description                      |
-| --------- | --------------------------- | -------------------------------- |
-| `apiKey`  | —                           | API key of the provider          |
-| `model`   | —                           | Model name (required)            |
-| `baseURL` | `https://api.openai.com/v1` | API base URL                     |
-| `name`    | `The model API`             | Provider name in errors and logs |
+| Option    | Default                       | Description      |
+| --------- | ----------------------------- | ---------------- |
+| `apiKey`  | —                             | DeepSeek API key |
+| `model`   | `deepseek-chat`               | Model name       |
+| `baseURL` | `https://api.deepseek.com/v1` | API base URL     |
 
 ## Learn more
 
 - [API reference](https://astack.tech/docs/api/integrations): every export, generated from the source
 - [Model providers](https://astack.tech/docs/model-providers), including how to write your own
-- Example: [chat](https://astack.tech/examples/chat)
+- Examples: [chat](https://astack.tech/examples/chat), [custom model](https://astack.tech/examples/custom-model)
 
 ## The AStack packages
 

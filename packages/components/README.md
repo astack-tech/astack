@@ -29,10 +29,10 @@ const multiply = createTool(
   args => Number(args['a']) * Number(args['b'])
 );
 
-const agent = new Agent({
-  model: new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' }),
-  tools: [multiply],
-});
+// Any model works: OpenAICompatible (OpenAI, Qwen, Ollama, ...), Deepseek or your own ModelProvider.
+const model = new ModelProvider.Deepseek({ apiKey: process.env['DEEPSEEK_API_KEY'] ?? '' });
+
+const agent = new Agent({ model, tools: [multiply] });
 
 const { message, toolCalls } = await agent.run('What is 37 times 43?');
 ```

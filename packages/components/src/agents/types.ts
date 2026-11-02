@@ -107,7 +107,8 @@ export interface ModelProviderOptions {
 
 /**
  * Contract that a model component must meet to drive an agent.
- * `Deepseek` from `@astack-tech/integrations` implements it.
+ * Any object with `chatCompletion()` works. `OpenAICompatible` and `Deepseek` from
+ * `@astack-tech/integrations` implement it; see the custom-model example for your own.
  */
 export interface ModelProvider {
   /** Sends the conversation and resolves with the assistant reply, including any tool calls and token usage. */

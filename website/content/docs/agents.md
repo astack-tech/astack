@@ -19,6 +19,7 @@ import { Agent } from '@astack-tech/components';
 import { ModelProvider } from '@astack-tech/integrations';
 
 const agent = new Agent({
+  // Any model works: OpenAICompatible (OpenAI, Qwen, Ollama, ...), Deepseek or your own.
   model: new ModelProvider.Deepseek({ apiKey }),
   tools: [multiply],
   systemPrompt: 'Use tools for arithmetic.',
@@ -31,7 +32,7 @@ const output = await agent.run('What is 37 times 43?');
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `model` | — | A [model provider](/docs/model-providers) |
+| `model` | — | Any [model provider](/docs/model-providers): an object with `chatCompletion()` |
 | `tools` | `[]` | Tools with `invoke(args)` or `execute(args)` |
 | `systemPrompt` | `You are a helpful assistant.` | The tool list is appended to it |
 | `maxIterations` | `10` | Maximum model calls per run |

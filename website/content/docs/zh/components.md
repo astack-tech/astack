@@ -4,7 +4,7 @@ description: Component 类、它的端口，以及两种执行模式。
 order: 3
 examples: [component, text-splitter]
 api: [core/classes/Component, core/type-aliases/Port, components/classes/TextSplitter, components/classes/ToolInvoker]
-source: 67491a08ca44542ecf777f1bdbf43369189a591ac8ce2ed2759419b0c2ea7fdf
+source: de6aa6a7e48babce973547acb15b6f3bb1eef9d24696461288e4755df97d0d95
 ---
 
 组件是继承自 `@astack-tech/core` 中 `Component` 的类。
@@ -81,4 +81,5 @@ override _transform($i: Port, $o: Port): void {
 | `Agent` | components | `in` → `out` | 让模型循环调用工具。参见[智能体](/zh/docs/agents)。 |
 | `StreamingAgent` | components | `in` → `out` | 同样的循环，并在过程中发出进度事件。参见[流式输出](/zh/docs/streaming)。 |
 | `RLMAgent` | components | `in` → `out` | 在超大上下文上回答问题。参见 [RLM](/zh/docs/rlm)。 |
-| `Deepseek` | integrations | `prompt` → `completion`、`messages` → `message` | 调用 DeepSeek API。参见[模型提供方](/zh/docs/model-providers)。 |
+| `OpenAICompatible` | integrations | `prompt` → `completion`、`messages` → `message` | 调用 OpenAI 或任何兼容 OpenAI 的 API（通义千问、Ollama 等）。参见[模型提供方](/zh/docs/model-providers)。 |
+| `Deepseek` | integrations | `prompt` → `completion`、`messages` → `message` | 以 DeepSeek 为默认值的 `OpenAICompatible`。 |

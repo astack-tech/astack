@@ -1,0 +1,26 @@
+{
+  "name": "@astack-examples/custom-model",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Drive an agent with any model: implement chatCompletion() and plug it in.",
+  "scripts": {
+    "start": "tsx index.ts",
+    "test": "tsx index.ts",
+    "check-types": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@astack-tech/components": "workspace:*",
+    "@astack-tech/tools": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  },
+  "astack": {
+    "title": "Custom model",
+    "order": 9,
+    "tier": "llm",
+    "doc": "model-providers",
+    "requiresApiKey": false
+  }
+}

@@ -6,6 +6,10 @@ if (apiKey === undefined || apiKey === '') {
   throw new Error('Set DEEPSEEK_API_KEY to run this example.');
 }
 
+// `Deepseek` is a preset of `OpenAICompatible`, which calls any OpenAI-compatible API:
+//   OpenAI: new ModelProvider.OpenAICompatible({ apiKey, model: 'gpt-4o-mini' })
+//   Ollama: new ModelProvider.OpenAICompatible({ apiKey: 'ollama', baseURL: 'http://localhost:11434/v1', model: 'llama3.1' })
+// For any other API, implement ModelProvider (see the custom-model example).
 const model = new ModelProvider.Deepseek({ apiKey, systemPrompt: 'Answer in one sentence.' });
 
 // Standalone: a prompt in, text out.

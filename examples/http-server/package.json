@@ -17,7 +17,7 @@
   },
   "astack": {
     "title": "HTTP server",
-    "order": 11,
+    "order": 12,
     "tier": "advanced",
     "doc": "streaming",
     "requiresApiKey": true

@@ -64,8 +64,9 @@ export default function QuickStart() {
         <li className="tile step step-run">
           <h3>Run your agent</h3>
           <p>
-            Set <code>DEEPSEEK_API_KEY</code> in your shell, then run your TypeScript file. Keep API
-            keys on the server.
+            Set your model provider&apos;s API key in your shell (the example uses{' '}
+            <code>DEEPSEEK_API_KEY</code>), then run your TypeScript file. Keep API keys on the
+            server.
           </p>
           <div className="code">
             <div className="code-bar">
