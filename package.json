@@ -50,14 +50,14 @@
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-tsdoc": "^0.5.4",
-    "globals": "^17.13.0",
+    "globals": "^17.14.0",
     "prettier": "^3.9.10",
     "publint": "^0.3.25",
     "turbo": "^2.11.10",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.14.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.1",
-    "vite": "^8.3.5"
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8"
   }
 }
